@@ -44,7 +44,7 @@ class Hooks implements
 			global $wgExampleEnableWelcome;
 			if ( $wgExampleEnableWelcome ) {
 				// Load our module on all pages
-				$out->addModules( 'ext.Example.welcome' );
+				$out->addModules( 'ext.Verified_Page_History.signMessage' );
 			}
 		}
 	}
