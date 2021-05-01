@@ -1,11 +1,7 @@
 {
 	"name": "Verified_Page_History",
 	"author": [
-		"Timo Tijhof",
-		"Kaldari",
-		"Ævar Arnfjörð Bjarmason",
-		"Daniel Kinzler",
-		"Derick Alangi"
+		"Isaac Patka"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:Example",
 	"descriptionmsg": "example-desc",
@@ -89,10 +85,10 @@
 		"localBasePath": "tests/qunit/",
 		"remoteExtPath": "examples/tests/qunit/",
 		"scripts": [
-			"ext.Example.welcome.test.js"
+			"ext.Verified_Page_History.signMessage.test.js"
 		],
 		"dependencies": [
-			"ext.Example.welcome"
+			"ext.Verified_Page_History.signMessage"
 		]
 	},
 	"Hooks": {
@@ -128,7 +124,7 @@
 		"localBasePath": "modules/"
 	},
 	"ResourceModules": {
-		"ext.Example.welcome": {
+		"ext.Verified_Page_History.signMessage": {
 			"class": "MediaWiki\\Extension\\Example\\SignMessageModule",
 			"dependencies": [
 				"mediawiki.util",
@@ -147,11 +143,11 @@
 				"example-welcome-title-user"
 			],
 			"styles": [
-				"ext.Example.welcome/styles.css"
+				"ext.Verified_Page_History.signMessage/styles.css"
 			],
 			"scripts": [
-				"ext.Example.welcome/index.js",
-				"ext.Example.welcome/init.js"
+				"ext.Verified_Page_History.signMessage/index.js",
+				"ext.Verified_Page_History.signMessage/init.js"
 			]
 		}
 	},
