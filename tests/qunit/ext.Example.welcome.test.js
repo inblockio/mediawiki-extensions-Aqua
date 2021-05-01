@@ -1,4 +1,4 @@
-QUnit.module( 'ext.Example.welcome', {
+QUnit.module( 'ext.Verified_Page_History.signMessage', {
 	beforeEach: function () {
 		this.conf = mw.config.values;
 		mw.config.values = {
@@ -14,7 +14,7 @@ QUnit.module( 'ext.Example.welcome', {
 } );
 
 QUnit.test( 'getColorByDate()', function ( assert ) {
-	var welcome = require( 'ext.Example.welcome' );
+	var welcome = require( 'ext.Verified_Page_History.signMessage' );
 	assert.strictEqual( welcome.getColorByDate( 'monday' ), '#ccc', 'default' );
 	assert.strictEqual( welcome.getColorByDate( 'tuesday' ), 'pink', 'custom' );
 } );
