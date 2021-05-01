@@ -1,3 +1,6 @@
+# Verified_Page_History
+This contains all scripts and information for the 'Verified Page History' implementation. This is a code extension for MediaWiki.
+
 # Example extension for MediaWiki
 
 The Examples extension is a collection of small example features that implement

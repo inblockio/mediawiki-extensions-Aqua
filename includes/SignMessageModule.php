@@ -2,7 +2,7 @@
 
 namespace MediaWiki\Extension\Example;
 
-class WelcomeModule extends \ResourceLoaderFileModule {
+class SignMessageModule extends \ResourceLoaderFileModule {
 	/** @inheritDoc */
 	public function getScript( \ResourceLoaderContext $context ) {
 		$conf = $this->getConfig();

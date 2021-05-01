@@ -1,5 +1,5 @@
 {
-	"name": "examples",
+	"name": "Verified_Page_History",
 	"author": [
 		"Timo Tijhof",
 		"Kaldari",
@@ -56,6 +56,7 @@
 	},
 	"SpecialPages": {
 		"HelloWorld": "MediaWiki\\Extension\\Example\\SpecialHelloWorld",
+		"SignMessage": "MediaWiki\\Extension\\Example\\SpecialSignMessage",
 		"Includable": "MediaWiki\\Extension\\Example\\SpecialIncludable"
 	},
 
@@ -128,7 +129,7 @@
 	},
 	"ResourceModules": {
 		"ext.Example.welcome": {
-			"class": "MediaWiki\\Extension\\Example\\WelcomeModule",
+			"class": "MediaWiki\\Extension\\Example\\SignMessageModule",
 			"dependencies": [
 				"mediawiki.util",
 				"mediawiki.user",

@@ -7,7 +7,7 @@
 
 namespace MediaWiki\Extension\Example;
 
-class SpecialHelloWorld extends \SpecialPage {
+class SpecialSignMessage extends \SpecialPage {
 
 	/**
 	 * Initialize the special page.
@@ -16,13 +16,13 @@ class SpecialHelloWorld extends \SpecialPage {
 		// A special page should at least have a name.
 		// We do this by calling the parent class (the SpecialPage class)
 		// constructor method with the name as first and only parameter.
-		parent::__construct( 'HelloWorld' );
+		parent::__construct( 'SignMessage' );
 	}
 
 	/**
 	 * Shows the page to the user.
 	 * @param string $sub The subpage string argument (if any).
-	 *  [[Special:HelloWorld/subpage]].
+	 *  [[Special:SignMessage/subpage]].
 	 */
 	public function execute( $sub ) {
 		$out = $this->getOutput();
@@ -32,7 +32,7 @@ class SpecialHelloWorld extends \SpecialPage {
 		// Parses message from .i18n.php as wikitext and adds it to the
 		// page output.
 		$out->addWikiMsg( 'example-helloworld-intro' );
-		echo 'hello world! Maybe I will sign something';
+		echo 'hello world! Sign something maybe';
 	}
 
 	/** @inheritDoc */
