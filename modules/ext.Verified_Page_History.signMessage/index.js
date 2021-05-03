@@ -23,9 +23,12 @@
       $box.on('click', '.sign_message', function () {
 				if (window.ethereum) {
 					if (window.ethereum.isConnected() && window.ethereum.selectedAddress) {
-						window.ethereum.send("personal_sign", ["0x1", window.ethereum.selectedAddress]).then((data) => {console.log(`signed: ${JSON.stringify(data)}`)})
+            window.ethereum.request({
+              method: "personal_sign",
+              params: ["0x1", window.ethereum.selectedAddress]
+            }).then((data) => {console.log(`signed: ${JSON.stringify(data)}`)})
 					} else {
-						window.ethereum.send('eth_requestAccounts');
+            window.ethereum.request({ method: 'eth_requestAccounts' });
 					}
 					console.log('hasEth')
 				} else {
