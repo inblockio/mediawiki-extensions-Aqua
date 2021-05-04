@@ -146,6 +146,7 @@
 				"ext.Verified_Page_History.signMessage/styles.css"
 			],
 			"scripts": [
+				"ethers-5.0.umd.min.js",
 				"ext.Verified_Page_History.signMessage/index.js",
 				"ext.Verified_Page_History.signMessage/init.js"
 			]
