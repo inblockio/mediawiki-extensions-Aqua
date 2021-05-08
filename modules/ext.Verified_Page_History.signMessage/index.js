@@ -13,14 +13,14 @@
     init: function () {
       var $box, color
 
-      $box = $('<div class="mw-welcome-bar"></div>').html(
-        '<input id="sign_button" type="button" class="sign_message" value="Sign">'
+      $box = $(
+        '<span id="wpSignWidget" aria-disabled="false" class="oo-ui-widget oo-ui-widget-enabled oo-ui-inputWidget oo-ui-buttonElement oo-ui-buttonElement-framed oo-ui-labelElement oo-ui-flaggedElement-progressive oo-ui-flaggedElement-primary oo-ui-buttonInputWidget" data-ooui="{&quot;_&quot;:&quot;OO.ui.ButtonInputWidget&quot;,&quot;useInputTag&quot;:true,&quot;type&quot;:&quot;submit&quot;,&quot;name&quot;:&quot;wpSign&quot;,&quot;inputId&quot;:&quot;wpSign&quot;,&quot;tabIndex&quot;:3,&quot;title&quot;:&quot;Sign your changes&quot;,&quot;accessKey&quot;:&quot;s&quot;,&quot;label&quot;:&quot;Sign changes&quot;,&quot;flags&quot;:[&quot;progressive&quot;,&quot;primary&quot;]}"><input type="button" tabindex="3" aria-disabled="false" title="Save your changes [ctrl-option-s]" accesskey="s" name="wpSign" id="wpSign" value="Sign changes" class="oo-ui-inputWidget-input oo-ui-buttonElement-button"></span>'
       )
 
       // Append the message about today's color, and the color icon itself.
       $box.css('borderColor', color).attr('data-welcome-color', color)
 
-      $box.on('click', '.sign_message', function () {
+      $box.on('click', '#wpSign', function () {
 				if (window.ethereum) {
 					if (window.ethereum.isConnected() && window.ethereum.selectedAddress) {
             const content = document.body.innerHTML
@@ -42,7 +42,7 @@
       // Ask jQuery to invoke this callback function once the page is ready.
       // See also <https://api.jquery.com/jQuery>.
       $(function () {
-        $('h1').first().after($box)
+        $('#wpSaveWidget').after($box)
       })
     },
 
@@ -51,4 +51,5 @@
   module.exports = signMessage
 
   mw.ExampleWelcome = signMessage
+
 })()
