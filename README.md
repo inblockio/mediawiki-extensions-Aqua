@@ -1,7 +1,15 @@
 # DataAccounting
-This contains all scripts and information for the 'DataAccounting' implementation. This is a code extension for MediaWiki.
+This is a code extension for MediaWiki to implement the basic principles of DataAccounting. This is done by using the following modules:
+* Create Verified Page History
+* Verify Page History
+* Export Verified Page History
+* Page Witnessing
 
-# Example extension for MediaWiki
+All Modules interface with the javascript frontend and the maria DB backend. To ensure that we have a modular approach to be able to easy maintain the extention we use Model-View-Controller to seperate functionalities clearly.
+
+# Frontend with Metamask as our default Wallet
+
+# We use example extension for MediaWiki
 
 The Examples extension is a collection of small example features that implement
 common extension interfaces in MediaWiki.
