@@ -1,4 +1,4 @@
-# Verified_Page_History
+# DataAccounting
 This contains all scripts and information for the 'Verified Page History' implementation. This is a code extension for MediaWiki.
 
 # Example extension for MediaWiki

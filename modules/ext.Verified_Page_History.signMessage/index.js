@@ -1,7 +1,7 @@
 /**
  * Display a welcome message on the page.
  *
- * This file is part of the 'ext.Verified_Page_History.signMessage' module.
+ * This file is part of the 'ext.DataAccounting.signMessage' module.
  *
  * It is enqueued for loading on all pages of the wiki,
  * from ExampleHooks::onBeforePageDisplay() in Example.hooks.php.

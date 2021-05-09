@@ -1,5 +1,5 @@
 {
-	"name": "Verified_Page_History",
+	"name": "DataAccounting",
 	"author": [
 		"Isaac Patka"
 	],
@@ -85,10 +85,10 @@
 		"localBasePath": "tests/qunit/",
 		"remoteExtPath": "examples/tests/qunit/",
 		"scripts": [
-			"ext.Verified_Page_History.signMessage.test.js"
+			"ext.DataAccounting.signMessage.test.js"
 		],
 		"dependencies": [
-			"ext.Verified_Page_History.signMessage"
+			"ext.DataAccounting.signMessage"
 		]
 	},
 	"Hooks": {
@@ -124,7 +124,7 @@
 		"localBasePath": "modules/"
 	},
 	"ResourceModules": {
-		"ext.Verified_Page_History.signMessage": {
+		"ext.DataAccounting.signMessage": {
 			"class": "MediaWiki\\Extension\\Example\\SignMessageModule",
 			"dependencies": [
 				"mediawiki.util",
@@ -143,11 +143,11 @@
 				"example-welcome-title-user"
 			],
 			"styles": [
-				"ext.Verified_Page_History.signMessage/styles.css"
+				"ext.DataAccounting.signMessage/styles.css"
 			],
 			"scripts": [
-				"ext.Verified_Page_History.signMessage/index.js",
-				"ext.Verified_Page_History.signMessage/init.js"
+				"ext.DataAccounting.signMessage/index.js",
+				"ext.DataAccounting.signMessage/init.js"
 			]
 		}
 	},
