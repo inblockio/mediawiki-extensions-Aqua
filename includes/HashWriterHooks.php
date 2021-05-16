@@ -32,7 +32,7 @@ class HashWriterHooks implements
 		$pageContent = $rev->getContent(SlotRecord::MAIN)->serialize();
 		$contentHash = getHashSum($pageContent);
 		$metadataHash = calculateMetadataHash($rev->getTimeStamp());
-		$parentId = $rev->getParentId()
+		$parentId = $rev->getParentId();
 		$data = [
 			'page_id' => 2,
 			'rev_id' => $rev->getID(),
