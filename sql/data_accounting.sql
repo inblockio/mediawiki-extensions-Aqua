@@ -21,6 +21,8 @@ verification hash, signature and public key',
 CREATE TABLE IF NOT EXISTS `page_witness` (
 	`page_witness_id` INT NOT NULL AUTO_INCREMENT,
 	`page_id` INT COMMENT 'from page table',
+	-- From rev_id table
+	`rev_id` INT
 	`page_verification_id` INT COMMENT 'from page_verification table',
 	`witness_network` VARCHAR(18) DEFAULT 'Ethereum',
 	`network_transaction_id` INT(128),
