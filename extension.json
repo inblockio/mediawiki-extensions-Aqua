@@ -96,13 +96,9 @@
 		"ParserFirstCallInit": "handleHooks",
 		"ParserGetVariableValueSwitch": "handleHooks",
 		"SkinTemplateNavigation": "handleHooks",
-		"MagicWordwgVariableIDs": {
-			"handler": "handleMoreHooks",
-			"deprecated": true
-		},
-		"GetMagicVariableIDs": "handleMoreHooks",
+		"RevisionFromEditComplete": "handleHashWriterHooks",
 		"LoadExtensionSchemaUpdates": {
-			"handler": "handleMoreHooks"
+			"handler": "handleHashWriterHooks"
 		}
 	},
 	"HookHandlers": {
@@ -110,8 +106,8 @@
 			"class": "MediaWiki\\Extension\\Example\\Hooks",
 			"services": [ "PermissionManager" ]
 		},
-		"handleMoreHooks": {
-			"class": "MediaWiki\\Extension\\Example\\MoreHooks"
+		"handleHashWriterHooks": {
+			"class": "MediaWiki\\Extension\\Example\\HashWriterHooks"
 		}
 	},
 	"RestRoutes": [
