@@ -42,6 +42,6 @@ class MoreHooks implements
 	 * @param DatabaseUpdater $updater
 	 */
 	public function onLoadExtensionSchemaUpdates( $updater ) {
-		$updater->addExtensionTable( 'example_note', dirname( __DIR__ ) . '/sql/add-example_note.sql' );
+		$updater->addExtensionTable( 'data_accounting', dirname( __DIR__ ) . '/sql/data_accounting.sql' );
 	}
 }
