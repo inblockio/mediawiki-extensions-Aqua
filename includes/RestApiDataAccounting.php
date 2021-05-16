@@ -8,7 +8,7 @@ use Wikimedia\ParamValidator\ParamValidator;
 /**
  * Example class to echo a path parameter
  */
-class RestApiExample extends SimpleHandler {
+class RestApiDataAccounting extends SimpleHandler {
 
 	private const VALID_ACTIONS = [ 'reverse', 'shuffle', 'md5' ];
 

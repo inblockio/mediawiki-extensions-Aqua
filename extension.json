@@ -113,7 +113,7 @@
 	"RestRoutes": [
 		{
 			"path": "/examples/v1/echo_path_param/{value_to_echo}/{text_action}",
-			"class": "MediaWiki\\Extension\\Example\\RestApiExample"
+			"class": "MediaWiki\\Extension\\Example\\RestApiDataAccounting"
 		}
 	],
 	"ResourceFileModulePaths": {
