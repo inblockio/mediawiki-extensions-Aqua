@@ -112,9 +112,13 @@
 	},
 	"RestRoutes": [
 		{
-			"path": "/examples/v1/echo_path_param/{value_to_echo}/{text_action}",
+			"path": "/data_accounting/v1/data_input/{signature}/{public_key}",
 			"class": "MediaWiki\\Extension\\Example\\RestApiDataAccounting"
-		}
+		},
+		{
+                        "path": "/data_accounting/v1/request_hash/{rev_id}",
+                        "class": "MediaWiki\\Extension\\Example\\RestApiDataAccounting_getHash"
+                }
 	],
 	"ResourceFileModulePaths": {
 		"localBasePath": "modules/"
