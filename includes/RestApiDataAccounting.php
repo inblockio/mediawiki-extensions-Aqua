@@ -16,7 +16,7 @@ class RestApiDataAccounting extends SimpleHandler {
 	public function run( $valueToEcho, $action ) {
 		switch ( $action ) {
 			case 'get_hash':
-				return [ 'echo' => strrev( $valueToEcho ) ];
+				return base64_decode( $valueToEcho );
 
 			case 'data_input':
 				$dbw = wfGetDB( DB_MASTER );
