@@ -10,16 +10,13 @@ use Wikimedia\ParamValidator\ParamValidator;
  */
 class RestApiDataAccounting extends SimpleHandler {
 
-	private const VALID_ACTIONS = [ 'reverse', 'shuffle', 'data_input' ];
+	private const VALID_ACTIONS = [ 'get_hash', 'data_input' ];
 
 	/** @inheritDoc */
 	public function run( $valueToEcho, $action ) {
 		switch ( $action ) {
-			case 'reverse':
+			case 'get_hash':
 				return [ 'echo' => strrev( $valueToEcho ) ];
-
-			case 'shuffle':
-				return [ 'echo' => str_shuffle( $valueToEcho ) ];
 
 			case 'data_input':
 				$dbw = wfGetDB( DB_MASTER );
