@@ -22,6 +22,10 @@ function calculateVerificationHash($contentHash, $metadataHash) {
 	return getHashSum($contentHash . $metadataHash);
 }
 
+function makeEmptyIfNonce($x) {
+	return ($x == "nonce") ? "": $x;
+}
+
 function getPageVerificationData($dbr, $previous_rev_id) {
 	$res = $dbr->select(
 		'page_verification',
@@ -31,9 +35,9 @@ function getPageVerificationData($dbr, $previous_rev_id) {
 	);
 	$output = array();
 	foreach( $res as $row) {
-		array_push($output, $row->hash_verification);
-		array_push($output, $row->signature);
-		array_push($output, $row->public_key);
+		array_push($output, makeEmptyIfNonce($row->hash_verification));
+		array_push($output, makeEmptyIfNonce($row->signature));
+		array_push($output, makeEmptyIfNonce($row->public_key));
 		break;
 	}
 	return $output;
