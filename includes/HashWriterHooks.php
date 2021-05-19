@@ -15,7 +15,7 @@ function getHashSum($inputStr) {
 }
 
 function calculateMetadataHash($timestamp, $previousVerificationHash = "", $signature = "", $publicKey = "") {
-	return getHashSum($timestamp + $previousVerificationHash + $signature + $publicKey);
+	return getHashSum($timestamp . $previousVerificationHash . $signature . $publicKey);
 }
 
 function calculateVerificationHash($contentHash, $metadataHash) {
