@@ -32,14 +32,14 @@ class RestApiDataAccounting_getHash extends SimpleHandler {
 
 		$res = $dbr->select(
 		'page_verification', 
-		[ 'page_verification_id','hash_verification' ],
-	      	'page_verification_id = '.$rev_id,
+		[ 'rev_id','hash_verification' ],
+	      	'rev_id = '.$rev_id,
 		__METHOD__
 		);
 
 		$output = '';
 		foreach( $res as $row ) {
-        	$output .= 'Pageverification_ID ' . $row->page_verification_id . 'verification hash: ' . $row->hash_verification . " entries \n";
+        	$output .= 'Revision_ID ' . $row->rev_id . 'Page verification hash : ' . $row->hash_verification;
 		}
 
 

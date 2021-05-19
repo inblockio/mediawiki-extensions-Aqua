@@ -114,7 +114,7 @@
 	},
 	"RestRoutes": [
 		{
-			"path": "/data_accounting/v1/data_input/{signature}/{public_key}",
+			"path": "/data_accounting/v1/data_input/{rev_id}/{signature}/{public_key}",
 			"class": "MediaWiki\\Extension\\Example\\RestApiDataAccounting"
 		},
 		{

@@ -9,7 +9,7 @@ use MediaWiki\MediaWikiServices;
 class RestApiDataAccounting extends SimpleHandler {
 
 	/** @inheritDoc */
-	public function run( $signature, $public_key ) {
+	public function run( $rev_id, $signature, $public_key ) {
 			/** include functionality to write to database. 
 			* See https://www.mediawiki.org/wiki/Manual:Database_access */
 			$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -24,8 +24,9 @@ class RestApiDataAccounting extends SimpleHandler {
 			$data_two = base64_decode( $public_key );
 
 			/** write data to database */
-			$dbw->insert($table ,[$field => $data,$field_two => $data_two], __METHOD__);
+			#$dbw->insert($table ,[$field => $data,$field_two => $data_two], __METHOD__);
 					
+			$dbw->update( $table, [$field => $data,$field_two => $data_two], "rev_id =$rev_id"); 
 		return ( "Store of Signature {$signature} and Public Key {$public_key} Successful!"  );
 		}
 
@@ -37,6 +38,11 @@ class RestApiDataAccounting extends SimpleHandler {
 	/** @inheritDoc */
 	public function getParamSettings() {
 		return [
+			 'rev_id' => [
+                                self::PARAM_SOURCE => 'path',
+                                ParamValidator::PARAM_TYPE => 'integer',
+                                ParamValidator::PARAM_REQUIRED => true,
+                        ],
 			'signature' => [
 				self::PARAM_SOURCE => 'path',
 				ParamValidator::PARAM_TYPE => 'string',
