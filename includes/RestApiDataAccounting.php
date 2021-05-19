@@ -27,7 +27,7 @@ class RestApiDataAccounting extends SimpleHandler {
 			#$dbw->insert($table ,[$field => $data,$field_two => $data_two], __METHOD__);
 					
 			$dbw->update( $table, [$field => $data,$field_two => $data_two], "rev_id =$rev_id"); 
-		return ( "Store of Signature {$signature} and Public Key {$public_key} Successful!"  );
+		return ( "Signature[{$signature}] and Public_Key[{$public_key}] stored successfully for Revision[$rev_id] in Database!"  );
 		}
 
 	/** @inheritDoc */

@@ -39,7 +39,7 @@ class RestApiDataAccounting_getHash extends SimpleHandler {
 
 		$output = '';
 		foreach( $res as $row ) {
-        	$output .= 'Revision_ID ' . $row->rev_id . 'Page verification hash : ' . $row->hash_verification;
+        	$output .= 'Revision[' . $row->rev_id . '] PageVerificationHash[' . $row->hash_verification .']';
 		}
 
 
