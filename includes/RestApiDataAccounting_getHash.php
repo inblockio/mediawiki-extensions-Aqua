@@ -1,6 +1,9 @@
 <?php
-
 namespace MediaWiki\Extension\Example;
+
+# include / exclude for debugging
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
 
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
@@ -26,21 +29,24 @@ class RestApiDataAccounting_getHash extends SimpleHandler {
 
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbr = $lb->getConnectionRef( DB_REPLICA );
-		$res = '300';
 
-		# THIS CODE BREAKS AND I DON'T KNOW WHY
-		#$res = $dbr->select(
-		#'page_verification', 
-		#[ 'page_verification_id','signature','public_key' ],
-	      	#'page_verification_id = 49',
-		#__METHOD__,
-		#[ 'ORDER BY' => 'page_verification_id ASC']
-		#);
+		$res = $dbr->select(
+		'page_verification', 
+		[ 'page_verification_id','hash_verification' ],
+	      	'page_verification_id = '.$rev_id,
+		__METHOD__
+		);
+
+		$output = '';
+		foreach( $res as $row ) {
+        	$output .= 'Pageverification_ID ' . $row->page_verification_id . 'verification hash: ' . $row->hash_verification . " entries \n";
+		}
+
 
 		#This code corresponds to the query
 		#SELECT page_verification_id, signature, public_key FROM page_verification WHERE page_verification_id = 55 ORDER BY page_verification_id ASC;
 
-		return "Provide Verification Hash from last revision ID $rev_id and $res.";
+		return $output;
 	}
 
 	/** @inheritDoc */
