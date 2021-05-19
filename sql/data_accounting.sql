@@ -13,6 +13,7 @@ revision table',
 	`hash_verification` VARCHAR(128) COMMENT 'Combined metadata and content hash',
 	`signature` VARCHAR(128),
 	`public_key` VARCHAR(128),
+	`debug` VARCHAR(1000),
 	PRIMARY KEY (`page_verification_id`)
 );
 
