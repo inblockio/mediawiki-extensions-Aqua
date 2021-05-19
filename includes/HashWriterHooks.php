@@ -19,7 +19,22 @@ function calculateMetadataHash($timestamp, $previousVerificationHash = "", $sign
 }
 
 function calculateVerificationHash($contentHash, $metadataHash) {
-	return getHashSum($contentHash + $metadataHash);
+	return getHashSum($contentHash . $metadataHash);
+}
+
+function getPreviousVerificationHash($dbr, $rev_id) {
+	$res = $dbr->select(
+		'page_verification', 
+		[ 'rev_id', 'hash_verification' ],
+		"rev_id = $rev_id",
+		__METHOD__
+	);
+	$output = '';
+	foreach( $res as $row) {
+		$output = $row->hash_verification;
+		break;
+	}
+	return $output;
 }
 
 class HashWriterHooks implements
@@ -31,16 +46,17 @@ class HashWriterHooks implements
 		$dbw = wfGetDB( DB_MASTER );
 		$pageContent = $rev->getContent(SlotRecord::MAIN)->serialize();
 		$contentHash = getHashSum($pageContent);
-		$metadataHash = calculateMetadataHash($rev->getTimeStamp());
 		$parentId = $rev->getParentId();
+		$previousVerificationHash = getPreviousVerificationHash($dbw, $parentId);
+		$metadataHash = calculateMetadataHash($rev->getTimeStamp());
 		$data = [
 			'page_id' => 2,
 			'rev_id' => $rev->getID(),
 			'hash_content' => $contentHash,
 			'hash_metadata' => $metadataHash,
 			'hash_verification' => calculateVerificationHash($contentHash, $metadataHash),
-			'signature' => substr($pageContent, 0, 10),
-			'public_key' => $parentId,
+			'signature' => $contentHash . $metadataHash,
+			'public_key' => $previousVerificationHash,
 		];
 		$dbw->insert('page_verification', $data, __METHOD__);
 	}
