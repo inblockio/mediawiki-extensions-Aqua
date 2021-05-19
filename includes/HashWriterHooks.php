@@ -14,8 +14,8 @@ function getHashSum($inputStr) {
 	return hash("sha3-512", $inputStr);
 }
 
-function calculateMetadataHash($timestamp, $verificationHash = "", $signature = "", $publicKey = "") {
-	return getHashSum($timestamp);
+function calculateMetadataHash($timestamp, $previousVerificationHash = "", $signature = "", $publicKey = "") {
+	return getHashSum($timestamp + $previousVerificationHash + $signature + $publicKey);
 }
 
 function calculateVerificationHash($contentHash, $metadataHash) {
