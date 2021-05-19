@@ -1,7 +1,9 @@
 {
 	"name": "DataAccounting",
 	"author": [
-		"Isaac Patka"
+		"Tim Bansemer",
+		"Isaac Patka",
+		"rht rhtbot@protonmail.com"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:Example",
 	"descriptionmsg": "example-desc",
