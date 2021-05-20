@@ -19,15 +19,18 @@ class RestApiDataAccounting extends SimpleHandler {
 				
 			/** prepare data input */
 			$field = 'signature';
-			$data = base64_decode( $signature );
+			$data = $signature;
 			$field_two = 'public_key';
-			$data_two = base64_decode( $public_key );
+			$data_two = $public_key;
 
 			/** write data to database */
 			#$dbw->insert($table ,[$field => $data,$field_two => $data_two], __METHOD__);
 					
 			$dbw->update( $table, [$field => $data,$field_two => $data_two], "rev_id =$rev_id"); 
 		return ( "Signature[{$signature}] and Public_Key[{$public_key}] stored successfully for Revision[$rev_id] in Database!"  );
+			$signature=[];
+			$public_key=[];
+			$rev_id=[];
 		}
 
 	/** @inheritDoc */
