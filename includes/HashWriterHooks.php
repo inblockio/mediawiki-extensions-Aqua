@@ -66,6 +66,14 @@ class HashWriterHooks implements
 			'debug' => $rev->getTimeStamp() . ' previous hash verification ' . $metadata[0] . ' signature ' . $metadata[1] . ' public key ' . $metadata[2] . ' content ' . substr($pageContent, 0, 10),
 		];
 		$dbw->insert('page_verification', $data, __METHOD__);
+		/** re-initilizing variables to ensure they do not hold values for the next revision. */
+		$rev_id =[];
+		$pageContent =[];
+		$contentHash =[];
+		$parentId =[];
+		$metadata =[];
+		$metadataHash =[];
+		$data =[];	
 	}
 
 	/**
