@@ -31,7 +31,7 @@ use MediaWiki\Permissions\PermissionManager;
  *
  * @ingroup SpecialPage
  */
-class SpecialImport extends SpecialPage {
+class SpecialVerifiedImport extends SpecialPage {
 	/** @var array */
 	private $importSources;
 

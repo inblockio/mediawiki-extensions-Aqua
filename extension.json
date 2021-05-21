@@ -55,7 +55,9 @@
 	"SpecialPages": {
 		"HelloWorld": "MediaWiki\\Extension\\Example\\SpecialHelloWorld",
 		"SignMessage": "MediaWiki\\Extension\\Example\\SpecialSignMessage",
-		"Includable": "MediaWiki\\Extension\\Example\\SpecialIncludable"
+		"Includable": "MediaWiki\\Extension\\Example\\SpecialIncludable",
+		"VerifiedImport": "MediaWiki\\Extension\\Example\\SpecialVerifiedImport",
+		"VerifiedExport": "MediaWiki\\Extension\\Example\\SpecialVerifiedExport"
 	},
 
 	"Actions": {
