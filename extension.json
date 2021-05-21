@@ -56,8 +56,18 @@
 		"HelloWorld": "MediaWiki\\Extension\\Example\\SpecialHelloWorld",
 		"SignMessage": "MediaWiki\\Extension\\Example\\SpecialSignMessage",
 		"Includable": "MediaWiki\\Extension\\Example\\SpecialIncludable",
-		"VerifiedImport": "MediaWiki\\Extension\\Example\\SpecialVerifiedImport",
-		"VerifiedExport": "MediaWiki\\Extension\\Example\\SpecialVerifiedExport"
+		"VerifiedExport": {
+			"class": "MediaWiki\\Extension\\Example\\SpecialVerifiedExport",
+			"services": [
+				"DBLoadBalancer"
+			]
+		},
+		"VerifiedImport": {
+                        "class": "MediaWiki\\Extension\\Example\\SpecialVerifiedImport",
+                        "services": [
+                                "PermissionManager"
+                        ]
+                }
 	},
 
 	"Actions": {

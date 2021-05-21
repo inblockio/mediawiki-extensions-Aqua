@@ -24,14 +24,19 @@
  * @ingroup SpecialPage
  */
 
+namespace MediaWiki\Extension\Example;
 use MediaWiki\Permissions\PermissionManager;
+
+# include / exclude for debugging
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
 
 /**
  * MediaWiki page data importer
  *
  * @ingroup SpecialPage
  */
-class SpecialVerifiedImport extends SpecialPage {
+class SpecialVerifiedImport extends \SpecialPage {
 	/** @var array */
 	private $importSources;
 

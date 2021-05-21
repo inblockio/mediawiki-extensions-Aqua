@@ -23,15 +23,20 @@
  * @ingroup SpecialPage
  */
 
+namespace MediaWiki\Extension\Example;
 use MediaWiki\Logger\LoggerFactory;
 use Wikimedia\Rdbms\ILoadBalancer;
+
+# include / exclude for debugging
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
 
 /**
  * A special page that allows users to export pages in a XML file
  *
  * @ingroup SpecialPage
  */
-class SpecialVerifiedExport extends SpecialPage {
+class SpecialVerifiedExport extends \SpecialPage {
 	protected $curonly, $doExport, $pageLinkDepth, $templates;
 
 	/** @var ILoadBalancer */
