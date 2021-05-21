@@ -31,7 +31,7 @@ use Wikimedia\Rdbms\ILoadBalancer;
  *
  * @ingroup SpecialPage
  */
-class SpecialExport extends SpecialPage {
+class SpecialVerifiedExport extends SpecialPage {
 	protected $curonly, $doExport, $pageLinkDepth, $templates;
 
 	/** @var ILoadBalancer */
