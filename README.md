@@ -68,5 +68,3 @@ SELECT * FROM page_witness;
 
 2. cp -r DataAccounting PKC/mountPoint/extensions
 3. docker exec pkc_mediawiki_1 php /var/www/html/maintenance/update.php
-
-Test and query the RESTAPI from commandline
