@@ -56,3 +56,17 @@ Now, run `npm test` to run the automated front-end code checks..
 ```bash
 git clone https://gerrit.wikimedia.org/r/mediawiki/extensions/examples.git
 ```
+## Helpful comments
+Login to docker
+'docker exec -it pkc_database_1 bash' to enter the docker commandline.
+Access MYSQL Database:
+Inside the bash prompt: 'mysql -u wikiuser -p my_wiki' and enter your password which you can find in the dockercompose.yml file.
+SHOW DATABASES;
+USE my_wiki;
+SELECT * FROM page_verification;
+SELECT * FROM page_witness;
+
+2. cp -r DataAccounting PKC/mountPoint/extensions
+3. docker exec pkc_mediawiki_1 php /var/www/html/maintenance/update.php
+
+Test and query the RESTAPI from commandline
