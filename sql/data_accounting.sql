@@ -5,6 +5,7 @@
 -- Page verification table
 CREATE TABLE IF NOT EXISTS `page_verification` (
 	`page_verification_id` INT(32) NOT NULL AUTO_INCREMENT, 
+	`page_title` VARCHAR (128), 
 	`page_id` INT COMMENT 'from page table',
 	`rev_id` INT COMMENT 'from revision table',
 	`hash_content` VARCHAR(128) COMMENT 'Hashing the page content of the current version',
