@@ -60,7 +60,8 @@ class HashWriterHooks implements
 		$metadata = getPageVerificationData($dbw, $parentId);
 		$metadataHash = calculateMetadataHash($rev->getTimeStamp(), $metadata[0], $metadata[1], $metadata[2]);
 		$data = [
-			'page_id' => 2,
+			'page_title' => $wikiPage->getTitle(),
+			'page_id' => $wikiPage->getId(),
 			'rev_id' => $rev->getID(),
 			'hash_content' => $contentHash,
 			'hash_metadata' => $metadataHash,
