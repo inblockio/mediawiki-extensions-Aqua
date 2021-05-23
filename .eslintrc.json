@@ -6,8 +6,12 @@
 		"wikimedia/jquery"
 	],
 	"env": {
-		"browser": true
+		"browser": true,
+		"es6": true
 	},
+	"parserOptions": {
+        "ecmaVersion": 2017
+    },
 	"rules": {
 		"no-jquery/no-parse-html-literal": "warn",
 		"no-jquery/no-global-selector": "warn",
