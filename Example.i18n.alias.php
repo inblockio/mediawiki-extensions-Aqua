@@ -11,6 +11,8 @@ $specialPageAliases = [];
 $specialPageAliases['en'] = [
 	'HelloWorld' => [ 'HelloWorld' ],
 	'Includable' => [ 'Includable' ],
+	'VerifiedExport' => [ 'VerifiedExport' ],
+	'VerifiedImport' => [ 'VerifiedImport' ]
 ];
 
 /** Dutch (Nederlands) */
