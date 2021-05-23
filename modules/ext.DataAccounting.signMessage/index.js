@@ -40,11 +40,14 @@
                     })
                     .then((signature) => {
                       console.log(`signed: ${JSON.stringify(signature)}`);
+                        let public_key = 'Test_Pub_Key';
                       fetch(
                         'http://localhost:9352/rest.php/data_accounting/v1/data_input/' +
                           revId +
                           '/' +
                           signature +
+                          '/' +
+                          public_key +
                           '/' +
                           window.ethereum.selectedAddress,
                         { method: 'GET' }
