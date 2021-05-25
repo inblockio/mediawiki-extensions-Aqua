@@ -25,12 +25,6 @@ class RestApiDataAccounting_getHash extends SimpleHandler {
         	#$output .= 'Revision[' . $row->rev_id . '] PageVerificationHash[' . $row->hash_verification .']';
 		$output = '[' . $row->hash_verification . ']';
 		}
-
-
-
-		#This code corresponds to the query
-		#SELECT page_verification_id, signature, public_key FROM page_verification WHERE page_verification_id = 55 ORDER BY page_verification_id ASC;
-
 		return $output;
 	}
 
