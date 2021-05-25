@@ -69,13 +69,14 @@ class RestApiStandard extends SimpleHandler {
                         #select * from page_verification where page_title = 'Witness' ORDER BY rev_id DESC LIMIT 1;
                         #POTENTIALLY USELESS AS ALL PAGES GET VERIFIED?  
                         case 'page_last_rev':
+                                $page_title = $var1;
                                 /** Database Query */
                                  $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
                                  $dbr = $lb->getConnectionRef( DB_REPLICA );
                                  $res = $dbr->select(
                                  'page_verification',
                                  [ 'rev_id','page_title','page_id' ],
-                                 'page_title='.$var1,
+                                 'page_title= \''.$page_title.'\'',
                                  __METHOD__,
                                  [ 'ORDER BY' => 'rev_id' ] 
                                   );
@@ -109,6 +110,7 @@ class RestApiStandard extends SimpleHandler {
                         #Expects Page Title and returns ALL verified revisions
                         #NOT IMPLEMENTED
                         case 'page_all_rev':
+                                $page_title = $var1;
                                 //Database Query
                                  $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
                                  $dbr = $lb->getConnectionRef( DB_REPLICA );
@@ -116,17 +118,22 @@ class RestApiStandard extends SimpleHandler {
                                  $res = $dbr->select(
                                  'page_verification',
                                  [ 'rev_id','page_title','page_id' ],
-                                 'page_title='.$var1,
+                                 'page_title= \''.$page_title.'\'',
                                  __METHOD__,
                                  [ 'ORDER BY' => 'rev_id' ] 
                                   );
 
-                                 $output = '';
+                                 $output = array();
+                                 $count = 0;
                                  foreach( $res as $row ) {
-                                 $output = 'Page Title: ' . $row->page_title .' Page_ID: ' . $row->page_id . ' Revision_ID: ' . $row->rev_id;  
+                                     $data = array();
+                                     $data['page_title'] = $row->page_title;
+                                     $data['page_id'] = $row->page_id;
+                                     $data['rev_id'] = $row->rev_id;
+                                 $output[$count] = $data;
+                                 $count ++;
                                  }                                 
-                                 return [$output];
-                                return ['NOT IMPLEMENTED'];
+                                 return $output;
 
                         #Expects Page Title and returns ALL verified revisions which have been signed
 			case 'page_all_rev_sig':
@@ -161,7 +168,7 @@ class RestApiStandard extends SimpleHandler {
                                     [
                                         'signature' => $signature, 
                                         'public_key' => $public_key, 
-                                        'wallet_address' => $wallet_address;
+                                        'wallet_address' => $wallet_address,
                                     ], 
                                     "rev_id =$rev_id");
 
