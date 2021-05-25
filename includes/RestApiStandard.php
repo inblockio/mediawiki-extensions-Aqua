@@ -6,6 +6,11 @@ use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 use MediaWiki\MediaWikiServices;
 
+# include / exclude for debugging
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
+
 /**
  * Extension:DataAccounting Standard Rest API
  */
@@ -18,25 +23,44 @@ class RestApiStandard extends SimpleHandler {
 		switch ( $action ) {
                         #Expects rev_id as input and returns verification_hash(required), signature(optional), public_key(optional), wallet_address(optiona    l), witness_id(optional)
                         case 'veri_page':
-                                 $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-                                 $dbr = $lb->getConnectionRef( DB_REPLICA );
- 
-                                 $res = $dbr->select(
+
+                                /** Database Query */
+                                $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+                                $dbr = $lb->getConnectionRef( DB_REPLICA );
+                                $res = $dbr->select(
                                 'page_verification', 
-                                 [ 'rev_id','hash_verification' ],
+                                 [ 'rev_id','hash_verification','signature','public_key','wallet_address' ],
                                  'rev_id = '.$var1,
                                 __METHOD__
                                 );
- 
+
                                 $output = '';
                                 foreach( $res as $row ) {
-                                $output .= '0x' . $row->hash_verification .'';
+                                $output = 'Verification Hash: 0x' . $row->hash_verification .' Signature: ' . $row->signature . ' Public_Key: ' . $row->public_key . ' Wallet Address: '  . $row->wallet_address;  
                                 }
                                 return $output;
+                               
+                               # REQUIRED: RETURN AS JSON 
+                               # $output_json = json_encode(foreach ($res as $row); 
+                               # return $output_json;
 
                         #Expects rev_id: $var1 as input and returns page_title and page_id
                         case 'give_page':
-				return [ "Expects rev_id: $var1 as input and returns page_title and page_id" ];
+                                /** Database Query */ 
+                                $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+                                $dbr = $lb->getConnectionRef( DB_REPLICA );
+                                $res = $dbr->select(
+                                'page_verification',
+                                 [ 'rev_id','page_title','page_id' ],
+                                 'rev_id = '.$var1,
+                                 __METHOD__
+                                 );
+                                                                   
+                                 $output = '';
+                                 foreach( $res as $row ) {
+                                        $output = 'Page Title: ' . $row->page_title .' Page_ID: ' . $row->page_id;  
+                                 }                                    
+                                 return $output;
 
                         #Expects page title: $var1 and returns LAST verified revision
                         case 'page_last_rev':
