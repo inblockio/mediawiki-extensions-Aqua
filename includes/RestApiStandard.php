@@ -16,13 +16,15 @@ ini_set("display_errors", 1);
  */
 class RestApiStandard extends SimpleHandler {
 
-	private const VALID_ACTIONS = [ 'verify_page', 'give_page', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_sigtx', 'store_witnesstx' ];
+	private const VALID_ACTIONS = [ 'verify_page', 'give_page', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_signed_tx', 'store_witnesstx' ];
 
 	/** @inheritDoc */
 	public function run( $action, $var1, $var2, $var3, $var4 ) {
 		switch ( $action ) {
                         #Expects rev_id as input and returns verification_hash(required), signature(optional), public_key(optional), wallet_address(optiona    l), witness_id(optional)
                         case 'verify_page':
+
+                                $rev_id = $var1;
 
                                 $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
                                 $dbr = $lb->getConnectionRef( DB_REPLICA );
@@ -35,7 +37,7 @@ class RestApiStandard extends SimpleHandler {
 
                                 $output = array();
                                 foreach( $res as $row ) {
-                                        $output['rev_id'] = $var1;
+                                        $output['rev_id'] = $rev_id;
                                         $output['verification_hash'] = $row->hash_verification;
                                         $output['signature'] = $row->signature;
                                         $output['public_key'] = $row->public_key;
@@ -43,7 +45,6 @@ class RestApiStandard extends SimpleHandler {
                                         break;
                               }
                               return $output;
-                                #return ['Test'];
 
                         #Expects Revision_ID as input and returns page_title and page_id
                         case 'give_page':
@@ -108,7 +109,7 @@ class RestApiStandard extends SimpleHandler {
                         #Expects Page Title and returns ALL verified revisions
                         #NOT IMPLEMENTED
                         case 'page_all_rev':
-                                /** Database Query
+                                //Database Query
                                  $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
                                  $dbr = $lb->getConnectionRef( DB_REPLICA );
                                  #INSERT LOOP AND PARSE INTO ARRAY TO GET ALL PAGES 
@@ -124,7 +125,7 @@ class RestApiStandard extends SimpleHandler {
                                  foreach( $res as $row ) {
                                  $output = 'Page Title: ' . $row->page_title .' Page_ID: ' . $row->page_id . ' Revision_ID: ' . $row->rev_id;  
                                  }                                 
-                                 return [$output]; */
+                                 return [$output];
                                 return ['NOT IMPLEMENTED'];
 
                         #Expects Page Title and returns ALL verified revisions which have been signed
@@ -140,9 +141,14 @@ class RestApiStandard extends SimpleHandler {
                                 return ['NOT IMPLEMENTED'];
                                 
                         #Expects Revision_ID [Required] Signature[Required], Public Key[Required] and Wallet Address[Required] as inputs; Returns a status for success or failure
-                        case 'store_sigtx':
+                        case 'store_signed_tx':
                          /** include functionality to write to database. 
                          * See https://www.mediawiki.org/wiki/Manual:Database_access */
+                            $rev_id = $var1;
+                            $signature = $var2;
+                            $public_key = $var3;
+                            $wallet_address = $var4;
+
                                 $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
                                 $dbw = $lb->getConnectionRef( DB_MASTER );
                                 
@@ -151,13 +157,19 @@ class RestApiStandard extends SimpleHandler {
                                  /** write data to database */
                                  #$dbw->insert($table ,[$field => $data,$field_two => $data_two], __METHOD__);
         
-                                 $dbw->update( $table, ['signature' => $var2, 'public_key' => $var3, 'wallet_address' => $var4 ], "rev_id =$var1");
+                                $dbw->update( $table, 
+                                    [
+                                        'signature' => $signature, 
+                                        'public_key' => $public_key, 
+                                        'wallet_address' => $wallet_address;
+                                    ], 
+                                    "rev_id =$rev_id");
 
                          return ( "Successfully stored Data for Revision[{$var1}] in Database! Data: Signature[{$var2}], Public_Key[{$var3}] and Wallet_Address[{$var4}] "  );
                                  $signature=[];
                                 $public_key=[];
+                                $wallet_address=[];
                                 $rev_id=[];
-
 
                         #Expects all required input for the page_witness database: Transaction Hash, Sender Address, List of Pages with witnessed revision
 			case 'store_witnesstx':
