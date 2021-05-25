@@ -42,6 +42,7 @@ function getPageVerificationData($dbr, $previous_rev_id) {
 		array_push($output, makeEmptyIfNonce($row->hash_verification));
 		array_push($output, makeEmptyIfNonce($row->signature));
 		array_push($output, makeEmptyIfNonce($row->public_key));
+		array_push($output, makeEmptyIfNonce($row->wallet_address));
 		break;
 	}
 	return $output;
@@ -68,8 +69,8 @@ class HashWriterHooks implements
 			'hash_verification' => calculateVerificationHash($contentHash, $metadataHash),
 			'signature' => '',
 			'public_key' => '',
+                        'wallet_address' => '', 
 			'debug' => $rev->getTimeStamp()
-	       	#. ' previous hash verification ' . $metadata[0] . ' signature ' . $metadata[1] . ' public key ' . $metadata[2] . ' content ' . substr($pageContent, 0, 10),
 		];
 		$dbw->insert('page_verification', $data, __METHOD__);
 		/** re-initilizing variables to ensure they do not hold values for the next revision. */
