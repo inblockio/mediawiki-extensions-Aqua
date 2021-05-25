@@ -11,13 +11,13 @@ use MediaWiki\MediaWikiServices;
  */
 class RestApiStandard extends SimpleHandler {
 
-	private const VALID_ACTIONS = [ 'rev_id', 'give_page', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_sigtx', 'store_witnesstx' ];
+	private const VALID_ACTIONS = [ 'veri_page', 'give_page', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_sigtx', 'store_witnesstx' ];
 
 	/** @inheritDoc */
 	public function run( $action, $var1, $var2, $var3, $var4 ) {
 		switch ( $action ) {
-                        #Expects rev_id: $var1 as input and returns verification_hash(required), signature(optional), public_key(optional), wallet_address(optiona    l), witness_id(optional)
-                        case 'rev_id':
+                        #Expects rev_id as input and returns verification_hash(required), signature(optional), public_key(optional), wallet_address(optiona    l), witness_id(optional)
+                        case 'veri_page':
                                  $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
                                  $dbr = $lb->getConnectionRef( DB_REPLICA );
  
