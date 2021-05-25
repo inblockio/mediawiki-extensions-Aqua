@@ -16,13 +16,13 @@ ini_set("display_errors", 1);
  */
 class RestApiStandard extends SimpleHandler {
 
-	private const VALID_ACTIONS = [ 'veri_page', 'give_page', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_sigtx', 'store_witnesstx' ];
+	private const VALID_ACTIONS = [ 'verify_page', 'give_page', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_sigtx', 'store_witnesstx' ];
 
 	/** @inheritDoc */
 	public function run( $action, $var1, $var2, $var3, $var4 ) {
 		switch ( $action ) {
                         #Expects rev_id as input and returns verification_hash(required), signature(optional), public_key(optional), wallet_address(optiona    l), witness_id(optional)
-                        case 'veri_page':
+                        case 'verify_page':
 
                                 /** Database Query */
                                 $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -62,9 +62,10 @@ class RestApiStandard extends SimpleHandler {
                                  }                                    
                                  return $output;
 
-                        #Expects page title: and returns LAST verified revision
+                        #Expects Page Title and returns LAST verified revision
                         #IMPORTANT: ADD ' ' TO THE PAGE INPUT NAME
                         #select * from page_verification where page_title = 'Witness' ORDER BY rev_id DESC LIMIT 1;
+                        #POTENTIALLY USELESS AS ALL PAGES GET VERIFIED?  
                         case 'page_last_rev':
                                 /** Database Query */
                                  $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -84,22 +85,22 @@ class RestApiStandard extends SimpleHandler {
                                  return [$output];
 
                         #Expects Page Title Name as INPUT and RETURNS LAST signed (and verified) revision.
-                        #POTENTIALLY USELESS AS ALL PAGES GET SIGNED?  
+                        #Does not work as expected - Shows signature but also shows the query if no signature is there.
                         case 'page_last_rev_sig':
                                 /** Database Query */
                                  $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
                                  $dbr = $lb->getConnectionRef( DB_REPLICA );
                                  $res = $dbr->select(
                                  'page_verification',
-                                 [ 'rev_id','page_title','page_id' ],
+                                 [ 'rev_id','page_title','signature' ],
                                  'page_title='.$var1,
                                  __METHOD__,
-                                 [ 'ORDER BY' => 'rev_id' ] 
+                                 [ 'ORDER BY' => 'signature' ] 
                                   );
 
                                  $output = '';
                                  foreach( $res as $row ) {
-                                 $output = 'Page Title: ' . $row->page_title .' Page_ID: ' . $row->page_id . ' Revision_ID: ' . $row->rev_id;  
+                                 $output = 'Page Title: ' . $row->page_title .' Signature: ' . $row->signature . ' Revision_ID: ' . $row->rev_id;  
                                  }                                 
                                  return [$output];
 
@@ -127,16 +128,15 @@ class RestApiStandard extends SimpleHandler {
 
                         #Expects Page Title and returns ALL verified revisions which have been signed
 			case 'page_all_rev_sig':
-				return [ "Expects page title: $var1 and returns ALL verified revisions which have been signed"];
+                                return ['NOT IMPLEMENTED'];
 
                         #Expects Page Title and returns ALL verified revisions which have been witnessed
 			case 'page_all_rev_wittness':
-				return [ "Expects page title: $var1 and returns ALL verified revisions which have been witnessed"];
+                                return ['NOT IMPLEMENTED'];
 
                         #Expects Page Title and returns ALL verified revisions which have been signed and wittnessed
 			case 'page_all_rev_sig_witness':
-				return [ "Expects page title: $var1 and returns ALL verified revisions which have been signed and wittnessed"];
-
+                                return ['NOT IMPLEMENTED'];
                                 
                         #Expects Revision_ID [Required] Signature[Required], Public Key[Required] and Wallet Address[Required] as inputs; Returns a status for success or failure
                         case 'store_sigtx':
