@@ -70,7 +70,7 @@ class HashWriterHooks implements
 			'signature' => '',
 			'public_key' => '',
                         'wallet_address' => '', 
-			'debug' => $rev->getTimeStamp()
+			'debug' => $rev->getTimeStamp().'[PV]'.$metadata[0].'[SIG]'.$metadata[1].'[PK]'.$metadata[2]
 		];
 		$dbw->insert('page_verification', $data, __METHOD__);
 		/** re-initilizing variables to ensure they do not hold values for the next revision. */
