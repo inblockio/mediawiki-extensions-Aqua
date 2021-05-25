@@ -24,7 +24,6 @@ class RestApiStandard extends SimpleHandler {
                         #Expects rev_id as input and returns verification_hash(required), signature(optional), public_key(optional), wallet_address(optiona    l), witness_id(optional)
                         case 'verify_page':
 
-                                /** Database Query */
                                 $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
                                 $dbr = $lb->getConnectionRef( DB_REPLICA );
                                 $res = $dbr->select(
@@ -34,15 +33,17 @@ class RestApiStandard extends SimpleHandler {
                                 __METHOD__
                                 );
 
-                                $output = '';
+                                $output = array();
                                 foreach( $res as $row ) {
-                                $output = 'Verification Hash: 0x' . $row->hash_verification .' Signature: ' . $row->signature . ' Public_Key: ' . $row->public_key . ' Wallet Address: '  . $row->wallet_address;  
-                                }
-                                return $output;
-                               
-                               # REQUIRED: RETURN AS JSON 
-                               # $output_json = json_encode(foreach ($res as $row); 
-                               # return $output_json;
+                                        $output['rev_id'] = $var1;
+                                        $output['verification_hash'] = $row->hash_verification;
+                                        $output['signature'] = $row->signature;
+                                        $output['public_key'] = $row->public_key;
+                                        $output['wallet_address'] = $row->wallet_address;  
+                                        break;
+                              }
+                              return $output;
+                                #return ['Test'];
 
                         #Expects Revision_ID as input and returns page_title and page_id
                         case 'give_page':
