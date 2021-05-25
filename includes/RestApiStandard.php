@@ -44,7 +44,7 @@ class RestApiStandard extends SimpleHandler {
                                # $output_json = json_encode(foreach ($res as $row); 
                                # return $output_json;
 
-                        #Expects rev_id: $var1 as input and returns page_title and page_id
+                        #Expects Revision_ID as input and returns page_title and page_id
                         case 'give_page':
                                 /** Database Query */ 
                                 $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -62,27 +62,78 @@ class RestApiStandard extends SimpleHandler {
                                  }                                    
                                  return $output;
 
-                        #Expects page title: $var1 and returns LAST verified revision
+                        #Expects page title: and returns LAST verified revision
+                        #IMPORTANT: ADD ' ' TO THE PAGE INPUT NAME
+                        #select * from page_verification where page_title = 'Witness' ORDER BY rev_id DESC LIMIT 1;
                         case 'page_last_rev':
-				return [ "Expects page title: $var1 and returns LAST verified revision"];
+                                /** Database Query */
+                                 $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+                                 $dbr = $lb->getConnectionRef( DB_REPLICA );
+                                 $res = $dbr->select(
+                                 'page_verification',
+                                 [ 'rev_id','page_title','page_id' ],
+                                 'page_title='.$var1,
+                                 __METHOD__,
+                                 [ 'ORDER BY' => 'rev_id' ] 
+                                  );
 
-                        #Expects page title: $var1 and returns LAST verified and signed revision
+                                 $output = '';
+                                 foreach( $res as $row ) {
+                                 $output = 'Page Title: ' . $row->page_title .' Page_ID: ' . $row->page_id . ' Revision_ID: ' . $row->rev_id;  
+                                 }                                 
+                                 return [$output];
+
+                        #Expects Page Title Name as INPUT and RETURNS LAST signed (and verified) revision.
+                        #POTENTIALLY USELESS AS ALL PAGES GET SIGNED?  
                         case 'page_last_rev_sig':
-				return [ "Expects page title: $var1 and returns LAST verified and signed revision"];
+                                /** Database Query */
+                                 $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+                                 $dbr = $lb->getConnectionRef( DB_REPLICA );
+                                 $res = $dbr->select(
+                                 'page_verification',
+                                 [ 'rev_id','page_title','page_id' ],
+                                 'page_title='.$var1,
+                                 __METHOD__,
+                                 [ 'ORDER BY' => 'rev_id' ] 
+                                  );
 
-                        #Expects page title: $var1 and returns ALL verified revisions
+                                 $output = '';
+                                 foreach( $res as $row ) {
+                                 $output = 'Page Title: ' . $row->page_title .' Page_ID: ' . $row->page_id . ' Revision_ID: ' . $row->rev_id;  
+                                 }                                 
+                                 return [$output];
+
+                        #Expects Page Title and returns ALL verified revisions
+                        #NOT IMPLEMENTED
                         case 'page_all_rev':
-				return [ "Expects page title: $var1 and returns ALL verified revisions"];
+                                /** Database Query
+                                 $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+                                 $dbr = $lb->getConnectionRef( DB_REPLICA );
+                                 #INSERT LOOP AND PARSE INTO ARRAY TO GET ALL PAGES 
+                                 $res = $dbr->select(
+                                 'page_verification',
+                                 [ 'rev_id','page_title','page_id' ],
+                                 'page_title='.$var1,
+                                 __METHOD__,
+                                 [ 'ORDER BY' => 'rev_id' ] 
+                                  );
 
-                        #Expects page title: $var1 and returns ALL verified revisions which have been signed
+                                 $output = '';
+                                 foreach( $res as $row ) {
+                                 $output = 'Page Title: ' . $row->page_title .' Page_ID: ' . $row->page_id . ' Revision_ID: ' . $row->rev_id;  
+                                 }                                 
+                                 return [$output]; */
+                                return ['NOT IMPLEMENTED'];
+
+                        #Expects Page Title and returns ALL verified revisions which have been signed
 			case 'page_all_rev_sig':
 				return [ "Expects page title: $var1 and returns ALL verified revisions which have been signed"];
 
-                        #Expects page title: $var1 and returns ALL verified revisions which have been witnessed
+                        #Expects Page Title and returns ALL verified revisions which have been witnessed
 			case 'page_all_rev_wittness':
 				return [ "Expects page title: $var1 and returns ALL verified revisions which have been witnessed"];
 
-                        #Expects page title: '$var1' and returns ALL verified revisions which have been signed and wittnessed
+                        #Expects Page Title and returns ALL verified revisions which have been signed and wittnessed
 			case 'page_all_rev_sig_witness':
 				return [ "Expects page title: $var1 and returns ALL verified revisions which have been signed and wittnessed"];
 
@@ -107,12 +158,12 @@ class RestApiStandard extends SimpleHandler {
                                 $rev_id=[];
 
 
-                        #Expects all requied input for the page_witness database: Transaction Hash, Sender Address, List of Pages with witnessed revision
+                        #Expects all required input for the page_witness database: Transaction Hash, Sender Address, List of Pages with witnessed revision
 			case 'store_witnesstx':
 				return [ "Expects page title: $var1 and returns ALL verified revisions which have been signed and wittnessed"];
 
 			default:
-				return [ ' echo' => $valueToEcho ];
+				return [ 'HIT ACTION DEFAULT - EXIT' ];
 		}
 	}
 
