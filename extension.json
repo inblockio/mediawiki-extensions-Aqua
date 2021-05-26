@@ -136,7 +136,7 @@
                 },
                 {
                         "path": "/data_accounting/v1/standard/{action}/{var1}/{var2}/{var3}/{var4}",
-                        "class": "MediaWiki\\Extension\\Example\\RestApiStandard"
+                        "class": "MediaWiki\\Extension\\Example\\StandardRestApi"
                 }
 	],
 	"ResourceFileModulePaths": {
