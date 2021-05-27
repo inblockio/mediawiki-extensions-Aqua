@@ -13,6 +13,7 @@ ini_set("display_errors", 1);
 
 use MediaWiki\Revision\SlotRecord;
 use DatabaseUpdater;
+use MediaWiki\MediaWikiServices;
 
 function getHashSum($inputStr) {
 	return hash("sha3-512", $inputStr);
@@ -54,7 +55,9 @@ class HashWriterHooks implements
 {
 
 	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
-		$dbw = wfGetDB( DB_MASTER );
+        $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+        $dbw = $lb->getConnectionRef( DB_MASTER );
+
 		$pageContent = $rev->getContent(SlotRecord::MAIN)->serialize();
 		$contentHash = getHashSum($pageContent);
 		$parentId = $rev->getParentId();
