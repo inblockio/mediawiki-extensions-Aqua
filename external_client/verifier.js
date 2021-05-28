@@ -40,8 +40,10 @@ async function verifyRevision(revid) {
       console.log({data: data.toString()})
       let obj = JSON.parse(data.toString())
       console.log('backend', revid, obj)
-      const recoveredAddress = ethers.utils.recoverAddress(ethers.utils.hashMessage(obj.verification_hash), obj.signature)
-      if (recoveredAddress.toLower() === obj.wallet_address.toLower) console.log('valid')
+      const paddedMessage = 'I sign the following page verification_hash: [0x' + obj.verification_hash + ']'
+      const recoveredAddress = ethers.utils.recoverAddress(ethers.utils.hashMessage(paddedMessage), obj.signature)
+      console.log(recoveredAddress.toLowerCase(), obj.wallet_address.toLowerCase())
+      if (recoveredAddress === obj.wallet_address) console.log('valid')
     })
   })
 }
@@ -75,4 +77,4 @@ function verifyPage(title) {
   })
 }
 
-verifyRevision(1156)
+verifyRevision(328)
