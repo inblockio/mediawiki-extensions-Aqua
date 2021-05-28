@@ -165,6 +165,7 @@
 				"ext.DataAccounting.signMessage/styles.css"
 			],
 			"scripts": [
+				"ethers-5.0.umd.min.js",
 				"ext.DataAccounting.signMessage/index.js",
 				"ext.DataAccounting.signMessage/init.js"
 			]
