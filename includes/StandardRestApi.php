@@ -19,7 +19,12 @@ class StandardRestApi extends SimpleHandler {
 	private const VALID_ACTIONS = ['help', 'verify_page', 'get_page_by_rev_id', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_signed_tx', 'store_witnesstx' ];
 
 	/** @inheritDoc */
-	public function run( $action, $var1, $var2, $var3, $var4 ) {
+	public function run( $action ) {
+        $params = $this->getValidatedParams();
+        $var1 = $params['var1'];
+        $var2 = $params['var2'] ?? null;
+        $var3 = $params['var3'] ?? null;
+        $var4 = $params['var4'] ?? null;
 		switch ( $action ) {
                         #Expects rev_id as input and returns verification_hash(required), signature(optional), public_key(optional), wallet_address(optional), witness_id(optional)
         case 'help':
@@ -172,6 +177,15 @@ class StandardRestApi extends SimpleHandler {
                         case 'store_signed_tx':
                          /** include functionality to write to database. 
                          * See https://www.mediawiki.org/wiki/Manual:Database_access */
+                            if ($var2 === null) {
+                                return "var2 is not specified";
+                            }
+                            if ($var3 === null) {
+                                return "var3 is not specified";
+                            }
+                            if ($var4 === null) {
+                                return "var4 is not specified";
+                            }
                             $rev_id = $var1;
                             $signature = $var2;
                             $public_key = $var3;
@@ -222,22 +236,22 @@ class StandardRestApi extends SimpleHandler {
 				ParamValidator::PARAM_REQUIRED => true,
 			],
                         'var1' => [
-				self::PARAM_SOURCE => 'path',
+				self::PARAM_SOURCE => 'query',
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => true,
 			],
                         'var2' => [
-				self::PARAM_SOURCE => 'path',
+				self::PARAM_SOURCE => 'query',
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => false,
 			],
                         'var3' => [
-				self::PARAM_SOURCE => 'path',
+				self::PARAM_SOURCE => 'query',
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => false,
 			],
                         'var4' => [
-				self::PARAM_SOURCE => 'path',
+				self::PARAM_SOURCE => 'query',
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => false,
 			],

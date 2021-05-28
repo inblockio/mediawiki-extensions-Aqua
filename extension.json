@@ -135,7 +135,7 @@
                         "class": "MediaWiki\\Extension\\Example\\RestApiDataAccounting_getHash"
                 },
                 {
-                        "path": "/data_accounting/v1/standard/{action}/{var1}/{var2}/{var3}/{var4}",
+                        "path": "/data_accounting/v1/standard/{action}",
                         "class": "MediaWiki\\Extension\\Example\\StandardRestApi"
                 }
 	],
