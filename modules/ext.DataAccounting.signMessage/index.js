@@ -47,7 +47,7 @@
                         console.log(`public key ${public_key}`);
                         console.log(`original ${window.ethereum.selectedAddress}, recovered ${recAddress}`);
                       fetch(
-                        'http://localhost:9352/rest.php/data_accounting/v1/data_input/' +
+                        'http://localhost:9352/rest.php/data_accounting/v1/standard/store_signed_tx/' +
                           revId +
                           '/' +
                           signature +
