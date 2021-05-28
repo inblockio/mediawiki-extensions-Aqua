@@ -62,13 +62,15 @@ class HashWriterHooks implements
 		$contentHash = getHashSum($pageContent);
 		$parentId = $rev->getParentId();
 		$metadata = getPageVerificationData($dbw, $parentId);
-		$metadataHash = calculateMetadataHash($rev->getTimeStamp(), $metadata[0], $metadata[1], $metadata[2]);
+        $timestamp = $rev->getTimeStamp();
+		$metadataHash = calculateMetadataHash($timestamp, $metadata[0], $metadata[1], $metadata[2]);
 		$data = [
 			'page_title' => $wikiPage->getTitle(),
 			'page_id' => $wikiPage->getId(),
 			'rev_id' => $rev->getID(),
 			'hash_content' => $contentHash,
-			'hash_metadata' => $metadataHash,
+            'time_stamp' => $timestamp,
+            'hash_metadata' => $metadataHash,
 			'hash_verification' => calculateVerificationHash($contentHash, $metadataHash),
 			'signature' => '',
 			'public_key' => '',

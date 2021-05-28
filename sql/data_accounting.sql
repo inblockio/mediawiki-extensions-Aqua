@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `page_verification` (
 	`page_id` INT COMMENT 'from page table',
 	`rev_id` INT COMMENT 'from revision table',
 	`hash_content` VARCHAR(128) COMMENT 'Hashing the page content of the current version',
+    `time_stamp` VARCHAR(128) COMMENT 'write the timestamp of the revision in to the DB',
 	`hash_metadata` VARCHAR(128) COMMENT 'Hashing all values of related revision_id tuble entry in 
 revision table',
 	`hash_verification` VARCHAR(128) COMMENT 'Combined metadata and content hash',
