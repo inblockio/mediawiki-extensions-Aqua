@@ -15,5 +15,8 @@
 	"eslintIgnore": [
 		"coverage",
 		"vendor"
-	]
+	],
+	"dependencies": {
+		"ethers": "^5.2.0"
+	}
 }

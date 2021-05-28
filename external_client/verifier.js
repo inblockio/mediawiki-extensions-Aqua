@@ -3,23 +3,10 @@
 const http = require( 'http' )
 const sha3 = require('js-sha3')
 
-let title = 'TP1'
+// utilities for verifying signatures
+const ethers = require('ethers')
 
-http.get(`http://localhost:9352/api.php?action=query&prop=info&titles=${title}&format=json`, (resp) => {
-  resp.on('data', (data) => {
-    let obj = JSON.parse(data.toString()).query.pages
-    // Get the first value of the object, because we are querying only one page
-    // after all.
-    obj = Object.values(obj)[0]
-    let pageid = obj.pageid;
-    let touched = obj.touched
-    let lastrevid = obj.lastrevid
-    console.log(obj)
-    console.log(sha3.sha3_512(touched))
-  })
-}).on("error", (err) => {
-  console.log("Error: " + err.message);
-})
+let title = 'Main Page'
 
 function formatMwTimestamp(ts) {
   // Format timestamp into the timestamp format found in Mediawiki outputs
@@ -43,6 +30,18 @@ async function getBackendVerificationHash(revid) {
     resp.on('data', (data) => {
       obj = JSON.parse(data.toString()).value
       console.log('backend', revid, obj)
+    })
+  })
+}
+
+async function verifyRevision(revid) {
+  http.get(`http://localhost:9352/rest.php/data_accounting/v1/standard/verify_page/${revid}///`, (resp) => {
+    resp.on('data', (data) => {
+      console.log({data: data.toString()})
+      let obj = JSON.parse(data.toString())
+      console.log('backend', revid, obj)
+      const recoveredAddress = ethers.utils.recoverAddress(ethers.utils.hashMessage(obj.verification_hash), obj.signature)
+      if (recoveredAddress.toLower() === obj.wallet_address.toLower) console.log('valid')
     })
   })
 }
@@ -76,4 +75,4 @@ function verifyPage(title) {
   })
 }
 
-verifyPage(title)
+verifyRevision(1156)
