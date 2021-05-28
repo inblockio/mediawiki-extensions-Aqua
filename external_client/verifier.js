@@ -7,6 +7,7 @@ const sha3 = require('js-sha3')
 const ethers = require('ethers')
 
 let title = 'Main Page'
+//title = 'AI/Machine_Learning'
 
 function formatMwTimestamp(ts) {
   // Format timestamp into the timestamp format found in Mediawiki outputs
@@ -29,7 +30,6 @@ async function getBackendVerificationHash(revid) {
   http.get(`http://localhost:9352/rest.php/data_accounting/v1/request_hash/${revid}`, (resp) => {
     resp.on('data', (data) => {
       obj = JSON.parse(data.toString()).value
-      console.log('backend', revid, obj)
     })
   })
 }
@@ -37,39 +37,55 @@ async function getBackendVerificationHash(revid) {
 async function verifyRevision(revid) {
   http.get(`http://localhost:9352/rest.php/data_accounting/v1/standard/verify_page/${revid}///`, (resp) => {
     resp.on('data', (data) => {
-      console.log({data: data.toString()})
-      let obj = JSON.parse(data.toString())
+      let dataStr = data.toString()
+      if (dataStr === '[]') {
+        console.log(`${revid} doesn't have verification hash`)
+        return
+      }
+      let obj = JSON.parse(dataStr)
       console.log('backend', revid, obj)
       const paddedMessage = 'I sign the following page verification_hash: [0x' + obj.verification_hash + ']'
       const recoveredAddress = ethers.utils.recoverAddress(ethers.utils.hashMessage(paddedMessage), obj.signature)
       console.log(recoveredAddress.toLowerCase(), obj.wallet_address.toLowerCase())
-      if (recoveredAddress === obj.wallet_address) console.log('valid')
+      if (recoveredAddress === obj.wallet_address) {
+        console.log(`${revid} is valid`)
+      }
     })
   })
 }
 
 function verifyPage(title) {
-  http.get(`http://localhost:9352/api.php?action=query&prop=revisions&titles=${title}&rvlimit=555&rvprop=ids%7Ctimestamp%7Ccontent&rvdir=newer&format=json`, (resp) => {
-    resp.on('data', (data) => {
-      // Get the first value of the object, because we are querying only one page
-      // after all.
-      let obj = JSON.parse(data.toString()).query.pages
-      obj = Object.values(obj)[0]
-      let revisions = obj.revisions
-      let previousVerificationHash = ''
-      for (let i = 0; i < revisions.length; i++) {
-        let rev = revisions[i]
-        let revid = rev.revid
-        let parentid = rev.parentid
-        let timestamp = formatMwTimestamp(rev.timestamp)
-        let content = rev['*']
+  http.get(`http://localhost:9352/rest.php/data_accounting/v1/standard/page_all_rev/${title}///`, (resp) => {
+    let body = ""
+    resp.on('data', (chunk) => {
+      body += chunk
+    })
+    resp.on('end', async () => {
+      allRevInfo = JSON.parse(body)
+      verifiedRevIds = allRevInfo.map(x => x.rev_id)
+      console.log('verified ids', verifiedRevIds)
 
-        let contentHash = getHashSum(content)
-        let metadataHash = calculateMetadataHash(timestamp, previousVerificationHash)
-        let verificationHash = calculateVerificationHash(contentHash, metadataHash)
-        previousVerificationHash = verificationHash
-        console.log(revid, verificationHash)
-        getBackendVerificationHash(revid)
+      let previousVerificationHash = ''
+      for (const idx in verifiedRevIds) {
+        const revid = verifiedRevIds[idx]
+        // TODO make sure this http.get call finishes properly before the next http.get
+        await http.get(`http://localhost:9352/api.php?action=parse&oldid=${revid}&prop=wikitext&formatversion=2&format=json`, (respRevid) => {
+          let bodyRevid = ""
+          respRevid.on('data', (chunk) => {
+            bodyRevid += chunk
+          })
+          respRevid.on('end', () => {
+            let content = JSON.parse(bodyRevid).parse.wikitext
+            //let timestamp = formatMwTimestamp(rev.timestamp)
+            let timestamp = "AAA"
+            let contentHash = getHashSum(content)
+            let metadataHash = calculateMetadataHash(timestamp, previousVerificationHash)
+            let verificationHash = calculateVerificationHash(contentHash, metadataHash)
+            console.log(revid, verificationHash, previousVerificationHash)
+            previousVerificationHash = verificationHash
+            //verifyRevision(revid)
+          })
+        })
       }
     })
   }).on("error", (err) => {
@@ -77,4 +93,5 @@ function verifyPage(title) {
   })
 }
 
-verifyRevision(328)
+//verifyRevision(328)
+verifyPage(title)
