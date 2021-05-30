@@ -6,8 +6,8 @@ const sha3 = require('js-sha3')
 // utilities for verifying signatures
 const ethers = require('ethers')
 
+//This should be a commandline argument for specifying the title of the page which should be verified 
 let title = 'Main Page'
-//title = 'AI/Machine_Learning'
 
 function formatMwTimestamp(ts) {
   // Format timestamp into the timestamp format found in Mediawiki outputs
@@ -27,7 +27,7 @@ function calculateMetadataHash(timestamp, previousVerificationHash = "", signatu
 }
 
 async function getBackendVerificationHash(revid) {
-  http.get(`http://localhost:9352/rest.php/data_accounting/v1/request_hash/${revid}`, (resp) => {
+  http.get(`http://localhost:9352/rest.php/data_accounting/v1/request_hash?var1=${revid}`, (resp) => {
     resp.on('data', (data) => {
       obj = JSON.parse(data.toString()).value
     })
@@ -35,7 +35,7 @@ async function getBackendVerificationHash(revid) {
 }
 
 async function verifyRevision(revid) {
-  http.get(`http://localhost:9352/rest.php/data_accounting/v1/standard/verify_page/${revid}///`, (resp) => {
+  http.get(`http://localhost:9352/rest.php/data_accounting/v1/standard/verify_page?var1=${revid}`, (resp) => {
     resp.on('data', (data) => {
       let dataStr = data.toString()
       if (dataStr === '[]') {
@@ -55,7 +55,7 @@ async function verifyRevision(revid) {
 }
 
 function verifyPage(title) {
-  http.get(`http://localhost:9352/rest.php/data_accounting/v1/standard/page_all_rev/${title}///`, (resp) => {
+  http.get(`http://localhost:9352/rest.php/data_accounting/v1/standard/page_all_rev?var1=${title}`, (resp) => {
     let body = ""
     resp.on('data', (chunk) => {
       body += chunk
