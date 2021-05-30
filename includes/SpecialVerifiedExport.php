@@ -48,7 +48,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 	public function __construct(
 		ILoadBalancer $loadBalancer
 	) {
-		parent::__construct( 'Export' );
+		parent::__construct( 'VerifiedExport' );
 		$this->loadBalancer = $loadBalancer;
 	}
 

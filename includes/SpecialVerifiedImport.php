@@ -47,7 +47,7 @@ class SpecialVerifiedImport extends \SpecialPage {
 	 * @param PermissionManager $permManager
 	 */
 	public function __construct( PermissionManager $permManager ) {
-		parent::__construct( 'Import', 'import' );
+		parent::__construct( 'VerifiedImport', 'import' );
 		$this->permManager = $permManager;
 	}
 
