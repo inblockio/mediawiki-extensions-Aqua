@@ -6,9 +6,11 @@ const sha3 = require('js-sha3')
 // utilities for verifying signatures
 const ethers = require('ethers')
 
+const DEBUG = false
+
 //This should be a commandline argument for specifying the title of the page which should be verified 
-//let title = 'Main Page'
-let title = 'Tp3'
+let title = 'Main Page'
+//let title = 'Tp3'
 
 function formatMwTimestamp(ts) {
   // Format timestamp into the timestamp format found in Mediawiki outputs
@@ -38,13 +40,13 @@ async function getBackendVerificationHash(revid) {
 async function verifyRevision(revid, prevRevId, previousVerificationHash, contentHash) {
   const data = await synchronousGet(`http://localhost:9352/rest.php/data_accounting/v1/standard/verify_page?var1=${revid}`)
   if (data === '[]') {
-    console.log(`${revid} doesn't have verification hash`)
+    console.log('  no verification hash')
     return [null, false]
   }
   let obj = JSON.parse(data)
 
   if (obj.signature === '') {
-    console.log(`${revid} doesn't have signature`)
+    console.log('  no signature')
   }
 
   let metadataHash = null
@@ -60,22 +62,24 @@ async function verifyRevision(revid, prevRevId, previousVerificationHash, conten
   const calculatedVerificationHash = calculateVerificationHash(contentHash, metadataHash)
 
   if (calculatedVerificationHash !== obj.verification_hash) {
-    console.log(`${revid} verification hash doesn't match`)
+    console.log("  verification hash doesn't match")
     return [null, false]
   } else {
-    console.log(`${revid} verification hash matches`)
+    console.log('  Verification hash matches')
   }
 
   if (obj.signature === '') {
     return [obj.verification_hash, true]
   }
 
-  console.log('DEBUG backend', revid, obj)
+  if (DEBUG) {
+    console.log('DEBUG backend', revid, obj)
+  }
   // The padded message is required
   const paddedMessage = 'I sign the following page verification_hash: [0x' + obj.verification_hash + ']'
   const recoveredAddress = ethers.utils.recoverAddress(ethers.utils.hashMessage(paddedMessage), obj.signature)
   if (recoveredAddress.toLowerCase() === obj.wallet_address.toLowerCase()) {
-    console.log(`${revid}'s signature is valid`)
+    console.log('  signature is valid')
   }
   return [obj.verification_hash, true]
 }
@@ -124,12 +128,18 @@ function verifyPage(title) {
 
       let previousVerificationHash = ''
       let previousRevId = ''
+      let count = 0
       for (const idx in verifiedRevIds) {
         const revid = verifiedRevIds[idx]
+        console.log(revid)
         const bodyRevid = await synchronousGet(`http://localhost:9352/api.php?action=parse&oldid=${revid}&prop=wikitext&formatversion=2&format=json`)
         const content = JSON.parse(bodyRevid).parse.wikitext
         const contentHash = getHashSum(content)
         const [verificationHash, isCorrect] = await verifyRevision(revid, previousRevId, previousVerificationHash, contentHash)
+        if (isCorrect) {
+          count += 1
+        }
+        console.log(`  ${(100 * count / verifiedRevIds.length).toFixed(1)}% page validation`)
         previousVerificationHash = verificationHash
         previousRevId = revid
       }
