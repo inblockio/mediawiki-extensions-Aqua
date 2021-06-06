@@ -24,8 +24,14 @@
  */
 
 namespace MediaWiki\Extension\Example;
+
+use HTMLForm;
+
 use MediaWiki\Logger\LoggerFactory;
 use Wikimedia\Rdbms\ILoadBalancer;
+use HTMLTextAreaField;
+use Title;
+use WikiExporter;
 
 # include / exclude for debugging
 error_reporting(E_ALL);
@@ -341,7 +347,9 @@ class SpecialVerifiedExport extends \SpecialPage {
 	 * @return bool
 	 */
 	protected function userCanOverrideExportDepth() {
-		return $this->getAuthority()->isAllowed( 'override-export-depth' );
+		// TODO DataAccounting specific modification
+		return false;
+		//return $this->getAuthority()->isAllowed( 'override-export-depth' );
 	}
 
 	/**
@@ -410,10 +418,11 @@ class SpecialVerifiedExport extends \SpecialPage {
 					continue;
 				}
 
-				if ( !$this->getAuthority()->authorizeRead( 'read', $title ) ) {
-					// @todo Perhaps output an <error> tag or something.
-					continue;
-				}
+				// TODO DataAccounting specific modification
+				//if ( !$this->getAuthority()->authorizeRead( 'read', $title ) ) {
+				//	// @todo Perhaps output an <error> tag or something.
+				//	continue;
+				//}
 
 				$exporter->pageByTitle( $title );
 			}
