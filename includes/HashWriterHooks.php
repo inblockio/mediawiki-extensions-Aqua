@@ -55,9 +55,19 @@ class HashWriterHooks implements
 {
 
     public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
+        /** 
+         * We check if a comment 'revision imported' or 'revisions imported' is
+         * present which indicates that we are importing a page, if we import a
+         * page we do not run the hook, we would prefer a upgraded version of
+         * the revision object which allows us to capture the context to make
+         * this hack unnecessary
+         */
+        $comment = $rev->getComment()->text;
+        if (strpos($comment, 'revision imported') || strpos($comment, 'revisions imported')) {
+            return;
+        }
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
         $dbw = $lb->getConnectionRef( DB_MASTER );
-
         $pageContent = $rev->getContent(SlotRecord::MAIN)->serialize();
         $contentHash = getHashSum($pageContent);
         $parentId = $rev->getParentId();
@@ -75,7 +85,7 @@ class HashWriterHooks implements
             'signature' => '',
             'public_key' => '',
             'wallet_address' => '', 
-            'debug' => $rev->getTimeStamp().'[PV]'.$metadata[0].'[SIG]'.$metadata[1].'[PK]'.$metadata[2]
+            'debug' => $rev->getTimeStamp().'[PV]'.$metadata[0].'[SIG]'.$metadata[1].'[PK]'.$metadata[2].'[Comment]'.$rev->getComment()->text
         ];
         $dbw->insert('page_verification', $data, __METHOD__);
         /** re-initilizing variables to ensure they do not hold values for the next revision. */
