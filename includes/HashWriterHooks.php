@@ -15,6 +15,32 @@ use MediaWiki\Revision\SlotRecord;
 use DatabaseUpdater;
 use MediaWiki\MediaWikiServices;
 
+function generateDomainId() {
+    //*todo* import public key via wizard instead of autogenerating random
+    //value
+    $randomval = '';
+    for( $i=0; $i<10; $i++ ) {
+        $randomval .= chr(rand(65, 90));
+    }
+    $domain_id = getHashSum($randomval);
+    //print $domain_id;
+    return substr($domain_id, 0, 10);
+}
+
+function getDomainId() {
+    $domain_id_filename = 'domain_id.txt';
+    if (!file_exists($domain_id_filename)) {
+        $domain_id = generateDomainId();
+        $myfile = fopen($domain_id_filename, "w");
+        fwrite($myfile, $domain_id);
+        fclose($myfile);
+    } else {
+        //*todo* validate domain_id
+        $domain_id = file_get_contents($domain_id_filename);
+    }
+    return $domain_id;
+}
+
 function getHashSum($inputStr) {
     return hash("sha3-512", $inputStr);
 }
@@ -75,6 +101,7 @@ class HashWriterHooks implements
         $timestamp = $rev->getTimeStamp();
         $metadataHash = calculateMetadataHash($timestamp, $metadata[0], $metadata[1], $metadata[2]);
         $data = [
+            'domain_id' => getDomainId(),
             'page_title' => $wikiPage->getTitle(),
             'page_id' => $wikiPage->getId(),
             'rev_id' => $rev->getID(),
@@ -85,7 +112,7 @@ class HashWriterHooks implements
             'signature' => '',
             'public_key' => '',
             'wallet_address' => '', 
-            'debug' => $rev->getTimeStamp().'[PV]'.$metadata[0].'[SIG]'.$metadata[1].'[PK]'.$metadata[2].'[Comment]'.$rev->getComment()->text
+            'debug' => $rev->getTimeStamp().'[PV]'.$metadata[0].'[SIG]'.$metadata[1].'[PK]'.$metadata[2].'[Comment]'.$rev->getComment()->text.'[Domain_ID]'.getDomainId()
         ];
         $dbw->insert('page_verification', $data, __METHOD__);
         /** re-initilizing variables to ensure they do not hold values for the next revision. */

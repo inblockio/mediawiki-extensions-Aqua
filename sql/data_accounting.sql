@@ -5,6 +5,7 @@
 -- Page verification table
 CREATE TABLE IF NOT EXISTS `page_verification` (
 	`page_verification_id` INT(32) NOT NULL AUTO_INCREMENT, 
+	`domain_id` VARCHAR (128), 
 	`page_title` VARCHAR (128), 
 	`page_id` INT COMMENT 'from page table',
 	`rev_id` INT COMMENT 'from revision table',
