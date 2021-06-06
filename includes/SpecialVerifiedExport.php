@@ -32,10 +32,69 @@ use Wikimedia\Rdbms\ILoadBalancer;
 use HTMLTextAreaField;
 use Title;
 use WikiExporter;
+use XmlDumpWriter;
 
 # include / exclude for debugging
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
+
+class VerifiedWikiExporter extends WikiExporter {
+	public function __construct(
+		$db,
+		$history = self::CURRENT,
+		$text = self::TEXT,
+		$limitNamespaces = null
+	) {
+		parent::__construct($db, $history, $text, $limitNamespaces);
+		$this->writer = new XmlDumpWriter( $text, self::schemaVersion() );
+	}
+	protected function outputPageStreamBatch( $results, $lastRow ) {
+		$rowCarry = null;
+		while ( true ) {
+			$slotRows = $this->getSlotRowBatch( $results, $rowCarry );
+
+			if ( !$slotRows ) {
+				break;
+			}
+
+			// All revision info is present in all slot rows.
+			// Use the first slot row as the revision row.
+			$revRow = $slotRows[0];
+
+			if ( $this->limitNamespaces &&
+				!in_array( $revRow->page_namespace, $this->limitNamespaces ) ) {
+				$lastRow = $revRow;
+				continue;
+			}
+
+			if ( $lastRow === null ||
+				$lastRow->page_namespace !== $revRow->page_namespace ||
+				$lastRow->page_title !== $revRow->page_title ) {
+				if ( $lastRow !== null ) {
+					$output = '';
+					if ( $this->dumpUploads ) {
+						$output .= $this->writer->writeUploads( $lastRow, $this->dumpUploadFileContents );
+					}
+					$output .= $this->writer->closePage();
+					$this->sink->writeClosePage( $output );
+				}
+				$output = $this->writer->openPage( $revRow );
+				$this->sink->writeOpenPage( $revRow, $output );
+			}
+			$output = $this->writer->writeRevision( $revRow, $slotRows );
+			$verification_info = "<aaaa>zzzzz</aaaa>\n";
+			$output = str_replace("</revision>", $verification_info . "</revision>", $output);
+			$this->sink->writeRevision( $revRow, $output );
+			$lastRow = $revRow;
+		}
+
+		if ( $rowCarry ) {
+			throw new LogicException( 'Error while processing a stream of slot rows' );
+		}
+
+		return $lastRow;
+	}
+}
 
 /**
  * A special page that allows users to export pages in a XML file
@@ -120,7 +179,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 			$history = '';
 		} elseif ( $request->wasPosted() && $par == '' ) {
 			// Log to see if certain parameters are actually used.
-			// If not, we could deprecate them and do some cleanup, here and in WikiExporter.
+			// If not, we could deprecate them and do some cleanup, here and in VerifiedWikiExporter.
 			LoggerFactory::getInstance( 'export' )->debug(
 				'Special:Export POST, dir: [{dir}], offset: [{offset}], limit: [{limit}]', [
 				'dir' => $request->getRawVal( 'dir' ),
@@ -149,7 +208,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 			$historyCheck = $request->getCheck( 'history' );
 
 			if ( $this->curonly ) {
-				$history = WikiExporter::CURRENT;
+				$history = VerifiedWikiExporter::CURRENT;
 			} elseif ( !$historyCheck ) {
 				if ( $limit > 0 && ( $maxHistory == 0 || $limit < $maxHistory ) ) {
 					$history['limit'] = $limit;
@@ -173,9 +232,9 @@ class SpecialVerifiedExport extends \SpecialPage {
 			$historyCheck = $request->getCheck( 'history' );
 
 			if ( $historyCheck ) {
-				$history = WikiExporter::FULL;
+				$history = VerifiedWikiExporter::FULL;
 			} else {
-				$history = WikiExporter::CURRENT;
+				$history = VerifiedWikiExporter::CURRENT;
 			}
 
 			if ( $page != '' ) {
@@ -185,7 +244,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 
 		if ( !$config->get( 'ExportAllowHistory' ) ) {
 			// Override
-			$history = WikiExporter::CURRENT;
+			$history = VerifiedWikiExporter::CURRENT;
 		}
 
 		$list_authors = $request->getCheck( 'listauthors' );
@@ -356,7 +415,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 	 * Do the actual page exporting
 	 *
 	 * @param string $page User input on what page(s) to export
-	 * @param int $history One of the WikiExporter history export constants
+	 * @param int $history One of the VerifiedWikiExporter history export constants
 	 * @param bool $list_authors Whether to add distinct author list (when
 	 *   not returning full history)
 	 * @param bool $exportall Whether to export everything
@@ -364,7 +423,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 	protected function doExport( $page, $history, $list_authors, $exportall ) {
 		// If we are grabbing everything, enable full history and ignore the rest
 		if ( $exportall ) {
-			$history = WikiExporter::FULL;
+			$history = VerifiedWikiExporter::FULL;
 		} else {
 			$pageSet = []; // Inverted index of all pages to look up
 
@@ -403,7 +462,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 		/* Ok, let's get to it... */
 		$db = $this->loadBalancer->getConnectionRef( ILoadBalancer::DB_REPLICA );
 
-		$exporter = new WikiExporter( $db, $history );
+		$exporter = new VerifiedWikiExporter( $db, $history );
 		$exporter->list_authors = $list_authors;
 		$exporter->openStream();
 
