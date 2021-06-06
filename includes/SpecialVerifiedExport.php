@@ -25,18 +25,59 @@
 
 namespace MediaWiki\Extension\Example;
 
+use DOMDocument;
 use HTMLForm;
+use SimpleXMLElement;
 
 use MediaWiki\Logger\LoggerFactory;
 use Wikimedia\Rdbms\ILoadBalancer;
 use HTMLTextAreaField;
 use Title;
+use MediaWiki\MediaWikiServices;
 use WikiExporter;
 use XmlDumpWriter;
 
 # include / exclude for debugging
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
+
+function getPageMetadataByRevId($rev_id) {
+	// This is based on the case of 'verify_page' API call in StandardRestApi.php.
+	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+	$dbr = $lb->getConnectionRef( DB_REPLICA );
+	$res = $dbr->select(
+		'page_verification',
+		[ 'domain_id', 'rev_id','hash_verification','time_stamp','signature','public_key','wallet_address' ],
+		'rev_id = '.$rev_id,
+		__METHOD__
+	);
+
+	$output = array();
+	foreach( $res as $row ) {
+		$output['domain_id'] = $row->domain_id;
+		$output['rev_id'] = $rev_id;
+		$output['verification_hash'] = $row->hash_verification;
+		$output['time_stamp'] = $row->time_stamp;
+		$output['signature'] = $row->signature;
+		$output['public_key'] = $row->public_key;
+		$output['wallet_address'] = $row->wallet_address;
+		break;
+	}
+
+	//return "<verification>\n  <title>PHP2: More Parser Stories</title>\n</verification>";
+	// Convert the $output array to XML string
+	$xml = new SimpleXMLElement("<verification/>");
+	array_walk(array_flip($output), array($xml, 'addChild'));
+	// We have to do these steps to ensure there are proper newlines in the XML
+	// string.
+	$dom = new DOMDocument();
+	$dom->loadXML($xml->asXML());
+	$dom->formatOutput = true;
+	$xmlString = $dom->saveXML();
+	// Remove the first line which has 'xml version="1.0"'
+	$xmlString = preg_replace('/^.+\n/', '', $xmlString);
+	return $xmlString;
+}
 
 class VerifiedWikiExporter extends WikiExporter {
 	public function __construct(
@@ -82,8 +123,9 @@ class VerifiedWikiExporter extends WikiExporter {
 				$this->sink->writeOpenPage( $revRow, $output );
 			}
 			$output = $this->writer->writeRevision( $revRow, $slotRows );
-			$verification_info = "<aaaa>zzzzz</aaaa>\n";
-			$output = str_replace("</revision>", $verification_info . "</revision>", $output);
+			$verification_info = getPageMetadataByRevId($revRow->rev_id);
+			//$verification_info = "<ver>bbb</ver>";
+			$output = str_replace("</revision>", $verification_info . "\n</revision>", $output);
 			$this->sink->writeRevision( $revRow, $output );
 			$lastRow = $revRow;
 		}
