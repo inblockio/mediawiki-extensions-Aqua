@@ -35,6 +35,10 @@ use MediaWiki\Permissions\PermissionManager;
 
 use Xml;
 use Html;
+use PermissionsError;
+use ImportStreamSource;
+use WikiImporter;
+use ImportReporter;
 
 /**
  * MediaWiki page data importer
