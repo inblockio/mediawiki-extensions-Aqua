@@ -212,7 +212,7 @@ class SpecialVerifiedImport extends \SpecialPage {
 					->plain()
 			);
 		} else {
-			$importer = new WikiImporter( $source->value, $this->getConfig() );
+			$importer = new VerifiedWikiImporter( $source->value, $this->getConfig() );
 			if ( $this->namespace !== null ) {
 				$importer->setTargetNamespace( $this->namespace );
 			} elseif ( $this->rootpage !== null ) {
