@@ -24,15 +24,24 @@
  * @ingroup SpecialPage
  */
 
+namespace MediaWiki\Extension\Example;
+
+# include / exclude for debugging
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
+
+use Xml;
+use Html;
 
 /**
  * MediaWiki page data importer
  *
  * @ingroup SpecialPage
  */
-class SpecialImport extends SpecialPage {
+class SpecialVerifiedImport extends \SpecialPage {
 	private $sourceName = false;
 	private $interwiki = false;
 	private $subproject;
@@ -57,7 +66,7 @@ class SpecialImport extends SpecialPage {
 	private $permManager;
 
 	public function __construct() {
-		parent::__construct( 'Import', 'import' );
+		parent::__construct( 'VerifiedImport', 'import' );
 		$this->permManager = MediaWikiServices::getInstance()->getPermissionManager();
 	}
 
