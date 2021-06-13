@@ -1036,7 +1036,26 @@ class VerifiedWikiImporter {
 			$dbw = $lb->getConnectionRef( DB_MASTER );
 			$table = 'page_verification';
 			$verificationInfo["debug"] = "OHHHHYES ";
-			$dbw->insert( $table, $verificationInfo );
+			unset($verificationInfo["rev_id"]);
+
+			$res = $dbw->select(
+			    $table,
+			    ['page_verification_id', 'rev_id', 'page_title', 'source'],
+			    ['page_title' => $title],
+			    __METHOD__,
+			    [ 'ORDER BY' => 'page_verification_id' ]
+			);
+			$last_row = [];
+			foreach( $res as $row ) {
+			    $last_row = $row;
+			}
+
+			$dbw->update(
+				$table,
+				$verificationInfo,
+				['page_verification_id' => $last_row->page_verification_id],
+				__METHOD__
+		   	);
 		}
 
 		return $out;

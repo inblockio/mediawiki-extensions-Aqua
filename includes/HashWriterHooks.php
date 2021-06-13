@@ -85,38 +85,15 @@ class HashWriterHooks implements
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
         $dbw = $lb->getConnectionRef( DB_MASTER );
         $table_name = 'page_verification';
-        $page_title = $revisionRecord->getPageAsLinkTarget();
-        $res = $dbw->select(
-            $table_name,
-            ['page_verification_id', 'rev_id', 'page_title', 'source'],
-            ['page_title' => $page_title],
-            __METHOD__,
-            [ 'ORDER BY' => 'rev_id' ]
-        );
-        $last_row = [];
-        foreach( $res as $row ) {
-            $last_row = $row;
-        }
-
         $data = [
-            'page_title' => $page_title,
+            'page_title' => $revisionRecord->getPageAsLinkTarget(),
             'page_id' => $revisionRecord->getPageId(),
             'rev_id' => $revisionRecord->getID(),
             'time_stamp' => $revisionRecord->getTimestamp(),
-            'debug' => "ADFJKDAFJLA",
+            'debug' => "RevisionRecordInserted",
         ];
 
-        if (empty($last_row) || ($last_row->source == 'default')) {
-            $dbw->insert($table_name, $data, __METHOD__);
-        } else {
-            $imported_rev_id = $last_row->rev_id;
-            $dbw->update(
-                $table_name,
-                $data,
-                ['page_verification_id' => $last_row->page_verification_id],
-                __METHOD__
-            );
-        }
+        $dbw->insert($table_name, $data, __METHOD__);
     }
 
     public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
