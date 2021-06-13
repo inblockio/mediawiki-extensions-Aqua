@@ -106,10 +106,10 @@ class HashWriterHooks implements
          */
 
         $comment = $rev->getComment()->text;
-        if (strpos($comment, 'revision imported') || strpos($comment, 'revisions imported')) {
-            // If we are here it means we are importing from an XML file.
-            return;
-        }
+        //if (strpos($comment, 'revision imported') || strpos($comment, 'revisions imported')) {
+        //    // If we are here it means we are importing from an XML file.
+        //    return;
+        //}
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
         $dbw = $lb->getConnectionRef( DB_MASTER );
         $pageContent = $rev->getContent(SlotRecord::MAIN)->serialize();
