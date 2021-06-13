@@ -60,7 +60,7 @@ function makeEmptyIfNonce($x) {
 function getPageVerificationData($dbr, $previous_rev_id) {
     $res = $dbr->select(
         'page_verification',
-        [ 'rev_id', 'hash_verification', 'signature', 'public_key' ],
+        [ 'rev_id', 'hash_verification', 'signature', 'public_key', 'wallet_address' ],
         "rev_id = $previous_rev_id",
         __METHOD__
     );
