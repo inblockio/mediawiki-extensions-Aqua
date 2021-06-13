@@ -68,7 +68,7 @@ async function verifyRevision(revid, prevRevId, previousVerificationHash, conten
     console.log('  Verification hash matches')
   }
 
-  if (obj.signature === '') {
+  if (obj.signature === '' || obj.signature === null) {
     return [obj.verification_hash, true]
   }
 
