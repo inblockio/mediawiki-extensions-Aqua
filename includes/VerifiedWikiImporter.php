@@ -52,9 +52,13 @@ use SiteStatsUpdate;
 use RequestContext;
 
 
-// This class is cloned from Mediawiki 1.35.2's WikiImporter. Almost the same
-// except that handleRevision does handleVerification (where handleVerification
-// is present in this class but not the original Mediawiki version)
+/**
+ * This class is cloned from Mediawiki 1.35.2's WikiImporter. Almost the same
+ * except that handleRevision does handleVerification (where handleVerification
+ * is present in this class but not the original Mediawiki version), and we
+ * also modify processRevision to write the verification info into the DB.
+ */
+
 /**
  * XML file reader for the page data importer.
  *
@@ -875,7 +879,7 @@ class VerifiedWikiImporter {
 			} elseif ( $tag == 'contributor' ) {
 				$revisionInfo['contributor'] = $this->handleContributor();
 			} elseif ( $tag == 'verification' ) { // Aqua modification
-				$this->handleVerification();
+				$revisionInfo['verification'] = $this->handleVerification();
 			} elseif ( $tag != '#text' ) {
 				$this->warn( "Unhandled revision XML tag $tag" );
 				$skip = true;
@@ -1018,7 +1022,24 @@ class VerifiedWikiImporter {
 		}
 		$revision->setNoUpdates( $this->mNoUpdates );
 
-		return $this->revisionCallback( $revision );
+		// Callback
+		$out = $this->revisionCallback( $revision );
+
+		// Aqua modification
+		// We need to do this after the callback, which is `importRevision`,
+		// because we need the newly generated revision id.
+		if ( isset( $revisionInfo['verification'] ) ) {
+			$verificationInfo = $revisionInfo['verification'];
+			$verificationInfo['page_title'] = $title;
+			$verificationInfo['source'] = 'imported';
+			$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+			$dbw = $lb->getConnectionRef( DB_MASTER );
+			$table = 'page_verification';
+			$verificationInfo["debug"] = "OHHHHYES ";
+			$dbw->insert( $table, $verificationInfo );
+		}
+
+		return $out;
 	}
 
 	/**
@@ -1229,7 +1250,7 @@ class VerifiedWikiImporter {
 
 	private function handleVerification() {
 		if ( $this->reader->isEmptyElement ) {
-			return;
+			return null;
 		}
 		$verificationInfo = [];
 		$normalFields = [ 'domain_id', 'rev_id', 'verification_hash', 'time_stamp',
@@ -1246,16 +1267,11 @@ class VerifiedWikiImporter {
 				$verificationInfo[$tag] = $this->nodeContents();
 			}
 		}
-		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
-		$table = 'page_verification';
 
-		$rev_id = $verificationInfo['rev_id'];
-		$verificationInfo["debug"] = "OHHHHNOO";
 		// TODO this is for incompatible naming issue, fix this!!
 		$verificationInfo["hash_verification"] = $verificationInfo["verification_hash"];
 		unset($verificationInfo["verification_hash"]);
-		$dbw->insert( $table, $verificationInfo );
+		return $verificationInfo;
 	}
 
 }

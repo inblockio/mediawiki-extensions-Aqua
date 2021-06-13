@@ -77,8 +77,47 @@ function getPageVerificationData($dbr, $previous_rev_id) {
 
 class HashWriterHooks implements
     \MediaWiki\Page\Hook\RevisionFromEditCompleteHook,
+    \MediaWiki\Revision\Hook\RevisionRecordInsertedHook,
     \MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook
 {
+
+    public function onRevisionRecordInserted( $revisionRecord ) {
+        $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+        $dbw = $lb->getConnectionRef( DB_MASTER );
+        $table_name = 'page_verification';
+        $page_title = $revisionRecord->getPageAsLinkTarget();
+        $res = $dbw->select(
+            $table_name,
+            ['page_verification_id', 'rev_id', 'page_title', 'source'],
+            ['page_title' => $page_title],
+            __METHOD__,
+            [ 'ORDER BY' => 'rev_id' ]
+        );
+        $last_row = [];
+        foreach( $res as $row ) {
+            $last_row = $row;
+        }
+
+        $data = [
+            'page_title' => $page_title,
+            'page_id' => $revisionRecord->getPageId(),
+            'rev_id' => $revisionRecord->getID(),
+            'time_stamp' => $revisionRecord->getTimestamp(),
+            'debug' => "ADFJKDAFJLA",
+        ];
+
+        if (empty($last_row) || ($last_row->source == 'default')) {
+            $dbw->insert($table_name, $data, __METHOD__);
+        } else {
+            $imported_rev_id = $last_row->rev_id;
+            $dbw->update(
+                $table_name,
+                $data,
+                ['page_verification_id' => $last_row->page_verification_id],
+                __METHOD__
+            );
+        }
+    }
 
     public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
         /** 
@@ -88,8 +127,10 @@ class HashWriterHooks implements
          * the revision object which allows us to capture the context to make
          * this hack unnecessary
          */
+
         $comment = $rev->getComment()->text;
         if (strpos($comment, 'revision imported') || strpos($comment, 'revisions imported')) {
+            // If we are here it means we are importing from an XML file.
             return;
         }
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -111,10 +152,11 @@ class HashWriterHooks implements
             'hash_verification' => calculateVerificationHash($contentHash, $metadataHash),
             'signature' => '',
             'public_key' => '',
-            'wallet_address' => '', 
+            'wallet_address' => '',
+            'source' => 'default',
             'debug' => $rev->getTimeStamp().'[PV]'.$metadata[0].'[SIG]'.$metadata[1].'[PK]'.$metadata[2].'[Comment]'.$rev->getComment()->text.'[Domain_ID]'.getDomainId()
         ];
-        $dbw->insert('page_verification', $data, __METHOD__);
+        $dbw->update('page_verification', $data, ['rev_id' => $rev->getID()], __METHOD__);
         /** re-initilizing variables to ensure they do not hold values for the next revision. */
         $rev_id =[];
         $pageContent =[];

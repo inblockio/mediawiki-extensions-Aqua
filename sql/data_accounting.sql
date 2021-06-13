@@ -17,7 +17,8 @@ revision table',
 	`signature` VARCHAR(256),
 	`public_key` VARCHAR(256),
 	`wallet_address` VARCHAR(128),
-        `debug` VARCHAR(1000),
+	`source` VARCHAR(128) COMMENT 'possible values are "imported", "default"',
+	`debug` VARCHAR(1000),
 	PRIMARY KEY (`page_verification_id`)
 );
 
