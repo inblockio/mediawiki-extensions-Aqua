@@ -54,9 +54,11 @@ use RequestContext;
 
 /**
  * This class is cloned from Mediawiki 1.35.2's WikiImporter. Almost the same
- * except that handleRevision does handleVerification (where handleVerification
- * is present in this class but not the original Mediawiki version), and we
- * also modify processRevision to write the verification info into the DB.
+ * except that:
+ * 1. handleVerification is implemented
+ * 2. handleRevision does handleVerification
+ * 3. processVerification is implemented, which writes verification info into the DB
+ * 4. processRevision does processVerification
  */
 
 /**
@@ -971,6 +973,39 @@ class VerifiedWikiImporter {
 		return $content;
 	}
 
+	// Aqua modification
+	private function processVerification( $revisionInfo, $title ) {
+		if ( isset( $revisionInfo['verification'] ) ) {
+			$verificationInfo = $revisionInfo['verification'];
+			$verificationInfo['page_title'] = $title;
+			$verificationInfo['source'] = 'imported';
+			$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+			$dbw = $lb->getConnectionRef( DB_MASTER );
+			$table = 'page_verification';
+			$verificationInfo["debug"] = "OHHHHYES ";
+			unset($verificationInfo["rev_id"]);
+
+			$res = $dbw->select(
+			    $table,
+			    ['page_verification_id', 'rev_id', 'page_title', 'source'],
+			    ['page_title' => $title],
+			    __METHOD__,
+			    [ 'ORDER BY' => 'page_verification_id' ]
+			);
+			$last_row = [];
+			foreach( $res as $row ) {
+			    $last_row = $row;
+			}
+
+			$dbw->update(
+				$table,
+				$verificationInfo,
+				['page_verification_id' => $last_row->page_verification_id],
+				__METHOD__
+		   	);
+		}
+	}
+
 	/**
 	 * @param array $pageInfo
 	 * @param array $revisionInfo
@@ -1028,35 +1063,7 @@ class VerifiedWikiImporter {
 		// Aqua modification
 		// We need to do this after the callback, which is `importRevision`,
 		// because we need the newly generated revision id.
-		if ( isset( $revisionInfo['verification'] ) ) {
-			$verificationInfo = $revisionInfo['verification'];
-			$verificationInfo['page_title'] = $title;
-			$verificationInfo['source'] = 'imported';
-			$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-			$dbw = $lb->getConnectionRef( DB_MASTER );
-			$table = 'page_verification';
-			$verificationInfo["debug"] = "OHHHHYES ";
-			unset($verificationInfo["rev_id"]);
-
-			$res = $dbw->select(
-			    $table,
-			    ['page_verification_id', 'rev_id', 'page_title', 'source'],
-			    ['page_title' => $title],
-			    __METHOD__,
-			    [ 'ORDER BY' => 'page_verification_id' ]
-			);
-			$last_row = [];
-			foreach( $res as $row ) {
-			    $last_row = $row;
-			}
-
-			$dbw->update(
-				$table,
-				$verificationInfo,
-				['page_verification_id' => $last_row->page_verification_id],
-				__METHOD__
-		   	);
-		}
+		$this->processVerification($revisionInfo, $title );
 
 		return $out;
 	}
@@ -1267,6 +1274,7 @@ class VerifiedWikiImporter {
 			->getDefaultModel( $title );
 	}
 
+	// Aqua modification
 	private function handleVerification() {
 		if ( $this->reader->isEmptyElement ) {
 			return null;
