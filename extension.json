@@ -111,6 +111,7 @@
 		"ParserGetVariableValueSwitch": "handleHooks",
 		"SkinTemplateNavigation": "handleHooks",
 		"RevisionFromEditComplete": "handleHashWriterHooks",
+		"RevisionRecordInserted": "handleHashWriterHooks",
 		"LoadExtensionSchemaUpdates": {
 			"handler": "handleHashWriterHooks"
 		}

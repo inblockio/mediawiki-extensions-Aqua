@@ -24,12 +24,119 @@
  */
 
 namespace MediaWiki\Extension\Example;
+
+use DOMDocument;
+use HTMLForm;
+use SimpleXMLElement;
+
 use MediaWiki\Logger\LoggerFactory;
 use Wikimedia\Rdbms\ILoadBalancer;
+use HTMLTextAreaField;
+use Title;
+use MediaWiki\MediaWikiServices;
+use WikiExporter;
+use XmlDumpWriter;
 
 # include / exclude for debugging
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
+
+function getPageMetadataByRevId($rev_id) {
+	// This is based on the case of 'verify_page' API call in StandardRestApi.php.
+	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+	$dbr = $lb->getConnectionRef( DB_REPLICA );
+	$res = $dbr->select(
+		'page_verification',
+		[ 'domain_id', 'rev_id','hash_verification','time_stamp','signature','public_key','wallet_address' ],
+		'rev_id = '.$rev_id,
+		__METHOD__
+	);
+
+	$output = array();
+	foreach( $res as $row ) {
+		$output['domain_id'] = $row->domain_id;
+		$output['rev_id'] = $rev_id;
+		$output['verification_hash'] = $row->hash_verification;
+		$output['time_stamp'] = $row->time_stamp;
+		$output['signature'] = $row->signature;
+		$output['public_key'] = $row->public_key;
+		$output['wallet_address'] = $row->wallet_address;
+		break;
+	}
+
+	//return "<verification>\n  <title>PHP2: More Parser Stories</title>\n</verification>";
+	// Convert the $output array to XML string
+	$xml = new SimpleXMLElement("<verification/>");
+	array_walk(array_flip($output), array($xml, 'addChild'));
+	// We have to do these steps to ensure there are proper newlines in the XML
+	// string.
+	$dom = new DOMDocument();
+	$dom->loadXML($xml->asXML());
+	$dom->formatOutput = true;
+	$xmlString = $dom->saveXML();
+	// Remove the first line which has 'xml version="1.0"'
+	$xmlString = preg_replace('/^.+\n/', '', $xmlString);
+	return $xmlString;
+}
+
+class VerifiedWikiExporter extends WikiExporter {
+	public function __construct(
+		$db,
+		$history = self::CURRENT,
+		$text = self::TEXT,
+		$limitNamespaces = null
+	) {
+		parent::__construct($db, $history, $text, $limitNamespaces);
+		$this->writer = new XmlDumpWriter( $text, self::schemaVersion() );
+	}
+	protected function outputPageStreamBatch( $results, $lastRow ) {
+		$rowCarry = null;
+		while ( true ) {
+			$slotRows = $this->getSlotRowBatch( $results, $rowCarry );
+
+			if ( !$slotRows ) {
+				break;
+			}
+
+			// All revision info is present in all slot rows.
+			// Use the first slot row as the revision row.
+			$revRow = $slotRows[0];
+
+			if ( $this->limitNamespaces &&
+				!in_array( $revRow->page_namespace, $this->limitNamespaces ) ) {
+				$lastRow = $revRow;
+				continue;
+			}
+
+			if ( $lastRow === null ||
+				$lastRow->page_namespace !== $revRow->page_namespace ||
+				$lastRow->page_title !== $revRow->page_title ) {
+				if ( $lastRow !== null ) {
+					$output = '';
+					if ( $this->dumpUploads ) {
+						$output .= $this->writer->writeUploads( $lastRow, $this->dumpUploadFileContents );
+					}
+					$output .= $this->writer->closePage();
+					$this->sink->writeClosePage( $output );
+				}
+				$output = $this->writer->openPage( $revRow );
+				$this->sink->writeOpenPage( $revRow, $output );
+			}
+			$output = $this->writer->writeRevision( $revRow, $slotRows );
+			$verification_info = getPageMetadataByRevId($revRow->rev_id);
+			//$verification_info = "<ver>bbb</ver>";
+			$output = str_replace("</revision>", $verification_info . "\n</revision>", $output);
+			$this->sink->writeRevision( $revRow, $output );
+			$lastRow = $revRow;
+		}
+
+		if ( $rowCarry ) {
+			throw new LogicException( 'Error while processing a stream of slot rows' );
+		}
+
+		return $lastRow;
+	}
+}
 
 /**
  * A special page that allows users to export pages in a XML file
@@ -48,7 +155,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 	public function __construct(
 		ILoadBalancer $loadBalancer
 	) {
-		parent::__construct( 'Export' );
+		parent::__construct( 'VerifiedExport' );
 		$this->loadBalancer = $loadBalancer;
 	}
 
@@ -114,7 +221,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 			$history = '';
 		} elseif ( $request->wasPosted() && $par == '' ) {
 			// Log to see if certain parameters are actually used.
-			// If not, we could deprecate them and do some cleanup, here and in WikiExporter.
+			// If not, we could deprecate them and do some cleanup, here and in VerifiedWikiExporter.
 			LoggerFactory::getInstance( 'export' )->debug(
 				'Special:Export POST, dir: [{dir}], offset: [{offset}], limit: [{limit}]', [
 				'dir' => $request->getRawVal( 'dir' ),
@@ -143,7 +250,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 			$historyCheck = $request->getCheck( 'history' );
 
 			if ( $this->curonly ) {
-				$history = WikiExporter::CURRENT;
+				$history = VerifiedWikiExporter::CURRENT;
 			} elseif ( !$historyCheck ) {
 				if ( $limit > 0 && ( $maxHistory == 0 || $limit < $maxHistory ) ) {
 					$history['limit'] = $limit;
@@ -167,9 +274,9 @@ class SpecialVerifiedExport extends \SpecialPage {
 			$historyCheck = $request->getCheck( 'history' );
 
 			if ( $historyCheck ) {
-				$history = WikiExporter::FULL;
+				$history = VerifiedWikiExporter::FULL;
 			} else {
-				$history = WikiExporter::CURRENT;
+				$history = VerifiedWikiExporter::CURRENT;
 			}
 
 			if ( $page != '' ) {
@@ -179,7 +286,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 
 		if ( !$config->get( 'ExportAllowHistory' ) ) {
 			// Override
-			$history = WikiExporter::CURRENT;
+			$history = VerifiedWikiExporter::CURRENT;
 		}
 
 		$list_authors = $request->getCheck( 'listauthors' );
@@ -341,14 +448,16 @@ class SpecialVerifiedExport extends \SpecialPage {
 	 * @return bool
 	 */
 	protected function userCanOverrideExportDepth() {
-		return $this->getAuthority()->isAllowed( 'override-export-depth' );
+		// TODO DataAccounting specific modification
+		return false;
+		//return $this->getAuthority()->isAllowed( 'override-export-depth' );
 	}
 
 	/**
 	 * Do the actual page exporting
 	 *
 	 * @param string $page User input on what page(s) to export
-	 * @param int $history One of the WikiExporter history export constants
+	 * @param int $history One of the VerifiedWikiExporter history export constants
 	 * @param bool $list_authors Whether to add distinct author list (when
 	 *   not returning full history)
 	 * @param bool $exportall Whether to export everything
@@ -356,7 +465,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 	protected function doExport( $page, $history, $list_authors, $exportall ) {
 		// If we are grabbing everything, enable full history and ignore the rest
 		if ( $exportall ) {
-			$history = WikiExporter::FULL;
+			$history = VerifiedWikiExporter::FULL;
 		} else {
 			$pageSet = []; // Inverted index of all pages to look up
 
@@ -395,7 +504,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 		/* Ok, let's get to it... */
 		$db = $this->loadBalancer->getConnectionRef( ILoadBalancer::DB_REPLICA );
 
-		$exporter = new WikiExporter( $db, $history );
+		$exporter = new VerifiedWikiExporter( $db, $history );
 		$exporter->list_authors = $list_authors;
 		$exporter->openStream();
 
@@ -410,10 +519,11 @@ class SpecialVerifiedExport extends \SpecialPage {
 					continue;
 				}
 
-				if ( !$this->getAuthority()->authorizeRead( 'read', $title ) ) {
-					// @todo Perhaps output an <error> tag or something.
-					continue;
-				}
+				// TODO DataAccounting specific modification
+				//if ( !$this->getAuthority()->authorizeRead( 'read', $title ) ) {
+				//	// @todo Perhaps output an <error> tag or something.
+				//	continue;
+				//}
 
 				$exporter->pageByTitle( $title );
 			}

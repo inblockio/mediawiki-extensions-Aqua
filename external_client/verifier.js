@@ -6,8 +6,11 @@ const sha3 = require('js-sha3')
 // utilities for verifying signatures
 const ethers = require('ethers')
 
+const DEBUG = false
+
 //This should be a commandline argument for specifying the title of the page which should be verified 
 let title = 'Main Page'
+//let title = 'Tp3'
 
 function formatMwTimestamp(ts) {
   // Format timestamp into the timestamp format found in Mediawiki outputs
@@ -34,24 +37,82 @@ async function getBackendVerificationHash(revid) {
   })
 }
 
-async function verifyRevision(revid) {
-  http.get(`http://localhost:9352/rest.php/data_accounting/v1/standard/verify_page?var1=${revid}`, (resp) => {
-    resp.on('data', (data) => {
-      let dataStr = data.toString()
-      if (dataStr === '[]') {
-        console.log(`${revid} doesn't have verification hash`)
-        return
-      }
-      let obj = JSON.parse(dataStr)
-      console.log('backend', revid, obj)
-      const paddedMessage = 'I sign the following page verification_hash: [0x' + obj.verification_hash + ']'
-      const recoveredAddress = ethers.utils.recoverAddress(ethers.utils.hashMessage(paddedMessage), obj.signature)
-      console.log(recoveredAddress.toLowerCase(), obj.wallet_address.toLowerCase())
-      if (recoveredAddress === obj.wallet_address) {
-        console.log(`${revid} is valid`)
-      }
-    })
-  })
+async function verifyRevision(revid, prevRevId, previousVerificationHash, contentHash) {
+  const data = await synchronousGet(`http://localhost:9352/rest.php/data_accounting/v1/standard/verify_page?var1=${revid}`)
+  if (data === '[]') {
+    console.log('  no verification hash')
+    return [null, false]
+  }
+  let obj = JSON.parse(data)
+
+  if (obj.signature === '') {
+    console.log('  no signature')
+  }
+
+  let metadataHash = null
+  if (prevRevId === '') {
+    metadataHash = calculateMetadataHash(obj.time_stamp, previousVerificationHash, '', '')
+  } else {
+    const dataPrevious = await synchronousGet(`http://localhost:9352/rest.php/data_accounting/v1/standard/verify_page?var1=${prevRevId}`)
+    const objPrevious = JSON.parse(dataPrevious)
+    // TODO just use signature and public key from previous element in the loop inside verifyPage
+    metadataHash = calculateMetadataHash(obj.time_stamp, previousVerificationHash, objPrevious.signature, objPrevious.public_key)
+  }
+
+  const calculatedVerificationHash = calculateVerificationHash(contentHash, metadataHash)
+
+  if (calculatedVerificationHash !== obj.verification_hash) {
+    console.log("  verification hash doesn't match")
+    return [null, false]
+  } else {
+    console.log('  Verification hash matches')
+  }
+
+  if (obj.signature === '') {
+    return [obj.verification_hash, true]
+  }
+
+  if (DEBUG) {
+    console.log('DEBUG backend', revid, obj)
+  }
+  // The padded message is required
+  const paddedMessage = 'I sign the following page verification_hash: [0x' + obj.verification_hash + ']'
+  const recoveredAddress = ethers.utils.recoverAddress(ethers.utils.hashMessage(paddedMessage), obj.signature)
+  if (recoveredAddress.toLowerCase() === obj.wallet_address.toLowerCase()) {
+    console.log('  signature is valid')
+  }
+  return [obj.verification_hash, true]
+}
+
+async function synchronousGet(url) {
+  try {
+    http_promise = new Promise((resolve, reject) => {
+      http.get(url, (response) => {
+        let chunks_of_data = [];
+
+        response.on('data', (fragments) => {
+          chunks_of_data.push(fragments);
+        });
+
+        response.on('end', () => {
+          let response_body = Buffer.concat(chunks_of_data);
+
+          // promise resolved on success
+          resolve(response_body.toString())
+        });
+
+        response.on('error', (error) => {
+          // promise rejected on error
+          reject(error)
+        });
+      });
+    });
+    return await http_promise;
+  }
+	catch(e) {
+		// if the Promise is rejected
+		console.error(e)
+	}
 }
 
 function verifyPage(title) {
@@ -66,26 +127,21 @@ function verifyPage(title) {
       console.log('verified ids', verifiedRevIds)
 
       let previousVerificationHash = ''
+      let previousRevId = ''
+      let count = 0
       for (const idx in verifiedRevIds) {
         const revid = verifiedRevIds[idx]
-        // TODO make sure this http.get call finishes properly before the next http.get
-        await http.get(`http://localhost:9352/api.php?action=parse&oldid=${revid}&prop=wikitext&formatversion=2&format=json`, (respRevid) => {
-          let bodyRevid = ""
-          respRevid.on('data', (chunk) => {
-            bodyRevid += chunk
-          })
-          respRevid.on('end', () => {
-            let content = JSON.parse(bodyRevid).parse.wikitext
-            //let timestamp = formatMwTimestamp(rev.timestamp)
-            let timestamp = "AAA"
-            let contentHash = getHashSum(content)
-            let metadataHash = calculateMetadataHash(timestamp, previousVerificationHash)
-            let verificationHash = calculateVerificationHash(contentHash, metadataHash)
-            console.log(revid, verificationHash, previousVerificationHash)
-            previousVerificationHash = verificationHash
-            //verifyRevision(revid)
-          })
-        })
+        console.log(revid)
+        const bodyRevid = await synchronousGet(`http://localhost:9352/api.php?action=parse&oldid=${revid}&prop=wikitext&formatversion=2&format=json`)
+        const content = JSON.parse(bodyRevid).parse.wikitext
+        const contentHash = getHashSum(content)
+        const [verificationHash, isCorrect] = await verifyRevision(revid, previousRevId, previousVerificationHash, contentHash)
+        if (isCorrect) {
+          count += 1
+        }
+        console.log(`  ${(100 * count / verifiedRevIds.length).toFixed(1)}% page validation`)
+        previousVerificationHash = verificationHash
+        previousRevId = revid
       }
     })
   }).on("error", (err) => {
