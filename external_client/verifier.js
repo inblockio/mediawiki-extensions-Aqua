@@ -56,7 +56,11 @@ async function verifyRevision(revid, prevRevId, previousVerificationHash, conten
     const dataPrevious = await synchronousGet(`http://localhost:9352/rest.php/data_accounting/v1/standard/verify_page?var1=${prevRevId}`)
     const objPrevious = JSON.parse(dataPrevious)
     // TODO just use signature and public key from previous element in the loop inside verifyPage
-    metadataHash = calculateMetadataHash(obj.time_stamp, previousVerificationHash, objPrevious.signature, objPrevious.public_key)
+    // We have to do these ternary operations because sometimes the signature
+    // and public key are nulls, not empty strings.
+    signature = !!objPrevious.signature ? objPrevious.signature: ''
+    publicKey = !!objPrevious.public_key ? objPrevious.public_key: ''
+    metadataHash = calculateMetadataHash(obj.time_stamp, previousVerificationHash, signature, publicKey)
   }
 
   const calculatedVerificationHash = calculateVerificationHash(contentHash, metadataHash)
