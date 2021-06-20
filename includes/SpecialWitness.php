@@ -7,6 +7,8 @@
 
 namespace MediaWiki\Extension\Example;
 
+use HTMLForm;
+
 class SpecialWitness extends \SpecialPage {
 
 	/**
@@ -25,14 +27,21 @@ class SpecialWitness extends \SpecialPage {
 	 *  [[Special:SignMessage/subpage]].
 	 */
 	public function execute( $sub ) {
+		$this->setHeaders();
+
+		$formDescriptor = [];
+		$htmlForm = new HTMLForm( $formDescriptor, $this->getContext(), 'generatePageManifest' );
+		$htmlForm->setSubmitText( 'Generate Page Manifest' );
+		$htmlForm->setSubmitCallback( [ $this, 'generatePageManifest' ] );
+		$htmlForm->setMethod( 'get' );
+		$htmlForm->show();
+
 		$out = $this->getOutput();
+		$out->setPageTitle( 'Witness' );
+	}
 
-		$out->setPageTitle( $this->msg( 'example-helloworld' ) );
-
-		// Parses message from .i18n.php as wikitext and adds it to the
-		// page output.
-		$out->addWikiMsg( 'example-helloworld-intro' );
-		echo 'hello world! Sign something maybe';
+	public static function generatePageManifest( $formData ) {
+		return false;
 	}
 
 	/** @inheritDoc */
