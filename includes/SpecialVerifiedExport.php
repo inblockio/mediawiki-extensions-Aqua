@@ -386,7 +386,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 					'label-message' => 'exportcuronly',
 					'name' => 'curonly',
 					'id' => 'curonly',
-					'default' => $request->wasPosted() ? $request->getCheck( 'curonly' ) : true,
+					'default' => $request->wasPosted() ? $request->getCheck( 'curonly' ) : false,
 				],
 			];
 		} else {
