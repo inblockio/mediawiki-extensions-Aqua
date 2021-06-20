@@ -54,7 +54,7 @@
 	},
 	"SpecialPages": {
 		"HelloWorld": "MediaWiki\\Extension\\Example\\SpecialHelloWorld",
-		"SignMessage": "MediaWiki\\Extension\\Example\\SpecialSignMessage",
+		"Witness": "MediaWiki\\Extension\\Example\\SpecialWitness",
 		"Includable": "MediaWiki\\Extension\\Example\\SpecialIncludable",
 		"VerifiedExport": {
 			"class": "MediaWiki\\Extension\\Example\\SpecialVerifiedExport",

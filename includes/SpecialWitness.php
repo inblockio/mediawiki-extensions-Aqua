@@ -7,7 +7,7 @@
 
 namespace MediaWiki\Extension\Example;
 
-class SpecialSignMessage extends \SpecialPage {
+class SpecialWitness extends \SpecialPage {
 
 	/**
 	 * Initialize the special page.
@@ -16,7 +16,7 @@ class SpecialSignMessage extends \SpecialPage {
 		// A special page should at least have a name.
 		// We do this by calling the parent class (the SpecialPage class)
 		// constructor method with the name as first and only parameter.
-		parent::__construct( 'SignMessage' );
+		parent::__construct( 'Witness' );
 	}
 
 	/**
