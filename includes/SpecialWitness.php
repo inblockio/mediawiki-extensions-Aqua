@@ -7,7 +7,12 @@
 
 namespace MediaWiki\Extension\Example;
 
+use MediaWiki\MediaWikiServices;
 use HTMLForm;
+
+# include / exclude for debugging
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
 
 class SpecialWitness extends \SpecialPage {
 
@@ -29,11 +34,15 @@ class SpecialWitness extends \SpecialPage {
 	public function execute( $sub ) {
 		$this->setHeaders();
 
-		$formDescriptor = [];
+		$formDescriptor = [
+			'pagetitle' => [
+				'label' => 'Page Title', // Label of the field
+				'class' => 'HTMLTextField', // Input type
+			]
+		];
 		$htmlForm = new HTMLForm( $formDescriptor, $this->getContext(), 'generatePageManifest' );
 		$htmlForm->setSubmitText( 'Generate Page Manifest' );
 		$htmlForm->setSubmitCallback( [ $this, 'generatePageManifest' ] );
-		$htmlForm->setMethod( 'get' );
 		$htmlForm->show();
 
 		$out = $this->getOutput();
@@ -41,7 +50,23 @@ class SpecialWitness extends \SpecialPage {
 	}
 
 	public static function generatePageManifest( $formData ) {
-		return false;
+		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbr = $lb->getConnectionRef( DB_REPLICA );
+		$res = $dbr->select(
+			'page_verification',
+			[ 'MAX(rev_id) as rev_id', 'page_title', 'hash_verification' ],
+			'',
+			__METHOD__,
+			[ 'GROUP BY' => 'page_title']
+		);
+
+		$output = '';
+		foreach( $res as $row ) {
+			$output .= 'Page Title: ' . $row->page_title . ' Revision_ID: ' . $row->rev_id . ' hash: ' . $row->hash_verification . "<br>";
+		}
+		$out = $this->getOutput();
+		$out->addHTML($output);
+		return true;
 	}
 
 	/** @inheritDoc */
