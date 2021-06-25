@@ -1,0 +1,5 @@
+{
+    "require": {
+        "pleonasm/merkle-tree": "*"
+    }
+}
