@@ -1,5 +1,5 @@
 {
     "require": {
-        "pleonasm/merkle-tree": "*"
+        "rht/merkle-tree": "dev-master"
     }
 }
