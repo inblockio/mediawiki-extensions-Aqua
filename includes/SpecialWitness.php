@@ -18,6 +18,48 @@ require 'vendor/autoload.php';
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
+function tree_pprint($layers, $out = "", $prefix = "└─ ", $level = 0, $is_last = true) {
+    # The default prefix is for level 0
+    $length = count($layers);
+    $idx = 1;
+    if ($level == 0) {
+        $child_padding = "";
+    } else {
+        $child_padding = " ";
+    }
+    foreach ($layers as $key => $value) {
+        $is_last = $idx == $length;
+        if ($level == 0) {
+            $last_element = "";
+        } elseif ($is_last) {
+            $last_element = "  └─ ";
+        } else {
+            $last_element = "  ├─ ";
+        }
+
+		if ($level == 0) {
+			$out .= "Merkle root: " . $key . "\n";
+		} else {
+			$formatted_key = "<a href='" . $key. "'>" . substr($key, 0, 6) . "..." . substr($key, -6, 6) . "</a>";
+			$out .= $child_padding . $prefix . $last_element . $formatted_key . "\n";
+		}
+        if (!is_null($value)) {
+            if ($level == 0) {
+                $new_prefix = "";
+            } else {
+                if ($is_last) {
+                    $new_prefix = $prefix . "   ";
+                } else {
+                    $new_prefix = $prefix . "  │";
+                }
+            }
+            $out .= tree_pprint($value, "", $new_prefix, $level + 1, $is_last);
+        }
+        $idx += 1;
+    }
+    return $out;
+}
+
 class SpecialWitness extends \SpecialPage {
 
 	/**
@@ -95,8 +137,7 @@ class SpecialWitness extends \SpecialPage {
 
 		$out = $this->getOutput();
 		$out->addHTML($output);// . '<br> Verification_Hash 1: ' . $verification_hashes[0] . '<br> Verification_Hash 2:' . $verification_hashes[1]);
-		$out->addHTML('<br>' . json_encode($tree->getLayersAsObject(), JSON_PRETTY_PRINT));
-		//$out->addHTML($output . '<br> Verification_Hash 1: ' . $verification_hashes[0] . '<br> Verification_Hash 2:' . $verification_hashes[1] . 'Verification_Hash 1 + 2: ' . getHashSum($verification_hashes[0].$verification_hashes[1]));
+		$out->addHTML('<br><pre>' . tree_pprint($tree->getLayersAsObject()) . '</pre>');
         return true;
 	}
 
