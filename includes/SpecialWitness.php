@@ -9,6 +9,9 @@ namespace MediaWiki\Extension\Example;
 
 use MediaWiki\MediaWikiServices;
 use HTMLForm;
+use WikiPage;
+use Title;
+use TextContent;
 
 use MediaWiki\Extension\Example\FixedSizeTree;
 
@@ -17,6 +20,13 @@ require 'vendor/autoload.php';
 # include / exclude for debugging
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
+
+
+class HtmlContent extends TextContent {
+	protected function getHtml() {
+		return $this->getText();
+	}
+}
 
 function tree_pprint($layers, $out = "", $prefix = "└─ ", $level = 0, $is_last = true) {
     # The default prefix is for level 0
@@ -107,10 +117,6 @@ class SpecialWitness extends \SpecialPage {
 			[ 'GROUP BY' => 'page_title']
 		);
 
-        function getHashSum($inputStr) {
-            return hash("sha3-512", $inputStr);
-        }
-
         $int = 0;
 		$output = '';
 		$verification_hashes = [];
@@ -137,7 +143,16 @@ class SpecialWitness extends \SpecialPage {
 
 		$out = $this->getOutput();
 		$out->addHTML($output);// . '<br> Verification_Hash 1: ' . $verification_hashes[0] . '<br> Verification_Hash 2:' . $verification_hashes[1]);
-		$out->addHTML('<br><pre>' . tree_pprint($tree->getLayersAsObject()) . '</pre>');
+
+		$title = Title::newFromText( "Page Manifest" );
+		$page = new WikiPage( $title );
+		$merkleTreeText = '<br><pre>' . tree_pprint($tree->getLayersAsObject()) . '</pre>';
+		$pageContent = new HtmlContent($merkleTreeText);
+		$page->doEditContent( $pageContent,
+			"Page created automatically by [[Special:Witness]]" );
+
+		$out->addHTML($merkleTreeText);
+		$out->addWikiTextAsContent("<br> Visit [[Page Manifest]] to see the Merkle proof.");
         return true;
 	}
 
