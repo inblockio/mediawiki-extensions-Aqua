@@ -996,6 +996,10 @@ class VerifiedWikiImporter {
 			foreach( $res as $row ) {
 			    $last_row = $row;
 			}
+			if (empty($last_row)) {
+				// Do nothing if empty
+				return;
+			}
 
 			$dbw->update(
 				$table,
