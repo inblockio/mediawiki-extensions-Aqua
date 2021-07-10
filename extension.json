@@ -112,6 +112,7 @@
 		"SkinTemplateNavigation": "handleHooks",
 		"RevisionFromEditComplete": "handleHashWriterHooks",
 		"RevisionRecordInserted": "handleHashWriterHooks",
+		"ArticleDeleteComplete": "handleHashWriterHooks",
 		"LoadExtensionSchemaUpdates": {
 			"handler": "handleHashWriterHooks"
 		}

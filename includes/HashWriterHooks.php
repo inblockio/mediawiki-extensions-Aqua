@@ -78,6 +78,7 @@ function getPageVerificationData($dbr, $previous_rev_id) {
 class HashWriterHooks implements
     \MediaWiki\Page\Hook\RevisionFromEditCompleteHook,
     \MediaWiki\Revision\Hook\RevisionRecordInsertedHook,
+    \MediaWiki\Page\Hook\ArticleDeleteCompleteHook,
     \MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook
 {
 
@@ -142,6 +143,14 @@ class HashWriterHooks implements
         $metadata =[];
         $metadataHash =[];
         $data =[];
+    }
+
+    public function onArticleDeleteComplete( $wikiPage, $user, $reason, $id,
+		$content, $logEntry, $archivedRevisionCount
+    ) {
+        $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+        $dbw = $lb->getConnectionRef( DB_MASTER );
+        $dbw->delete( 'page_verification', [ 'page_id' => $id ], __METHOD__ );
     }
 
     /**
