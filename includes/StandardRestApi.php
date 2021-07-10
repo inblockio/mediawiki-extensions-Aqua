@@ -16,7 +16,7 @@ ini_set("display_errors", 1);
  */
 class StandardRestApi extends SimpleHandler {
 
-    private const VALID_ACTIONS = ['help', 'verify_page', 'get_page_by_rev_id', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_signed_tx', 'store_witnesstx' ];
+    private const VALID_ACTIONS = ['help', 'verify_page', 'get_page_by_rev_id', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_signed_tx', 'store_witnesstx', 'request_hash' ];
 
     /** @inheritDoc */
     public function run( $action ) {
@@ -216,6 +216,24 @@ class StandardRestApi extends SimpleHandler {
             #Expects all required input for the page_witness database: Transaction Hash, Sender Address, List of Pages with witnessed revision
         case 'store_witness_tx':
             return [ "Expects page title: $var1 and returns ALL verified revisions which have been signed and wittnessed"];
+
+        case 'request_hash':
+            $rev_id = $var1;
+            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+            $dbr = $lb->getConnectionRef( DB_REPLICA );
+
+            $res = $dbr->select(
+            'page_verification',
+            [ 'rev_id','hash_verification' ],
+                'rev_id = ' . $rev_id,
+            __METHOD__
+            );
+
+            $output = '';
+            foreach( $res as $row ) {
+                $output .= 'I sign the following page verification_hash: [0x' . $row->hash_verification .']';
+            }
+            return $output;
 
         default:
             return [ 'HIT ACTION DEFAULT - EXIT' ];

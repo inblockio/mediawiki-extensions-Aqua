@@ -29,7 +29,7 @@
         console.log({ revId })
         if (window.ethereum) {
           if (window.ethereum.isConnected() && window.ethereum.selectedAddress) {
-            fetch('http://localhost:9352/rest.php/data_accounting/v1/request_hash/' + revId, { method: 'GET' })
+            fetch('http://localhost:9352/rest.php/data_accounting/v1/standard/request_hash?var1=' + revId, { method: 'GET' })
               .then((data) => {
                 data.json().then((parsed) => {
                   console.log(parsed.value)
