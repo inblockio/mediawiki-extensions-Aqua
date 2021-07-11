@@ -10,6 +10,7 @@ use MediaWiki\MediaWikiServices;
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
+require_once("ApiUtil.php");
 
 /**
  * Extension:DataAccounting Standard Rest API
@@ -137,29 +138,7 @@ class StandardRestApi extends SimpleHandler {
             #NOT IMPLEMENTED
         case 'page_all_rev':
             $page_title = $var1;
-            //Database Query
-            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-            $dbr = $lb->getConnectionRef( DB_REPLICA );
-            #INSERT LOOP AND PARSE INTO ARRAY TO GET ALL PAGES 
-            $res = $dbr->select(
-                'page_verification',
-                [ 'rev_id','page_title','page_id' ],
-                'page_title= \''.$page_title.'\'',
-                __METHOD__,
-                [ 'ORDER BY' => 'rev_id' ] 
-            );
-
-            $output = array();
-            $count = 0;
-            foreach( $res as $row ) {
-                $data = array();
-                $data['page_title'] = $row->page_title;
-                $data['page_id'] = $row->page_id;
-                $data['rev_id'] = $row->rev_id;
-                $output[$count] = $data;
-                $count ++;
-            }                                 
-            return $output;
+            return get_page_all_rev($page_title);
 
             #Expects Page Title and returns ALL verified revisions which have been signed
         case 'page_all_rev_sig':
