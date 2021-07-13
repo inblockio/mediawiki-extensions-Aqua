@@ -36,3 +36,7 @@ function get_page_all_rev($page_title) {
 	return $output;
 }
 
+function getPageChainHeight($page_title) {
+	$revs = get_page_all_rev($page_title);
+	return count($revs);
+}

@@ -81,11 +81,6 @@ function getPageMetadataByRevId($rev_id) {
 	return $xmlString;
 }
 
-function getPageChainHeight($page_title) {
-	$revs = get_page_all_rev($page_title);
-	return count($revs);
-}
-
 class VerifiedWikiExporter extends WikiExporter {
 	public function __construct(
 		$db,
