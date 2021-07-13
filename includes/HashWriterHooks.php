@@ -162,7 +162,8 @@ class HashWriterHooks implements
         $dbw->update(
             'page_verification',
             ['page_title' => $new_title],
-            ['page_title' => $old_title],
+            ['page_title' => $old_title,
+             'page_id' => $pageid],
             __METHOD__
         );
     }
