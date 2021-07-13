@@ -23,7 +23,7 @@ revision table',
 );
 
 CREATE TABLE IF NOT EXISTS `witness_events` (
-        `page_witness_id` INT(32) NOT NULL AUTO_INCREMENT,
+        `witness_event_id` INT(32) NOT NULL AUTO_INCREMENT,
         `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
         `page_manifest_title` VARCHAR(128) COMMENT 'from page_verification',
         `page_manifest_verification_hash` VARCHAR(128) COMMENT 'from page_verification table',
