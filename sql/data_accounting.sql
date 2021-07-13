@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `witness_events` (
         `smart_contract_address` VARCHAR(128) DEFAULT 'PLEASE SET THE VARIABLE IN THE SPECIALPAGE:WITNESS' COMMENT 'populated by SpecialPage:Witness configuration input fields',
         `witness_event_transaction_hash` VARCHAR(128) DEFAULT 'PUBLISH WITNESS HASH TO BLOCKCHAIN POPULATE',
         `sender_account_address` VARCHAR(128) DEFAULT 'PUBLISH WITNESS HASH TO BLOCKCHAIN POPULATE' COMMENT 'is populated after witness_event has been executed via RESTAPI',
-        PRIMARY KEY (`page_witness_id`)
+        PRIMARY KEY (`witness_event_id`)
     );
 
 CREATE TABLE IF NOT EXISTS `witness_page_list` (
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `witness_page_list` (
     PRIMARY KEY (`INDEX`)
 );
 
-CREATE TABLE `witness_merkle_tree` (
+CREATE TABLE IF NOT EXISTS `witness_merkle_tree` (
     `INDEX` INT(32) NOT NULL AUTO_INCREMENT,
     `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
     `depth` VARCHAR(64) COMMENT 'the depth of the node',
