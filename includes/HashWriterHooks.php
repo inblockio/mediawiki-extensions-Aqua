@@ -72,6 +72,11 @@ function getPageVerificationData($dbr, $previous_rev_id) {
         array_push($output, makeEmptyIfNonce($row->wallet_address));
         break;
     }
+    if (empty($output)) {
+        // When $res is empty, we have to construct $output consisting of empty
+        // strings.
+        return ["", "", "", ""];
+    }
     return $output;
 }
 
