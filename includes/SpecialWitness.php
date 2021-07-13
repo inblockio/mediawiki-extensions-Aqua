@@ -1,6 +1,9 @@
 <?php
 /**
- * HelloWorld Special page.
+ * This Special Page is used to Generate Page Manifests for Witness events
+ * Input is the list of all verified pages with the latest revision id and verification hashes which are stored in the table page_list which are printed in section 1 of the Page Manifest. This is used as input for generating and populating the table witness_merkle_tree.
+ * The witness_merkle_tree is printed out on section 2 of the Page Manifest.
+ * Output is a Page Manifest #N_ID as well as a redirect link to the SpecialPage:WitnessPublisher
  *
  * @file
  */
@@ -90,6 +93,20 @@ class SpecialWitness extends \SpecialPage {
 	public function execute( $sub ) {
 		$this->setHeaders();
 
+		$formDescriptor_scw = [
+			'smartcontractaddress' => [
+				'label' => 'Witness Smart Contract Address', // Label of the field
+				'class' => 'HTMLTextField', // Input type
+			]
+		];
+        
+		$formDescriptor_network = [
+			'smartcontractaddress' => [
+				'label' => 'Witness Network', // Label of the field
+				'class' => 'HTMLTextField', // Input type
+			]
+		];
+
 		$formDescriptor = [
 			'pagetitle' => [
 				'label' => 'Page Title', // Label of the field
@@ -104,7 +121,6 @@ class SpecialWitness extends \SpecialPage {
 		$out = $this->getOutput();
 		$out->setPageTitle( 'Witness' );
 	}
-   
 
 	public static function generatePageManifest( $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -121,9 +137,6 @@ class SpecialWitness extends \SpecialPage {
 		$output = '';
 		$verification_hashes = [];
 		foreach( $res as $row ) {
-			//$output .= 'Page Title: ' . $row->page_title . ' Revision_ID: ' . $row->rev_id . ' hash: ' . $row->hash_verification . 'counter: ' .  $int . 'array: ' . $myarray[$int] . "<br>";
-
-			//$multiarray[$int] = 'Index: ' . $int . '<br> Page Title: ' . $row->page_title . '<br> Revision_ID: ' . $row->rev_id . '<br> Verification_Hash: ' . $row->hash_verification . "<br><br>";
             $titlearray[$int] =  $row->page_title;
             $verification_hashes[$int] =  $row->hash_verification;
 
@@ -142,7 +155,7 @@ class SpecialWitness extends \SpecialPage {
 		}
 
 		$out = $this->getOutput();
-		$out->addHTML($output);// . '<br> Verification_Hash 1: ' . $verification_hashes[0] . '<br> Verification_Hash 2:' . $verification_hashes[1]);
+		$out->addHTML($output);
 
 		$title = Title::newFromText( "Page Manifest" );
 		$page = new WikiPage( $title );
