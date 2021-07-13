@@ -9,14 +9,14 @@ CREATE TABLE IF NOT EXISTS `page_verification` (
 	`page_title` VARCHAR (128), 
 	`page_id` INT COMMENT 'from page table',
 	`rev_id` INT COMMENT 'from revision table',
-	`hash_content` VARCHAR(128) COMMENT 'Hashing the page content of the current version',
+	`hash_content` VARCHAR(128) DEFAULT '' COMMENT 'Hashing the page content of the current version',
     `time_stamp` VARCHAR(128) COMMENT 'write the timestamp of the revision in to the DB',
-	`hash_metadata` VARCHAR(128) COMMENT 'Hashing all values of related revision_id tuble entry in 
+	`hash_metadata` VARCHAR(128) DEFAULT '' COMMENT 'Hashing all values of related revision_id tuble entry in 
 revision table',
 	`hash_verification` VARCHAR(128) COMMENT 'Combined metadata and content hash',
-	`signature` VARCHAR(256),
-	`public_key` VARCHAR(256),
-	`wallet_address` VARCHAR(128),
+	`signature` VARCHAR(256) DEFAULT '',
+	`public_key` VARCHAR(256) DEFAULT '',
+	`wallet_address` VARCHAR(128) DEFAULT '',
 	`source` VARCHAR(128) COMMENT 'possible values are "imported", "default"',
 	`debug` VARCHAR(1000),
 	PRIMARY KEY (`page_verification_id`)
