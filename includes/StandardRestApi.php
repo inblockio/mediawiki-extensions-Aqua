@@ -17,7 +17,7 @@ require_once("ApiUtil.php");
  */
 class StandardRestApi extends SimpleHandler {
 
-    private const VALID_ACTIONS = ['help', 'verify_page', 'get_page_by_rev_id', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_signed_tx', 'store_witnesstx', 'request_hash' ];
+    private const VALID_ACTIONS = ['help', 'verify_page', 'get_page_by_rev_id', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_signed_tx', 'store_witness_tx', 'request_hash' ];
 
     /** @inheritDoc */
     public function run( $action ) {
@@ -38,11 +38,11 @@ class StandardRestApi extends SimpleHandler {
             $output[4]=['action \'page_lage_rev_sig\': expects page_title as input and returns last signed and verified revision_id.'];
             $output[5]=['action \'page_all_rev\': expects page_title as input and returns last signed and verified revision_id.'];
             $output[6]=['action \'page_all_rev_sig\':NOT IMPLEMENTED'];
-            $output[7]=['action \'page_all_rev_witness\':NOT IMPLEMENTED'];
-            $output[8]=['action \'page_all_rev_sig_witness\':NOT IMPLEMENTED'];
+            $output[7]=['action \'page_all_rev_witness\':NOT IMPLEMENTED - USES page_witness - WILL SERVICES EXTERNAL VERIFIER'];
+            $output[8]=['action \'page_get_witness_data\':NOT IMPLEMENTED - USES page_witness - used to retrieve all required data to execute a witness event (including witness hash, network ID or name, witness smart contract address) for the publishing via Metamask'];
             $output[9]=['action \'store_signed_tx\':expects revision_id=value1 [required] signature=value2[required], public_key=value3[required] and wallet_address=value4[required] as inputs; Returns a status for success or failure
                 '];
-            $output[10]=['action \'store_witness_tx\':NOT IMPLEMENTED'];
+            $output[10]=['action \'store_witness_tx\' expects witness id: $var1; account_address:$var2; transaction_id:$var3 and returns success or error code, used to receive data from metamask'];
 
 
             return $output[$index];
@@ -194,7 +194,34 @@ class StandardRestApi extends SimpleHandler {
 
             #Expects all required input for the page_witness database: Transaction Hash, Sender Address, List of Pages with witnessed revision
         case 'store_witness_tx':
-            return [ "Expects page title: $var1 and returns ALL verified revisions which have been signed and wittnessed"];
+            /** include functionality to write to database. 
+             * See https://www.mediawiki.org/wiki/Manual:Database_access */
+            if ($var1 == null) {
+                return "var1 (witness_event_id) is not specified but expected";                
+            }
+            if ($var2 === null) {
+                return "var2 (account_address) is not specified but expected";
+            }
+            if ($var3 === null) {
+                return "var3 (transaction_hash) is not specified but expected";
+            }
+
+            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+            $dbw = $lb->getConnectionRef( DB_MASTER );
+
+            $table = 'witness_events';
+
+            /** write data to database */
+            #$dbw->insert($table ,[$field => $data,$field_two => $data_two], __METHOD__);
+
+            $dbw->update( $table, 
+                [
+                    'sender_account_address' => $var2, 
+                    'witness_event_transaction_hash' => $var3,
+                ], 
+                "witness_event_id = $var1"); 
+
+            return ( "Successfully stored data for witness_event_id[{$var1}] in Database[$table]! Data: account_address[{$var2}], witness_event_transaction_hash[{$var3}]"  );
 
         case 'request_hash':
             $rev_id = $var1;
