@@ -22,16 +22,37 @@ revision table',
 	PRIMARY KEY (`page_verification_id`)
 );
 
-CREATE TABLE IF NOT EXISTS `page_witness` (
-	`page_witness_id` INT NOT NULL AUTO_INCREMENT,
-	`page_id` INT COMMENT 'from page table',
-	-- From rev_id table
-	`rev_id` INT,
-	`page_verification_id` INT COMMENT 'from page_verification table',
-	`witness_network` VARCHAR(18) DEFAULT 'Ethereum',
-	`network_transaction_id` VARCHAR(128),
-	`merkle_root` VARCHAR(128) COMMENT 'Merkle Root Hash',
-	PRIMARY KEY (`page_witness_id`)
+CREATE TABLE IF NOT EXISTS `witness_events` (
+        `page_witness_id` INT(32) NOT NULL AUTO_INCREMENT,
+        `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
+        `page_manifest_title` VARCHAR(128) COMMENT 'from page_verification',
+        `page_manifest_verification_hash` VARCHAR(128) COMMENT 'from page_verification table',
+        `merkle_root` VARCHAR(128) COMMENT 'Merkle Root Hash',
+        `witness_event_verification_hash` VARCHAR(128) COMMENT 'XOR of page_manifest_verification_hash and merkle_root - populated when witness event is triggered',
+        `witness_network` VARCHAR(128) DEFAULT 'PLEASE SET THE VARIABLE IN THE SPECIALPAGE:WITNESS' COMMENT 'populated by SpecialPage:Witness configuration input fields',
+        `smart_contract_address` VARCHAR(128) DEFAULT 'PLEASE SET THE VARIABLE IN THE SPECIALPAGE:WITNESS' COMMENT 'populated by SpecialPage:Witness configuration input fields',
+        `witness_event_transaction_hash` VARCHAR(128) DEFAULT 'PUBLISH WITNESS HASH TO BLOCKCHAIN POPULATE',
+        `sender_account_address` VARCHAR(128) DEFAULT 'PUBLISH WITNESS HASH TO BLOCKCHAIN POPULATE' COMMENT 'is populated after witness_event has been executed via RESTAPI',
+        PRIMARY KEY (`page_witness_id`)
+    );
+
+CREATE TABLE IF NOT EXISTS `witness_page_list` (
+    `INDEX` INT(32) NOT NULL AUTO_INCREMENT,
+    `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
+    `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
+    `page_title` VARCHAR(128) COMMENT 'from page table',
+    `page_verification_hash` VARCHAR(128) COMMENT 'Input values for merkle tree',
+    PRIMARY KEY (`INDEX`)
+);
+
+CREATE TABLE `witness_merkle_tree` (
+    `INDEX` INT(32) NOT NULL AUTO_INCREMENT,
+    `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
+    `depth` VARCHAR(64) COMMENT 'the depth of the node',
+    `left_leaf` VARCHAR(128),
+    `right_leaf` VARCHAR(128),
+    `successor` VARCHAR(128),
+    PRIMARY KEY (`INDEX`)
 );
 
 -- TODO create INDEX later for performance.
