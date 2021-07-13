@@ -17,7 +17,7 @@ require_once("ApiUtil.php");
  */
 class StandardRestApi extends SimpleHandler {
 
-    private const VALID_ACTIONS = ['help', 'verify_page', 'get_page_by_rev_id', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'page_all_rev_wittness', 'page_all_rev_sig_witness', 'store_signed_tx', 'store_witness_tx', 'request_hash' ];
+    private const VALID_ACTIONS = ['help', 'verify_page', 'get_page_by_rev_id', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'get_witness_data', 'page_all_rev_sig_witness', 'store_signed_tx', 'store_witness_tx', 'request_hash' ];
 
     /** @inheritDoc */
     public function run( $action ) {
@@ -39,7 +39,7 @@ class StandardRestApi extends SimpleHandler {
             $output[5]=['action \'page_all_rev\': expects page_title as input and returns last signed and verified revision_id.'];
             $output[6]=['action \'page_all_rev_sig\':NOT IMPLEMENTED'];
             $output[7]=['action \'page_all_rev_witness\':NOT IMPLEMENTED - USES page_witness - WILL SERVICES EXTERNAL VERIFIER'];
-            $output[8]=['action \'page_get_witness_data\':NOT IMPLEMENTED - USES page_witness - used to retrieve all required data to execute a witness event (including witness hash, network ID or name, witness smart contract address) for the publishing via Metamask'];
+            $output[8]=['action \'get_witness_data\':NOT IMPLEMENTED - USES page_witness - used to retrieve all required data to execute a witness event (including witness hash, network ID or name, witness smart contract address) for the publishing via Metamask'];
             $output[9]=['action \'store_signed_tx\':expects revision_id=value1 [required] signature=value2[required], public_key=value3[required] and wallet_address=value4[required] as inputs; Returns a status for success or failure
                 '];
             $output[10]=['action \'store_witness_tx\' expects witness id: $var1; account_address:$var2; transaction_id:$var3 and returns success or error code, used to receive data from metamask'];
@@ -148,9 +148,26 @@ class StandardRestApi extends SimpleHandler {
         case 'page_all_rev_wittness':
             return ['NOT IMPLEMENTED'];
 
-            #Expects Page Title and returns ALL verified revisions which have been signed and wittnessed
-        case 'page_all_rev_sig_witness':
-            return ['NOT IMPLEMENTED'];
+            #Expects 'get_witness_data\':NOT IMPLEMENTED - USES page_witness - used to retrieve all required data to execute a witness event (including witness hash, network ID or name, witness smart contract address) for the publishing via Metamask'];
+        case 'get_witness_data':
+            if ($var1 === null) {
+                return "var1 (witness_event_id) is not specified but expected";
+            }
+
+            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+            $dbr = $lb->getConnectionRef( DB_REPLICA );
+
+            $res = $dbr->select(
+            'witness_events',
+            [ 'witness_event_verification_hash','witness_network','smart_contract_address' ],
+                'witness_event_id = ' . $var1,
+            __METHOD__
+            );
+
+            foreach( $res as $row ) {
+                $output = 'Witness Event Verification Hash ' . $row->witness_event_verification_hash .' Witness Network: ' . $row->witness_network . ' Smart Contract Address: ' . $row->smart_contract_address;  
+            }                                 
+            return [$output];
 
             #Expects Revision_ID [Required] Signature[Required], Public Key[Required] and Wallet Address[Required] as inputs; Returns a status for success or failure
         case 'store_signed_tx':
@@ -197,7 +214,7 @@ class StandardRestApi extends SimpleHandler {
             /** include functionality to write to database. 
              * See https://www.mediawiki.org/wiki/Manual:Database_access */
             if ($var1 == null) {
-                return "var1 (witness_event_id) is not specified but expected";                
+                return "var1 (/witness_event_id) is not specified but expected";                
             }
             if ($var2 === null) {
                 return "var2 (account_address) is not specified but expected";
