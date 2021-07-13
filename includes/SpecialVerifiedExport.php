@@ -41,6 +41,8 @@ use XmlDumpWriter;
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
+require_once("ApiUtil.php");
+
 function getPageMetadataByRevId($rev_id) {
 	// This is based on the case of 'verify_page' API call in StandardRestApi.php.
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -77,6 +79,11 @@ function getPageMetadataByRevId($rev_id) {
 	// Remove the first line which has 'xml version="1.0"'
 	$xmlString = preg_replace('/^.+\n/', '', $xmlString);
 	return $xmlString;
+}
+
+function getPageChainHeight($page_title) {
+	$revs = get_page_all_rev($page_title);
+	return count($revs);
 }
 
 class VerifiedWikiExporter extends WikiExporter {
@@ -120,11 +127,14 @@ class VerifiedWikiExporter extends WikiExporter {
 					$this->sink->writeClosePage( $output );
 				}
 				$output = $this->writer->openPage( $revRow );
+				// Data accounting modification
+				$chain_height = getPageChainHeight( $revRow->page_title );
+				$output .= "\n<data_accounting_chain_height>$chain_height</data_accounting_chain_height>";
+				// End of Data accounting modification
 				$this->sink->writeOpenPage( $revRow, $output );
 			}
 			$output = $this->writer->writeRevision( $revRow, $slotRows );
 			$verification_info = getPageMetadataByRevId($revRow->rev_id);
-			//$verification_info = "<ver>bbb</ver>";
 			$output = str_replace("</revision>", $verification_info . "\n</revision>", $output);
 			$this->sink->writeRevision( $revRow, $output );
 			$lastRow = $revRow;
