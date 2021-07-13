@@ -79,6 +79,7 @@ class HashWriterHooks implements
     \MediaWiki\Page\Hook\RevisionFromEditCompleteHook,
     \MediaWiki\Revision\Hook\RevisionRecordInsertedHook,
     \MediaWiki\Page\Hook\ArticleDeleteCompleteHook,
+    \MediaWiki\Hook\PageMoveCompleteHook,
     \MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook
 {
 
@@ -151,6 +152,19 @@ class HashWriterHooks implements
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
         $dbw = $lb->getConnectionRef( DB_MASTER );
         $dbw->delete( 'page_verification', [ 'page_id' => $id ], __METHOD__ );
+    }
+
+	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ) {
+        $old_title = $old->getText();
+        $new_title = $new->getText();
+        $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+        $dbw = $lb->getConnectionRef( DB_MASTER );
+        $dbw->update(
+            'page_verification',
+            ['page_title' => $new_title],
+            ['page_title' => $old_title],
+            __METHOD__
+        );
     }
 
     /**

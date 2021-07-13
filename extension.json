@@ -113,6 +113,7 @@
 		"RevisionFromEditComplete": "handleHashWriterHooks",
 		"RevisionRecordInserted": "handleHashWriterHooks",
 		"ArticleDeleteComplete": "handleHashWriterHooks",
+		"PageMoveComplete": "handleHashWriterHooks",
 		"LoadExtensionSchemaUpdates": {
 			"handler": "handleHashWriterHooks"
 		}
