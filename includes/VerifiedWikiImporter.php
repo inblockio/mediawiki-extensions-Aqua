@@ -51,6 +51,9 @@ use DeferredUpdates;
 use SiteStatsUpdate;
 use RequestContext;
 
+use MovePage;
+
+require_once("ApiUtil.php");
 
 /**
  * This class is cloned from Mediawiki 1.35.2's WikiImporter. Almost the same
@@ -59,6 +62,7 @@ use RequestContext;
  * 2. handleRevision does handleVerification
  * 3. processVerification is implemented, which writes verification info into the DB
  * 4. processRevision does processVerification
+ * 5. handlePage handles data_accounting_chain_height tag
  */
 
 /**
@@ -829,6 +833,28 @@ class VerifiedWikiImporter {
 					} else {
 						$this->handleUpload( $pageInfo );
 					}
+				}
+			} elseif ( $tag == 'data_accounting_chain_height' ) {
+				// Aqua modification
+				$own_chain_height = getPageChainHeight($pageInfo['title']);
+				if ($own_chain_height == 0) {
+					continue;
+				}
+				$imported_chain_height = $this->nodeContents();
+				if ($own_chain_height < $imported_chain_height) {
+					// Move and rename own page
+					// Rename the page that is about to be imported
+					$now = date('Y-m-d-H-i-s', time());
+					$newTitle = $pageInfo['title'] . "_ChainHeight_{$own_chain_height}_$now";
+
+
+					$ot = Title::newFromText($pageInfo['title']);
+					$nt = Title::newFromText($newTitle);
+					$reason = "Resolving naming collision because imported page has longer verified chain height.";
+					$createRedirect = false;
+					$mp = new MovePage( $ot, $nt );
+					$user = RequestContext::getMain()->getUser();
+					$status = $mp->moveIfAllowed( $user, $reason, $createRedirect );
 				}
 			} elseif ( $tag != '#text' ) {
 				$this->warn( "Unhandled page XML tag $tag" );
