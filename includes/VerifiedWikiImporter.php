@@ -841,7 +841,7 @@ class VerifiedWikiImporter {
 					continue;
 				}
 				$imported_chain_height = $this->nodeContents();
-				if ($own_chain_height < $imported_chain_height) {
+				if ($own_chain_height <= $imported_chain_height) {
 					// Move and rename own page
 					// Rename the page that is about to be imported
 					$now = date('Y-m-d-H-i-s', time());
