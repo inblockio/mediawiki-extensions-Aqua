@@ -136,14 +136,14 @@ class SpecialWitness extends \SpecialPage {
 
         $row2 = $dbw->selectRow(
             'witness_page',
-            [ 'id', 'max(witness_event_id) as witness_event_id' ],
+            [ 'max(witness_event_id) as witness_event_id' ],
             '',
             __METHOD__,
         );
 
         $witness_event_id = $row2->witness_event_id + 1;
 
-        $output = '';
+        $output = 'The Witness Event ID is ' . $witness_event_id . "<br><br><br>";
         $verification_hashes = [];
         foreach ( $res as $row ) {
             $row3 = $dbw->selectRow(
@@ -163,8 +163,16 @@ class SpecialWitness extends \SpecialPage {
                 ], 
                 "");
 
+            //TODO Rht:Optimize this!
+            $row4 = $dbw->selectRow(
+                'witness_page',
+                [ 'id'],
+                ['page_title' => $row->page_title, 'witness_event_id' => $witness_event_id],
+                __METHOD__,
+            );
+
             array_push($verification_hashes, $row3->hash_verification);
-            $output .= 'Index: ' . $row2->id . '<br> Title: ' . $row->page_title . '<br> rev_id: ' . $row->rev_id . '<br> Verification_Hash: ' . $row3->hash_verification . '<br><br>';
+            $output .= 'Index: ' . $row4->id . '<br> Title: ' . $row->page_title . '<br> rev_id: ' . $row->rev_id . '<br> Verification_Hash: ' . $row3->hash_verification . '<br><br>';
             // echo "Witness Event ID is " . $witness_event_id . "Table successfully populated. <br>";
             // echo "INSERTED page title " . $row->page_title . " with rev_id " . $row->rev_id . " hash_verification " . $row2->hash_verification . "<br>"; 
         }
@@ -181,7 +189,8 @@ class SpecialWitness extends \SpecialPage {
 		$out = $this->getOutput();
 		$out->addHTML($output);
 
-		$title = Title::newFromText( "Page Manifest" );
+        $construct_title =  'Page Manifest ID ' . $witness_event_id;
+        $title = Title::newFromText( $construct_title );
 		$page = new WikiPage( $title );
 		$merkleTreeText = '<br><pre>' . tree_pprint($tree->getLayersAsObject()) . '</pre>';
 		$pageContent = new HtmlContent($merkleTreeText);
@@ -189,7 +198,7 @@ class SpecialWitness extends \SpecialPage {
 			"Page created automatically by [[Special:Witness]]" );
 
 		$out->addHTML($merkleTreeText);
-		$out->addWikiTextAsContent("<br> Visit [[Page Manifest]] to see the Merkle proof.");
+		$out->addWikiTextAsContent("<br> Visit [[$title]] to see the Merkle proof.");
         return true;
 	}
 
