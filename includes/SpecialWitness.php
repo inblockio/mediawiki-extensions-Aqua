@@ -124,27 +124,66 @@ class SpecialWitness extends \SpecialPage {
 
 	public static function generatePageManifest( $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr = $lb->getConnectionRef( DB_REPLICA );
-		$res = $dbr->select(
+		$dbw = $lb->getConnectionRef( DB_MASTER );
+
+        $res = $dbw->select(
 			'page_verification',
-			[ 'MAX(rev_id) as rev_id', 'page_title', 'hash_verification' ],
+			[ 'page_title', 'max(rev_id) as rev_id' ],
 			'',
 			__METHOD__,
 			[ 'GROUP BY' => 'page_title']
 		);
 
+        $row2 = $dbw->selectRow(
+            'witness_page',
+            [ 'max(witness_event_id) as witness_event_id' ],
+            '',
+            __METHOD__,
+        );
+
+        $witness_event_id = $row2->witness_event_id + 1;
+
+        foreach ( $res as $row ) {
+            $row3 = $dbw->selectRow(
+                'page_verification',
+                ['hash_verification', 'domain_id' ],
+                ['rev_id' => $row->rev_id],
+                __METHOD__,
+            );
+
+
+            $dbw->insert( 'witness_page', 
+                [
+                    'witness_event_id' => $witness_event_id,
+                    'domain_id' => $row3->domain_id,
+                    'page_title' => $row->page_title, 
+                    'rev_id' => $row->rev_id,
+                    'page_verification_hash' => $row3->hash_verification,
+                ], 
+                "");
+
+            // echo "Witness Event ID is " . $witness_event_id . "Table successfully populated. <br>";
+            // echo "INSERTED page title " . $row->page_title . " with rev_id " . $row->rev_id . " hash_verification " . $row2->hash_verification . "<br>"; 
+        }
+
+
+        return;
+
+/**
         $int = 0;
 		$output = '';
+        $rev_id = [];
 		$verification_hashes = [];
 		foreach( $res as $row ) {
             $titlearray[$int] =  $row->page_title;
             $verification_hashes[$int] =  $row->hash_verification;
+            $rev_id[$int] =  $row->rev_id;
 
-            $output .= 'Index: ' . $int . '<br> Title: ' . $titlearray[$int] . '<br> Verification_Hash: ' . $verification_hashes[$int] . '<br><br>';
+            $output .= 'Index: ' . $int . '<br> Title: ' . $titlearray[$int] . '<br> rev_id: ' . $rev_id[$int] . '<br> Verification_Hash: ' . $verification_hashes[$int] . '<br><br>';
             $int == $int++;
 
 		}
-
+ */
 		$hasher = function ($data) {
 			return hash('sha3-512', $data, false);
 		};
