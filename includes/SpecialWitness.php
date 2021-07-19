@@ -93,20 +93,6 @@ class SpecialWitness extends \SpecialPage {
 	public function execute( $sub ) {
 		$this->setHeaders();
 
-		$formDescriptor_scw = [
-			'smartcontractaddress' => [
-				'label' => 'Witness Smart Contract Address', // Label of the field
-				'class' => 'HTMLTextField', // Input type
-			]
-		];
-        
-		$formDescriptor_network = [
-			'smartcontractaddress' => [
-				'label' => 'Witness Network', // Label of the field
-				'class' => 'HTMLTextField', // Input type
-			]
-		];
-
 		$formDescriptor = [
 			'pagetitle' => [
 				'label' => 'Page Title', // Label of the field
@@ -119,7 +105,7 @@ class SpecialWitness extends \SpecialPage {
 		$htmlForm->show();
 
 		$out = $this->getOutput();
-		$out->setPageTitle( 'Witness' );
+		$out->setPageTitle( 'Page Manifest Generator' );
 	}
 
 	public static function generatePageManifest( $formData ) {
@@ -143,7 +129,8 @@ class SpecialWitness extends \SpecialPage {
 
         $witness_event_id = $row2->witness_event_id + 1;
 
-        $output = 'The Witness Event ID is ' . $witness_event_id . "<br><br><br>";
+        $output = 'Page Manifest / Witness Event ID ' . $witness_event_id . "<br><br>";
+
         $verification_hashes = [];
         foreach ( $res as $row ) {
             $row3 = $dbw->selectRow(
@@ -172,9 +159,7 @@ class SpecialWitness extends \SpecialPage {
             );
 
             array_push($verification_hashes, $row3->hash_verification);
-            $output .= 'Index: ' . $row4->id . '<br> Title: ' . $row->page_title . '<br> rev_id: ' . $row->rev_id . '<br> Verification_Hash: ' . $row3->hash_verification . '<br><br>';
-            // echo "Witness Event ID is " . $witness_event_id . "Table successfully populated. <br>";
-            // echo "INSERTED page title " . $row->page_title . " with rev_id " . $row->rev_id . " hash_verification " . $row2->hash_verification . "<br>"; 
+            $output .= 'Index: ' . $row4->id . ' | Page Title: ' . $row->page_title . ' | Revision: ' . $row->rev_id . ' | Verification Hash: ' . $row3->hash_verification . '<br>';
         }
 
 		$hasher = function ($data) {
@@ -218,8 +203,6 @@ class SpecialWitness extends \SpecialPage {
                 'witness_event_verification_hash' => getHashSum($page_manifest_verification_hash->hash_verification.$merkle_root),
             ], 
             "");
-
-//        echo "HASHER input :" . (string)$page_manifest_verification_hash->hash_verification . " MT: " . (string)$merkle_root . "<br>";
 
 		$out->addHTML($merkleTreeText);
 		$out->addWikiTextAsContent("<br> Visit [[$title]] to see the Merkle proof.");
