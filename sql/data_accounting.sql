@@ -36,14 +36,15 @@ CREATE TABLE IF NOT EXISTS `witness_events` (
         PRIMARY KEY (`witness_event_id`)
     );
 
-CREATE TABLE IF NOT EXISTS `witness_page_list` (
-    `INDEX` INT(32) NOT NULL AUTO_INCREMENT,
-    `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
-    `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
-    `page_title` VARCHAR(128) COMMENT 'from page table',
-    `page_verification_hash` VARCHAR(128) COMMENT 'Input values for merkle tree',
-    PRIMARY KEY (`INDEX`)
-);
+ CREATE TABLE `witness_page_list` (
+ `INDEX` INT(32) NOT NULL AUTO_INCREMENT,
+ `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
+ `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
+ `page_title` VARCHAR(128) COMMENT 'from page_verification',
+ `rev_id` VARCHAR(128) COMMENT 'from page_verification',
+ `page_verification_hash` VARCHAR(128) COMMENT 'Input values for merkle tree',
+ PRIMARY KEY (`INDEX`)
+ );
 
 CREATE TABLE IF NOT EXISTS `witness_merkle_tree` (
     `INDEX` INT(32) NOT NULL AUTO_INCREMENT,
