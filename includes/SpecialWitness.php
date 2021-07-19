@@ -16,7 +16,7 @@ use WikiPage;
 use Title;
 use TextContent;
 
-use MediaWiki\Extension\Example\FixedSizeTree;
+use Rht\Merkle\FixedSizeTree;
 
 require 'vendor/autoload.php';
 
