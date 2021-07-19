@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `witness_events` (
         PRIMARY KEY (`witness_event_id`)
     );
 
- CREATE TABLE IF NOT EXISTS `witness_page_list` (
+ CREATE TABLE IF NOT EXISTS `witness_page` (
  `INDEX` INT(32) NOT NULL AUTO_INCREMENT,
  `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
  `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
