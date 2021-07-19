@@ -31,7 +31,7 @@ class StandardRestApi extends SimpleHandler {
         case 'help':
             $index = (int) $var1;
             $output = array();
-            $output[0]=["help expects an number as in input to displays information for all actions this API services.To use an action, replace 'help' in your url with your desired action. ensure you provide all four '\' as they are the separators for up to four input variables. actions: help[0], verify_page[1], get_page_by_rev_id[2], page_last_rev[3], page_last_rev_sig[4], page_all_rev[5], page_all_rev_sig[6], page_all_rev_wittness[7], page_all_rev_sig_witness[8], store_signed_tx[9], store_witness_tx[10]"];
+            $output[0]=["help expects an number as in input to displays information for all actions this API services.To use an action, replace 'help' in your url with your desired action. ensure you provide all four '\' as they are the separators for up to four input variables. actions: help[0], verify_page[1], get_page_by_rev_id[2], page_last_rev[3], page_last_rev_sig[4], page_all_rev[5], page_all_rev_sig[6], page_all_rev_wittness[7], get_witness_data[8], store_signed_tx[9], store_witness_tx[10]"];
             $output[1]=['action \'verify_page\': expects revision_id as input and returns verification_hash(required), signature(optional), public_key(optional), wallet_address(optional), witness_id(optional)'];
             $output[2]=['action \'get_page_by_rev_id\': expects revision_id as input and returns page_title and page_id'];
             $output[3]=['action \'page_last_rev\': expects page_title and returns last verified revision.'];
@@ -39,7 +39,7 @@ class StandardRestApi extends SimpleHandler {
             $output[5]=['action \'page_all_rev\': expects page_title as input and returns last signed and verified revision_id.'];
             $output[6]=['action \'page_all_rev_sig\':NOT IMPLEMENTED'];
             $output[7]=['action \'page_all_rev_witness\':NOT IMPLEMENTED - USES page_witness - WILL SERVICES EXTERNAL VERIFIER'];
-            $output[8]=['action \'get_witness_data\':NOT IMPLEMENTED - USES page_witness - used to retrieve all required data to execute a witness event (including witness hash, network ID or name, witness smart contract address) for the publishing via Metamask'];
+            $output[8]=['action \'get_witness_data\' - expects page_witness_id - used to retrieve all required data to execute a witness event (including witness_event_verification_hash, network ID or name, witness smart contract address) for the publishing via Metamask'];
             $output[9]=['action \'store_signed_tx\':expects revision_id=value1 [required] signature=value2[required], public_key=value3[required] and wallet_address=value4[required] as inputs; Returns a status for success or failure
                 '];
             $output[10]=['action \'store_witness_tx\' expects witness id: $var1; account_address:$var2; transaction_id:$var3 and returns success or error code, used to receive data from metamask'];
