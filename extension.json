@@ -55,6 +55,7 @@
 	"SpecialPages": {
 		"HelloWorld": "MediaWiki\\Extension\\Example\\SpecialHelloWorld",
 		"Witness": "MediaWiki\\Extension\\Example\\SpecialWitness",
+		"WitnessPublisher": "MediaWiki\\Extension\\Example\\SpecialWitnessPublisher",
 		"Includable": "MediaWiki\\Extension\\Example\\SpecialIncludable",
 		"VerifiedExport": {
 			"class": "MediaWiki\\Extension\\Example\\SpecialVerifiedExport",
