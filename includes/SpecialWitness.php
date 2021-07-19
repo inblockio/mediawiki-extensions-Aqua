@@ -189,6 +189,7 @@ class SpecialWitness extends \SpecialPage {
 		$out = $this->getOutput();
 		$out->addHTML($output);
 
+        //Generate the Page Manifest as a new page
         $construct_title =  'Page Manifest ID ' . $witness_event_id;
         $title = Title::newFromText( $construct_title );
 		$page = new WikiPage( $title );
@@ -196,6 +197,29 @@ class SpecialWitness extends \SpecialPage {
 		$pageContent = new HtmlContent($merkleTreeText);
 		$page->doEditContent( $pageContent,
 			"Page created automatically by [[Special:Witness]]" );
+
+        //Get the page manifest verification hash
+        $page_manifest_verification_hash = $dbw->selectRow(
+                'page_verification',
+                [ 'hash_verification'],
+                ['page_title' => $title],
+                __METHOD__,
+        );
+
+        //Write results into the witness_events DB
+        $merkle_root = substr($merkleTreeText, 22, 150);
+        $dbw->insert( 'witness_events', 
+            [
+                'witness_event_id' => $witness_event_id,
+                'domain_id' => getDomainId(),
+                'page_manifest_title' => $title,
+                'page_manifest_verification_hash' => $page_manifest_verification_hash->hash_verification, 
+                'merkle_root' => $merkle_root,
+                'witness_event_verification_hash' => getHashSum($page_manifest_verification_hash->hash_verification.$merkle_root),
+            ], 
+            "");
+
+//        echo "HASHER input :" . (string)$page_manifest_verification_hash->hash_verification . " MT: " . (string)$merkle_root . "<br>";
 
 		$out->addHTML($merkleTreeText);
 		$out->addWikiTextAsContent("<br> Visit [[$title]] to see the Merkle proof.");
