@@ -136,21 +136,22 @@ class SpecialWitness extends \SpecialPage {
 
         $row2 = $dbw->selectRow(
             'witness_page',
-            [ 'max(witness_event_id) as witness_event_id' ],
+            [ 'id', 'max(witness_event_id) as witness_event_id' ],
             '',
             __METHOD__,
         );
 
         $witness_event_id = $row2->witness_event_id + 1;
 
+        $output = '';
+        $verification_hashes = [];
         foreach ( $res as $row ) {
             $row3 = $dbw->selectRow(
                 'page_verification',
-                ['hash_verification', 'domain_id' ],
+                [ 'hash_verification', 'domain_id' ],
                 ['rev_id' => $row->rev_id],
                 __METHOD__,
             );
-
 
             $dbw->insert( 'witness_page', 
                 [
@@ -162,28 +163,12 @@ class SpecialWitness extends \SpecialPage {
                 ], 
                 "");
 
+            array_push($verification_hashes, $row3->hash_verification);
+            $output .= 'Index: ' . $row2->id . '<br> Title: ' . $row->page_title . '<br> rev_id: ' . $row->rev_id . '<br> Verification_Hash: ' . $row3->hash_verification . '<br><br>';
             // echo "Witness Event ID is " . $witness_event_id . "Table successfully populated. <br>";
             // echo "INSERTED page title " . $row->page_title . " with rev_id " . $row->rev_id . " hash_verification " . $row2->hash_verification . "<br>"; 
         }
 
-
-        return;
-
-/**
-        $int = 0;
-		$output = '';
-        $rev_id = [];
-		$verification_hashes = [];
-		foreach( $res as $row ) {
-            $titlearray[$int] =  $row->page_title;
-            $verification_hashes[$int] =  $row->hash_verification;
-            $rev_id[$int] =  $row->rev_id;
-
-            $output .= 'Index: ' . $int . '<br> Title: ' . $titlearray[$int] . '<br> rev_id: ' . $rev_id[$int] . '<br> Verification_Hash: ' . $verification_hashes[$int] . '<br><br>';
-            $int == $int++;
-
-		}
- */
 		$hasher = function ($data) {
 			return hash('sha3-512', $data, false);
 		};
