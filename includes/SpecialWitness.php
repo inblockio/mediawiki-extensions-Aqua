@@ -87,7 +87,7 @@ class SpecialWitness extends \SpecialPage {
 		$htmlForm->setSubmitText( 'Generate Page Manifest' );
 		$htmlForm->setSubmitCallback( [ $this, 'generatePageManifest' ] );
 		$htmlForm->show();
-
+    
 		$out = $this->getOutput();
 		$out->setPageTitle( 'Page Manifest Generator' );
 	}
@@ -113,7 +113,7 @@ class SpecialWitness extends \SpecialPage {
 
         $witness_event_id = $row2->witness_event_id + 1;
 
-        $output = 'Page Manifest / Witness Event ID ' . $witness_event_id . "<br><br>";
+        $output = 'Page Manifest / Witness Event ID ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Domain Manifest Publisher]] to publish your generated Page Manifest to your preffered witness network.' . '<br><br>';
 
         $verification_hashes = [];
         foreach ( $res as $row ) {
