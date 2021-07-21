@@ -57,6 +57,26 @@ function tree_pprint($layers, $out = "", $prefix = "└─ ", $level = 0, $is_la
     return $out;
 }
 
+function storeMerkleTree($dbw, $witness_event_id, $treeLayers, $depth = 0) {
+	foreach ($treeLayers as $parent => $children) {
+		if (is_null($children)) {
+			continue;
+		}
+		$children_keys = array_keys($children);
+		$dbw->insert(
+			"witness_merkle_tree",
+			[
+				"witness_event_id" => $witness_event_id,
+				"depth" => $depth,
+				"left_leaf" => $children_keys[0],
+				"right_leaf" => (count($children_keys) > 1) ? $children_keys[1]: null,
+				"successor" => $parent,
+			]
+		);
+		storeMerkleTree($dbw, $witness_event_id, $children, $depth + 1);
+	}
+}
+
 class SpecialWitness extends \SpecialPage {
 
 	/**
@@ -154,15 +174,19 @@ class SpecialWitness extends \SpecialPage {
         for ($i = 0; $i < count($verification_hashes); $i++) {
 			$tree->set($i, $verification_hashes[$i]);
 		}
+		$treeLayers = $tree->getLayersAsObject();
 
 		$out = $this->getOutput();
 		$out->addHTML($output);
+
+		// Store the Merkle tree in the DB
+		storeMerkleTree($dbw, $witness_event_id, $treeLayers);
 
         //Generate the Page Manifest as a new page
         $construct_title =  'Page Manifest ID ' . $witness_event_id;
         $title = Title::newFromText( $construct_title );
 		$page = new WikiPage( $title );
-		$merkleTreeText = '<br><pre>' . tree_pprint($tree->getLayersAsObject()) . '</pre>';
+		$merkleTreeText = '<br><pre>' . tree_pprint($treeLayers) . '</pre>';
 		$pageContent = new HtmlContent($merkleTreeText);
 		$page->doEditContent( $pageContent,
 			"Page created automatically by [[Special:Witness]]" );
