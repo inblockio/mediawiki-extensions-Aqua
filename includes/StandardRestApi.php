@@ -12,6 +12,19 @@ ini_set("display_errors", 1);
 
 require_once("ApiUtil.php");
 
+function selectToArray($db, $table, $col, $conds) {
+    $out = array();
+    $res = $db->select(
+        $table,
+        [$col],
+        $conds,
+    );
+    foreach ($res as $row) {
+        array_push($out, $row->{$col});
+    }
+    return $out;
+}
+
 /**
  * Extension:DataAccounting Standard Rest API
  */
@@ -236,23 +249,37 @@ class StandardRestApi extends SimpleHandler {
             /** write data to database */
             #$dbw->insert($table ,[$field => $data,$field_two => $data_two], __METHOD__);
 
-            $dbw->update( $table, 
+            $dbw->update( $table,
                 [
-                    'sender_account_address' => $account_address, 
+                    'sender_account_address' => $account_address,
                     'witness_event_transaction_hash' => $transaction_hash,
-                ], 
-                "witness_event_id = $witness_event_id"); 
+                ],
+                "witness_event_id = $witness_event_id");
 
-            //if witness ID exists, don't write witness_id, if it does not
-            //exist update with witness id as oldest witness event has biggest
-            //value (proof of existence)
-            /** $dbw->update( 
-                'page_verification', 
-                [
-                    'witness_event_id' => $witness_event_id, 
-                ], 
-                "verification_hash = $"); 
-            */
+            $verification_hashes = selectToArray(
+                $dbw,
+                'witness_page',
+                'page_verification_hash',
+                [ 'witness_event_id' => $witness_event_id ]
+            );
+
+            // If witness ID exists, don't write witness_id, if it does not
+            // exist update with witness id as oldest witness event has biggest
+            // value (proof of existence)
+            foreach ($verification_hashes as $vh) {
+                $row = $dbw->selectRow(
+                    'page_verification',
+                    [ 'witness_event_id' ],
+                    [ 'hash_verification' => $vh ]
+                );
+                if (is_null($row->witness_event_id)) {
+                    $dbw->update(
+                        'page_verification',
+                        [ 'witness_event_id' => $witness_event_id ],
+                        [ 'hash_verification' => $vh ]
+                    );
+                }
+            }
 
             return ( "Successfully stored data for witness_event_id[{$witness_event_id}] in Database[$table]! Data: account_address[{$account_addres}], witness_event_transaction_hash[{$transaction_hash}]"  );
 
