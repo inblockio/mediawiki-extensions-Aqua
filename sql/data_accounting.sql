@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `page_verification` (
 	`hash_metadata` VARCHAR(128) DEFAULT '' COMMENT 'Hashing all values of related revision_id tuble entry in 
 revision table',
 	`hash_verification` VARCHAR(128) COMMENT 'Combined metadata and content hash',
+	`witness_id` VARCHAR(128) COMMENT 'Shows if revision was witnessed',
 	`signature` VARCHAR(256) DEFAULT '',
 	`public_key` VARCHAR(256) DEFAULT '',
 	`wallet_address` VARCHAR(128) DEFAULT '',

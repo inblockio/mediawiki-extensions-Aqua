@@ -223,6 +223,11 @@ class StandardRestApi extends SimpleHandler {
                 return "var3 (transaction_hash) is not specified but expected";
             }
 
+            //Redeclaration
+            $witness_event_id = $var1;
+            $account_address = $var2;
+            $transaction_hash = $var3;
+
             $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
             $dbw = $lb->getConnectionRef( DB_MASTER );
 
@@ -233,12 +238,23 @@ class StandardRestApi extends SimpleHandler {
 
             $dbw->update( $table, 
                 [
-                    'sender_account_address' => $var2, 
-                    'witness_event_transaction_hash' => $var3,
+                    'sender_account_address' => $account_address, 
+                    'witness_event_transaction_hash' => $transaction_hash,
                 ], 
-                "witness_event_id = $var1"); 
+                "witness_event_id = $witness_event_id"); 
 
-            return ( "Successfully stored data for witness_event_id[{$var1}] in Database[$table]! Data: account_address[{$var2}], witness_event_transaction_hash[{$var3}]"  );
+            //if witness ID exists, don't write witness_id, if it does not
+            //exist update with witness id as oldest witness event has biggest
+            //value (proof of existence)
+            /** $dbw->update( 
+                'page_verification', 
+                [
+                    'witness_event_id' => $witness_event_id, 
+                ], 
+                "verification_hash = $"); 
+            */
+
+            return ( "Successfully stored data for witness_event_id[{$witness_event_id}] in Database[$table]! Data: account_address[{$account_addres}], witness_event_transaction_hash[{$transaction_hash}]"  );
 
         case 'request_hash':
             $rev_id = $var1;
