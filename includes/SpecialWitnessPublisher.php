@@ -12,6 +12,10 @@ use WikiPage;
 use Title;
 use TextContent;
 
+function hrefifyHash($hash, $prefix = "") {
+	return "<a href='" . $prefix . $hash. "'>" . substr($hash, 0, 6) . "..." . substr($hash, -6, 6) . "</a>";
+}
+
 class SpecialWitnessPublisher extends \SpecialPage {
 
     /**
@@ -49,13 +53,47 @@ class SpecialWitnessPublisher extends \SpecialPage {
             $out = $this->getOutput();
             $out->addHTML($output);
  
+        $output = '<table>';
+        $output .= <<<EOD
+            <tr>
+                <th>Witness Event</th>
+                <th>Page Manifest Title</th>
+                <th>Domain ID</th>
+                <th>Verification Hash of DM</th>
+                <th>Merkle Root</th>
+                <th>Verification Hash of WE</th>
+                <th>Publishing status</th>
+            </tr>
+        EOD;
         foreach ($res as $row) {
+            $hrefMVH = hrefifyHash($row->page_manifest_verification_hash);
+            $hrefMerkleRoot = hrefifyHash($row->merkle_root);
+            $hrefWEVH = hrefifyHash($row->witness_event_verification_hash);
+            // Color taken from https://www.schemecolor.com/warm-autumn-2.php
+            // #B33030 is Chinese Orange
+            // #B1C97F is Sage
+            if ($row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN POPULATE') {
+                $publishingStatus = '<th style="background-color:#F27049"><button type="button">Publish!</button></th>';
+            } else {
+                $publishingStatus = '<th style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, "https://etherscan.io/tx/") . '</th>';
+            }
+            $output .= <<<EOD
+                <tr>
+                    <th>{$row->witness_event_id}</th>
+                    <th>{$row->page_manifest_title}</th>
+                    <th>{$row->domain_id}</th>
+                    <th>$hrefMVH</th>
+                    <th>$hrefMerkleRoot</th>
+                    <th>$hrefWEVH</th>
+                    $publishingStatus
+                </tr>
+            EOD;
+            #$output .= '<br>========== Witness Event Publishing Data =========<br> Witness Network: ' . $row->witness_network . '<br> Smart Contract Address: ' . $row->smart_contract_address . '<br> Sender Account Address: ' . $row->sender_account_address . '<br>=========== END OF Witness Event ===========<br><br>';
 
-            $output = ' =========== Witness Event ' . $row->witness_event_id . ' =========== <br><b> Page Manifest Title: </b>' . $row->page_manifest_title . ' Domain ID: ' . $row->domain_id . '<br> Verification Hash: ' . $row->page_manifest_verification_hash . '<br> Merkle Root: ' . $row->merkle_root . '<br> Verification Hash of Witness Event: ' . $row->witness_event_verification_hash . '<br>========== Witness Event Publishing Data =========<br> Witness Network: ' . $row->witness_network . '<br> Smart Contract Address: ' . $row->smart_contract_address . '<br> Witness Event Transaction Hash: ' . $row->witness_event_transaction_hash . '<br> Sender Account Address: ' . $row->sender_account_address . '<br>=========== END OF Witness Event ===========<br><br>';
-
-            $out = $this->getOutput();
-            $out->addHTML($output);
+            #$out = $this->getOutput();
         }
+        $output .= '</table>';
+        $out->addHTML($output);
     }
     /** @inheritDoc */
     protected function getGroupName() {

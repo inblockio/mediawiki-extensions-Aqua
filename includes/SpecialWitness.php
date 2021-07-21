@@ -31,6 +31,10 @@ class HtmlContent extends TextContent {
 	}
 }
 
+function hrefifyHash($hash) {
+	return "<a href='" . $hash. "'>" . substr($hash, 0, 6) . "..." . substr($hash, -6, 6) . "</a>";
+}
+
 function tree_pprint($layers, $out = "", $prefix = "└─ ", $level = 0, $is_last = true) {
     # The default prefix is for level 0
     $length = count($layers);
@@ -40,7 +44,7 @@ function tree_pprint($layers, $out = "", $prefix = "└─ ", $level = 0, $is_la
 		if ($level == 0) {
 			$out .= "Merkle root: " . $key . "\n";
 		} else {
-			$formatted_key = "<a href='" . $key. "'>" . substr($key, 0, 6) . "..." . substr($key, -6, 6) . "</a>";
+			$formatted_key = hrefifyHash($key);
 			$glyph = $is_last ? "  └─ ": "  ├─ ";
 			$out .= " " . $prefix . $glyph . $formatted_key . "\n";
 		}
