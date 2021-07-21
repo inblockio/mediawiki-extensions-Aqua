@@ -45,6 +45,7 @@ class Hooks implements
 			if ( $wgExampleEnableWelcome ) {
 				// Load our module on all pages
 				$out->addModules( 'ext.DataAccounting.signMessage' );
+				$out->addModules( 'publishDomainManifest' );
 			}
 		}
 	}

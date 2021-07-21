@@ -164,6 +164,12 @@
 				"ext.DataAccounting.signMessage/index.js",
 				"ext.DataAccounting.signMessage/init.js"
 			]
+		},
+		"publishDomainManifest": {
+			"scripts": [
+				"publishDomainManifest/index.js",
+				"publishDomainManifest/init.js"
+			]
 		}
 	},
 	"manifest_version": 2

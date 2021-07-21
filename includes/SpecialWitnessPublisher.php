@@ -73,7 +73,7 @@ class SpecialWitnessPublisher extends \SpecialPage {
             // #B33030 is Chinese Orange
             // #B1C97F is Sage
             if ($row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN POPULATE') {
-                $publishingStatus = '<th style="background-color:#F27049"><button type="button">Publish!</button></th>';
+                $publishingStatus = '<th style="background-color:#F27049"><button type="button" id="publish-domain-manifest">Publish!</button></th>';
             } else {
                 $publishingStatus = '<th style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, "https://etherscan.io/tx/") . '</th>';
             }

@@ -1,0 +1,1 @@
+mw.publishDomainManifest.init();
