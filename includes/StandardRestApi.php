@@ -30,7 +30,7 @@ function selectToArray($db, $table, $col, $conds) {
  */
 class StandardRestApi extends SimpleHandler {
 
-    private const VALID_ACTIONS = ['help', 'verify_page', 'get_page_by_rev_id', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'get_witness_data', 'page_all_rev_sig_witness', 'store_signed_tx', 'store_witness_tx', 'request_hash' ];
+    private const VALID_ACTIONS = ['help', 'verify_page', 'get_page_by_rev_id', 'page_all_rev', 'page_last_rev', 'page_last_rev_sig', 'page_all_rev_sig', 'get_witness_data', 'request_merkle_proof', 'store_signed_tx', 'store_witness_tx', 'request_hash' ];
 
     /** @inheritDoc */
     public function run( $action ) {
@@ -44,14 +44,14 @@ class StandardRestApi extends SimpleHandler {
         case 'help':
             $index = (int) $var1;
             $output = array();
-            $output[0]=["help expects an number as in input to displays information for all actions this API services.To use an action, replace 'help' in your url with your desired action. ensure you provide all four '\' as they are the separators for up to four input variables. actions: help[0], verify_page[1], get_page_by_rev_id[2], page_last_rev[3], page_last_rev_sig[4], page_all_rev[5], page_all_rev_sig[6], page_all_rev_wittness[7], get_witness_data[8], store_signed_tx[9], store_witness_tx[10]"];
+            $output[0]=["help expects an number as in input to displays information for all actions this API services.To use an action, replace 'help' in your url with your desired action. ensure you provide all four '\' as they are the separators for up to four input variables. actions: help[0], verify_page[1], get_page_by_rev_id[2], page_last_rev[3], page_last_rev_sig[4], page_all_rev[5], page_all_rev_sig[6], request_merkle_proof[7], get_witness_data[8], store_signed_tx[9], store_witness_tx[10]"];
             $output[1]=['action \'verify_page\': expects revision_id as input and returns verification_hash(required), signature(optional), public_key(optional), wallet_address(optional), witness_id(optional)'];
             $output[2]=['action \'get_page_by_rev_id\': expects revision_id as input and returns page_title and page_id'];
             $output[3]=['action \'page_last_rev\': expects page_title and returns last verified revision.'];
             $output[4]=['action \'page_lage_rev_sig\': expects page_title as input and returns last signed and verified revision_id.'];
             $output[5]=['action \'page_all_rev\': expects page_title as input and returns last signed and verified revision_id.'];
             $output[6]=['action \'page_all_rev_sig\':NOT IMPLEMENTED'];
-            $output[7]=['action \'page_all_rev_witness\':NOT IMPLEMENTED - USES page_witness - WILL SERVICES EXTERNAL VERIFIER'];
+            $output[7]=['action \'request_merkle_proof\':expects witness_id and page_verification hash and returns left_leaf,righ_leaf and successor hash to verify the merkle proof node by node, data is retrieved from the witness_merkle_tree db. Note: in some cases there will be multiple replays to this query. In this case it is required to use the depth as a selector to go through the different layers. Depth can be specified via the $depth parameter'];
             $output[8]=['action \'get_witness_data\' - expects page_witness_id - used to retrieve all required data to execute a witness event (including witness_event_verification_hash, network ID or name, witness smart contract address) for the publishing via Metamask'];
             $output[9]=['action \'store_signed_tx\':expects revision_id=value1 [required] signature=value2[required], public_key=value3[required] and wallet_address=value4[required] as inputs; Returns a status for success or failure
                 '];
@@ -157,9 +157,61 @@ class StandardRestApi extends SimpleHandler {
         case 'page_all_rev_sig':
             return ['NOT IMPLEMENTED'];
 
-            #Expects Page Title and returns ALL verified revisions which have been witnessed
-        case 'page_all_rev_wittness':
-            return ['NOT IMPLEMENTED'];
+            #request_merkle_proof:expects witness_id and page_verification hash and returns left_leaf,righ_leaf and successor hash to verify the merkle proof node by node, data is retrieved from the witness_merkle_tree db. Note: in some cases there will be multiple replays to this query. In this case it is required to use the depth as a selector to go through the different layers. Depth can be specified via the $depth parameter; 
+        case 'request_merkle_proof':
+            if ($var1 == null) {
+                return "var1 (/witness_event_id) is not specified but expected";                
+            }
+            if ($var2 === null) {
+                return "var2 (page_verification_hash) is not specified but expected";
+            }
+            //Redeclaration
+            $witness_event_id = $var1;
+            $page_verification_hash = $var2;
+            $depth = $var3;
+
+            //IF query returns a left or right leaf empty, it means the successor string will be identifical the next layer up. In this case it is required to read the depth and start the query with a depth parameter -1 to go to the next layer. This is repeated until the left or right leaf is present and the successor hash different.
+
+            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+            $dbr = $lb->getConnectionRef( DB_REPLICA );
+
+            if ($var
+
+
+            if ($depth === null) {
+                $res = $dbr->select(
+                    'witness_merkle_tree',
+                    [ 'witness_event_id', 'depth', 'left_leaf', 'right_leaf', 'successor' ],
+                    'left_leaf=\'' . $page_verification_hash . '\' AND witness_event_id=' . $witness_event_id. ' 
+                    OR right_leaf=\'' . $page_verification_hash . '\' AND witness_event_id=' . $witness_event_id);
+
+                foreach( $res as $row ) {
+                    $output .= 
+                        ' Witness Event ID: ' . $row->witness_event_id . 
+                        ' Depth ' . $row->depth .
+                        ' Left Leaf: ' . $row->left_leaf . 
+                        ' Right Leaf: ' . $row->right_leaf . 
+                        ' Successor: ' . $row->successor;  
+                }                                 
+                return [$output];
+            } else {
+                $res = $dbr->select(
+                    'witness_merkle_tree',
+                    [ 'witness_event_id', 'depth', 'left_leaf', 'right_leaf', 'successor' ],
+                    'left_leaf=\''.$page_verification_hash.'\' AND witness_event_id='.$witness_event_id.' AND depth='.$depth.
+                    ' OR right_leaf=\''.$page_verification_hash.'\'  AND witness_event_id='.$witness_event_id.' AND depth='.$depth);
+
+                foreach( $res as $row ) {
+                    $output .= 
+                        ' Witness Event ID: ' . $row->witness_event_id . 
+                        ' Depth ' . $row->depth .
+                        ' Left Leaf: ' . $row->left_leaf . 
+                        ' Right Leaf: ' . $row->right_leaf . 
+                        ' Successor: ' . $row->successor;  
+                }                                 
+                return [$output];
+            }
+            return true;
 
             #Expects 'get_witness_data\':NOT IMPLEMENTED - USES page_witness - used to retrieve all required data to execute a witness event (including witness hash, network ID or name, witness smart contract address) for the publishing via Metamask'];
         case 'get_witness_data':
