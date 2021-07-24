@@ -90,7 +90,7 @@ function getWitnessData($witness_event_id) {
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	$dbr = $lb->getConnectionRef( DB_REPLICA );
 
-	$res = $dbr->select(
+	$row = $dbr->selectRow(
 		'witness_events',
 		[
 			'domain_id',
@@ -105,19 +105,14 @@ function getWitnessData($witness_event_id) {
 		__METHOD__
 	);
 
-	$output = array();
-	foreach( $res as $row ) {
-		array_push($output,
-			[
-				'domain_id' => $row->domain_id,
-				'page_manifest_title' => $row->page_manifest_title,
-				'witness_event_verification_hash' => $row->witness_event_verification_hash,
-				'witness_network' => $row->witness_network,
-				'smart_contract_address' => $row->smart_contract_address,
-				'page_manifest_verification_hash' => $row->page_manifest_verification_hash,
-				'merkle_root' => $row->merkle_root
-			]
-		);
-	}
+	$output = [
+		'domain_id' => $row->domain_id,
+		'page_manifest_title' => $row->page_manifest_title,
+		'witness_event_verification_hash' => $row->witness_event_verification_hash,
+		'witness_network' => $row->witness_network,
+		'smart_contract_address' => $row->smart_contract_address,
+		'page_manifest_verification_hash' => $row->page_manifest_verification_hash,
+		'merkle_root' => $row->merkle_root
+	];
 	return $output;
 }

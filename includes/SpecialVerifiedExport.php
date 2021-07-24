@@ -43,11 +43,26 @@ ini_set("display_errors", 1);
 
 require_once("ApiUtil.php");
 
+function convertArray2XMLString($arr, $tag) {
+	$xml = new SimpleXMLElement($tag);
+	$flipped = array_flip(array_filter($arr));
+	array_walk($flipped, array($xml, 'addChild'));
+	// We have to do these steps to ensure there are proper newlines in the XML
+	// string.
+	$dom = new DOMDocument();
+	$dom->loadXML($xml->asXML());
+	$dom->formatOutput = true;
+	$xmlString = $dom->saveXML();
+	// Remove the first line which has 'xml version="1.0"'
+	$xmlString = preg_replace('/^.+\n/', '', $xmlString);
+	return $xmlString;
+}
+
 function getPageMetadataByRevId($rev_id) {
 	// This is based on the case of 'verify_page' API call in StandardRestApi.php.
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	$dbr = $lb->getConnectionRef( DB_REPLICA );
-    $res = $dbr->select(
+    $row = $dbr->selectRow(
         'page_verification',
         [
             'domain_id', 
@@ -62,140 +77,41 @@ function getPageMetadataByRevId($rev_id) {
             __METHOD__
     );
 
-	$output = array();
-	foreach( $res as $row ) {
-		$output['domain_id'] = $row->domain_id;
-		$output['rev_id'] = $rev_id;
-		$output['verification_hash'] = $row->hash_verification;
-		$output['time_stamp'] = $row->time_stamp;
-    	$output['witness_event_id'] = $row->witness_event_id;
-		$output['signature'] = $row->signature;
-		$output['public_key'] = $row->public_key;
-		$output['wallet_address'] = $row->wallet_address;
-		break;
+	$output = [
+		'domain_id' => $row->domain_id,
+		'rev_id' => $rev_id,
+		'verification_hash' => $row->hash_verification,
+		'time_stamp' => $row->time_stamp,
+		'witness_event_id' => $row->witness_event_id,
+		'signature' => $row->signature,
+		'public_key' => $row->public_key,
+		'wallet_address' => $row->wallet_address,
+	];
+
+	// Convert the $output array to XML string
+	$xmlString = convertArray2XMLString($output, "<verification/>");
+
+	//Inject <witness> data in case witness id is present
+	if ( !is_null($output['witness_event_id']) ) {
+		$wdXmlString = getPageWitnessData(
+			$output['witness_event_id'],
+			$output['verification_hash'],
+		);
+		$xmlString = str_replace('</verification>', "\n", $xmlString) . $wdXmlString . "\n</verification>";
 	}
 
-    //Inject <witness> data in case witness id is present
-   // if (!$witness_event_id===null){
-   //     getPageWitnessData($witness_event_id->witness_event_id,$page_verification_hash->hash_verification);
-   // }
 
-	//return "<verification>\n  <title>PHP2: More Parser Stories</title>\n</verification>";
-	// Convert the $output array to XML string
-	$xml = new SimpleXMLElement("<verification/>");
-	array_walk(array_flip($output), array($xml, 'addChild'));
-	// We have to do these steps to ensure there are proper newlines in the XML
-	// string.
-	$dom = new DOMDocument();
-	$dom->loadXML($xml->asXML());
-	$dom->formatOutput = true;
-	$xmlString = $dom->saveXML();
-	// Remove the first line which has 'xml version="1.0"'
-	$xmlString = preg_replace('/^.+\n/', '', $xmlString);
 	return $xmlString;
 }
 
-/**
-function getPageWitnessData($witness_event_id,$page_verification_hash) {
-	// This is based on the case of 'request_merkle_proof' and 'get_witness_data' API call in StandardRestApi.php.
+function getPageWitnessData($witness_event_id, $page_verification_hash) {
+	//$structured_merkle_proof = requestMerkleProof($witness_event_id, $page_verification_hash, $depth);
+	//$structure_merkle_proof = json_encode($structure_merkle_proof);
 
-	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-	$dbr = $lb->getConnectionRef( DB_REPLICA );
-    //IF query returns a left or right leaf empty, it means the successor string will be identifical the next layer up. In this case it is required to read the depth and start the query with a depth parameter -1 to go to the next layer. This is repeated until the left or right leaf is present and the successor hash different.
-
-            if ($depth === null) {
-                $res = $dbr->select(
-                    'witness_merkle_tree',
-                    [ 'witness_event_id', 'depth', 'left_leaf', 'right_leaf', 'successor' ],
-                    'left_leaf=\'' . $page_verification_hash . '\' AND witness_event_id=' . $witness_event_id. ' 
-                    OR right_leaf=\'' . $page_verification_hash . '\' AND witness_event_id=' . $witness_event_id);
-
-                foreach( $res as $row ) {
-                    $output .= 
-                        ' Witness Event ID: ' . $row->witness_event_id . 
-                        ' Depth ' . $row->depth .
-                        ' Left Leaf: ' . $row->left_leaf . 
-                        ' Right Leaf: ' . $row->right_leaf . 
-                        ' Successor: ' . $row->successor;  
-                }                                 
-            
-            } else {
-                $res = $dbr->select(
-                    'witness_merkle_tree',
-                    [ 'witness_event_id', 'depth', 'left_leaf', 'right_leaf', 'successor' ],
-                    'left_leaf=\''.$page_verification_hash.'\' AND witness_event_id='.$witness_event_id.' AND depth='.$depth.
-                    ' OR right_leaf=\''.$page_verification_hash.'\'  AND witness_event_id='.$witness_event_id.' AND depth='.$depth);
-
-                foreach( $res as $row ) {
-                    $output .= 
-                        ' Witness Event ID: ' . $row->witness_event_id . 
-                        ' Depth ' . $row->depth .
-                        ' Left Leaf: ' . $row->left_leaf . 
-                        ' Right Leaf: ' . $row->right_leaf . 
-                        ' Successor: ' . $row->successor;  
-                }                                 
-                return [$output];
-            }
-
-            $res = $dbr->select(
-            'witness_events',
-            [ 'page_manifest_verification_hash','merkle_root','witness_event_verification_hash',
-              'witness_network',
-              'smart_contract_address',
-              'sender_account_address' ],
-                'witness_event_id = ' . $var1,
-            __METHOD__
-            );
-
-            foreach( $res as $row ) {
-                $output = 
-                    ' Witness Event Verification Hash ' . $row->witness_event_verification_hash .
-                    ' Witness Network: ' . $row->witness_network .
-                    ' Smart Contract Address: ' . $row->smart_contract_address;  
-            }                                 
-            return [$output];
-    //ADJUST
-	$output = array();
-	foreach( $res as $row ) {
-		$output['domain_id'] = $row->domain_id;
-		$output['rev_id'] = $rev_id;
-		$output['verification_hash'] = $row->hash_verification;
-		$output['time_stamp'] = $row->time_stamp;
-    	$output['witness_event_id'] = $row->witness_event_id;
-		$output['signature'] = $row->signature;
-		$output['public_key'] = $row->public_key;
-		$output['wallet_address'] = $row->wallet_address;
-		break;
-    }
-
-    // DESIRED RESULTS with Variables
-$output ="
-    <witness>
-    <page_manifest_title>$page_manifest_title</page_manifest_title> 
-    <page_manifest_verification_hash>$page_manifest_verification_hash</page_manifest_verification_hash>
-    <merkle_tree_proof>$structured_merkle_proof</merkle_tree_proof>
-    <merkle_tree_root>$merkle_root</merkle_tree_root>
-    <witness_network>$witness_network</witness_network>
-    <witness_contract_address>$smart_contract_address</witness_contract_address>
-    <witness_event_transaction_hash>$witness_event_verification_hash</witness_event_transaction_hash>
-    <witness_sender_address>$sender_account_address</witness_sender_address>
-    </witness>";
- 
-
-	//return "<witness>\n  <title>PHP2: More Parser Stories</title>\n</witness>";
-	// Convert the $output array to XML string
-	$xml = new SimpleXMLElement("<witness/>");
-	array_walk(array_flip($output), array($xml, 'addChild'));
-	// We have to do these steps to ensure there are proper newlines in the XML
-	// string.
-	$dom = new DOMDocument();
-	$dom->loadXML($xml->asXML());
-	$dom->formatOutput = true;
-	$xmlString = $dom->saveXML();
-	// Remove the first line which has 'xml version="1.0"'
-	$xmlString = preg_replace('/^.+\n/', '', $xmlString);
+	$witness_data = getWitnessData($witness_event_id);
+	$xmlString = convertArray2XMLString($witness_data, "<witness/>");
 	return $xmlString;
-}*/
+}
 
 class VerifiedWikiExporter extends WikiExporter {
 	public function __construct(
