@@ -31,7 +31,7 @@ class HtmlContent extends TextContent {
 	}
 }
 
-function hrefifyHash($hash) {
+function hrefifyHashW($hash) {
 	return "<a href='" . $hash. "'>" . substr($hash, 0, 6) . "..." . substr($hash, -6, 6) . "</a>";
 }
 
@@ -44,7 +44,7 @@ function tree_pprint($layers, $out = "", $prefix = "└─ ", $level = 0, $is_la
 		if ($level == 0) {
 			$out .= "Merkle root: " . $key . "\n";
 		} else {
-			$formatted_key = hrefifyHash($key);
+			$formatted_key = hrefifyHashW($key);
 			$glyph = $is_last ? "  └─ ": "  ├─ ";
 			$out .= " " . $prefix . $glyph . $formatted_key . "\n";
 		}

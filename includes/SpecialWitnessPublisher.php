@@ -12,6 +12,7 @@ use WikiPage;
 use Title;
 use TextContent;
 
+// TODO this function is duplicated in SpecialWitness
 function hrefifyHash($hash, $prefix = "") {
 	return "<a href='" . $prefix . $hash. "'>" . substr($hash, 0, 6) . "..." . substr($hash, -6, 6) . "</a>";
 }
