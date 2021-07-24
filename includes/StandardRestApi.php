@@ -169,28 +169,18 @@ class StandardRestApi extends SimpleHandler {
             $witness_event_id = $var1;
             $page_verification_hash = $var2;
             $depth = $var3;
-            return requestMerkleProof($witness_event_id, $page_verification_hash, $depth);
+            $output = requestMerkleProof($witness_event_id, $page_verification_hash, $depth);
+            return [json_encode($output)];
 
             #Expects 'get_witness_data\':NOT IMPLEMENTED - USES page_witness - used to retrieve all required data to execute a witness event (including witness hash, network ID or name, witness smart contract address) for the publishing via Metamask'];
         case 'get_witness_data':
             if ($var1 === null) {
                 return "var1 (witness_event_id) is not specified but expected";
             }
-
-            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-            $dbr = $lb->getConnectionRef( DB_REPLICA );
-
-            $res = $dbr->select(
-            'witness_events',
-            [ 'witness_event_verification_hash','witness_network','smart_contract_address' ],
-                'witness_event_id = ' . $var1,
-            __METHOD__
-            );
-
-            foreach( $res as $row ) {
-                $output = 'Witness Event Verification Hash ' . $row->witness_event_verification_hash .' Witness Network: ' . $row->witness_network . ' Smart Contract Address: ' . $row->smart_contract_address;  
-            }                                 
-            return [$output];
+            $witness_event_id = $var1;
+            $output = getWitnessData($witness_event_id);
+                                 
+            return [json_encode($output)];
 
             #Expects Revision_ID [Required] Signature[Required], Public Key[Required] and Wallet Address[Required] as inputs; Returns a status for success or failure
         case 'store_signed_tx':
