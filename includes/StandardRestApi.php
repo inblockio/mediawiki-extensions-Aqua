@@ -169,46 +169,7 @@ class StandardRestApi extends SimpleHandler {
             $witness_event_id = $var1;
             $page_verification_hash = $var2;
             $depth = $var3;
-
-            //IF query returns a left or right leaf empty, it means the successor string will be identifical the next layer up. In this case it is required to read the depth and start the query with a depth parameter -1 to go to the next layer. This is repeated until the left or right leaf is present and the successor hash different.
-
-            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-            $dbr = $lb->getConnectionRef( DB_REPLICA );
-
-            if ($depth === null) {
-                $res = $dbr->select(
-                    'witness_merkle_tree',
-                    [ 'witness_event_id', 'depth', 'left_leaf', 'right_leaf', 'successor' ],
-                    'left_leaf=\'' . $page_verification_hash . '\' AND witness_event_id=' . $witness_event_id. ' 
-                    OR right_leaf=\'' . $page_verification_hash . '\' AND witness_event_id=' . $witness_event_id);
-
-                foreach( $res as $row ) {
-                    $output .= 
-                        ' Witness Event ID: ' . $row->witness_event_id . 
-                        ' Depth ' . $row->depth .
-                        ' Left Leaf: ' . $row->left_leaf . 
-                        ' Right Leaf: ' . $row->right_leaf . 
-                        ' Successor: ' . $row->successor;  
-                }                                 
-                return [$output];
-            } else {
-                $res = $dbr->select(
-                    'witness_merkle_tree',
-                    [ 'witness_event_id', 'depth', 'left_leaf', 'right_leaf', 'successor' ],
-                    'left_leaf=\''.$page_verification_hash.'\' AND witness_event_id='.$witness_event_id.' AND depth='.$depth.
-                    ' OR right_leaf=\''.$page_verification_hash.'\'  AND witness_event_id='.$witness_event_id.' AND depth='.$depth);
-
-                foreach( $res as $row ) {
-                    $output .= 
-                        ' Witness Event ID: ' . $row->witness_event_id . 
-                        ' Depth ' . $row->depth .
-                        ' Left Leaf: ' . $row->left_leaf . 
-                        ' Right Leaf: ' . $row->right_leaf . 
-                        ' Successor: ' . $row->successor;  
-                }                                 
-                return [$output];
-            }
-            return true;
+            return requestMerkleProof($witness_event_id, $page_verification_hash, $depth);
 
             #Expects 'get_witness_data\':NOT IMPLEMENTED - USES page_witness - used to retrieve all required data to execute a witness event (including witness hash, network ID or name, witness smart contract address) for the publishing via Metamask'];
         case 'get_witness_data':
