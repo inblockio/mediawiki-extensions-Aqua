@@ -72,13 +72,16 @@ function requestMerkleProof($witness_event_id, $page_verification_hash, $depth) 
 		],
 		$conds,
 	);
+	$output = array();
 	foreach( $res as $row ) {
-		$output .=
-			' Witness Event ID: ' . $row->witness_event_id .
-			' Depth ' . $row->depth .
-			' Left Leaf: ' . $row->left_leaf .
-			' Right Leaf: ' . $row->right_leaf .
-			' Successor: ' . $row->successor;
+		array_push($output,
+			['Witness Event ID' => $row->witness_event_id,
+			 'Depth' => $row->depth,
+			 'Left Leaf' => $row->left_leaf,
+			 'Right Leaf' => $row->right_leaf,
+			 'Successor' => $row->successor,
+			]
+		);
 	}
-	return [$output];
+	return [json_encode($output)];
 }
