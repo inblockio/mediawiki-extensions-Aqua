@@ -48,43 +48,37 @@ function requestMerkleProof($witness_event_id, $page_verification_hash, $depth) 
 	$dbr = $lb->getConnectionRef( DB_REPLICA );
 
 	if (is_null($depth)) {
-		$res = $dbr->select(
-			'witness_merkle_tree',
-			['witness_event_id',
-			 'depth',
-			 'left_leaf',
-			 'right_leaf',
-			 'successor'
-			],
+		$conds =
 			'left_leaf=\'' . $page_verification_hash .
 			'\' AND witness_event_id=' . $witness_event_id .
 			' OR right_leaf=\'' . $page_verification_hash .
-			'\' AND witness_event_id=' . $witness_event_id);
-
-		foreach( $res as $row ) {
-			$output .=
-				' Witness Event ID: ' . $row->witness_event_id .
-				' Depth ' . $row->depth .
-				' Left Leaf: ' . $row->left_leaf .
-				' Right Leaf: ' . $row->right_leaf .
-				' Successor: ' . $row->successor;
-		}
-		return [$output];
+			'\' AND witness_event_id=' . $witness_event_id;
 	} else {
-		$res = $dbr->select(
-			'witness_merkle_tree',
-			[ 'witness_event_id', 'depth', 'left_leaf', 'right_leaf', 'successor' ],
-			'left_leaf=\''.$page_verification_hash.'\' AND witness_event_id='.$witness_event_id.' AND depth='.$depth.
-			' OR right_leaf=\''.$page_verification_hash.'\'  AND witness_event_id='.$witness_event_id.' AND depth='.$depth);
-
-		foreach( $res as $row ) {
-			$output .=
-				' Witness Event ID: ' . $row->witness_event_id .
-				' Depth ' . $row->depth .
-				' Left Leaf: ' . $row->left_leaf .
-				' Right Leaf: ' . $row->right_leaf .
-				' Successor: ' . $row->successor;
-		}
-		return [$output];
+		$conds =
+			'left_leaf=\'' . $page_verification_hash .
+			'\' AND witness_event_id=' . $witness_event_id .
+			' AND depth=' .$depth .
+			' OR right_leaf=\'' . $page_verification_hash .
+			'\'  AND witness_event_id=' . $witness_event_id .
+			' AND depth=' . $depth;
 	}
+	$res = $dbr->select(
+		'witness_merkle_tree',
+		['witness_event_id',
+		 'depth',
+		 'left_leaf',
+		 'right_leaf',
+		 'successor'
+		],
+		$conds,
+	);
+	foreach( $res as $row ) {
+		$output .=
+			' Witness Event ID: ' . $row->witness_event_id .
+			' Depth ' . $row->depth .
+			' Left Leaf: ' . $row->left_leaf .
+			' Right Leaf: ' . $row->right_leaf .
+			' Successor: ' . $row->successor;
+	}
+	return [$output];
 }
