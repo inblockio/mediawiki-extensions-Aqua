@@ -63,6 +63,7 @@ require_once("ApiUtil.php");
  * 3. processVerification is implemented, which writes verification info into the DB
  * 4. processRevision does processVerification
  * 5. handlePage handles data_accounting_chain_height tag
+ * 6. handleWitness for witness-related operation
  */
 
 /**
@@ -1027,6 +1028,35 @@ class VerifiedWikiImporter {
 				return;
 			}
 
+			// Witness-specific
+			if ( isset( $verificationInfo['witness'] ) ) {
+				$witnessInfo = $verificationInfo['witness'];
+				$structured_merkle_proof = json_decode($witnessInfo['structured_merkle_proof'], true);
+				unset($witnessInfo['structured_merkle_proof']);
+				$dbw->insert(
+					'witness_events',
+					$witnessInfo,
+				);
+				$latest_witness_event_id = $dbw->selectRow(
+					'witness_events',
+					[ 'max(witness_event_id) as witness_event_id' ],
+					''
+				)->witness_event_id;
+				echo "LATEST $latest_witness_event_id";
+				foreach ( $structured_merkle_proof as $row ) {
+					$row["witness_event_id"] = $latest_witness_event_id;
+					$dbw->insert(
+						'witness_merkle_tree',
+						$row,
+					);
+				}
+
+				// This unset is important, otherwise the dbw->update for
+				// page_verification accidentally includes witness.
+				unset($verificationInfo["witness"]);
+			}
+			// End of witness-specific
+
 			$dbw->update(
 				$table,
 				$verificationInfo,
@@ -1322,6 +1352,8 @@ class VerifiedWikiImporter {
 
 			if ( in_array( $tag, $normalFields ) ) {
 				$verificationInfo[$tag] = $this->nodeContents();
+			} elseif ( $tag == 'witness' ) {
+				$verificationInfo[$tag] = $this->handleWitness();
 			}
 		}
 
@@ -1331,4 +1363,31 @@ class VerifiedWikiImporter {
 		return $verificationInfo;
 	}
 
+	// Aqua modification
+	private function handleWitness() {
+		if ( $this->reader->isEmptyElement ) {
+			return null;
+		}
+		$witnessInfo = [];
+		$normalFields = [
+			"domain_id",
+			"page_manifest_title",
+			"witness_event_verification_hash",
+			"smart_contract_address",
+			"page_manifest_verification_hash",
+			"merkle_root",
+			"structured_merkle_proof",
+		];
+		while ( $this->reader->read() ) {
+			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
+					$this->reader->localName == 'verification' ) {
+				break;
+			}
+			$tag = $this->reader->localName;
+			if ( in_array( $tag, $normalFields ) ) {
+				$witnessInfo[$tag] = $this->nodeContents();
+			}
+		}
+		return $witnessInfo;
+	}
 }
