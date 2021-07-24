@@ -175,9 +175,6 @@ class StandardRestApi extends SimpleHandler {
             $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
             $dbr = $lb->getConnectionRef( DB_REPLICA );
 
-            if ($var
-
-
             if ($depth === null) {
                 $res = $dbr->select(
                     'witness_merkle_tree',
