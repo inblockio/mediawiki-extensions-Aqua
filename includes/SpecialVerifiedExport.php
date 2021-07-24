@@ -105,10 +105,11 @@ function getPageMetadataByRevId($rev_id) {
 }
 
 function getPageWitnessData($witness_event_id, $page_verification_hash) {
-	//$structured_merkle_proof = requestMerkleProof($witness_event_id, $page_verification_hash, $depth);
-	//$structure_merkle_proof = json_encode($structure_merkle_proof);
+	$structured_merkle_proof = requestMerkleProof($witness_event_id, $page_verification_hash, $depth);
+	$structured_merkle_proof = json_encode($structured_merkle_proof);
 
 	$witness_data = getWitnessData($witness_event_id);
+	$witness_data["structured_merkle_proof"] = $structured_merkle_proof;
 	$xmlString = convertArray2XMLString($witness_data, "<witness/>");
 	return $xmlString;
 }

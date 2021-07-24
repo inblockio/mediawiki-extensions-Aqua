@@ -47,43 +47,59 @@ function requestMerkleProof($witness_event_id, $page_verification_hash, $depth) 
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	$dbr = $lb->getConnectionRef( DB_REPLICA );
 
-	if (is_null($depth)) {
-		$conds =
-			'left_leaf=\'' . $page_verification_hash .
-			'\' AND witness_event_id=' . $witness_event_id .
-			' OR right_leaf=\'' . $page_verification_hash .
-			'\' AND witness_event_id=' . $witness_event_id;
-	} else {
-		$conds =
-			'left_leaf=\'' . $page_verification_hash .
-			'\' AND witness_event_id=' . $witness_event_id .
-			' AND depth=' .$depth .
-			' OR right_leaf=\'' . $page_verification_hash .
-			'\'  AND witness_event_id=' . $witness_event_id .
-			' AND depth=' . $depth;
-	}
-	$res = $dbr->select(
-		'witness_merkle_tree',
-		['witness_event_id',
-		 'depth',
-		 'left_leaf',
-		 'right_leaf',
-		 'successor'
-		],
-		$conds,
-	);
-	$output = array();
-	foreach( $res as $row ) {
-		array_push($output,
-			['witness_event_id' => $row->witness_event_id,
-			 'depth' => $row->depth,
-			 'left_leaf' => $row->left_leaf,
-			 'right_leaf' => $row->right_leaf,
-			 'successor' => $row->successor,
-			]
+	$final_output = array();
+
+	while (true) {
+		if (is_null($depth)) {
+			$conds =
+				'left_leaf=\'' . $page_verification_hash .
+				'\' AND witness_event_id=' . $witness_event_id .
+				' OR right_leaf=\'' . $page_verification_hash .
+				'\' AND witness_event_id=' . $witness_event_id;
+		} else {
+			$conds =
+				'left_leaf=\'' . $page_verification_hash .
+				'\' AND witness_event_id=' . $witness_event_id .
+				' AND depth=' .$depth .
+				' OR right_leaf=\'' . $page_verification_hash .
+				'\'  AND witness_event_id=' . $witness_event_id .
+				' AND depth=' . $depth;
+		}
+		$res = $dbr->select(
+			'witness_merkle_tree',
+			['witness_event_id',
+			 'depth',
+			 'left_leaf',
+			 'right_leaf',
+			 'successor'
+			],
+			$conds,
 		);
+		$output = array();
+		$max_depth = null;
+		foreach( $res as $row ) {
+			if (is_null($max_depth) || ($row->depth > $max_depth)) {
+				$max_depth = $row->depth;
+				$output = [
+					'witness_event_id' => $row->witness_event_id,
+					'depth' => $row->depth,
+					'left_leaf' => $row->left_leaf,
+					'right_leaf' => $row->right_leaf,
+					'successor' => $row->successor,
+				];
+			}
+		}
+		if (empty($output)) {
+			break;
+		}
+		$depth = $max_depth - 1;
+		$page_verification_hash = $output['successor'];
+		array_push($final_output, $output);
+		if ($depth == -1) {
+			break;
+		}
 	}
-	return $output;
+	return $final_output;
 }
 
 function getWitnessData($witness_event_id) {
