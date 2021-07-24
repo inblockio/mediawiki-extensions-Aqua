@@ -1,4 +1,4 @@
-<php?
+<?php
 
 /**
  * Behavior description of Special Page Data Accounting Config
@@ -13,7 +13,30 @@
  *          Set Witness Smart Contract (For SpecialPage:WitnessPublisher)
  *          Set Witness Network (For SpecialPage:WitnessPublisher)
  */
+namespace MediaWiki\Extension\Example;
 
+class SpecialDataAccountingConfig extends \SpecialPage {
+
+	public function __construct() {
+		parent::__construct( 'DataAccountingConfig' );
+	}
+
+	/**
+	 * Show the page
+	 * @param string|null $par
+	 */
+	public function execute( $par = null ) {
+		if ( $this->including() ) {
+			$out = "I'm being included";
+		} else {
+			$out = "I'm being viewed as a Special Page";
+			$this->setHeaders();
+		}
+
+		$this->getOutput()->addWikiTextAsInterface( $out );
+	}
+}
+/**
         $htmlForm = new HTMLForm( $formDescriptor_scw, $this->getContext(), 'savewitnesssc' );
         $htmlForm->setSubmitText( 'Save Witness Smart Contract Address' );
 		$htmlForm->setSubmitCallback( [ $this, 'SaveWitnessSmartContractAddress' ] );
@@ -50,4 +73,4 @@
 
 
 
-?>
+?>*/
