@@ -22,8 +22,6 @@
                 .then((data) => {
                   data.json().then((parsed) => {
                     console.log(parsed)
-                    const formattedHash = formatHash(parsed.witness_event_verification_hash)
-                    console.log(formattedHash)
                     const ownAddress = window.ethereum.selectedAddress
                     // TODO pass in witness_network (where its value is e.g. Goerli
                     // Test Network) into Metamask.
@@ -31,10 +29,10 @@
                       {
                         from: ownAddress,
                         to: parsed.smart_contract_address,
-                        gas: '0x76c0', // 30400
+                        gas: '0x7cc0', // 30400
                         gasPrice: '0x928400000',
                         value: '0x76c0', // 30400
-                        data: formattedHash,
+                        data: '0x9cef4ea1' + parsed.witness_event_verification_hash,
                       },
                     ]
                     window.ethereum
@@ -43,6 +41,7 @@
                       params: params,
                     })
                     .then((txhash) => {
+                      console.log({txhash: txhash});
                       const cmd =
                         host
                         + '/rest.php/data_accounting/v1/standard/store_witness_tx?var1=' + witnessEventID
