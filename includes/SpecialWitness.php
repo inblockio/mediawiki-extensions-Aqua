@@ -205,16 +205,26 @@ class SpecialWitness extends \SpecialPage {
 
         //Write results into the witness_events DB
         $merkle_root = substr($merkleTreeText, 22, 150);
-        $dbw->insert( 'witness_events', 
-            [
-                'witness_event_id' => $witness_event_id,
-                'domain_id' => getDomainId(),
-                'page_manifest_title' => $title,
-                'page_manifest_verification_hash' => $page_manifest_verification_hash->hash_verification, 
-                'merkle_root' => $merkle_root,
-                'witness_event_verification_hash' => getHashSum($page_manifest_verification_hash->hash_verification.$merkle_root),
-            ], 
-            "");
+
+		// Check if $witness_event_id is already present in the witness_events table
+		$row = $dbw->selectRow(
+			'witness_events',
+			[ 'witness_event_id' ],
+			[ 'witness_event_id' => $witness_event_id ]
+		);
+		if (!$row) {
+			// If witness_events table doesn't have it, then insert.
+			$dbw->insert( 'witness_events', 
+				[
+					'witness_event_id' => $witness_event_id,
+					'domain_id' => getDomainId(),
+					'page_manifest_title' => $title,
+					'page_manifest_verification_hash' => $page_manifest_verification_hash->hash_verification, 
+					'merkle_root' => $merkle_root,
+					'witness_event_verification_hash' => getHashSum($page_manifest_verification_hash->hash_verification.$merkle_root),
+				], 
+				"");
+		}
 
 		$out->addHTML($merkleTreeText);
 		$out->addWikiTextAsContent("<br> Visit [[$title]] to see the Merkle proof.");
