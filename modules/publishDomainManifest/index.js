@@ -51,6 +51,7 @@
                       .then((out) => {
                         console.log("After DB operation")
                         console.log(out)
+                        location.reload()
                       })
                     })
                   })
