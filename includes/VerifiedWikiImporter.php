@@ -1012,6 +1012,7 @@ class VerifiedWikiImporter {
 			$verificationInfo["debug"] = "OHHHHYES ";
 			unset($verificationInfo["rev_id"]);
 
+
 			$res = $dbw->select(
 			    $table,
 			    ['page_verification_id', 'rev_id', 'page_title', 'source'],
@@ -1040,26 +1041,43 @@ class VerifiedWikiImporter {
                 $rowWitness = $dbw->selectRow(
                     'witness_events',
                     ['witness_event_verification_hash'],
-                    ['witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash']]
-                );
-                if (!$rowWitness) {
-                    $dbw->insert(
-                        'witness_events',
-                        $witnessInfo,
-                    );
-                    $latest_witness_event_id = $dbw->selectRow(
-                        'witness_events',
-                        [ 'max(witness_event_id) as witness_event_id' ],
-                        ''
-                    )->witness_event_id;
-                    foreach ( $structured_merkle_proof as $row ) {
-                        $row["witness_event_id"] = $latest_witness_event_id;
-                        $dbw->insert(
-                            'witness_merkle_tree',
-                            $row,
-                        );
-                    }
-                } 
+					['witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash']]
+				);
+				if (!$rowWitness) {
+					$dbw->insert(
+						'witness_events',
+						$witnessInfo,
+					);
+				} 
+				// Check if merkle tree proof is present, if so skip, if not
+				// import AND attribute to the correct witness_id
+				$page_verification_hash = $verificationInfo['hash_verification'];
+
+				$rowProof = $dbw->selectRow(
+					'witness_merkle_tree',
+					[ 'witness_event_id' ],
+					[
+						'left_leaf=\'' . $page_verification_hash . '\'' .
+						' OR right_leaf=\'' . $page_verification_hash .'\'' 
+					]
+				);
+
+				if (!$rowProof) {
+					$latest_witness_event_id = $dbw->selectRow(
+						'witness_events',
+						[ 'max(witness_event_id) as witness_event_id' ],
+						''
+					)->witness_event_id;
+
+					foreach ( $structured_merkle_proof as $row ) {
+						$row["witness_event_id"] = $latest_witness_event_id;
+						$dbw->insert(
+							'witness_merkle_tree',
+							$row,
+						);
+					} 
+				}
+
 
 				// This unset is important, otherwise the dbw->update for
 				// page_verification accidentally includes witness.
