@@ -3,9 +3,64 @@
 
   publishDomainManifest = {
     init: function () {
-      $("#publish-domain-manifest").click(
+      $(".publish-domain-manifest").click(
         function() {
-          alert("SUP")
+          function formatHash(hash) {
+            // Format verification hash to be fed into the smart contract
+            const midpoint = hash.length / 2
+            const first = hash.slice(0, midpoint)
+            const second = hash.slice(midpoint)
+            return '[0x' + first + ',0x' + second + ']'
+          }
+          if (window.ethereum) {
+            if (window.ethereum.isConnected() && window.ethereum.selectedAddress) {
+              const witnessEventID = $(this).attr('id')
+              const host = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port
+              fetch(
+                host + '/rest.php/data_accounting/v1/standard/get_witness_data?var1=' + witnessEventID,
+                { method: 'GET' })
+                .then((data) => {
+                  data.json().then((parsed) => {
+                    console.log(parsed)
+                    const formattedHash = formatHash(parsed.witness_event_verification_hash)
+                    console.log(formattedHash)
+                    const ownAddress = window.ethereum.selectedAddress
+                    // TODO pass in witness_network (where its value is e.g. Goerli
+                    // Test Network) into Metamask.
+                    const params = [
+                      {
+                        from: ownAddress,
+                        to: parsed.smart_contract_address,
+                        gas: '0x76c0', // 30400
+                        gasPrice: '0x928400000',
+                        value: '0x76c0', // 30400
+                        data: formattedHash,
+                      },
+                    ]
+                    window.ethereum
+                    .request({
+                      method: 'eth_sendTransaction',
+                      params: params,
+                    })
+                    .then((txhash) => {
+                      const cmd =
+                        host
+                        + '/rest.php/data_accounting/v1/standard/store_witness_tx?var1=' + witnessEventID
+                        + '&var2=' + ownAddress
+                        + '&var3=' + txhash;
+                      console.log(cmd);
+                      fetch(cmd, { method: 'GET' })
+                      .then((out) => {
+                        console.log("After DB operation")
+                        console.log(out)
+                      })
+                    })
+                  })
+                })
+            } else {
+              window.ethereum.request({ method: 'eth_requestAccounts' })
+            }
+          }
         }
       )
     },

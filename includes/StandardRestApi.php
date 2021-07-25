@@ -180,7 +180,7 @@ class StandardRestApi extends SimpleHandler {
             $witness_event_id = $var1;
             $output = getWitnessData($witness_event_id);
                                  
-            return [json_encode($output)];
+            return $output;
 
             #Expects Revision_ID [Required] Signature[Required], Public Key[Required] and Wallet Address[Required] as inputs; Returns a status for success or failure
         case 'store_signed_tx':
