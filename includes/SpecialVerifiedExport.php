@@ -104,7 +104,6 @@ function getPageMetadataByRevId($rev_id) {
 		$xmlString = str_replace('</verification>', "\n", $xmlString) . $wdXmlString . "\n</verification>";
 	}
 
-
 	return $xmlString;
 }
 

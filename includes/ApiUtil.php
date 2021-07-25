@@ -41,7 +41,7 @@ function getPageChainHeight($page_title) {
 	return count($revs);
 }
 
-function requestMerkleProof($witness_event_id, $page_verification_hash, $depth) {
+function requestMerkleProof($witness_event_id, $page_verification_hash, $depth = null) {
 	//IF query returns a left or right leaf empty, it means the successor string will be identifical the next layer up. In this case it is required to read the depth and start the query with a depth parameter -1 to go to the next layer. This is repeated until the left or right leaf is present and the successor hash different.
 
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
