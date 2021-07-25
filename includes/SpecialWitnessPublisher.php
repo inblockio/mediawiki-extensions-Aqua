@@ -83,7 +83,7 @@ class SpecialWitnessPublisher extends \SpecialPage {
                 if ($row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN POPULATE') {
                     $publishingStatus = '<th style="background-color:#F27049"><button type="button" class="publish-domain-manifest" id="' . $row->witness_event_id . '">Publish!</button></th>';
                 } else {
-                    $publishingStatus = '<th style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, "https://etherscan.io/tx/") . '</th>';
+                    $publishingStatus = '<th style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, "https://goerli.etherscan.io/tx/") . '</th>';
                 }
             };
 
