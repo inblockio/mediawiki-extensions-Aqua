@@ -77,6 +77,10 @@ function getPageMetadataByRevId($rev_id) {
             __METHOD__
     );
 
+    if (!$row) {
+        return '';
+    }
+
 	$output = [
 		'domain_id' => $row->domain_id,
 		'rev_id' => $rev_id,
