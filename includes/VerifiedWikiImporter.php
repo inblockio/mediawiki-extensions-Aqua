@@ -1033,23 +1033,33 @@ class VerifiedWikiImporter {
 				$witnessInfo = $verificationInfo['witness'];
 				$structured_merkle_proof = json_decode($witnessInfo['structured_merkle_proof'], true);
 				unset($witnessInfo['structured_merkle_proof']);
-				$dbw->insert(
-					'witness_events',
-					$witnessInfo,
-				);
-				$latest_witness_event_id = $dbw->selectRow(
-					'witness_events',
-					[ 'max(witness_event_id) as witness_event_id' ],
-					''
-				)->witness_event_id;
-				echo "LATEST $latest_witness_event_id";
-				foreach ( $structured_merkle_proof as $row ) {
-					$row["witness_event_id"] = $latest_witness_event_id;
-					$dbw->insert(
-						'witness_merkle_tree',
-						$row,
-					);
-				}
+                
+                //Check if witness_event_verification_hash is already present,
+                //if so skip import into witness_events 
+
+                $rowWitness = $dbw->selectRow(
+                    'witness_events',
+                    ['witness_event_verification_hash'],
+                    ['witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash']]
+                );
+                if (!$rowWitness) {
+                    $dbw->insert(
+                        'witness_events',
+                        $witnessInfo,
+                    );
+                    $latest_witness_event_id = $dbw->selectRow(
+                        'witness_events',
+                        [ 'max(witness_event_id) as witness_event_id' ],
+                        ''
+                    )->witness_event_id;
+                    foreach ( $structured_merkle_proof as $row ) {
+                        $row["witness_event_id"] = $latest_witness_event_id;
+                        $dbw->insert(
+                            'witness_merkle_tree',
+                            $row,
+                        );
+                    }
+                } 
 
 				// This unset is important, otherwise the dbw->update for
 				// page_verification accidentally includes witness.
