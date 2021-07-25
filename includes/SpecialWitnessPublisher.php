@@ -12,6 +12,8 @@ use WikiPage;
 use Title;
 use TextContent;
 
+require_once('Util.php');
+
 // TODO this function is duplicated in SpecialWitness
 function hrefifyHash($hash, $prefix = "") {
 	return "<a href='" . $prefix . $hash. "'>" . substr($hash, 0, 6) . "..." . substr($hash, -6, 6) . "</a>";
@@ -73,11 +75,18 @@ class SpecialWitnessPublisher extends \SpecialPage {
             // Color taken from https://www.schemecolor.com/warm-autumn-2.php
             // #B33030 is Chinese Orange
             // #B1C97F is Sage
-            if ($row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN POPULATE') {
-                $publishingStatus = '<th style="background-color:#F27049"><button type="button" id="publish-domain-manifest">Publish!</button></th>';
+            
+            $my_domain_id = getDomainId();
+            if ($my_domain_id != $row->domain_id) {
+                $publishingStatus = '<th style="background-color:#DDDDDD">Imported</th>';
             } else {
-                $publishingStatus = '<th style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, "https://etherscan.io/tx/") . '</th>';
-            }
+                if ($row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN POPULATE') {
+                    $publishingStatus = '<th style="background-color:#F27049"><button type="button" id="publish-domain-manifest">Publish!</button></th>';
+                } else {
+                    $publishingStatus = '<th style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, "https://etherscan.io/tx/") . '</th>';
+                }
+            };
+
             $output .= <<<EOD
                 <tr>
                     <th>{$row->witness_event_id}</th>
