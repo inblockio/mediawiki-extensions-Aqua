@@ -30,8 +30,7 @@
                         from: ownAddress,
                         to: parsed.smart_contract_address,
                         gas: '0x7cc0', // 30400
-                        gasPrice: '0x928400000',
-                        value: '0x76c0', // 30400
+                        gasPrice: '0x328400000',
                         data: '0x9cef4ea1' + parsed.witness_event_verification_hash,
                       },
                     ]
