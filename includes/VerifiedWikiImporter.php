@@ -1406,7 +1406,8 @@ class VerifiedWikiImporter {
 			"page_manifest_verification_hash",
 			"merkle_root",
 			"structured_merkle_proof",
-			"witness_event_transaction_hash"
+			"witness_event_transaction_hash",
+			"sender_account_address"
 		];
 		while ( $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
