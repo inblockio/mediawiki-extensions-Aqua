@@ -115,7 +115,8 @@ function getWitnessData($witness_event_id) {
 			'witness_network',
 			'smart_contract_address',
 			'page_manifest_verification_hash',
-			'merkle_root'
+			'merkle_root',
+			'witness_event_transaction_hash'
 		],
 		[ 'witness_event_id' => $witness_event_id],
 		__METHOD__
@@ -128,7 +129,8 @@ function getWitnessData($witness_event_id) {
 		'witness_network' => $row->witness_network,
 		'smart_contract_address' => $row->smart_contract_address,
 		'page_manifest_verification_hash' => $row->page_manifest_verification_hash,
-		'merkle_root' => $row->merkle_root
+		'merkle_root' => $row->merkle_root,
+		'witness_event_transaction_hash' => $row->witness_event_transaction_hash
 	];
 	return $output;
 }
