@@ -73,7 +73,6 @@ class HashWriterHooks implements
             'page_id' => $revisionRecord->getPageId(),
             'rev_id' => $revisionRecord->getID(),
             'time_stamp' => $revisionRecord->getTimestamp(),
-            'debug' => "RevisionRecordInserted",
         ];
 
         $dbw->insert($table_name, $data, __METHOD__);
@@ -114,7 +113,6 @@ class HashWriterHooks implements
             'public_key' => '',
             'wallet_address' => '',
             'source' => 'default',
-            'debug' => $rev->getTimeStamp().'[PV]'.$metadata[0].'[SIG]'.$metadata[1].'[PK]'.$metadata[2].'[Comment]'.$rev->getComment()->text.'[Domain_ID]'.getDomainId()
         ];
         $dbw->update('page_verification', $data, ['rev_id' => $rev->getID()], __METHOD__);
         /** re-initilizing variables to ensure they do not hold values for the next revision. */
