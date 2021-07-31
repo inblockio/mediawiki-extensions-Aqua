@@ -221,7 +221,7 @@ class SpecialWitness extends \SpecialPage {
 					'page_manifest_title' => $title,
 					'page_manifest_verification_hash' => $page_manifest_verification_hash->hash_verification, 
 					'merkle_root' => $merkle_root,
-					'witness_event_verification_hash' => getHashSum($page_manifest_verification_hash->hash_verification.$merkle_root),
+					'witness_event_verification_hash' => getHashSum($page_manifest_verification_hash->hash_verification.$merkle_root, false),
 				], 
 				"");
 		}
