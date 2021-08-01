@@ -102,17 +102,11 @@ class SpecialWitness extends \SpecialPage {
 	public function execute( $sub ) {
 		$this->setHeaders();
 
-		$formDescriptor = [
-			'pagetitle' => [
-				'label' => 'Page Title', // Label of the field
-				'class' => 'HTMLTextField', // Input type
-			]
-		];
-		$htmlForm = new HTMLForm( $formDescriptor, $this->getContext(), 'generatePageManifest' );
+		$htmlForm = new HTMLForm( [], $this->getContext(), 'generatePageManifest' );
 		$htmlForm->setSubmitText( 'Generate Page Manifest' );
 		$htmlForm->setSubmitCallback( [ $this, 'generatePageManifest' ] );
 		$htmlForm->show();
-    
+
 		$out = $this->getOutput();
 		$out->setPageTitle( 'Page Manifest Generator' );
 	}
