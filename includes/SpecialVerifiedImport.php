@@ -90,6 +90,8 @@ class SpecialVerifiedImport extends \SpecialPage {
 		$this->setHeaders();
 		$this->outputHeader();
 
+		$this->getOutput()->setPageTitle( 'Verified Import' );
+
 		$this->namespace = $this->getConfig()->get( 'ImportTargetNamespace' );
 
 		$this->getOutput()->addModules( 'mediawiki.special.import' );
