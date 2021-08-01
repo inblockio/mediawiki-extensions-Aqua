@@ -37,6 +37,9 @@ class SpecialWitnessPublisher extends \SpecialPage {
      *  [[Special:HelloWorld/subpage]].
      */
     public function execute( $sub ) {
+		$this->setHeaders();
+		$this->getOutput()->setPageTitle( 'Domain Manifest Publisher' );
+
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
         $dbw = $lb->getConnectionRef( DB_MASTER );
 
