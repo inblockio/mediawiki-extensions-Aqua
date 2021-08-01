@@ -1,5 +1,9 @@
 <?php
 
+function getHashSum($inputStr) {
+    return hash("sha3-512", $inputStr);
+}
+
 function generateDomainId() {
     //*todo* import public key via wizard instead of autogenerating random
     //value

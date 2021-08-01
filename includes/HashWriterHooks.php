@@ -17,10 +17,6 @@ use MediaWiki\MediaWikiServices;
 
 require_once('Util.php');
 
-function getHashSum($inputStr) {
-    return hash("sha3-512", $inputStr);
-}
-
 function calculateMetadataHash($timestamp, $previousVerificationHash = "", $signature = "", $publicKey = "") {
     return getHashSum($timestamp . $previousVerificationHash . $signature . $publicKey);
 }
