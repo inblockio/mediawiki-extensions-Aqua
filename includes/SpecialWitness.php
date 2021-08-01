@@ -215,14 +215,14 @@ class SpecialWitness extends \SpecialPage {
 		);
 		if (!$row) {
 			// If witness_events table doesn't have it, then insert.
-			$dbw->insert( 'witness_events', 
+			$dbw->insert( 'witness_events',
 				[
 					'witness_event_id' => $witness_event_id,
 					'domain_id' => getDomainId(),
 					'page_manifest_title' => $title,
-					'page_manifest_verification_hash' => $page_manifest_verification_hash->hash_verification, 
+					'page_manifest_verification_hash' => $page_manifest_verification_hash->hash_verification,
 					'merkle_root' => $merkle_root,
-					'witness_event_verification_hash' => getHashSum($page_manifest_verification_hash->hash_verification.$merkle_root, false),
+					'witness_event_verification_hash' => getHashSum($page_manifest_verification_hash->hash_verification . $merkle_root),
 				], 
 				"");
 		}

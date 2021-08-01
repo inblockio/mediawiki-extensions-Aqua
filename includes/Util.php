@@ -1,7 +1,7 @@
 <?php
 
 function getHashSum($inputStr) {
-    return hash("sha3-512", $inputStr);
+    return hash("sha3-512", $inputStr, false);
 }
 
 function generateDomainId() {
