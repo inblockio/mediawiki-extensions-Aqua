@@ -1044,6 +1044,7 @@ class VerifiedWikiImporter {
 					['witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash']]
 				);
 				if (!$rowWitness) {
+					$witnessInfo['source'] = 'imported';
 					$dbw->insert(
 						'witness_events',
 						$witnessInfo,
