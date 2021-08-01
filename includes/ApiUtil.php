@@ -141,6 +141,10 @@ function getWitnessData($witness_event_id) {
 		__METHOD__
 	);
 
+	if (!$row) {
+		return '';
+	}
+
 	$output = [
 		'domain_id' => $row->domain_id,
 		'page_manifest_title' => $row->page_manifest_title,
