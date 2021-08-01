@@ -15,6 +15,7 @@
  */
 namespace MediaWiki\Extension\Example;
 
+use MediaWiki\MediaWikiServices;
 use HTMLForm;
 
 require_once('Util.php');
@@ -62,19 +63,22 @@ class SpecialDataAccountingConfig extends \SpecialPage {
 		$dbw = $lb->getConnectionRef( DB_MASTER );
 
         $witness_event_id = $dbw->selectRow(
-            'witness_page',
+            'witness_events',
             [ 'max(witness_event_id) as witness_event_id' ],
             [ 'source' => 'default' ],
             __METHOD__,
         )->witness_event_id;
 
-
-		$res = $dbr->select(
-			'page_verification',
-			[ 'MAX(rev_id) as rev_id', 'page_title', 'hash_verification' ],
-			'',
-			__METHOD__,
-			[ 'GROUP BY' => 'page_title']
+		$dbw->update(
+            'witness_events',
+			[
+				'smart_contract_address' => $formData['smartcontractaddress'],
+				'witness_network' => $formData['witnessnetwork'],
+			],
+			[
+				'witness_event_id' => $witness_event_id,
+				'source' => 'default',
+		   	]
 		);
 	}
 }
