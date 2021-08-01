@@ -251,16 +251,6 @@ class StandardRestApi extends SimpleHandler {
 
             $table = 'witness_events';
 
-            /** write data to database */
-            #$dbw->insert($table ,[$field => $data,$field_two => $data_two], __METHOD__);
-
-            $dbw->update( $table,
-                [
-                    'sender_account_address' => $account_address,
-                    'witness_event_transaction_hash' => $transaction_hash,
-                ],
-                "witness_event_id = $witness_event_id");
-
             $verification_hashes = selectToArray(
                 $dbw,
                 'witness_page',
@@ -298,12 +288,16 @@ class StandardRestApi extends SimpleHandler {
                 $row->witness_network .
                 $transaction_hash
             );
+            /** write data to database */
             // Write the witness_hash into the witness_events table
-            $dbw->update(
-                'witness_events',
-                [ 'witness_hash' => $witness_hash ],
-                [ 'witness_event_id' => $witness_event_id ]
-            );
+            $dbw->update( $table,
+                [
+                    'sender_account_address' => $account_address,
+                    'witness_event_transaction_hash' => $transaction_hash,
+                    'source' => 'default',
+                    'witness_hash' => $witness_hash,
+                ],
+                "witness_event_id = $witness_event_id");
 
             return ( "Successfully stored data for witness_event_id[{$witness_event_id}] in Database[$table]! Data: account_address[{$account_addres}], witness_event_transaction_hash[{$transaction_hash}]"  );
 
