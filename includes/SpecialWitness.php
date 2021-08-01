@@ -24,6 +24,7 @@ require 'vendor/autoload.php';
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
+require_once('Util.php');
 
 class HtmlContent extends TextContent {
 	protected function getHtml() {
