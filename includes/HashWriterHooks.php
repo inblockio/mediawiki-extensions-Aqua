@@ -45,7 +45,7 @@ function getPageVerificationData($dbr, $previous_rev_id) {
         "rev_id = $previous_rev_id",
         __METHOD__
     );
-    if (empty($row)) {
+    if (!$row) {
         // When $row is empty, we have to construct $output consisting of empty
         // strings.
         return [
@@ -53,7 +53,7 @@ function getPageVerificationData($dbr, $previous_rev_id) {
             'signature' => "",
             'public_key' => "",
             'wallet_address' => "",
-            'witness_event_id' => ""
+            'witness_event_id' => null,
         ];
     }
     $output = [
@@ -125,11 +125,7 @@ class HashWriterHooks implements
         $signatureHash = calculateSignatureHash($signature, $publicKey);
 
         // WITNESS DATA HASH CALCULATOR
-        $witness_event_id = '';
-        if (array_key_exists('witness_event_id', $verificationData)) {
-            $witness_event_id = $verificationData['witness_event_id'];
-        };
-        $witnessData = getWitnessData($witness_event_id); 
+        $witnessData = getWitnessData($verificationData['witness_event_id']);
         if (!empty($witnessData)) {
             $page_manifest_verification_hash = $witnessData['witness_event_verification_hash'];
             $merkle_root = $witnessData['merkle_root'];

@@ -267,7 +267,7 @@ class StandardRestApi extends SimpleHandler {
                     [ 'witness_event_id' ],
                     [ 'hash_verification' => $vh ]
                 );
-                if (empty($row->witness_event_id)) {
+                if (is_null($row->witness_event_id)) {
                     $dbw->update(
                         'page_verification',
                         [ 'witness_event_id' => $witness_event_id ],

@@ -18,7 +18,7 @@ revision table',
 	`signature` VARCHAR(256) DEFAULT '',
 	`public_key` VARCHAR(256) DEFAULT '',
 	`wallet_address` VARCHAR(128) DEFAULT '',
-	`witness_event_id` VARCHAR(128) DEFAULT '' COMMENT 'Shows if revision was witnessed, an Index for witness_events table',
+	`witness_event_id` INT(32) COMMENT 'Shows if revision was witnessed, an Index for witness_events table',
 	`source` VARCHAR(128) COMMENT 'possible values are "imported", "default"',
 	PRIMARY KEY (`page_verification_id`)
 );
