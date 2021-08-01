@@ -16,13 +16,22 @@ use DatabaseUpdater;
 use MediaWiki\MediaWikiServices;
 
 require_once('Util.php');
+require_once('ApiUtil.php');
 
-function calculateMetadataHash($timestamp, $previousVerificationHash = "", $signature = "", $publicKey = "") {
-    return getHashSum($timestamp . $previousVerificationHash . $signature . $publicKey);
+function calculateMetadataHash($domainId, $timestamp, $previousVerificationHash = "") {
+    return getHashSum($domainId . $timestamp . $previousVerificationHash);
 }
 
-function calculateVerificationHash($contentHash, $metadataHash) {
-    return getHashSum($contentHash . $metadataHash);
+function calculateSignatureHash($signature, $publicKey) {
+    return getHashSum($signature . $publicKey);
+}
+
+function calculateWitnessHash($page_manifest_verification_hash, $merkle_root, $witness_network, $witness_tx_hash ) {
+    return getHashSum($page_manifest_verification_hash . $merkle_root . $witness_network . $witness_tx_hash);
+}
+
+function calculateVerificationHash($contentHash, $metadataHash, $signature_hash, $witness_hash) {
+    return getHashSum($contentHash . $metadataHash . $signature_hash . $witness_hash);
 }
 
 function makeEmptyIfNonce($x) {
@@ -30,25 +39,28 @@ function makeEmptyIfNonce($x) {
 }
 
 function getPageVerificationData($dbr, $previous_rev_id) {
-    $res = $dbr->select(
+    $row = $dbr->selectRow(
         'page_verification',
         [ 'rev_id', 'hash_verification', 'signature', 'public_key', 'wallet_address' ],
         "rev_id = $previous_rev_id",
         __METHOD__
     );
-    $output = array();
-    foreach( $res as $row) {
-        array_push($output, makeEmptyIfNonce($row->hash_verification));
-        array_push($output, makeEmptyIfNonce($row->signature));
-        array_push($output, makeEmptyIfNonce($row->public_key));
-        array_push($output, makeEmptyIfNonce($row->wallet_address));
-        break;
-    }
-    if (empty($output)) {
-        // When $res is empty, we have to construct $output consisting of empty
+    if (empty($row)) {
+        // When $row is empty, we have to construct $output consisting of empty
         // strings.
-        return ["", "", "", ""];
+        return [
+            'hash_verification' => "",
+            'signature' => "",
+            'public_key' => "",
+            'wallet_address' => ""
+        ];
     }
+    $output = [
+        'hash_verification' => $row->hash_verification, 
+        'signature' =>  $row->signature,
+        'public_key' => $row->public_key,
+        'wallet_address' => $row->wallet_address
+    ];
     return $output;
 }
 
@@ -90,12 +102,38 @@ class HashWriterHooks implements
         //}
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
         $dbw = $lb->getConnectionRef( DB_MASTER );
+
+        // CONTENT DATA HASH CALCULATOR
         $pageContent = $rev->getContent(SlotRecord::MAIN)->serialize();
         $contentHash = getHashSum($pageContent);
+
+        // GET DATA FOR META DATA and SIGNATURE DATA
         $parentId = $rev->getParentId();
-        $metadata = getPageVerificationData($dbw, $parentId);
+        $verificationData = getPageVerificationData($dbw, $parentId);
+
+        // META DATA HASH CALCULATOR
+        $previousVerificationHash = $verificationData['hash_verification'];
+        $domainId = getDomainId();
         $timestamp = $rev->getTimeStamp();
-        $metadataHash = calculateMetadataHash($timestamp, $metadata[0], $metadata[1], $metadata[2]);
+        $metadataHash = calculateMetadataHash($domainId, $timestamp, $previousVerificationHash);
+
+        // SIGNATURE DATA HASH CALCULATOR
+        $signature = $verificationData['signature'];
+        $publicKey = $verificationData['public_key'];
+        $signatureHash = calculateSignatureHash($signature, $publicKey);
+
+        // WITNESS DATA HASH CALCULATOR
+        $witness_event_id = null;
+        if (array_key_exists('witness_event_id', $verificationData)) {
+         $witness_event_id = $verificationData['witness_event_id'];
+        };
+        $witnessData = getWitnessData($witness_event_id); 
+        $page_manifest_verification_hash = $witnessData['witness_event_verification_hash'];
+        $merkle_root = $witnessData['merkle_root'];
+        $witness_network = $witnessData['witness_network'];
+        $witness_tx_hash = $witnessData['witness_event_transaction_hash'];
+        $witnessHash = calculateWitnessHash($page_manifest_verification_hash, $merkle_root, $witness_network, $witness_tx_hash );
+
         $data = [
             'domain_id' => getDomainId(),
             'page_title' => $wikiPage->getTitle(),
@@ -104,7 +142,7 @@ class HashWriterHooks implements
             'hash_content' => $contentHash,
             'time_stamp' => $timestamp,
             'hash_metadata' => $metadataHash,
-            'hash_verification' => calculateVerificationHash($contentHash, $metadataHash),
+            'hash_verification' => calculateVerificationHash($contentHash, $metadataHash, $signatureHash, $witnessHash),
             'signature' => '',
             'public_key' => '',
             'wallet_address' => '',
