@@ -204,6 +204,8 @@ class SpecialVerifiedExport extends \SpecialPage {
 		$this->outputHeader();
 		$config = $this->getConfig();
 
+		$this->getOutput()->setPageTitle( 'Verified Export' );
+
 		// Set some variables
 		$this->curonly = true;
 		$this->doExport = false;
