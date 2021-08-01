@@ -11,6 +11,7 @@ error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
 require_once("ApiUtil.php");
+require_once("Util.php");
 
 function selectToArray($db, $table, $col, $conds) {
     $out = array();
@@ -200,6 +201,9 @@ class StandardRestApi extends SimpleHandler {
             $public_key = $var3;
             $wallet_address = $var4;
 
+            //Generate signature_hash
+            $signature_hash = getHashSum($signature . $public_key);
+
             $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
             $dbw = $lb->getConnectionRef( DB_MASTER );
 
@@ -213,6 +217,7 @@ class StandardRestApi extends SimpleHandler {
                     'signature' => $signature, 
                     'public_key' => $public_key, 
                     'wallet_address' => $wallet_address,
+                    'signature_hash' => $signature_hash,
                 ], 
                 "rev_id =$rev_id");
 

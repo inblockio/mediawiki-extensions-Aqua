@@ -14,10 +14,11 @@ CREATE TABLE IF NOT EXISTS `page_verification` (
 	`hash_metadata` VARCHAR(128) DEFAULT '' COMMENT 'Hashing all values of related revision_id tuble entry in 
 revision table',
 	`hash_verification` VARCHAR(128) COMMENT 'Combined metadata and content hash',
-	`witness_event_id` VARCHAR(128) COMMENT 'Shows if revision was witnessed',
+    `signature_hash` VARCHAR(128) DEFAULT '' COMMENT 'Hash of signature data (signature + public_key)',
 	`signature` VARCHAR(256) DEFAULT '',
 	`public_key` VARCHAR(256) DEFAULT '',
 	`wallet_address` VARCHAR(128) DEFAULT '',
+	`witness_event_id` VARCHAR(128) DEFAULT '' COMMENT 'Shows if revision was witnessed, an Index for witness_events table',
 	`source` VARCHAR(128) COMMENT 'possible values are "imported", "default"',
 	PRIMARY KEY (`page_verification_id`)
 );
@@ -26,13 +27,15 @@ CREATE TABLE IF NOT EXISTS `witness_events` (
         `witness_event_id` INT(32) NOT NULL AUTO_INCREMENT,
         `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
         `page_manifest_title` VARCHAR(128) COMMENT 'from page_verification',
+        `witness_hash` VARCHAR(128) COMMENT 'Hashes together page_manifest_verification hash + merkle_root + witness_network + smart contract address',
         `page_manifest_verification_hash` VARCHAR(128) COMMENT 'from page_verification table',
         `merkle_root` VARCHAR(128) COMMENT 'Merkle Root Hash',
         `witness_event_verification_hash` VARCHAR(128) COMMENT 'XOR of page_manifest_verification_hash and merkle_root - populated when witness event is triggered',
         `witness_network` VARCHAR(128) DEFAULT 'PLEASE SET THE VARIABLE IN THE SPECIALPAGE:WITNESS' COMMENT 'populated by SpecialPage:Witness configuration input fields',
         `smart_contract_address` VARCHAR(128) DEFAULT 'PLEASE SET THE VARIABLE IN THE SPECIALPAGE:WITNESS' COMMENT 'populated by SpecialPage:Witness configuration input fields',
-        `witness_event_transaction_hash` VARCHAR(128) DEFAULT 'PUBLISH WITNESS HASH TO BLOCKCHAIN POPULATE',
-        `sender_account_address` VARCHAR(128) DEFAULT 'PUBLISH WITNESS HASH TO BLOCKCHAIN POPULATE' COMMENT 'is populated after witness_event has been executed via RESTAPI',
+        `witness_event_transaction_hash` VARCHAR(128) DEFAULT 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE',
+        `sender_account_address` VARCHAR(128) DEFAULT 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE' COMMENT 'is populated after witness_event has been executed via RESTAPI',
+        `source` VARCHAR(128) Comment 'possible values are "imported", "default"',
         PRIMARY KEY (`witness_event_id`)
     );
 
