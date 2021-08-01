@@ -41,7 +41,7 @@ function makeEmptyIfNonce($x) {
 function getPageVerificationData($dbr, $previous_rev_id) {
     $row = $dbr->selectRow(
         'page_verification',
-        [ 'rev_id', 'hash_verification', 'signature', 'public_key', 'wallet_address' ],
+        [ 'rev_id', 'hash_verification', 'signature', 'public_key', 'wallet_address','witness_event_id' ],
         "rev_id = $previous_rev_id",
         __METHOD__
     );
@@ -52,14 +52,16 @@ function getPageVerificationData($dbr, $previous_rev_id) {
             'hash_verification' => "",
             'signature' => "",
             'public_key' => "",
-            'wallet_address' => ""
+            'wallet_address' => "",
+            'witness_event_id' => ""
         ];
     }
     $output = [
         'hash_verification' => $row->hash_verification, 
         'signature' =>  $row->signature,
         'public_key' => $row->public_key,
-        'wallet_address' => $row->wallet_address
+        'wallet_address' => $row->wallet_address,
+        'witness_event_id' => $row->witness_event_id
     ];
     return $output;
 }
@@ -123,16 +125,20 @@ class HashWriterHooks implements
         $signatureHash = calculateSignatureHash($signature, $publicKey);
 
         // WITNESS DATA HASH CALCULATOR
-        $witness_event_id = null;
+        $witness_event_id = '';
         if (array_key_exists('witness_event_id', $verificationData)) {
-         $witness_event_id = $verificationData['witness_event_id'];
+            $witness_event_id = $verificationData['witness_event_id'];
         };
         $witnessData = getWitnessData($witness_event_id); 
-        $page_manifest_verification_hash = $witnessData['witness_event_verification_hash'];
-        $merkle_root = $witnessData['merkle_root'];
-        $witness_network = $witnessData['witness_network'];
-        $witness_tx_hash = $witnessData['witness_event_transaction_hash'];
-        $witnessHash = calculateWitnessHash($page_manifest_verification_hash, $merkle_root, $witness_network, $witness_tx_hash );
+        if (!empty($witnessData)) {
+            $page_manifest_verification_hash = $witnessData['witness_event_verification_hash'];
+            $merkle_root = $witnessData['merkle_root'];
+            $witness_network = $witnessData['witness_network'];
+            $witness_tx_hash = $witnessData['witness_event_transaction_hash'];
+            $witnessHash = calculateWitnessHash($page_manifest_verification_hash, $merkle_root, $witness_network, $witness_tx_hash );
+        } else {
+            $witnessHash = '';
+        }
 
         $data = [
             'domain_id' => getDomainId(),

@@ -103,7 +103,7 @@ function requestMerkleProof($witness_event_id, $page_verification_hash, $depth =
 }
 
 function getWitnessData($witness_event_id) {
-	if ($witness_event_id === null) {
+	if (empty($witness_event_id)) {
 		return [
 			'domain_id' => '',
 			'page_manifest_title' => '',
