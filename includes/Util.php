@@ -1,6 +1,9 @@
 <?php
 
 function getHashSum($inputStr) {
+    if ($inputStr == '') {
+        return '';
+    }
     return hash("sha3-512", $inputStr, false);
 }
 
