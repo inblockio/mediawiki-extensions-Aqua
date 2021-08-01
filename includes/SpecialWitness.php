@@ -205,7 +205,7 @@ class SpecialWitness extends \SpecialPage {
         );
 
         //Write results into the witness_events DB
-        $merkle_root = substr($merkleTreeText, 22, 150);
+        $merkle_root = array_keys($treeLayers)[0];
 
 		// Check if $witness_event_id is already present in the witness_events table
 		$row = $dbw->selectRow(
