@@ -186,7 +186,7 @@ class StandardRestApi extends SimpleHandler {
             $output = requestMerkleProof($witness_event_id, $page_verification_hash, $depth);
             return [json_encode($output)];
 
-            #Expects 'get_witness_data\':NOT IMPLEMENTED - USES page_witness - used to retrieve all required data to execute a witness event (including witness hash, network ID or name, witness smart contract address) for the publishing via Metamask'];
+            #Expects 'get_witness_data\'- USES witness_event_id - used to retrieve all required data to execute a witness event (including domain_manifest_verification_hash, merkle_root, network ID or name, witness smart contract address, transaction_id) for the publishing via Metamask'];
         case 'get_witness_data':
             if ($var1 === null) {
                 return "var1 (witness_event_id) is not specified but expected";
