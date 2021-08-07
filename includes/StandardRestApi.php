@@ -67,25 +67,36 @@ class StandardRestApi extends SimpleHandler {
 
             $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
             $dbr = $lb->getConnectionRef( DB_REPLICA );
-            $res = $dbr->select(
+            $row = $dbr->selectRow(
                 'page_verification', 
-                [ 'rev_id','domain_id' , 'hash_verification','time_stamp','signature','public_key','wallet_address', 'witness_id' ],
-                'rev_id = '.$var1,
+                [
+                    'rev_id',
+                    'domain_id',
+                    'hash_verification',
+                    'time_stamp',
+                    'signature',
+                    'public_key',
+                    'wallet_address',
+                    'witness_id'
+                ],
+                ['rev_id' => $var1],
                 __METHOD__
             );
 
-            $output = array();
-            foreach( $res as $row ) {
-                $output['rev_id'] = $rev_id;
-                $output['domain_id'] = $row->domain_id;
-                $output['verification_hash'] = $row->hash_verification;
-                $output['time_stamp'] = $row->time_stamp;
-                $output['signature'] = $row->signature;
-                $output['public_key'] = $row->public_key;
-                $output['wallet_address'] = $row->wallet_address;  
-                $outout['witness_id'] = $row->witness_id;
-                break;
+            if (!$row) {
+                return "No verification data available";
             }
+
+            $output = [
+                'rev_id' => $rev_id,
+                'domain_id' => $row->domain_id,
+                'verification_hash' => $row->hash_verification,
+                'time_stamp' => $row->time_stamp,
+                'signature' => $row->signature,
+                'public_key' => $row->public_key,
+                'wallet_address' => $row->wallet_address,
+                'witness_id' => $row->witness_id,
+            ];
             return $output;
 
             #Expects Revision_ID as input and returns page_title and page_id
