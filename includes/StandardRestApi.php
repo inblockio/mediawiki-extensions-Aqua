@@ -46,7 +46,7 @@ class StandardRestApi extends SimpleHandler {
             $index = (int) $var1;
             $output = array();
             $output[0]=["help expects an number as in input to displays information for all actions this API services.To use an action, replace 'help' in your url with your desired action. ensure you provide all four '\' as they are the separators for up to four input variables. actions: help[0], verify_page[1], get_page_by_rev_id[2], page_last_rev[3], page_last_rev_sig[4], page_all_rev[5], page_all_rev_sig[6], request_merkle_proof[7], get_witness_data[8], store_signed_tx[9], store_witness_tx[10]"];
-            $output[1]=['action \'verify_page\': expects revision_id as input and returns verification_hash(required), signature(optional), public_key(optional), wallet_address(optional), witness_id(optional)'];
+            $output[1]=['action \'verify_page\': expects revision_id as input and returns domain_id, verification_hash(required), signature(optional), public_key(optional), wallet_address(optional), witness_id(optional)'];
             $output[2]=['action \'get_page_by_rev_id\': expects revision_id as input and returns page_title and page_id'];
             $output[3]=['action \'page_last_rev\': expects page_title and returns last verified revision.'];
             $output[4]=['action \'page_lage_rev_sig\': expects page_title as input and returns last signed and verified revision_id.'];
@@ -77,14 +77,14 @@ class StandardRestApi extends SimpleHandler {
                     'signature',
                     'public_key',
                     'wallet_address',
-                    'witness_id'
+                    'witness_event_id'
                 ],
                 ['rev_id' => $var1],
                 __METHOD__
             );
 
             if (!$row) {
-                return "No verification data available";
+                return [];
             }
 
             $output = [
@@ -95,7 +95,7 @@ class StandardRestApi extends SimpleHandler {
                 'signature' => $row->signature,
                 'public_key' => $row->public_key,
                 'wallet_address' => $row->wallet_address,
-                'witness_id' => $row->witness_id,
+                'witness_event_id' => $row->witness_event_id,
             ];
             return $output;
 
