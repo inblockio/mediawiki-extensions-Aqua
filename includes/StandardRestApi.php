@@ -69,7 +69,7 @@ class StandardRestApi extends SimpleHandler {
             $dbr = $lb->getConnectionRef( DB_REPLICA );
             $res = $dbr->select(
                 'page_verification', 
-                [ 'rev_id','hash_verification','time_stamp','signature','public_key','wallet_address' ],
+                [ 'rev_id','domain_id' , 'hash_verification','time_stamp','signature','public_key','wallet_address', 'witness_id' ],
                 'rev_id = '.$var1,
                 __METHOD__
             );
@@ -77,11 +77,13 @@ class StandardRestApi extends SimpleHandler {
             $output = array();
             foreach( $res as $row ) {
                 $output['rev_id'] = $rev_id;
+                $output['domain_id'] = $row->domain_id;
                 $output['verification_hash'] = $row->hash_verification;
                 $output['time_stamp'] = $row->time_stamp;
                 $output['signature'] = $row->signature;
                 $output['public_key'] = $row->public_key;
                 $output['wallet_address'] = $row->wallet_address;  
+                $outout['witness_id'] = $row->witness_id;
                 break;
             }
             return $output;
