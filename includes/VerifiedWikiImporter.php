@@ -1033,13 +1033,13 @@ class VerifiedWikiImporter {
 				$witnessInfo = $verificationInfo['witness'];
 				$structured_merkle_proof = json_decode($witnessInfo['structured_merkle_proof'], true);
 				unset($witnessInfo['structured_merkle_proof']);
-                
+
                 //Check if witness_event_verification_hash is already present,
                 //if so skip import into witness_events 
 
                 $rowWitness = $dbw->selectRow(
                     'witness_events',
-                    ['witness_event_verification_hash'],
+                    ['witness_event_id', 'witness_event_verification_hash'],
 					['witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash']]
 				);
 				if (!$rowWitness) {
@@ -1048,7 +1048,19 @@ class VerifiedWikiImporter {
 						'witness_events',
 						$witnessInfo,
 					);
-				} 
+					$local_witness_event_id = getMaxWitnessEventId($dbw);
+				} else {
+					$local_witness_event_id = $rowWitness->witness_event_id;
+				}
+
+				// Patch page_verification table to use the local version of
+				// witness_event_id instead of from the foreign version.
+				$dbw->update(
+					'page_verification',
+					['witness_event_id' => $local_witness_event_id],
+					['page_verification_id' => $last_row->page_verification_id],
+				);
+
 				// Check if merkle tree proof is present, if so skip, if not
 				// import AND attribute to the correct witness_id
 				$page_verification_hash = $verificationInfo['hash_verification'];
@@ -1075,7 +1087,7 @@ class VerifiedWikiImporter {
 							'witness_merkle_tree',
 							$row,
 						);
-					} 
+					}
 				}
 
 
