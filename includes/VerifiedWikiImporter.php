@@ -1009,7 +1009,6 @@ class VerifiedWikiImporter {
 			$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 			$dbw = $lb->getConnectionRef( DB_MASTER );
 			$table = 'page_verification';
-			$verificationInfo["debug"] = "OHHHHYES ";
 			unset($verificationInfo["rev_id"]);
 
 
