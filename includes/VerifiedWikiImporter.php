@@ -1411,7 +1411,7 @@ class VerifiedWikiImporter {
 		];
 		while ( $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-					$this->reader->localName == 'verification' ) {
+					$this->reader->localName == 'witness' ) {
 				break;
 			}
 			$tag = $this->reader->localName;
