@@ -9,6 +9,37 @@
 ;(function () {
   var signMessage
 
+  // TODO: Maybe replace with Bootstrap
+	function showConfirmation( data ) {
+		var $container, $popup, $content, timeoutId;
+
+		function fadeOutConfirmation() {
+			setTimeout( function () {
+				$container.remove()
+			}, 250 )
+		}
+
+		data = data || {}
+
+		if ( data.message === undefined ) {
+			data.message = 'SIGNED!'
+		}
+
+		$content = $( '<div>' ).addClass( 'da-sign-content' )
+    $content.text( data.message )
+
+		$popup = $( '<div>' ).addClass( 'da-sign mw-notification' ).append( $content )
+			.on( 'click', function () {
+				clearTimeout( timeoutId )
+				fadeOutConfirmation()
+			} )
+
+		$container = $( '<div>' ).addClass( 'da-sign-container' ).append( $popup )
+		timeoutId = setTimeout( fadeOutConfirmation, 3000 )
+
+		$( document.body ).prepend( $container )
+	}
+
   signMessage = {
     init: function () {
       var $box, color
@@ -54,6 +85,9 @@
                           '&var4=' + window.ethereum.selectedAddress,
                         { method: 'GET' }
                       )
+                      .then((data) => {
+                        showConfirmation()
+                      })
                     })
                 })
               })
