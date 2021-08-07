@@ -19,6 +19,7 @@ use MediaWiki\MediaWikiServices;
 use HTMLForm;
 
 require_once('Util.php');
+require_once('ApiUtil.php');
 
 class SpecialDataAccountingConfig extends \SpecialPage {
 
@@ -62,12 +63,7 @@ class SpecialDataAccountingConfig extends \SpecialPage {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
 
-        $witness_event_id = $dbw->selectRow(
-            'witness_events',
-            [ 'max(witness_event_id) as witness_event_id' ],
-            [ 'source' => 'default' ],
-            __METHOD__,
-        )->witness_event_id;
+        $witness_event_id = getMaxWitnessEventId($dbw, true);
 
 		$dbw->update(
             'witness_events',

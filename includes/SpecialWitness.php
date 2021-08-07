@@ -25,6 +25,7 @@ error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
 require_once('Util.php');
+require_once('ApiUtil.php');
 
 class HtmlContent extends TextContent {
 	protected function getHtml() {
@@ -123,14 +124,8 @@ class SpecialWitness extends \SpecialPage {
 			[ 'GROUP BY' => 'page_title']
 		);
 
-        $row2 = $dbw->selectRow(
-            'witness_page',
-            [ 'max(witness_event_id) as witness_event_id' ],
-            '',
-            __METHOD__,
-        );
 
-        $witness_event_id = $row2->witness_event_id + 1;
+        $witness_event_id = getMaxWitnessEventId($dbw) + 1;
 
         $output = 'Page Manifest / Witness Event ID ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Domain Manifest Publisher]] to publish your generated Page Manifest to your preffered witness network.' . '<br><br>';
 

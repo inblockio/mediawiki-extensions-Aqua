@@ -160,3 +160,20 @@ function getWitnessData($witness_event_id) {
 	];
 	return $output;
 }
+
+function getMaxWitnessEventId($db, $source_cond = false) {
+	$cond = '';
+	if ($source_cond) {
+		$cond = [ 'source' => 'default' ];
+	}
+	$row = $db->selectRow(
+		'witness_page',
+		[ 'max(witness_event_id) as witness_event_id' ],
+		$cond,
+		__METHOD__,
+	);
+	if (!$row) {
+		return null;
+	}
+	return $row->witness_event_id;
+}
