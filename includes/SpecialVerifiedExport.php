@@ -161,7 +161,7 @@ class VerifiedWikiExporter extends WikiExporter {
 				$output = $this->writer->openPage( $revRow );
 				// Data accounting modification
 				$chain_height = getPageChainHeight( $revRow->page_title );
-				$output .= "\n<data_accounting_chain_height>$chain_height</data_accounting_chain_height>\n";
+				$output .= "<data_accounting_chain_height>$chain_height</data_accounting_chain_height>\n";
 				// End of Data accounting modification
 				$this->sink->writeOpenPage( $revRow, $output );
 			}
