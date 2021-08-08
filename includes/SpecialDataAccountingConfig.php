@@ -64,19 +64,6 @@ class SpecialDataAccountingConfig extends \SpecialPage {
 	public static function saveWitnessConfig( $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
-
-        $witness_event_id = getMaxWitnessEventId($dbw, true);
-
-		$dbw->update(
-            'witness_events',
-			[
-				'smart_contract_address' => $formData['smartcontractaddress'],
-				'witness_network' => $formData['witnessnetwork'],
-			],
-			[
-				'witness_event_id' => $witness_event_id,
-				'source' => 'default',
-		   	]
-		);
+		setDAConfig($formData);
 	}
 }

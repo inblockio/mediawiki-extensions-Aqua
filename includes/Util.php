@@ -32,3 +32,18 @@ function getDomainId() {
     }
     return $domain_id;
 }
+
+function setDAConfig($data) {
+    $da_config_filename = 'data_accounting_config.json';
+    if (!file_exists($da_config_filename)) {
+        $da_config = $data;
+    } else {
+        $content = file_get_contents($da_config_filename);
+        $da_config = json_decode($content, true);
+        $dataArray = json_decode(json_encode($data));
+        foreach ($dataArray as $key => $value) {
+            $da_config[$key] = $value;
+        }
+    }
+    file_put_contents($da_config_filename, json_encode($da_config));
+}
