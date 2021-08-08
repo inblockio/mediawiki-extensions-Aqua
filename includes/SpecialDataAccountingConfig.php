@@ -33,9 +33,11 @@ class SpecialDataAccountingConfig extends \SpecialPage {
 	 */
 	public function execute( $par = null ) {
 		$this->setHeaders();
-		$out = "HERE CHANGE ME<br>";
+		$out = "<i>This page gives you all configuration options for the Media Wikia - Data Accounting Extension Version 1.1</i><hr>";
 
-		$out .= "Domain ID: " . getDomainId();
+		$out .= "<br>Project Page with GitHub and Roadmap: https://aqua.inblock.io/index.php/Main_Page<br>";
+		$out .= "<br>Your Domain ID is: <b>" . getDomainId() . "</b><br><h1> Module 4: Witness Configuration </h1>";
+		$out .= "<i>Configure witness network for witness events to be published and against which witness network (which Blockchain) your historic witness events are checked. </i><hr>";
 
 		$this->getOutput()->addWikiTextAsInterface( $out );
 		$this->getOutput()->setPageTitle( 'Data Accounting Configuration' );
