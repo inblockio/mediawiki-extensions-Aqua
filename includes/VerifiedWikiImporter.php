@@ -1049,7 +1049,7 @@ class VerifiedWikiImporter {
 						$witnessInfo,
 					);
 					$local_witness_event_id = getMaxWitnessEventId($dbw);
-					if ($local_witness_event_id == null) {
+					if (is_null($local_witness_event_id)) {
 						$local_witness_event_id = 1;	
 					};
 				} else {
