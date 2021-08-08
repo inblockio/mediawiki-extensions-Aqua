@@ -204,6 +204,7 @@ class SpecialWitness extends \SpecialPage {
 		);
 		if (!$row) {
 			// If witness_events table doesn't have it, then insert.
+			$data_accounting_config = getDataAccountingConfig();
 			$dbw->insert( 'witness_events',
 				[
 					'witness_event_id' => $witness_event_id,
@@ -212,7 +213,9 @@ class SpecialWitness extends \SpecialPage {
 					'page_manifest_verification_hash' => $page_manifest_verification_hash->hash_verification,
 					'merkle_root' => $merkle_root,
 					'witness_event_verification_hash' => getHashSum($page_manifest_verification_hash->hash_verification . $merkle_root),
-				], 
+					'smart_contract_address' => $data_accounting_config['smartcontractaddress'],
+					'witness_network' => $data_accounting_config['witnessnetwork'],
+				],
 				"");
 		}
 

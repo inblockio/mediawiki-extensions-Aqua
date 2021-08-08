@@ -64,6 +64,6 @@ class SpecialDataAccountingConfig extends \SpecialPage {
 	public static function saveWitnessConfig( $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
-		setDAConfig($formData);
+		setDataAccountingConfig($formData);
 	}
 }
