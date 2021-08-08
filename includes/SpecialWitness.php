@@ -125,7 +125,10 @@ class SpecialWitness extends \SpecialPage {
 		);
 
 
-        $witness_event_id = getMaxWitnessEventId($dbw) + 1;
+		$old_max_witness_event_id = getMaxWitnessEventId($dbw);
+		// Set to 0 if null.
+		$old_max_witness_event_id = is_null($old_max_witness_event_id) ? 0 : $old_max_witness_event_id;
+        $witness_event_id = $old_max_witness_event_id + 1;
 
         $output = 'Page Manifest / Witness Event ID ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Domain Manifest Publisher]] to publish your generated Page Manifest to your preffered witness network.' . '<br><br>';
 
