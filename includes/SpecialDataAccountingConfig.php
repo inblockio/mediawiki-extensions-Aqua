@@ -55,7 +55,7 @@ class SpecialDataAccountingConfig extends \SpecialPage {
 			],
 		];
 
-        $htmlForm = new HTMLForm( $formDescriptor, $this->getContext(), 'saveWitnessConfig' );
+        $htmlForm = new HTMLForm( $formDescriptor, $this->getContext(), 'daForm' );
         $htmlForm->setSubmitText( 'Save' );
 		$htmlForm->setSubmitCallback( [ $this, 'saveWitnessConfig' ] );
 		$htmlForm->show();

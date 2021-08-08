@@ -1,5 +1,8 @@
 <?php
 
+global $da_config_filename;
+$da_config_filename = 'data_accounting_config.json';
+
 function getHashSum($inputStr) {
     if ($inputStr == '') {
         return '';
@@ -20,21 +23,23 @@ function generateDomainId() {
 }
 
 function getDomainId() {
-    $domain_id_filename = 'domain_id.txt';
-    if (!file_exists($domain_id_filename)) {
+    global $da_config_filename;
+    if (!file_exists($da_config_filename)) {
         $domain_id = generateDomainId();
-        $myfile = fopen($domain_id_filename, "w");
-        fwrite($myfile, $domain_id);
-        fclose($myfile);
+        $da_config = [
+            'domain_id' => $domain_id
+        ];
+        file_put_contents($da_config_filename, json_encode($da_config));
     } else {
         //*todo* validate domain_id
-        $domain_id = file_get_contents($domain_id_filename);
+        $content = file_get_contents($da_config_filename);
+        $domain_id = json_decode($content, true)['domain_id'];
     }
     return $domain_id;
 }
 
 function setDAConfig($data) {
-    $da_config_filename = 'data_accounting_config.json';
+    global $da_config_filename;
     if (!file_exists($da_config_filename)) {
         $da_config = $data;
     } else {
