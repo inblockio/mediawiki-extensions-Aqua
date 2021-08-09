@@ -312,7 +312,7 @@ class StandardRestApi extends SimpleHandler {
                 ],
                 "witness_event_id = $witness_event_id");
 
-            return ( "Successfully stored data for witness_event_id[{$witness_event_id}] in Database[$table]! Data: account_address[{$account_addres}], witness_event_transaction_hash[{$transaction_hash}]"  );
+            return ( "Successfully stored data for witness_event_id[{$witness_event_id}] in Database[$table]! Data: account_address[{$account_address}], witness_event_transaction_hash[{$transaction_hash}]"  );
 
         case 'request_hash':
             $rev_id = $var1;
