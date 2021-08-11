@@ -125,19 +125,24 @@ class StandardRestApi extends SimpleHandler {
             /** Database Query */
             $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
             $dbr = $lb->getConnectionRef( DB_REPLICA );
+            // TODO use max(rev_id) instead
             $res = $dbr->select(
                 'page_verification',
-                [ 'rev_id','page_title','page_id' ],
-                'page_title= \''.$page_title.'\'',
+                [ 'rev_id', 'page_title', 'page_id' ],
+                [ 'page_title' => $page_title ],
                 __METHOD__,
                 [ 'ORDER BY' => 'rev_id' ] 
             );
 
-            $output = '';
+            $output = json_decode("{}");
             foreach( $res as $row ) {
-                $output = 'Page Title: ' . $row->page_title .' Page_ID: ' . $row->page_id . ' Revision_ID: ' . $row->rev_id;  
-            }                                 
-            return [$output];
+                $output = [
+                    'page_title' => $row->page_title,
+                    'page_id' => $row->page_id,
+                    'rev_id' => $row->rev_id,
+                ];
+            }
+            return $output;
 
             #Expects Page Title Name as INPUT and RETURNS LAST signed (and verified) revision.
             #Does not work as expected - Shows signature but also shows the query if no signature is there.
