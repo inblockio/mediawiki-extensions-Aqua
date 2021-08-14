@@ -189,11 +189,7 @@ class StandardRestApi extends SimpleHandler {
 
             $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
             $dbw = $lb->getConnectionRef( DB_MASTER );
-
             $table = 'page_verification';
-
-            /** write data to database */
-            #$dbw->insert($table ,[$field => $data,$field_two => $data_two], __METHOD__);
 
             $dbw->update( $table, 
                 [
@@ -202,8 +198,9 @@ class StandardRestApi extends SimpleHandler {
                     'wallet_address' => $wallet_address,
                     'signature_hash' => $signature_hash,
                 ], 
-                "rev_id =$rev_id");
+                ["rev_id" => $rev_id]);
 
+            //TODO return proper API status code
             return ( "Successfully stored Data for Revision[{$var1}] in Database! Data: Signature[{$var2}], Public_Key[{$var3}] and Wallet_Address[{$var4}] "  );
 
             #Expects all required input for the page_witness database: Transaction Hash, Sender Address, List of Pages with witnessed revision
@@ -299,7 +296,8 @@ class StandardRestApi extends SimpleHandler {
             return $output;
 
         default:
-            return [ 'HIT ACTION DEFAULT - EXIT' ];
+            //TODO Return correct error code https://www.mediawiki.org/wiki/API:REST_API/Reference#PHP_3
+            return 'ERROR: Invalid action';
         }
     }
 
