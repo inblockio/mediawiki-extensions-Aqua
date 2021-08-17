@@ -188,7 +188,7 @@ class SpecialWitness extends \SpecialPage {
 		$treeLayers = $tree->getLayersAsObject();
 
 		$out = $this->getOutput();
-		$out->addHTML($output);
+		$out->addWikiTextAsContent($output);
 
 		// Store the Merkle tree in the DB
 		storeMerkleTree($dbw, $witness_event_id, $treeLayers);
