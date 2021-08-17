@@ -182,7 +182,7 @@ class SpecialWitness extends \SpecialPage {
 
             array_push($verification_hashes, $row3->hash_verification);
 
-			$output .= "|-\n|" . $row4->id . "\n|" . $row->page_title . "\n|" . $row->rev_id . "\n|" . wikilinkifyHash($row3->hash_verification) . "\n";
+			$output .= "|-\n|" . $row4->id . "\n| [[" . $row->page_title . "]]\n|" . $row->rev_id . "\n|" . wikilinkifyHash($row3->hash_verification) . "\n";
         }
 	    $output .= "|}\n";
 
