@@ -141,6 +141,18 @@ class SpecialWitness extends \SpecialPage {
 
         $output = 'Domain Manifest ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
 
+		// For the table
+		$output .= <<<EOD
+
+			{| class="wikitable"
+			|-
+			! Index
+			! Page Title
+			! Revision
+			! Verification Hash
+
+		EOD;
+
         $verification_hashes = [];
         foreach ( $res as $row ) {
             $row3 = $dbw->selectRow(
@@ -169,8 +181,10 @@ class SpecialWitness extends \SpecialPage {
             );
 
             array_push($verification_hashes, $row3->hash_verification);
-            $output .= 'Index: ' . $row4->id . ' | Page Title: ' . $row->page_title . ' | Revision: ' . $row->rev_id . ' | Verification Hash: ' . $row3->hash_verification . '<br>';
+
+			$output .= "|-\n|" . $row4->id . "\n|" . $row->page_title . "\n|" . $row->rev_id . "\n|" . wikilinkifyHash($row3->hash_verification) . "\n";
         }
+	    $output .= "|}\n";
 
 		$hasher = function ($data) {
 			return hash('sha3-512', $data, false);
