@@ -90,7 +90,10 @@ class SpecialWitnessPublisher extends \SpecialPage {
                 }
             };
 
-            $linkedDomainManifest = '<a href=\'/index.php/' . $row->domain_manifest_title . '\'>' . $row->domain_manifest_title . '</a>';
+            // TODO we are hardcoding the name space here. Fix!
+            // 6942
+            $withoutNameSpace = str_replace("Data Accounting:", "", $row->domain_manifest_title);
+            $linkedDomainManifest = '<a href=\'/index.php/' . $row->domain_manifest_title . '\'>' . $withoutNameSpace . '</a>';
 
             $output .= <<<EOD
                 <tr>
