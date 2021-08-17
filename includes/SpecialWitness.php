@@ -180,7 +180,7 @@ class SpecialWitness extends \SpecialPage {
 		storeMerkleTree($dbw, $witness_event_id, $treeLayers);
 
         //Generate the Domain Manifest as a new page
-        $construct_title =  'Domain Manifest ID ' . $witness_event_id;
+        $construct_title =  'Domain Manifest ' . $witness_event_id;
         $title = Title::newFromText( $construct_title );
 		$page = new WikiPage( $title );
 		$merkleTreeText = '<br><pre>' . tree_pprint($treeLayers) . '</pre>';
