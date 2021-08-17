@@ -10,7 +10,6 @@ use MediaWiki\MediaWikiServices;
 use HTMLForm;
 use WikiPage;
 use Title;
-use TextContent;
 
 require_once('Util.php');
 
