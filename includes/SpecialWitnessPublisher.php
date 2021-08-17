@@ -55,7 +55,7 @@ class SpecialWitnessPublisher extends \SpecialPage {
         $out = $this->getOutput();
         $out->addHTML($output);
 
-        $output = '<table>';
+        $output = '<table class="wikitable">';
         $output .= <<<EOD
             <tr>
                 <th>Witness Event</th>
