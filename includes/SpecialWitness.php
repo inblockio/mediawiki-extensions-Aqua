@@ -189,7 +189,7 @@ class SpecialWitness extends \SpecialPage {
 			"Page created automatically by [[Special:Witness]]" );
 
         //Get the Domain Manifest verification hash
-        $page_manifest_verification_hash = $dbw->selectRow(
+        $domain_manifest_verification_hash = $dbw->selectRow(
                 'page_verification',
                 [ 'hash_verification'],
                 ['page_title' => $title],
@@ -212,10 +212,10 @@ class SpecialWitness extends \SpecialPage {
 				[
 					'witness_event_id' => $witness_event_id,
 					'domain_id' => getDomainId(),
-					'page_manifest_title' => $title,
-					'page_manifest_verification_hash' => $page_manifest_verification_hash->hash_verification,
+					'domain_manifest_title' => $title,
+					'domain_manifest_verification_hash' => $domain_manifest_verification_hash->hash_verification,
 					'merkle_root' => $merkle_root,
-					'witness_event_verification_hash' => getHashSum($page_manifest_verification_hash->hash_verification . $merkle_root),
+					'witness_event_verification_hash' => getHashSum($domain_manifest_verification_hash->hash_verification . $merkle_root),
 					'smart_contract_address' => $data_accounting_config['smartcontractaddress'],
 					'witness_network' => $data_accounting_config['witnessnetwork'],
 				],

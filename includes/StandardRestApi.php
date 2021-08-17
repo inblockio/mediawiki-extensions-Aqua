@@ -255,11 +255,11 @@ class StandardRestApi extends SimpleHandler {
             // Generate the witness_hash
             $row = $dbw->selectRow(
                 'witness_events',
-                [ 'page_manifest_verification_hash', 'merkle_root', 'witness_network' ],
+                [ 'domain_manifest_verification_hash', 'merkle_root', 'witness_network' ],
                 [ 'witness_event_id' => $witness_event_id ]
             );
             $witness_hash = getHashSum(
-                $row->page_manifest_verification_hash .
+                $row->domain_manifest_verification_hash .
                 $row->merkle_root .
                 $row->witness_network .
                 $transaction_hash

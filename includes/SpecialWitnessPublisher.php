@@ -1,7 +1,7 @@
 <?php
 /**
  * Behaviral description of SpecialPage:WitnessPublisher
- * The SpecialPage prints out the database witness_events in decending order (starting with the latest witness event). If a Domain Manifest was not yet published, the page should hold a publish button instead of the empty field for 'page_witness_transaction_hash'. In this list it is easy to see how many Witness Events have taken place and which receipts in the form of the page_manifests have been generated and whats their page link (they should be clickable to be redireted to the respective Domain Manifest).
+ * The SpecialPage prints out the database witness_events in decending order (starting with the latest witness event). If a Domain Manifest was not yet published, the page should hold a publish button instead of the empty field for 'page_witness_transaction_hash'. In this list it is easy to see how many Witness Events have taken place and which receipts in the form of the domain_manifests have been generated and whats their page link (they should be clickable to be redireted to the respective Domain Manifest).
  */
 
 namespace MediaWiki\Extension\Example;
@@ -44,12 +44,12 @@ class SpecialWitnessPublisher extends \SpecialPage {
         $dbw = $lb->getConnectionRef( DB_MASTER );
 
         /**
-         *witness_event_id, domain_id, page_manifest_title, page_manifest_verification_hash, merkle_root, witness_event_verification_hash, witness_network, smart_contract_address, witness_event_transaction_hash, sender_account_address     
+         *witness_event_id, domain_id, domain_manifest_title, domain_manifest_verification_hash, merkle_root, witness_event_verification_hash, witness_network, smart_contract_address, witness_event_transaction_hash, sender_account_address     
          **/
 
         $res = $dbw->select(
             'witness_events',
-            [ 'witness_event_id, domain_id, page_manifest_title, page_manifest_verification_hash, merkle_root, witness_event_verification_hash, witness_network, smart_contract_address, witness_event_transaction_hash, sender_account_address'],
+            [ 'witness_event_id, domain_id, domain_manifest_title, domain_manifest_verification_hash, merkle_root, witness_event_verification_hash, witness_network, smart_contract_address, witness_event_transaction_hash, sender_account_address'],
             '',
             __METHOD__,
             [ 'ORDER BY' => ' witness_event_id DESC' ]
@@ -72,7 +72,7 @@ class SpecialWitnessPublisher extends \SpecialPage {
             </tr>
         EOD;
         foreach ($res as $row) {
-            $hrefMVH = hrefifyHash($row->page_manifest_verification_hash);
+            $hrefMVH = hrefifyHash($row->domain_manifest_verification_hash);
             $hrefMerkleRoot = hrefifyHash($row->merkle_root);
             $hrefWEVH = hrefifyHash($row->witness_event_verification_hash);
             // Color taken from https://www.schemecolor.com/warm-autumn-2.php
@@ -93,7 +93,7 @@ class SpecialWitnessPublisher extends \SpecialPage {
             $output .= <<<EOD
                 <tr>
                     <th>{$row->witness_event_id}</th>
-                    <th>{$row->page_manifest_title}</th>
+                    <th>{$row->domain_manifest_title}</th>
                     <th>{$row->domain_id}</th>
                     <th>$hrefMVH</th>
                     <th>$hrefMerkleRoot</th>

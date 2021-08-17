@@ -1414,11 +1414,11 @@ class VerifiedWikiImporter {
 		$witnessInfo = [];
 		$normalFields = [
 			"domain_id",
-			"page_manifest_title",
+			"domain_manifest_title",
 			"witness_event_verification_hash",
 			"witness_network",
 			"smart_contract_address",
-			"page_manifest_verification_hash",
+			"domain_manifest_verification_hash",
 			"merkle_root",
 			"structured_merkle_proof",
 			"witness_event_transaction_hash",
