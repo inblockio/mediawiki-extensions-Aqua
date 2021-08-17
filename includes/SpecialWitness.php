@@ -119,7 +119,7 @@ class SpecialWitness extends \SpecialPage {
         $res = $dbw->select(
 			'page_verification',
 			[ 'page_title', 'max(rev_id) as rev_id' ],
-			'',
+			"page_title NOT LIKE 'Data Accounting:%'",
 			__METHOD__,
 			[ 'GROUP BY' => 'page_title']
 		);
