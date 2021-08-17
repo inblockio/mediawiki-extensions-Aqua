@@ -102,9 +102,6 @@ class SpecialWitnessPublisher extends \SpecialPage {
                     $publishingStatus
                 </tr>
             EOD;
-            #$output .= '<br>========== Witness Event Publishing Data =========<br> Witness Network: ' . $row->witness_network . '<br> Smart Contract Address: ' . $row->smart_contract_address . '<br> Sender Account Address: ' . $row->sender_account_address . '<br>=========== END OF Witness Event ===========<br><br>';
-
-            #$out = $this->getOutput();
         }
         $output .= '</table>';
         $out->addHTML($output);
