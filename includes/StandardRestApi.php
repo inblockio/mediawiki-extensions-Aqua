@@ -6,6 +6,10 @@ use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 use MediaWiki\MediaWikiServices;
 
+use Title;
+use WikitextContent;
+use WikiPage;
+
 # include / exclude for debugging
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
@@ -24,6 +28,52 @@ function selectToArray($db, $table, $col, $conds) {
         array_push($out, $row->{$col});
     }
     return $out;
+}
+
+// TODO move to Util.php
+function updateDomainManifest($witness_event_id, $db) {
+    $row = $db->selectRow(
+        'witness_events',
+        [
+            "domain_id",
+            "domain_manifest_title",
+            "domain_manifest_verification_hash",
+            "merkle_root",
+            "witness_event_verification_hash",
+            "witness_network",
+            "smart_contract_address",
+            "witness_event_transaction_hash",
+            "sender_account_address",
+        ],
+        [ 'witness_event_id' => $witness_event_id ]
+    );
+    if (!$row) {
+        return;
+    }
+    $dm = "Domain Manifest $witness_event_id";
+    if ( ('Data Accounting:' . $dm) !== $row->domain_manifest_title) {
+        return;
+    }
+    //6942 is custom namespace. See namespace definition in extension.json.
+    $title = Title::newFromText( $dm, 6942 );
+    $page = new WikiPage( $title );
+    $text = "<h1> Witness Event Publishing Data </h1>\n";
+    $text .= "<p> This means, that the Witness Event Verification Hash has been written to a Witness Network and has been Timestamped.";
+
+    $text .= "* Witness Event: " . $witness_event_id;
+    $text .= "* Domain ID: " . $row->domain_id;
+    $text .= "* Domain Manifest Title: " . $row->domain_manifest_title;
+    $text .= "* Page Domain Manifest verification Hash: " . $row->domain_manifest_verification_hash;
+    $text .= "* Merkle Root Hash: " . $row->merkle_root;
+    $text .= "* Witness Event Verification Hash: " . $row->witness_event_verification_hash;
+    $text .= "* Witness Network: " . $row->witness_network;
+    $text .= "* Smart Contract Address: " . $row->smart_contract_address;
+    $text .= "* Transaction ID: " . $row->witness_event_transaction_hash;
+    $text .= "* Sender Account Address: " . $row->sender_account_address;
+
+    $extraContent = new WikitextContent($text);
+    $page->doEditContent( $extraContent,
+        "Domain Manifest witnessed" );
 }
 
 /**
@@ -274,6 +324,9 @@ class StandardRestApi extends SimpleHandler {
                     'witness_hash' => $witness_hash,
                 ],
                 "witness_event_id = $witness_event_id");
+
+            // Update the domain manifest
+            updateDomainManifest($witness_event_id, $dbw);
 
             return ( "Successfully stored data for witness_event_id[{$witness_event_id}] in Database[$table]! Data: account_address[{$account_addres}], witness_event_transaction_hash[{$transaction_hash}]"  );
 
