@@ -139,7 +139,7 @@ class SpecialWitness extends \SpecialPage {
 		$old_max_witness_event_id = is_null($old_max_witness_event_id) ? 0 : $old_max_witness_event_id;
         $witness_event_id = $old_max_witness_event_id + 1;
 
-        $output = 'Domain Manifest ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
+        $output = 'Domain Manifest ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
 
         $verification_hashes = [];
         foreach ( $res as $row ) {
