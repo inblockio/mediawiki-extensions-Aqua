@@ -14,7 +14,7 @@ use MediaWiki\MediaWikiServices;
 use HTMLForm;
 use WikiPage;
 use Title;
-use TextContent;
+use WikitextContent;
 
 use Rht\Merkle\FixedSizeTree;
 
@@ -27,17 +27,26 @@ ini_set("display_errors", 1);
 require_once('Util.php');
 require_once('ApiUtil.php');
 
-class HtmlContent extends TextContent {
-	protected function getHtml() {
-		return $this->getText();
-	}
+//class HtmlContent extends TextContent {
+//	protected function getHtml() {
+//		return $this->getText();
+//	}
+//}
+
+function shortenHash($hash) {
+	return substr($hash, 0, 6) . "..." . substr($hash, -6, 6);
 }
 
 function hrefifyHashW($hash) {
-	return "<a href='" . $hash. "'>" . substr($hash, 0, 6) . "..." . substr($hash, -6, 6) . "</a>";
+	return "<a href='" . $hash . "'>" . shortenHash($hash) . "</a>";
 }
 
-function tree_pprint($layers, $out = "", $prefix = "└─ ", $level = 0, $is_last = true) {
+function wikilinkifyHash($hash) {
+	$shortened = shortenHash($hash);
+	return "[http://$hash $shortened]";
+}
+
+function tree_pprint($do_wikitext, $layers, $out = "", $prefix = "└─ ", $level = 0, $is_last = true) {
     # The default prefix is for level 0
     $length = count($layers);
     $idx = 1;
@@ -46,7 +55,7 @@ function tree_pprint($layers, $out = "", $prefix = "└─ ", $level = 0, $is_la
 		if ($level == 0) {
 			$out .= "Merkle root: " . $key . "\n";
 		} else {
-			$formatted_key = hrefifyHashW($key);
+			$formatted_key = $do_wikitext ? wikilinkifyHash($key) : hrefifyHashW($key);
 			$glyph = $is_last ? "  └─ ": "  ├─ ";
 			$out .= " " . $prefix . $glyph . $formatted_key . "\n";
 		}
@@ -56,7 +65,7 @@ function tree_pprint($layers, $out = "", $prefix = "└─ ", $level = 0, $is_la
             } else {
 				$new_prefix = $prefix . ($is_last ? "   ": "  │");
             }
-            $out .= tree_pprint($value, "", $new_prefix, $level + 1, $is_last);
+            $out .= tree_pprint($do_wikitext, $value, "", $new_prefix, $level + 1, $is_last);
         }
         $idx += 1;
     }
@@ -189,8 +198,9 @@ class SpecialWitness extends \SpecialPage {
 		//6942 is custom namespace. See namespace definition in extension.json.
         $title = Title::newFromText( $construct_title, 6942 );
 		$page = new WikiPage( $title );
-		$merkleTreeText = '<br><pre>' . tree_pprint($treeLayers) . '</pre>';
-		$pageContent = new HtmlContent($merkleTreeText);
+		$merkleTreeHtmlText = '<br><pre>' . tree_pprint(false, $treeLayers) . '</pre>';
+		$merkleTreeWikitext = tree_pprint(true, $treeLayers);
+		$pageContent = new WikitextContent($output . '<br>' . $merkleTreeWikitext);
 		$page->doEditContent( $pageContent,
 			"Page created automatically by [[Special:Witness]]" );
 
@@ -228,7 +238,7 @@ class SpecialWitness extends \SpecialPage {
 				"");
 		}
 
-		$out->addHTML($merkleTreeText);
+		$out->addHTML($merkleTreeHtmlText);
 		$out->addWikiTextAsContent("<br> Visit [[$title]] to see the Merkle proof.");
         return true;
 	}
