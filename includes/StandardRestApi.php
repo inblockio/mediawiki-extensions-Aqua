@@ -58,18 +58,18 @@ function updateDomainManifest($witness_event_id, $db) {
     $title = Title::newFromText( $dm, 6942 );
     $page = new WikiPage( $title );
     $text = "<h1> Witness Event Publishing Data </h1>\n";
-    $text .= "<p> This means, that the Witness Event Verification Hash has been written to a Witness Network and has been Timestamped.";
+    $text .= "<p> This means, that the Witness Event Verification Hash has been written to a Witness Network and has been Timestamped.\n";
 
-    $text .= "* Witness Event: " . $witness_event_id;
-    $text .= "* Domain ID: " . $row->domain_id;
-    $text .= "* Domain Manifest Title: " . $row->domain_manifest_title;
-    $text .= "* Page Domain Manifest verification Hash: " . $row->domain_manifest_verification_hash;
-    $text .= "* Merkle Root Hash: " . $row->merkle_root;
-    $text .= "* Witness Event Verification Hash: " . $row->witness_event_verification_hash;
-    $text .= "* Witness Network: " . $row->witness_network;
-    $text .= "* Smart Contract Address: " . $row->smart_contract_address;
-    $text .= "* Transaction ID: " . $row->witness_event_transaction_hash;
-    $text .= "* Sender Account Address: " . $row->sender_account_address;
+    $text .= "* Witness Event: " . $witness_event_id . "\n";
+    $text .= "* Domain ID: " . $row->domain_id . "\n";
+    $text .= "* Domain Manifest Title: " . $row->domain_manifest_title . "\n";
+    $text .= "* Page Domain Manifest verification Hash: " . $row->domain_manifest_verification_hash . "\n";
+    $text .= "* Merkle Root Hash: " . $row->merkle_root . "\n";
+    $text .= "* Witness Event Verification Hash: " . $row->witness_event_verification_hash . "\n";
+    $text .= "* Witness Network: " . $row->witness_network . "\n";
+    $text .= "* Smart Contract Address: " . $row->smart_contract_address . "\n";
+    $text .= "* Transaction ID: " . $row->witness_event_transaction_hash . "\n";
+    $text .= "* Sender Account Address: " . $row->sender_account_address . "\n";
 
     $extraContent = new WikitextContent($text);
     $page->doEditContent( $extraContent,
