@@ -1,9 +1,9 @@
 <?php
 /**
- * This Special Page is used to Generate Page Manifests for Witness events
- * Input is the list of all verified pages with the latest revision id and verification hashes which are stored in the table page_list which are printed in section 1 of the Page Manifest. This is used as input for generating and populating the table witness_merkle_tree.
- * The witness_merkle_tree is printed out on section 2 of the Page Manifest.
- * Output is a Page Manifest #N_ID as well as a redirect link to the SpecialPage:WitnessPublisher
+ * This Special Page is used to Generate Domain Manifests for Witness events
+ * Input is the list of all verified pages with the latest revision id and verification hashes which are stored in the table page_list which are printed in section 1 of the Domain Manifest. This is used as input for generating and populating the table witness_merkle_tree.
+ * The witness_merkle_tree is printed out on section 2 of the Domain Manifest.
+ * Output is a Domain Manifest # as well as a redirect link to the SpecialPage:WitnessPublisher
  *
  * @file
  */
@@ -104,12 +104,12 @@ class SpecialWitness extends \SpecialPage {
 		$this->setHeaders();
 
 		$htmlForm = new HTMLForm( [], $this->getContext(), 'generatePageManifest' );
-		$htmlForm->setSubmitText( 'Generate Page Manifest' );
+		$htmlForm->setSubmitText( 'Generate Domain Manifest' );
 		$htmlForm->setSubmitCallback( [ $this, 'generatePageManifest' ] );
 		$htmlForm->show();
 
 		$out = $this->getOutput();
-		$out->setPageTitle( 'Page Manifest Generator' );
+		$out->setPageTitle( 'Domain Manifest Generator' );
 	}
 
 	public static function generatePageManifest( $formData ) {
@@ -130,7 +130,7 @@ class SpecialWitness extends \SpecialPage {
 		$old_max_witness_event_id = is_null($old_max_witness_event_id) ? 0 : $old_max_witness_event_id;
         $witness_event_id = $old_max_witness_event_id + 1;
 
-        $output = 'Page Manifest / Witness Event ID ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Domain Manifest Publisher]] to publish your generated Page Manifest to your preffered witness network.' . '<br><br>';
+        $output = 'Domain Manifest / Witness Event ID ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
 
         $verification_hashes = [];
         foreach ( $res as $row ) {
@@ -179,8 +179,8 @@ class SpecialWitness extends \SpecialPage {
 		// Store the Merkle tree in the DB
 		storeMerkleTree($dbw, $witness_event_id, $treeLayers);
 
-        //Generate the Page Manifest as a new page
-        $construct_title =  'Page Manifest ID ' . $witness_event_id;
+        //Generate the Domain Manifest as a new page
+        $construct_title =  'Domain Manifest ID ' . $witness_event_id;
         $title = Title::newFromText( $construct_title );
 		$page = new WikiPage( $title );
 		$merkleTreeText = '<br><pre>' . tree_pprint($treeLayers) . '</pre>';
@@ -188,7 +188,7 @@ class SpecialWitness extends \SpecialPage {
 		$page->doEditContent( $pageContent,
 			"Page created automatically by [[Special:Witness]]" );
 
-        //Get the page manifest verification hash
+        //Get the Domain Manifest verification hash
         $page_manifest_verification_hash = $dbw->selectRow(
                 'page_verification',
                 [ 'hash_verification'],

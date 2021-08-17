@@ -1,7 +1,7 @@
 <?php
 /**
  * Behaviral description of SpecialPage:WitnessPublisher
- * The SpecialPage prints out the database witness_events in decending order (starting with the latest witness event). If a page manifest was not yet published, the page should hold a publish button instead of the empty field for 'page_witness_transaction_hash'. In this list it is easy to see how many Witness Events have taken place and which receipts in the form of the page_manifests have been generated and whats their page link (they should be clickable to be redireted to the respective page manifest).
+ * The SpecialPage prints out the database witness_events in decending order (starting with the latest witness event). If a Domain Manifest was not yet published, the page should hold a publish button instead of the empty field for 'page_witness_transaction_hash'. In this list it is easy to see how many Witness Events have taken place and which receipts in the form of the page_manifests have been generated and whats their page link (they should be clickable to be redireted to the respective Domain Manifest).
  */
 
 namespace MediaWiki\Extension\Example;
@@ -55,7 +55,7 @@ class SpecialWitnessPublisher extends \SpecialPage {
             [ 'ORDER BY' => ' witness_event_id DESC' ]
         );
 
-        $output = 'The Page Manifest Publisher shows you a list of all Page Manifests. You can publish a page manifest from here to the Ethereum Network to timestamp all page verification hashes and the related page revisions included in the manifest. After publishing the manifest, this will be written into the page_verification data and included into the page history.<br><br>';
+        $output = 'The Domain Manifest Publisher shows you a list of all Domain Manifests. You can publish a Domain Manifest from here to the Ethereum Network to timestamp all page verification hashes and the related page revisions included in the manifest. After publishing the manifest, this will be written into the page_verification data and included into the page history.<br><br>';
             $out = $this->getOutput();
             $out->addHTML($output);
  
@@ -63,7 +63,7 @@ class SpecialWitnessPublisher extends \SpecialPage {
         $output .= <<<EOD
             <tr>
                 <th>Witness Event</th>
-                <th>Page Manifest Title</th>
+                <th>Domain Manifest Title</th>
                 <th>Domain ID</th>
                 <th>Verification Hash of DM</th>
                 <th>Merkle Root</th>
