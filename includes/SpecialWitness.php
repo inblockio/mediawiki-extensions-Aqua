@@ -130,7 +130,7 @@ class SpecialWitness extends \SpecialPage {
 		$old_max_witness_event_id = is_null($old_max_witness_event_id) ? 0 : $old_max_witness_event_id;
         $witness_event_id = $old_max_witness_event_id + 1;
 
-        $output = 'Domain Manifest / Witness Event ID ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
+        $output = 'Domain Manifest ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
 
         $verification_hashes = [];
         foreach ( $res as $row ) {
@@ -186,7 +186,8 @@ class SpecialWitness extends \SpecialPage {
 
         //Generate the Domain Manifest as a new page
         $construct_title =  'Domain Manifest ' . $witness_event_id;
-        $title = Title::newFromText( $construct_title );
+		//6942 is custom namespace. See namespace definition in extension.json.
+        $title = Title::newFromText( $construct_title, 6942 );
 		$page = new WikiPage( $title );
 		$merkleTreeText = '<br><pre>' . tree_pprint($treeLayers) . '</pre>';
 		$pageContent = new HtmlContent($merkleTreeText);
