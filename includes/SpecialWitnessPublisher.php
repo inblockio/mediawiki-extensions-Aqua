@@ -43,66 +43,62 @@ class SpecialWitnessPublisher extends \SpecialPage {
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
         $dbw = $lb->getConnectionRef( DB_MASTER );
 
-        /**
-         *witness_event_id, domain_id, domain_manifest_title, domain_manifest_verification_hash, merkle_root, witness_event_verification_hash, witness_network, smart_contract_address, witness_event_transaction_hash, sender_account_address     
-         **/
-
         $res = $dbw->select(
             'witness_events',
-            [ 'witness_event_id, domain_id, domain_manifest_title, domain_manifest_verification_hash, merkle_root, witness_event_verification_hash, witness_network, smart_contract_address, witness_event_transaction_hash, sender_account_address'],
+            [ 'witness_event_id, domain_id, domain_manifest_title, witness_event_verification_hash, witness_network, smart_contract_address, witness_event_transaction_hash, sender_account_address'],
             '',
             __METHOD__,
             [ 'ORDER BY' => ' witness_event_id DESC' ]
         );
 
         $output = 'The Domain Manifest Publisher shows you a list of all Domain Manifests. You can publish a Domain Manifest from here to the Ethereum Network to timestamp all page verification hashes and the related page revisions included in the manifest. After publishing the manifest, this will be written into the page_verification data and included into the page history.<br><br>';
-            $out = $this->getOutput();
-            $out->addHTML($output);
- 
+        $out = $this->getOutput();
+        $out->addHTML($output);
+
         $output = '<table>';
         $output .= <<<EOD
             <tr>
                 <th>Witness Event</th>
-                <th>Domain Manifest Title</th>
                 <th>Domain ID</th>
-                <th>Verification Hash of DM</th>
-                <th>Merkle Root</th>
-                <th>Verification Hash of WE</th>
-                <th>Publishing status</th>
+                <th>Domain Manifest</th>
+                <th>Verification Hash</th>
+                <th>Witness Network</th>
+                <th>Transaction ID</th>
             </tr>
         EOD;
         foreach ($res as $row) {
-            $hrefMVH = hrefifyHash($row->domain_manifest_verification_hash);
-            $hrefMerkleRoot = hrefifyHash($row->merkle_root);
             $hrefWEVH = hrefifyHash($row->witness_event_verification_hash);
             // Color taken from https://www.schemecolor.com/warm-autumn-2.php
             // #B33030 is Chinese Orange
             // #B1C97F is Sage
-            
+
             $my_domain_id = getDomainId();
             if ($my_domain_id != $row->domain_id) {
-                $publishingStatus = '<th style="background-color:#DDDDDD">Imported</th>';
+                $publishingStatus = '<td style="background-color:#DDDDDD">Imported</td>';
             } else {
                 if ($row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE') {
-                    $publishingStatus = '<th style="background-color:#F27049"><button type="button" class="publish-domain-manifest" id="' . $row->witness_event_id . '">Publish!</button></th>';
+                    $publishingStatus = '<td style="background-color:#F27049"><button type="button" class="publish-domain-manifest" id="' . $row->witness_event_id . '">Publish!</button></td>';
                 } else {
-                    $publishingStatus = '<th style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, "https://goerli.etherscan.io/tx/") . '</th>';
+                    $publishingStatus = '<td style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, "https://goerli.etherscan.io/tx/") . '</td>';
                 }
             };
 
-            // TODO we are hardcoding the name space here. Fix!
-            // 6942
-            $withoutNameSpace = str_replace("Data Accounting:", "", $row->domain_manifest_title);
-            $linkedDomainManifest = '<a href=\'/index.php/' . $row->domain_manifest_title . '\'>' . $withoutNameSpace . '</a>';
+            if (is_null($row->domain_manifest_title)) {
+                $linkedDomainManifest = 'N/A';
+            } else {
+                // TODO we are hardcoding the name space here. Fix!
+                // 6942
+                $withoutNameSpace = str_replace("Data Accounting:", "", $row->domain_manifest_title);
+                $linkedDomainManifest = '<a href=\'/index.php/' . $row->domain_manifest_title . '\'>' . $withoutNameSpace . '</a>';
+            }
 
             $output .= <<<EOD
                 <tr>
-                    <th>{$row->witness_event_id}</th>
-                    <th>{$linkedDomainManifest}</th>
-                    <th>{$row->domain_id}</th>
-                    <th>$hrefMVH</th>
-                    <th>$hrefMerkleRoot</th>
-                    <th>$hrefWEVH</th>
+                    <td>{$row->witness_event_id}</td>
+                    <td>{$row->domain_id}</td>
+                    <td>{$linkedDomainManifest}</td>
+                    <td>$hrefWEVH</td>
+                    <td>{$row->witness_network}</td>
                     $publishingStatus
                 </tr>
             EOD;
