@@ -90,10 +90,12 @@ class SpecialWitnessPublisher extends \SpecialPage {
                 }
             };
 
+            $linkedDomainManifest = '<a href=\'/index.php/' . $row->domain_manifest_title . '\'>' . $row->domain_manifest_title . '</a>';
+
             $output .= <<<EOD
                 <tr>
                     <th>{$row->witness_event_id}</th>
-                    <th>{$row->domain_manifest_title}</th>
+                    <th>{$linkedDomainManifest}</th>
                     <th>{$row->domain_id}</th>
                     <th>$hrefMVH</th>
                     <th>$hrefMerkleRoot</th>
