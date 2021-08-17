@@ -167,6 +167,11 @@ class SpecialWitness extends \SpecialPage {
 			return hash('sha3-512', $data, false);
 		};
 
+		if (empty($verification_hashes)) {
+			$out = $this->getOutput();
+			$out->addHTML('No verified page revisions available. Create a new page revision first.');
+			return true;
+		}
 		$tree = new FixedSizeTree(count($verification_hashes), $hasher, NULL, true);
         for ($i = 0; $i < count($verification_hashes); $i++) {
 			$tree->set($i, $verification_hashes[$i]);
