@@ -57,22 +57,26 @@ function updateDomainManifest($witness_event_id, $db) {
     //6942 is custom namespace. See namespace definition in extension.json.
     $title = Title::newFromText( $dm, 6942 );
     $page = new WikiPage( $title );
-    $text = "<h1> Witness Event Publishing Data </h1>\n";
+    $text = "\n<h1> Witness Event Publishing Data </h1>\n";
     $text .= "<p> This means, that the Witness Event Verification Hash has been written to a Witness Network and has been Timestamped.\n";
 
     $text .= "* Witness Event: " . $witness_event_id . "\n";
     $text .= "* Domain ID: " . $row->domain_id . "\n";
     $text .= "* Domain Manifest Title: " . $row->domain_manifest_title . "\n";
+    // We don't include witness hash.
     $text .= "* Page Domain Manifest verification Hash: " . $row->domain_manifest_verification_hash . "\n";
-    $text .= "* Merkle Root Hash: " . $row->merkle_root . "\n";
+    $text .= "* Merkle Root: " . $row->merkle_root . "\n";
     $text .= "* Witness Event Verification Hash: " . $row->witness_event_verification_hash . "\n";
     $text .= "* Witness Network: " . $row->witness_network . "\n";
     $text .= "* Smart Contract Address: " . $row->smart_contract_address . "\n";
-    $text .= "* Transaction ID: " . $row->witness_event_transaction_hash . "\n";
+    $text .= "* Transaction Hash: " . $row->witness_event_transaction_hash . "\n";
     $text .= "* Sender Account Address: " . $row->sender_account_address . "\n";
+    // We don't include source.
 
-    $extraContent = new WikitextContent($text);
-    $page->doEditContent( $extraContent,
+    $pageText = $page->getContent()->getText();
+    // We create a new content using the old content, and append $text to it.
+    $newContent = new WikitextContent($pageText . $text);
+    $page->doEditContent( $newContent,
         "Domain Manifest witnessed" );
 }
 
@@ -326,7 +330,7 @@ class StandardRestApi extends SimpleHandler {
                 "witness_event_id = $witness_event_id");
 
             // Update the domain manifest
-            //updateDomainManifest($witness_event_id, $dbw);
+            updateDomainManifest($witness_event_id, $dbw);
 
             return ( "Successfully stored data for witness_event_id[{$witness_event_id}] in Database[$table]! Data: account_address[{$account_addres}], witness_event_transaction_hash[{$transaction_hash}]"  );
 
