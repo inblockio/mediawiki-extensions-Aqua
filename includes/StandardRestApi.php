@@ -10,6 +10,11 @@ use Title;
 use WikitextContent;
 use WikiPage;
 
+use MediaWiki\Rest\LocalizedHttpException;
+use MediaWiki\Permissions\PermissionManager;
+use RequestContext;
+use Wikimedia\Message\MessageValue;
+
 # include / exclude for debugging
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
@@ -85,6 +90,12 @@ function updateDomainManifest($witness_event_id, $db) {
  */
 class StandardRestApi extends SimpleHandler {
 
+	/** @var PermissionManager */
+	private $permissionManager;
+
+	/** @var User */
+	private $user;
+
     private const VALID_ACTIONS = [ 
         'verify_page', 
         'get_page_by_rev_id', 
@@ -97,8 +108,30 @@ class StandardRestApi extends SimpleHandler {
         'request_hash' 
     ];
 
+	/**
+	 * @param PermissionManager $permissionManager
+	 */
+	public function __construct(
+		PermissionManager $permissionManager
+	) {
+		$this->permissionManager = $permissionManager;
+
+		// @todo Inject this, when there is a good way to do that
+		$this->user = RequestContext::getMain()->getUser();
+	}
+
+
     /** @inheritDoc */
     public function run( $action ) {
+		if ( !$this->permissionManager->userHasRight( $this->user, 'purge' ) ) {
+			throw new LocalizedHttpException(
+				MessageValue::new( 'rest-permission-denied-revision' )->plaintextParams(
+                    'You are not allowed to use the REST API'
+				),
+				403
+			);
+		}
+
         $params = $this->getValidatedParams();
         $var1 = $params['var1'];
         $var2 = $params['var2'] ?? null;
