@@ -112,16 +112,16 @@ class SpecialWitness extends \SpecialPage {
 	public function execute( $sub ) {
 		$this->setHeaders();
 
-		$htmlForm = new HTMLForm( [], $this->getContext(), 'daPageManifest' );
+		$htmlForm = new HTMLForm( [], $this->getContext(), 'daDomainManifest' );
 		$htmlForm->setSubmitText( 'Generate Domain Manifest' );
-		$htmlForm->setSubmitCallback( [ $this, 'generatePageManifest' ] );
+		$htmlForm->setSubmitCallback( [ $this, 'generateDomainManifest' ] );
 		$htmlForm->show();
 
 		$out = $this->getOutput();
 		$out->setPageTitle( 'Domain Manifest Generator' );
 	}
 
-	public static function generatePageManifest( $formData ) {
+	public static function generateDomainManifest( $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
 
