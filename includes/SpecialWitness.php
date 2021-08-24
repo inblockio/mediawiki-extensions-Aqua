@@ -112,7 +112,7 @@ class SpecialWitness extends \SpecialPage {
 	public function execute( $sub ) {
 		$this->setHeaders();
 
-		$htmlForm = new HTMLForm( [], $this->getContext(), 'generatePageManifest' );
+		$htmlForm = new HTMLForm( [], $this->getContext(), 'daPageManifest' );
 		$htmlForm->setSubmitText( 'Generate Domain Manifest' );
 		$htmlForm->setSubmitCallback( [ $this, 'generatePageManifest' ] );
 		$htmlForm->show();
