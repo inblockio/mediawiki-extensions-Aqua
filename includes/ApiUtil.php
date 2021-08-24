@@ -106,12 +106,12 @@ function getWitnessData($witness_event_id) {
 	if (is_null($witness_event_id)) {
 		return [
 			'domain_id' => '',
-			'page_manifest_title' => '',
+			'domain_manifest_title' => '',
 			'witness_hash' => '',
 			'witness_event_verification_hash' => '',
 			'witness_network' => '',
 			'smart_contract_address' => '',
-			'page_manifest_verification_hash' => '',
+			'domain_manifest_verification_hash' => '',
 			'merkle_root' => '',
 			'witness_event_transaction_hash' => '',
 			'sender_account_address' => '',
@@ -126,12 +126,12 @@ function getWitnessData($witness_event_id) {
 		'witness_events',
 		[
 			'domain_id',
-			'page_manifest_title',
+			'domain_manifest_title',
 			'witness_hash',
 			'witness_event_verification_hash',
 			'witness_network',
 			'smart_contract_address',
-			'page_manifest_verification_hash',
+			'domain_manifest_verification_hash',
 			'merkle_root',
 			'witness_event_transaction_hash',
 			'sender_account_address',
@@ -147,12 +147,12 @@ function getWitnessData($witness_event_id) {
 
 	$output = [
 		'domain_id' => $row->domain_id,
-		'page_manifest_title' => $row->page_manifest_title,
+		'domain_manifest_title' => $row->domain_manifest_title,
 		'witness_hash' => $row->witness_hash,
 		'witness_event_verification_hash' => $row->witness_event_verification_hash,
 		'witness_network' => $row->witness_network,
 		'smart_contract_address' => $row->smart_contract_address,
-		'page_manifest_verification_hash' => $row->page_manifest_verification_hash,
+		'domain_manifest_verification_hash' => $row->domain_manifest_verification_hash,
 		'merkle_root' => $row->merkle_root,
 		'witness_event_transaction_hash' => $row->witness_event_transaction_hash,
 		'sender_account_address' => $row->sender_account_address,
@@ -161,15 +161,11 @@ function getWitnessData($witness_event_id) {
 	return $output;
 }
 
-function getMaxWitnessEventId($db, $source_cond = false) {
-	$cond = '';
-	if ($source_cond) {
-		$cond = [ 'source' => 'default' ];
-	}
+function getMaxWitnessEventId($db) {
 	$row = $db->selectRow(
-		'witness_page',
+		'witness_events',
 		[ 'max(witness_event_id) as witness_event_id' ],
-		$cond,
+		'',
 		__METHOD__,
 	);
 	if (!$row) {

@@ -81,17 +81,17 @@
 	},
 	"namespaces": [
 		{
-			"id": 234,
-			"constant": "NS_XML",
-			"name": "XML",
+			"id": 6942,
+			"constant": "NS_DATAACCOUNTING",
+			"name": "Data_Accounting",
 			"subpages": false,
 			"content": false,
-			"defaultcontentmodel": "xmldata"
+			"defaultcontentmodel": "wikitext"
 		},
 		{
-			"id": 235,
-			"constant": "NS_XML_TALK",
-			"name": "XML_Talk",
+			"id": 6943,
+			"constant": "NS_DATAACCOUNTING_TALK",
+			"name": "Data_Accounting_Talk",
 			"subpages": true,
 			"content": false,
 			"defaultcontentmodel": "wikitext"

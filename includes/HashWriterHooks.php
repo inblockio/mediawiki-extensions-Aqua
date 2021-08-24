@@ -26,8 +26,8 @@ function calculateSignatureHash($signature, $publicKey) {
     return getHashSum($signature . $publicKey);
 }
 
-function calculateWitnessHash($page_manifest_verification_hash, $merkle_root, $witness_network, $witness_tx_hash ) {
-    return getHashSum($page_manifest_verification_hash . $merkle_root . $witness_network . $witness_tx_hash);
+function calculateWitnessHash($domain_manifest_verification_hash, $merkle_root, $witness_network, $witness_tx_hash ) {
+    return getHashSum($domain_manifest_verification_hash . $merkle_root . $witness_network . $witness_tx_hash);
 }
 
 function calculateVerificationHash($contentHash, $metadataHash, $signature_hash, $witness_hash) {
@@ -127,11 +127,11 @@ class HashWriterHooks implements
         // WITNESS DATA HASH CALCULATOR
         $witnessData = getWitnessData($verificationData['witness_event_id']);
         if (!empty($witnessData)) {
-            $page_manifest_verification_hash = $witnessData['witness_event_verification_hash'];
+            $domain_manifest_verification_hash = $witnessData['witness_event_verification_hash'];
             $merkle_root = $witnessData['merkle_root'];
             $witness_network = $witnessData['witness_network'];
             $witness_tx_hash = $witnessData['witness_event_transaction_hash'];
-            $witnessHash = calculateWitnessHash($page_manifest_verification_hash, $merkle_root, $witness_network, $witness_tx_hash );
+            $witnessHash = calculateWitnessHash($domain_manifest_verification_hash, $merkle_root, $witness_network, $witness_tx_hash );
         } else {
             $witnessHash = '';
         }
