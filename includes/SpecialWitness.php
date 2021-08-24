@@ -121,7 +121,7 @@ class SpecialWitness extends \SpecialPage {
 		$out->setPageTitle( 'Domain Manifest Generator' );
 	}
 
-	public static function generateDomainManifest( $formData ) {
+	public function generateDomainManifest( $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
 
