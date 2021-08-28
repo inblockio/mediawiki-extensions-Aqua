@@ -61,8 +61,12 @@
         if (window.ethereum) {
           if (window.ethereum.isConnected() && window.ethereum.selectedAddress) {
             fetch('http://localhost:9352/rest.php/data_accounting/v1/standard/request_hash?var1=' + revId, { method: 'GET' })
-              .then((data) => {
-                data.json().then((parsed) => {
+              .then((resp) => {
+                if (!resp.ok) {
+                    resp.text().then(parsed => alert(parsed))
+                    return
+                }
+                resp.json().then((parsed) => {
                   console.log(parsed.value)
                   window.ethereum
                     .request({
