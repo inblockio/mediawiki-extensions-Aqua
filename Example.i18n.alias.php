@@ -9,8 +9,6 @@ $specialPageAliases = [];
 
 /** English (English) */
 $specialPageAliases['en'] = [
-	'HelloWorld' => [ 'HelloWorld' ],
-	'Includable' => [ 'Includable' ],
 	'VerifiedExport' => [ 'VerifiedExport' ],
 	'VerifiedImport' => [ 'VerifiedImport' ],
     'WitnessPublisher' => [ 'WitnessPublisher' ],

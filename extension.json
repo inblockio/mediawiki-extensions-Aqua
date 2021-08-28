@@ -56,7 +56,6 @@
 		"Witness": "MediaWiki\\Extension\\Example\\SpecialWitness",
 		"WitnessPublisher": "MediaWiki\\Extension\\Example\\SpecialWitnessPublisher",
 		"DataAccountingConfig": "MediaWiki\\Extension\\Example\\SpecialDataAccountingConfig",
-		"Includable": "MediaWiki\\Extension\\Example\\SpecialIncludable",
 		"VerifiedExport": {
 			"class": "MediaWiki\\Extension\\Example\\SpecialVerifiedExport",
 			"services": [
