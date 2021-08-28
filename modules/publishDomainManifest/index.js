@@ -19,8 +19,13 @@
               fetch(
                 host + '/rest.php/data_accounting/v1/standard/get_witness_data?var1=' + witnessEventID,
                 { method: 'GET' })
-                .then((data) => {
-                  data.json().then((parsed) => {
+                .then((resp) => {
+                  if (!resp.ok) {
+                    resp.text().then(parsed => alert(parsed)
+                    )
+                    return
+                  }
+                  resp.json().then((parsed) => {
                     console.log(parsed)
                     const ownAddress = window.ethereum.selectedAddress
                     // TODO pass in witness_network (where its value is e.g. Goerli
@@ -55,6 +60,9 @@
                       })
                     })
                   })
+                })
+                .catch(error => {
+                  alert(error)
                 })
             } else {
               window.ethereum.request({ method: 'eth_requestAccounts' })
