@@ -53,7 +53,6 @@
 		"example": "MediaWiki\\Extension\\Example\\ApiQueryExample"
 	},
 	"SpecialPages": {
-		"HelloWorld": "MediaWiki\\Extension\\Example\\SpecialHelloWorld",
 		"Witness": "MediaWiki\\Extension\\Example\\SpecialWitness",
 		"WitnessPublisher": "MediaWiki\\Extension\\Example\\SpecialWitnessPublisher",
 		"DataAccountingConfig": "MediaWiki\\Extension\\Example\\SpecialDataAccountingConfig",

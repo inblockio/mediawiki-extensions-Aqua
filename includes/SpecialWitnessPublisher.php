@@ -33,7 +33,6 @@ class SpecialWitnessPublisher extends \SpecialPage {
     /**
      * Shows the page to the user.
      * @param string $sub The subpage string argument (if any).
-     *  [[Special:HelloWorld/subpage]].
      */
     public function execute( $sub ) {
 		$this->setHeaders();
