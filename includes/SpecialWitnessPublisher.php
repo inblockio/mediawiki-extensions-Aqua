@@ -7,9 +7,11 @@
 namespace MediaWiki\Extension\Example;
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Permissions\PermissionManager;
 use HTMLForm;
 use WikiPage;
 use Title;
+use PermissionsError;
 
 require_once('Util.php');
 
@@ -21,6 +23,11 @@ function hrefifyHash($hash, $prefix = "") {
 class SpecialWitnessPublisher extends \SpecialPage {
 
     /**
+     * @var PermissionManager
+     */
+    private $permManager;
+
+    /**
      * Initialize the special page.
      */
     public function __construct() {
@@ -28,14 +35,22 @@ class SpecialWitnessPublisher extends \SpecialPage {
         // We do this by calling the parent class (the SpecialPage class)
         // constructor method with the name as first and only parameter.
         parent::__construct( 'WitnessPublisher' );
+        $this->permManager = MediaWikiServices::getInstance()->getPermissionManager();
     }
 
     /**
      * Shows the page to the user.
      * @param string $sub The subpage string argument (if any).
+     * @throws PermissionsError
      */
     public function execute( $sub ) {
 		$this->setHeaders();
+
+        $user = $this->getUser();
+        if ( !$this->permManager->userHasRight( $user, 'import' ) ) {
+            throw new PermissionsError( 'import' );
+        }
+
 		$this->getOutput()->setPageTitle( 'Domain Manifest Publisher' );
 
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();

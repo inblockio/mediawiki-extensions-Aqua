@@ -59,7 +59,12 @@
 				"PermissionManager"
 			]
 		},
-		"WitnessPublisher": "MediaWiki\\Extension\\Example\\SpecialWitnessPublisher",
+		"WitnessPublisher": {
+			"class": "MediaWiki\\Extension\\Example\\SpecialWitnessPublisher",
+			"services": [
+				"PermissionManager"
+			]
+		},
 		"DataAccountingConfig": {
 			"class": "MediaWiki\\Extension\\Example\\SpecialDataAccountingConfig",
 			"services": [
