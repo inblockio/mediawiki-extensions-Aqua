@@ -53,13 +53,18 @@
 		"example": "MediaWiki\\Extension\\Example\\ApiQueryExample"
 	},
 	"SpecialPages": {
-		"Witness": "MediaWiki\\Extension\\Example\\SpecialWitness",
+		"Witness": {
+			"class": "MediaWiki\\Extension\\Example\\SpecialWitness",
+			"services": [
+				"PermissionManager"
+			]
+		},
 		"WitnessPublisher": "MediaWiki\\Extension\\Example\\SpecialWitnessPublisher",
 		"DataAccountingConfig": {
 			"class": "MediaWiki\\Extension\\Example\\SpecialDataAccountingConfig",
 			"services": [
 				"PermissionManager"
-						]
+			]
 		},
 		"VerifiedExport": {
 			"class": "MediaWiki\\Extension\\Example\\SpecialVerifiedExport",
@@ -71,7 +76,7 @@
 			"class": "MediaWiki\\Extension\\Example\\SpecialVerifiedImport",
 			"services": [
 				"PermissionManager"
-						]
+			]
 		}
 	},
 

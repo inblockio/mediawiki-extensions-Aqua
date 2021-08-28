@@ -11,10 +11,13 @@
 namespace MediaWiki\Extension\Example;
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Permissions\PermissionManager;
+
 use HTMLForm;
 use WikiPage;
 use Title;
 use WikitextContent;
+use PermissionsError;
 
 use Rht\Merkle\FixedSizeTree;
 
@@ -95,6 +98,11 @@ function storeMerkleTree($dbw, $witness_event_id, $treeLayers, $depth = 0) {
 class SpecialWitness extends \SpecialPage {
 
 	/**
+	 * @var PermissionManager
+	 */
+	private $permManager;
+
+	/**
 	 * Initialize the special page.
 	 */
 	public function __construct() {
@@ -102,15 +110,21 @@ class SpecialWitness extends \SpecialPage {
 		// We do this by calling the parent class (the SpecialPage class)
 		// constructor method with the name as first and only parameter.
 		parent::__construct( 'Witness' );
+		$this->permManager = MediaWikiServices::getInstance()->getPermissionManager();
 	}
 
 	/**
 	 * Shows the page to the user.
 	 * @param string $sub The subpage string argument (if any).
-	 *  [[Special:SignMessage/subpage]].
+	 * @throws PermissionsError
 	 */
 	public function execute( $sub ) {
 		$this->setHeaders();
+
+		$user = $this->getUser();
+		if ( !$this->permManager->userHasRight( $user, 'import' ) ) {
+			throw new PermissionsError( 'import' );
+		}
 
 		$htmlForm = new HTMLForm( [], $this->getContext(), 'daDomainManifest' );
 		$htmlForm->setSubmitText( 'Generate Domain Manifest' );
