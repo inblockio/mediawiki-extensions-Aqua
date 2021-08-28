@@ -27,6 +27,7 @@ namespace MediaWiki\Extension\Example;
 
 use HTMLForm;
 
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Logger\LoggerFactory;
 use Wikimedia\Rdbms\ILoadBalancer;
 use HTMLTextAreaField;
@@ -37,6 +38,14 @@ error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
 require_once("ApiUtil.php");
+
+/**
+ * DataAccounting modifications:
+ * - We default to uncheck the "Include only the current revision, not the full
+ *   history" option.
+ * - We set the page title to 'Verified Export'
+ * - We rename the occurrences of WikiExporter to VerifiedWikiExporter
+ */
 
 /**
  * A special page that allows users to export pages in a XML file
@@ -264,6 +273,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 					'label-message' => 'exportall',
 					'name' => 'exportall',
 					'id' => 'exportall',
+					// DataAccounting modification: we deviate by defaulting to false
 					'default' => $request->wasPosted() ? $request->getCheck( 'exportall' ) : false,
 				],
 			];
@@ -350,9 +360,9 @@ class SpecialVerifiedExport extends \SpecialPage {
 	 * @return bool
 	 */
 	protected function userCanOverrideExportDepth() {
-		// TODO DataAccounting specific modification
-		return false;
-		//return $this->getAuthority()->isAllowed( 'override-export-depth' );
+		return MediaWikiServices::getInstance()
+			->getPermissionManager()
+			->userHasRight( $this->getUser(), 'override-export-depth' );
 	}
 
 	/**
@@ -413,6 +423,8 @@ class SpecialVerifiedExport extends \SpecialPage {
 		if ( $exportall ) {
 			$exporter->allPages();
 		} else {
+			$permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
+
 			foreach ( $pages as $page ) {
 				# T10824: Only export pages the user can read
 				$title = Title::newFromText( $page );
@@ -421,11 +433,10 @@ class SpecialVerifiedExport extends \SpecialPage {
 					continue;
 				}
 
-				// TODO DataAccounting specific modification
-				//if ( !$this->getAuthority()->authorizeRead( 'read', $title ) ) {
-				//	// @todo Perhaps output an <error> tag or something.
-				//	continue;
-				//}
+				if ( !$permissionManager->userCan( 'read', $this->getUser(), $title ) ) {
+					// @todo Perhaps output an <error> tag or something.
+					continue;
+				}
 
 				$exporter->pageByTitle( $title );
 			}
