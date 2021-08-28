@@ -55,7 +55,12 @@
 	"SpecialPages": {
 		"Witness": "MediaWiki\\Extension\\Example\\SpecialWitness",
 		"WitnessPublisher": "MediaWiki\\Extension\\Example\\SpecialWitnessPublisher",
-		"DataAccountingConfig": "MediaWiki\\Extension\\Example\\SpecialDataAccountingConfig",
+		"DataAccountingConfig": {
+			"class": "MediaWiki\\Extension\\Example\\SpecialDataAccountingConfig",
+			"services": [
+				"PermissionManager"
+						]
+		},
 		"VerifiedExport": {
 			"class": "MediaWiki\\Extension\\Example\\SpecialVerifiedExport",
 			"services": [
@@ -63,11 +68,11 @@
 			]
 		},
 		"VerifiedImport": {
-                        "class": "MediaWiki\\Extension\\Example\\SpecialVerifiedImport",
-                        "services": [
-                                "PermissionManager"
-                        ]
-                }
+			"class": "MediaWiki\\Extension\\Example\\SpecialVerifiedImport",
+			"services": [
+				"PermissionManager"
+						]
+		}
 	},
 
 	"Actions": {

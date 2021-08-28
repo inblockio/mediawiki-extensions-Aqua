@@ -16,23 +16,39 @@
 namespace MediaWiki\Extension\Example;
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Permissions\PermissionManager;
+
 use HTMLForm;
+use PermissionsError;
 
 require_once('Util.php');
 require_once('ApiUtil.php');
 
 class SpecialDataAccountingConfig extends \SpecialPage {
 
+	/**
+	 * @var PermissionManager
+	 */
+	private $permManager;
+
 	public function __construct() {
 		parent::__construct( 'DataAccountingConfig' );
+		$this->permManager = MediaWikiServices::getInstance()->getPermissionManager();
 	}
 
 	/**
 	 * Show the page
 	 * @param string|null $par
+	 * @throws PermissionsError
 	 */
 	public function execute( $par = null ) {
 		$this->setHeaders();
+
+		$user = $this->getUser();
+		if ( !$this->permManager->userHasRight( $user, 'import' ) ) {
+			throw new PermissionsError( 'import' );
+		}
+
 		$out = "<i>This page gives you all configuration options for the Media Wikia - Data Accounting Extension Version 1.1</i><hr>";
 
 		$out .= "<br>Project Page with GitHub and Roadmap: https://aqua.inblock.io/index.php/Main_Page<br>";
