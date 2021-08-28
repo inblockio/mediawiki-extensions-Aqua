@@ -161,7 +161,6 @@
 				"example-welcome-title-user"
 			],
 			"styles": [
-				"ext.DataAccounting.signMessage/styles.css"
 			],
 			"scripts": [
 				"ethers-5.0.umd.min.js",
