@@ -123,7 +123,7 @@ class StandardRestApi extends SimpleHandler {
 
     /** @inheritDoc */
     public function run( $action ) {
-		if ( !$this->permissionManager->userHasRight( $this->user, 'purge' ) ) {
+		if ( !$this->permissionManager->userHasRight( $this->user, 'writeapi' ) ) {
 			throw new LocalizedHttpException(
 				MessageValue::new( 'rest-permission-denied-revision' )->plaintextParams(
                     'You are not allowed to use the REST API'
