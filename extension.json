@@ -134,7 +134,7 @@
 			"path": "/data_accounting/v1/standard/{action}",
 			"class": "MediaWiki\\Extension\\Example\\APIRead",
 			"path": "/data_accounting/v1/standard/{action}",
-			"class": "MediaWiki\\Extension\\Example\\APWrite"
+			"class": "MediaWiki\\Extension\\Example\\APIWrite"
 		}
 	],
 	"ResourceFileModulePaths": {
