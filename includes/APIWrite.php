@@ -83,7 +83,7 @@ function updateDomainManifest($witness_event_id, $db) {
 /**
  * Extension:DataAccounting Standard Rest API
  */
-class StandardRestApi extends SimpleHandler {
+class APIWrite extends SimpleHandler {
 
     private const VALID_ACTIONS = [ 
         'store_signed_tx', 
