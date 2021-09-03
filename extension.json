@@ -143,9 +143,13 @@
 		}
 	},
 	"RestRoutes": [
-		{
+		{ 
 			"path": "/data_accounting/v1/standard/{action}",
-			"class": "MediaWiki\\Extension\\Example\\StandardRestApi",
+			"class": "MediaWiki\\Extension\\Example\\APIRead"
+		},
+		{ 
+			"path": "/data_accounting/v1/write/{action}",
+			"class": "MediaWiki\\Extension\\Example\\APIWrite",
 			"services": [
 				"PermissionManager"
 			]

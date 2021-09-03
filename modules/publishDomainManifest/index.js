@@ -48,7 +48,7 @@
                       console.log({txhash: txhash});
                       const cmd =
                         host
-                        + '/rest.php/data_accounting/v1/standard/store_witness_tx?var1=' + witnessEventID
+                        + '/rest.php/data_accounting/v1/write/store_witness_tx?var1=' + witnessEventID
                         + '&var2=' + ownAddress
                         + '&var3=' + txhash;
                       console.log(cmd);
