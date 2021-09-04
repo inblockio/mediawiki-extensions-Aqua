@@ -30,56 +30,6 @@ function selectToArray($db, $table, $col, $conds) {
     return $out;
 }
 
-// TODO move to Util.php
-function updateDomainManifest($witness_event_id, $db) {
-    $row = $db->selectRow(
-        'witness_events',
-        [
-            "domain_id",
-            "domain_manifest_title",
-            "domain_manifest_verification_hash",
-            "merkle_root",
-            "witness_event_verification_hash",
-            "witness_network",
-            "smart_contract_address",
-            "witness_event_transaction_hash",
-            "sender_account_address",
-        ],
-        [ 'witness_event_id' => $witness_event_id ]
-    );
-    if (!$row) {
-        return;
-    }
-    $dm = "Domain Manifest $witness_event_id";
-    if ( ('Data Accounting:' . $dm) !== $row->domain_manifest_title) {
-        return;
-    }
-    //6942 is custom namespace. See namespace definition in extension.json.
-    $title = Title::newFromText( $dm, 6942 );
-    $page = new WikiPage( $title );
-    $text = "\n<h1> Witness Event Publishing Data </h1>\n";
-    $text .= "<p> This means, that the Witness Event Verification Hash has been written to a Witness Network and has been Timestamped.\n";
-
-    $text .= "* Witness Event: " . $witness_event_id . "\n";
-    $text .= "* Domain ID: " . $row->domain_id . "\n";
-    $text .= "* Domain Manifest Title: " . $row->domain_manifest_title . "\n";
-    // We don't include witness hash.
-    $text .= "* Page Domain Manifest verification Hash: " . $row->domain_manifest_verification_hash . "\n";
-    $text .= "* Merkle Root: " . $row->merkle_root . "\n";
-    $text .= "* Witness Event Verification Hash: " . $row->witness_event_verification_hash . "\n";
-    $text .= "* Witness Network: " . $row->witness_network . "\n";
-    $text .= "* Smart Contract Address: " . $row->smart_contract_address . "\n";
-    $text .= "* Transaction Hash: " . $row->witness_event_transaction_hash . "\n";
-    $text .= "* Sender Account Address: " . $row->sender_account_address . "\n";
-    // We don't include source.
-
-    $pageText = $page->getContent()->getText();
-    // We create a new content using the old content, and append $text to it.
-    $newContent = new WikitextContent($pageText . $text);
-    $page->doEditContent( $newContent,
-        "Domain Manifest witnessed" );
-}
-
 /**
  * Extension:DataAccounting Standard Rest API
  */
