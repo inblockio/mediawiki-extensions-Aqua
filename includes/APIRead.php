@@ -86,13 +86,13 @@ function updateDomainManifest($witness_event_id, $db) {
 class APIRead extends SimpleHandler {
 
     private const VALID_ACTIONS = [ 
-        'verify_page', //READ
-        'get_page_by_rev_id', //READ
-        'page_all_rev', //READ
-        'get_page_last_rev', //READ
-        'get_witness_data',  //READ
-        'request_merkle_proof', //READ
-        'request_hash'  //READ
+        'verify_page',
+        'get_page_by_rev_id',
+        'page_all_rev',
+        'get_page_last_rev',
+        'get_witness_data',
+        'request_merkle_proof',
+        'request_hash'
     ];
 
     /** @inheritDoc */
