@@ -166,6 +166,43 @@ class APIWrite extends SimpleHandler {
                 ], 
                 ["rev_id" => $rev_id]);
 
+
+ /** Add functionality required for #84 visual signatures in page content
+
+     //Get the article object with revision id ($var1)
+     $page = new WikiPage( $title );
+            $title = Title::newFromText( $dm, 6942 );
+            $pageText = $page->getContent()->getText();
+
+
+            //Early exit if function is deactivated in the data accounting config file
+            if ( check config file if option is set to be false)
+            {
+                //TODO return proper API status code
+                return ( "Successfully stored Data for Revision[{$var1}] in Database! Data: Signature[{$var2}], Public_Key[{$var3}] and Wallet_Address[{$var4}] "  );
+            }
+
+            if ( !strpos($page_content, <div style=\"font-weight:bold;line-height:1.6;\">Signatures</div>')) {
+                $text = "<hr>";
+                $text .= "<div class=\"toccolours mw-collapsible mw-collapsed\">";
+                $text .= "<div style=\"font-weight:bold;line-height:1.6;\">Signatures</div>
+                    $text .= "<div class=\"mw-collapsible-content\">;
+                //Adding visual signature
+                $text .= "~~~~ <br>";
+                $text .= "</div>";
+            } else {
+                LOCATOR insert after position of strpos($page_content, <div style=\"font-weight:bold;line-height:1.6;\">Signatures</div>'))
+                    $text .= "~~~~ <br>";
+            }
+
+            // We create a new content using the old content, and append $text to it.
+            $newContent = new WikitextContent($pageText . $text);
+            $signatureCommment = "Page signed by wallet: " . $wallet_address;
+            $page->doEditContent( $newContent,
+                $signatureComment );
+
+  */
+
             //TODO return proper API status code
             return ( "Successfully stored Data for Revision[{$var1}] in Database! Data: Signature[{$var2}], Public_Key[{$var3}] and Wallet_Address[{$var4}] "  );
 
