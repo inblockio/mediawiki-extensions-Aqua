@@ -16,5 +16,5 @@
 	"apihelp-query+example-param-key": "The 'key' parameter of the Example Query API.",
 	"apihelp-query+example-example-1": "Query 1",
 	"apihelp-query+example-example-2": "Query 2",
-	"contentaction-myact": "My action"
+	"contentaction-daact": "Crypto sign"
 }
