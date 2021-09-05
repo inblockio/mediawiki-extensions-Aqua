@@ -9,6 +9,16 @@
 ;(function () {
   var signMessage
 
+  function extractPageTitle(urlObj) {
+    // If you update this function, make sure to sync with the same function in
+    // the VerifyPage repo, in src/verifier.ts file.
+    if (!urlObj) {
+      return ''
+    }
+    const title = urlObj.pathname.split('/').pop();
+    return title ? title.replace(/_/g, ' ') : '';
+  }
+
   // TODO: Maybe replace with Bootstrap
 	function showConfirmation( data ) {
 		var $container, $popup, $content, timeoutId;
@@ -42,60 +52,77 @@
 
   signMessage = {
     init: function () {
-      var $box, color
+      var $daButton, color
 
-      // $box = $(
-      //   '<span id="wpSignWidget" aria-disabled="false" class="oo-ui-widget oo-ui-widget-enabled oo-ui-inputWidget oo-ui-buttonElement oo-ui-buttonElement-framed oo-ui-labelElement oo-ui-flaggedElement-progressive oo-ui-flaggedElement-primary oo-ui-buttonInputWidget" data-ooui="{&quot;_&quot;:&quot;OO.ui.ButtonInputWidget&quot;,&quot;useInputTag&quot;:true,&quot;type&quot;:&quot;submit&quot;,&quot;name&quot;:&quot;wpSign&quot;,&quot;inputId&quot;:&quot;wpSign&quot;,&quot;tabIndex&quot;:3,&quot;title&quot;:&quot;Sign your changes&quot;,&quot;accessKey&quot;:&quot;s&quot;,&quot;label&quot;:&quot;Sign changes&quot;,&quot;flags&quot;:[&quot;progressive&quot;,&quot;primary&quot;]}"><input type="button" tabindex="3" aria-disabled="false" title="Save your changes [ctrl-option-s]" accesskey="s" name="wpSign" id="wpSign" value="Sign changes" class="oo-ui-inputWidget-input oo-ui-buttonElement-button"></span>'
-      // )
+      $daButton = $('#ca-daact a:first')
+      // TODO add hover text "Signs this revision with a private key. It allows adding a reason in the summary."
 
-      $box = $(
-        '<span class="mw-changeslist-separator"></span><span class="mw-changeslist-links"><span><span class="mw-history-sign"><a id="sign" title="&quot;Sign&quot; Signs this revision with a private key. It allows adding a reason in the summary.">sign</a></span></span></span>'
-      )
-
-      // Append the message about today's color, and the color icon itself.
-      $box.css('borderColor', color).attr('data-welcome-color', color)
-
-      $box.on('click', '#sign', function () {
-        const revId = $('ul#pagehistory li').first().attr('data-mw-revid')
-        console.log({ revId })
+      $daButton.on('click', function (event) {
+        event.preventDefault()
+        const urlObj = new URL(window.location.href)
+        const pageTitle = extractPageTitle(urlObj)
+        console.log(pageTitle)
         if (window.ethereum) {
           if (window.ethereum.isConnected() && window.ethereum.selectedAddress) {
-            fetch('http://localhost:9352/rest.php/data_accounting/v1/standard/request_hash?var1=' + revId, { method: 'GET' })
+            fetch('http://localhost:9352/rest.php/data_accounting/v1/standard/get_page_last_rev?var1=' + pageTitle)
+            .then((resp) => {
+              if (!resp.ok) {
+                resp.text().then(parsed => alert(parsed))
+                return
+              }
+              resp.json().then(parsed => {
+                if (!parsed.rev_id) {
+                  alert("No verified revision is found")
+                  return
+                }
+                next(parsed.rev_id)
+              })
+            })
+
+            function signContent(parsed, revId) {
+              console.log(parsed.value)
+              window.ethereum
+              .request({
+                method: 'personal_sign',
+                params: [parsed.value, window.ethereum.selectedAddress],
+              })
+              .then(signature => {storeSignature(parsed, signature, revId)})
+            }
+
+            function storeSignature(parsed, signature, revId) {
+              // Store the signature in the DB.
+              console.log(`signed: ${JSON.stringify(signature)}`);
+              console.log(`digest: ${parsed.value}`);
+              // console.log(`arrayify: ${ethers.utils.arrayify(parsed.value)}`);
+              let public_key = ethers.utils.recoverPublicKey(ethers.utils.hashMessage(parsed.value), signature);
+              let recAddress = ethers.utils.recoverAddress(ethers.utils.hashMessage(parsed.value), signature);
+              console.log(`public key ${public_key}`);
+              console.log(`original ${window.ethereum.selectedAddress}, recovered ${recAddress}`);
+              fetch(
+                'http://localhost:9352/rest.php/data_accounting/v1/write/store_signed_tx' +
+                '?var1=' + revId +
+                  '&var2=' + signature +
+                  '&var3=' + public_key +
+                  '&var4=' + window.ethereum.selectedAddress,
+                { method: 'GET' }
+              )
+              .then((data) => {
+                showConfirmation()
+              })
+            }
+
+            function next(revId) {
+              console.log("Rev ID:", revId)
+              fetch('http://localhost:9352/rest.php/data_accounting/v1/standard/request_hash?var1=' + revId, { method: 'GET' })
               .then((resp) => {
                 if (!resp.ok) {
-                    resp.text().then(parsed => alert(parsed))
-                    return
+                  resp.text().then(parsed => alert(parsed))
+                  return
                 }
-                resp.json().then((parsed) => {
-                  console.log(parsed.value)
-                  window.ethereum
-                    .request({
-                      method: 'personal_sign',
-                      params: [parsed.value, window.ethereum.selectedAddress],
-                    })
-                    .then((signature) => {
-                      console.log(`signed: ${JSON.stringify(signature)}`);
-                        console.log(`digest: ${parsed.value}`);
-                        // console.log(`arrayify: ${ethers.utils.arrayify(parsed.value)}`);
-                        let public_key = ethers.utils.recoverPublicKey(ethers.utils.hashMessage(parsed.value), signature);
-                        let recAddress = ethers.utils.recoverAddress(ethers.utils.hashMessage(parsed.value), signature);
-                        console.log(`public key ${public_key}`);
-                        console.log(`original ${window.ethereum.selectedAddress}, recovered ${recAddress}`);
-                      fetch(
-                        'http://localhost:9352/rest.php/data_accounting/v1/write/store_signed_tx' +
-                          '?var1=' + revId +
-                          '&var2=' + signature +
-                          '&var3=' + public_key +
-                          '&var4=' + window.ethereum.selectedAddress,
-                        { method: 'GET' }
-                      )
-                      .then((data) => {
-                        showConfirmation()
-                      })
-                    })
-                })
+                resp.json().then(parsed => signContent(parsed, revId))
               })
               .catch(() => console.log('error)'))
+            }
           } else {
             window.ethereum.request({ method: 'eth_requestAccounts' })
           }
@@ -104,13 +131,6 @@
           alert('Please install metamask')
           console.log('Please install metamask')
         }
-      })
-
-      // Ask jQuery to invoke this callback function once the page is ready.
-      // See also <https://api.jquery.com/jQuery>.
-      $(function () {
-        // $('#wpSaveWidget').after($box)
-        $('ul#pagehistory li').first().append($box)
       })
     },
   }
