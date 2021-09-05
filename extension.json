@@ -86,7 +86,7 @@
 	},
 
 	"Actions": {
-		"myact": "MediaWiki\\Extension\\Example\\DAAction"
+		"daact": "MediaWiki\\Extension\\Example\\DAAction"
 	},
 
 	"ContentHandlers": {
