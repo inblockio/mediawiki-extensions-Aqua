@@ -12,7 +12,7 @@ namespace MediaWiki\Extension\Example;
 class DAAction extends \FormlessAction {
 	/** @inheritDoc */
 	public function getName() {
-		return 'myact';
+		return 'daact';
 	}
 
 	/** @inheritDoc */

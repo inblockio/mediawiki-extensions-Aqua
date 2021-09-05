@@ -109,10 +109,10 @@ class Hooks implements
 		$action = $skin->getRequest()->getText( 'action' );
 
 		if ( $skin->getTitle()->getNamespace() !== NS_SPECIAL ) {
-			$cactions['actions']['myact'] = [
-				'class' => $action === 'myact' ? 'selected' : false,
-				'text' => $skin->msg( 'contentaction-myact' )->text(),
-				'href' => $skin->getTitle()->getLocalURL( 'action=myact' ),
+			$cactions['actions']['daact'] = [
+				'class' => $action === 'daact' ? 'selected' : false,
+				'text' => $skin->msg( 'contentaction-daact' )->text(),
+				'href' => $skin->getTitle()->getLocalURL( 'action=daact' ),
 			];
 		}
 	}
