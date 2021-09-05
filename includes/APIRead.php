@@ -17,19 +17,6 @@ ini_set("display_errors", 1);
 require_once("ApiUtil.php");
 require_once("Util.php");
 
-function selectToArray($db, $table, $col, $conds) {
-    $out = array();
-    $res = $db->select(
-        $table,
-        [$col],
-        $conds,
-    );
-    foreach ($res as $row) {
-        array_push($out, $row->{$col});
-    }
-    return $out;
-}
-
 /**
  * Extension:DataAccounting Standard Rest API
  */
