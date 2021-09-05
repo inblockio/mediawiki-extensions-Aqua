@@ -9,7 +9,7 @@
 
 namespace MediaWiki\Extension\Example;
 
-class MyactAction extends \FormlessAction {
+class DAAction extends \FormlessAction {
 	/** @inheritDoc */
 	public function getName() {
 		return 'myact';
