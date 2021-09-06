@@ -1,7 +1,7 @@
 <?php
 
 global $da_config_filename;
-$da_config_filename = 'data_accounting_config.json';
+$da_config_filename = '/var/www/html/data_accounting_config.json';
 
 function getHashSum($inputStr) {
     if ($inputStr == '') {
