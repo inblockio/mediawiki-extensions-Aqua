@@ -1002,13 +1002,13 @@ class VerifiedWikiImporter {
 
 	// Aqua modification
 	private function processVerification( $revisionInfo, $title ) {
+		$table = 'page_verification';
+		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbw = $lb->getConnectionRef( DB_MASTER );
 		if ( isset( $revisionInfo['verification'] ) ) {
 			$verificationInfo = $revisionInfo['verification'];
 			$verificationInfo['page_title'] = $title;
 			$verificationInfo['source'] = 'imported';
-			$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-			$dbw = $lb->getConnectionRef( DB_MASTER );
-			$table = 'page_verification';
 			unset($verificationInfo["rev_id"]);
 
 
@@ -1106,6 +1106,11 @@ class VerifiedWikiImporter {
 				['page_verification_id' => $last_row->page_verification_id],
 				__METHOD__
 		   	);
+		} else {
+			$dbw->delete(
+				$table,
+				[ 'page_title' => $title ]
+			);
 		}
 	}
 
