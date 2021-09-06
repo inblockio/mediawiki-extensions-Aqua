@@ -108,7 +108,7 @@ class APIRead extends SimpleHandler {
             // TODO use max(rev_id) instead
             $res = $dbr->select(
                 'page_verification',
-                [ 'rev_id', 'page_title', 'page_id' ],
+                [ 'rev_id', 'page_title', 'page_id', 'hash_verification' ],
                 [ 'page_title' => $page_title ],
                 __METHOD__,
                 [ 'ORDER BY' => 'rev_id' ] 
@@ -120,6 +120,7 @@ class APIRead extends SimpleHandler {
                     'page_title' => $row->page_title,
                     'page_id' => $row->page_id,
                     'rev_id' => $row->rev_id,
+                    'verification_hash' => $row->hash_verification,
                 ];
             }
             return $output;
