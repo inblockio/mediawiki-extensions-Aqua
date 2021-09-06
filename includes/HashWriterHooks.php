@@ -74,6 +74,8 @@ class HashWriterHooks implements
     \MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook
 {
 
+    // This function updates the dataset wit the correct revision ID, especially important during import.
+    // https://github.com/FantasticoFox/DataAccounting/commit/324cd13fadb1daed281c2df454268a7b1ba30fcd
     public function onRevisionRecordInserted( $revisionRecord ) {
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
         $dbw = $lb->getConnectionRef( DB_MASTER );
