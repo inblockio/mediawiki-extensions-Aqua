@@ -35,4 +35,9 @@ class DAAction extends \FormlessAction {
 		);
 	}
 
+	// Indicates whether this action may perform database writes.
+	// See https://doc.wikimedia.org/mediawiki-core/master/php/classAction.html
+	public function doesWrites() {
+		return true;
+	}
 }
