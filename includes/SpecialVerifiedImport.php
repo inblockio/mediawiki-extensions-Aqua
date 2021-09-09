@@ -32,6 +32,7 @@ ini_set("display_errors", 1);
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
+use MediaWiki\Extension\Example\Status;
 
 use Xml;
 use Html;
