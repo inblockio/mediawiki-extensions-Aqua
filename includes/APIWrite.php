@@ -35,7 +35,7 @@ function selectToArray($db, $table, $col, $conds) {
     return $out;
 }
 
-function injectSignature($titleString) {
+function injectSignature($titleString, $walletString) {
     //Get the article object with $title
     $title = Title::newFromText( $titleString, 0 );
     $page = new WikiPage( $title );
@@ -67,7 +67,7 @@ function injectSignature($titleString) {
     }
     // We create a new content using the old content, and append $text to it.
     $newContent = new WikitextContent($text);
-    $signatureComment = "Page signed by wallet: " . $wallet_address;
+    $signatureComment = "Page signed by wallet: " . $walletString;
     $page->doEditContent( $newContent,
         $signatureComment );
 }
@@ -218,7 +218,7 @@ class APIWrite extends SimpleHandler {
             $title = $row->page_title;  
 
             #Add functionality required for #84 visual signatures in page content
-            injectSignature($title);
+            injectSignature($title,$wallet_address);
  
             //TODO return proper API status code
             return ( "Successfully stored Data for Revision[{$var1}] in Database! Data: Signature[{$var2}], Public_Key[{$var3}] and Wallet_Address[{$var4}] "  );
