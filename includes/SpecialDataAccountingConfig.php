@@ -58,16 +58,17 @@ class SpecialDataAccountingConfig extends \SpecialPage {
 		$this->getOutput()->addWikiTextAsInterface( $out );
 		$this->getOutput()->setPageTitle( 'Data Accounting Configuration' );
 
+		$data_accounting_config = getDataAccountingConfig();
 		$formDescriptor = [
 			'smartcontractaddress' => [
 				'label' => 'Smart Contract Address:', // Label of the field
 				'class' => 'HTMLTextField', // Input type
-				'default' => '0x45f59310ADD88E6d23ca58A0Fa7A55BEE6d2a611',
+				'default' => $data_accounting_config['smartcontractaddress'],
 			],
 			'witnessnetwork' => [
 				'label' => 'Witness Network:',
 				'class' => 'HTMLTextField', // Input type
-				'default' => 'Goerli Test Network',
+				'default' => $data_accounting_config['witnessnetwork'],
 			],
 		];
 
