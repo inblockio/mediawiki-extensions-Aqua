@@ -106,9 +106,7 @@
                   '&var4=' + window.ethereum.selectedAddress,
                 { method: 'GET' }
               )
-              .then((data) => {
-                showConfirmation()
-              })
+              .then(showConfirmation)
             }
 
             function next(revId) {
