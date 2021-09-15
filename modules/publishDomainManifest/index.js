@@ -1,6 +1,32 @@
 ;(function () {
   var publishDomainManifest
 
+  var ethChainIdMap = {
+    'mainnet': '0x1',
+    'ropsten': '0x3',
+    'rinkeby': '0x4',
+    'goerli': '0x5',
+    'kotti': '0x6',
+    'kovan': '0x42',
+  }
+
+  function storeWitnessTx(txhash, host, witnessEventID, ownAddress) {
+    console.log({txhash: txhash});
+    const cmd =
+      host
+    + '/rest.php/data_accounting/v1/write/store_witness_tx?var1=' + witnessEventID
+    + '&var2=' + ownAddress
+    + '&var3=' + txhash;
+    console.log(cmd);
+    fetch(cmd, { method: 'GET' })
+    .then((out) => {
+      console.log("After DB operation");
+      console.log(out);
+      // Refresh the page after success
+      location.reload();
+    })
+  }
+
   publishDomainManifest = {
     init: function () {
       $(".publish-domain-manifest").click(
@@ -25,11 +51,22 @@
                     )
                     return
                   }
-                  resp.json().then((parsed) => {
+                  resp.json().then(async parsed => {
                     console.log(parsed)
                     const ownAddress = window.ethereum.selectedAddress
-                    // TODO pass in witness_network (where its value is e.g. Goerli
-                    // Test Network) into Metamask.
+                    const chainId = await window.ethereum.request({ method: 'eth_chainId' })
+                    const serverChainId = ethChainIdMap[parsed.witness_network]
+                    if (serverChainId !== chainId) {
+                      console.log(serverChainId, chainId)
+                      // Switch network if the Wallet network does not match DA
+                      // server network.
+                      await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{
+                          chainId: serverChainId,
+                        }],
+                      })
+                    }
                     const params = [
                       {
                         from: ownAddress,
@@ -44,22 +81,7 @@
                       method: 'eth_sendTransaction',
                       params: params,
                     })
-                    .then((txhash) => {
-                      console.log({txhash: txhash});
-                      const cmd =
-                        host
-                        + '/rest.php/data_accounting/v1/write/store_witness_tx?var1=' + witnessEventID
-                        + '&var2=' + ownAddress
-                        + '&var3=' + txhash;
-                      console.log(cmd);
-                      fetch(cmd, { method: 'GET' })
-                      .then((out) => {
-                        console.log("After DB operation")
-                        console.log(out)
-                        // Refresh the page after success
-                        location.reload()
-                      })
-                    })
+                    .then(txhash => storeWitnessTx(txhash, host, witnessEventID, ownAddress))
                   })
                 })
                 .catch(error => {
