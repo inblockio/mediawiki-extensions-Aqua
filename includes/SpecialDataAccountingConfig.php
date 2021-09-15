@@ -62,12 +62,12 @@ class SpecialDataAccountingConfig extends \SpecialPage {
 		$formDescriptor = [
 			'smartcontractaddress' => [
 				'label' => 'Smart Contract Address:', // Label of the field
-				'class' => 'HTMLTextField', // Input type
+				'type' => 'text', // Input type
 				'default' => $data_accounting_config['smartcontractaddress'],
 			],
 			'witnessnetwork' => [
 				'label' => 'Witness Network:',
-				'class' => 'HTMLTextField', // Input type
+				'type' => 'text', // Input type
 				'default' => $data_accounting_config['witnessnetwork'],
 			],
 		];
