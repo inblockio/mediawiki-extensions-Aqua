@@ -35,6 +35,43 @@ function selectToArray($db, $table, $col, $conds) {
     return $out;
 }
 
+function injectSignature($titleString) {
+    //Get the article object with $title
+    $title = Title::newFromText( $titleString, 0 );
+    $page = new WikiPage( $title );
+    $pageText = $page->getContent()->getText();
+
+    //Early exit if function is deactivated in the data accounting config file
+    #if ( check config file if option is set to be false) {
+    #    return;
+    #}
+
+    $anchorString = "<div style=\"font-weight:bold;line-height:1.6;\">Data Accounting Signatures</div><div class=\"mw-collapsible-content\">";
+    $anchorLocation = strpos($pageText, $anchorString); 
+    if ( $anchorLocation === false ) {
+        $text = $pageText . "<hr>";
+        $text .= "<div class=\"toccolours mw-collapsible mw-collapsed\">";
+        $text .= $anchorString;
+        //Adding visual signature
+        $text .= "~~~~ <br>";
+        $text .= "</div>";
+    } else {
+        //insert only signature
+        $newEntry = "~~~~ <br>";
+        $text = substr_replace(
+            $pageText, 
+            $newEntry, 
+            $anchorLocation + strlen($anchorString),
+            0
+        );
+    }
+    // We create a new content using the old content, and append $text to it.
+    $newContent = new WikitextContent($text);
+    $signatureComment = "Page signed by wallet: " . $wallet_address;
+    $page->doEditContent( $newContent,
+        $signatureComment );
+}
+
 // TODO move to Util.php
 function updateDomainManifest($witness_event_id, $db) {
     $row = $db->selectRow(
@@ -166,43 +203,23 @@ class APIWrite extends SimpleHandler {
                 ], 
                 ["rev_id" => $rev_id]);
 
+            #Get title of the page via the revision_id 
+            #$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+ 
+            //TODO Check if line row exists to catch error
+            $dbr = $lb->getConnectionRef( DB_REPLICA );
+            $row = $dbr->selectRow(
+                'page_verification',
+                [ 'rev_id','page_title','page_id' ],
+                'rev_id = '.$var1,
+                __METHOD__
+            );
+            
+            $title = $row->page_title;  
 
- /** Add functionality required for #84 visual signatures in page content
-
-     //Get the article object with revision id ($var1)
-     $page = new WikiPage( $title );
-            $title = Title::newFromText( $dm, 6942 );
-            $pageText = $page->getContent()->getText();
-
-
-            //Early exit if function is deactivated in the data accounting config file
-            if ( check config file if option is set to be false)
-            {
-                //TODO return proper API status code
-                return ( "Successfully stored Data for Revision[{$var1}] in Database! Data: Signature[{$var2}], Public_Key[{$var3}] and Wallet_Address[{$var4}] "  );
-            }
-
-            if ( !strpos($page_content, <div style=\"font-weight:bold;line-height:1.6;\">Signatures</div>')) {
-                $text = "<hr>";
-                $text .= "<div class=\"toccolours mw-collapsible mw-collapsed\">";
-                $text .= "<div style=\"font-weight:bold;line-height:1.6;\">Signatures</div>
-                    $text .= "<div class=\"mw-collapsible-content\">;
-                //Adding visual signature
-                $text .= "~~~~ <br>";
-                $text .= "</div>";
-            } else {
-                LOCATOR insert after position of strpos($page_content, <div style=\"font-weight:bold;line-height:1.6;\">Signatures</div>'))
-                    $text .= "~~~~ <br>";
-            }
-
-            // We create a new content using the old content, and append $text to it.
-            $newContent = new WikitextContent($pageText . $text);
-            $signatureCommment = "Page signed by wallet: " . $wallet_address;
-            $page->doEditContent( $newContent,
-                $signatureComment );
-
-  */
-
+            #Add functionality required for #84 visual signatures in page content
+            injectSignature($title);
+ 
             //TODO return proper API status code
             return ( "Successfully stored Data for Revision[{$var1}] in Database! Data: Signature[{$var2}], Public_Key[{$var3}] and Wallet_Address[{$var4}] "  );
 
