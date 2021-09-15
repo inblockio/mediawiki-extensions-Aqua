@@ -23,8 +23,8 @@ function generateDomainId() {
 }
 
 function getDomainId() {
-    $da_config = getDataAccountingConfig();
-    return $da_config['domain_id'];
+    global $wgDADomainID;
+    return $wgDADomainID;
 }
 
 function setDataAccountingConfig($data) {

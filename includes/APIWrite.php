@@ -59,8 +59,8 @@ function injectSignature($titleString, $walletString) {
         //insert only signature
         $newEntry = "~~~~ <br>";
         $text = substr_replace(
-            $pageText, 
-            $newEntry, 
+            $pageText,
+            $newEntry,
             $anchorLocation + strlen($anchorString),
             0
         );
