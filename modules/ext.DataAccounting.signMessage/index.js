@@ -26,6 +26,8 @@
 		function fadeOutConfirmation() {
 			setTimeout( function () {
 				$container.remove()
+        // Refresh the page after success
+        location.reload()
 			}, 250 )
 		}
 
