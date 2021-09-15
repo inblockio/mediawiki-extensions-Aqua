@@ -31,14 +31,8 @@
 			}, 250 )
 		}
 
-		data = data || {}
-
-		if ( data.message === undefined ) {
-			data.message = 'SIGNED!'
-		}
-
 		$content = $( '<div>' ).addClass( 'da-sign-content' )
-    $content.text( data.message )
+    $content.text( 'SIGNED!' )
 
 		$popup = $( '<div>' ).addClass( 'da-sign mw-notification' ).append( $content )
 			.on( 'click', function () {
