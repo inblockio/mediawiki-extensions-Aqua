@@ -15,14 +15,6 @@ use PermissionsError;
 
 require_once('Util.php');
 
-$witnessNetworkMap = [
-  'mainnet' => 'https://etherscan.io/tx',
-  'ropsten' => 'https://ropsten.etherscan.io/tx',
-  'kovan' => 'https://kovan.etherscan.io/tx',
-  'rinkeby' => 'https://rinkeby.etherscan.io/tx',
-  'goerli' => 'https://goerli.etherscan.io/tx',
-];
-
 // TODO this function is duplicated in SpecialWitness
 function hrefifyHash($hash, $prefix = "") {
 	return "<a href='" . $prefix . $hash. "'>" . substr($hash, 0, 6) . "..." . substr($hash, -6, 6) . "</a>";
@@ -89,6 +81,14 @@ class SpecialWitnessPublisher extends \SpecialPage {
         EOD;
 
         global $wgDAWitnessNetwork;
+        $witnessNetworkMap = [
+          'mainnet' => 'https://etherscan.io/tx',
+          'ropsten' => 'https://ropsten.etherscan.io/tx',
+          'kovan' => 'https://kovan.etherscan.io/tx',
+          'rinkeby' => 'https://rinkeby.etherscan.io/tx',
+          'goerli' => 'https://goerli.etherscan.io/tx',
+        ];
+
         foreach ($res as $row) {
             $hrefWEVH = hrefifyHash($row->witness_event_verification_hash);
             // Color taken from https://www.schemecolor.com/warm-autumn-2.php
