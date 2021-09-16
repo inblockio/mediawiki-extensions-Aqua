@@ -41,10 +41,11 @@ function injectSignature($titleString, $walletString) {
     $page = new WikiPage( $title );
     $pageText = $page->getContent()->getText();
 
-    //Early exit if function is deactivated in the data accounting config file
-    #if ( check config file if option is set to be false) {
-    #    return;
-    #}
+    //Early exit if signature injection is disabled.
+    global $wgDAInjectSignature;
+    if ( !$wgDAInjectSignature ) {
+        return;
+    }
 
     $anchorString = "<div style=\"font-weight:bold;line-height:1.6;\">Data Accounting Signatures</div><div class=\"mw-collapsible-content\">";
     $anchorLocation = strpos($pageText, $anchorString); 
