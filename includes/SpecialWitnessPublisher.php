@@ -15,6 +15,14 @@ use PermissionsError;
 
 require_once('Util.php');
 
+$witnessNetworkMap = [
+  'mainnet' => 'https://etherscan.io/tx',
+  'ropsten' => 'https://ropsten.etherscan.io/tx',
+  'kovan' => 'https://kovan.etherscan.io/tx',
+  'rinkeby' => 'https://rinkeby.etherscan.io/tx',
+  'goerli' => 'https://goerli.etherscan.io/tx',
+];
+
 // TODO this function is duplicated in SpecialWitness
 function hrefifyHash($hash, $prefix = "") {
 	return "<a href='" . $prefix . $hash. "'>" . substr($hash, 0, 6) . "..." . substr($hash, -6, 6) . "</a>";
@@ -79,6 +87,8 @@ class SpecialWitnessPublisher extends \SpecialPage {
                 <th>Transaction ID</th>
             </tr>
         EOD;
+
+        global $wgDAWitnessNetwork;
         foreach ($res as $row) {
             $hrefWEVH = hrefifyHash($row->witness_event_verification_hash);
             // Color taken from https://www.schemecolor.com/warm-autumn-2.php
@@ -92,7 +102,7 @@ class SpecialWitnessPublisher extends \SpecialPage {
                 if ($row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE') {
                     $publishingStatus = '<td style="background-color:#F27049"><button type="button" class="publish-domain-manifest" id="' . $row->witness_event_id . '">Publish!</button></td>';
                 } else {
-                    $publishingStatus = '<td style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, "https://goerli.etherscan.io/tx/") . '</td>';
+                    $publishingStatus = '<td style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, $witnessNetworkMap[$wgDAWitnessNetwork]) . '</td>';
                 }
             };
 
