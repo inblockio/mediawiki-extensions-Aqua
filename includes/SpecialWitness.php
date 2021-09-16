@@ -250,7 +250,7 @@ class SpecialWitness extends \SpecialPage {
 			[ 'witness_event_id' => $witness_event_id ]
 		);
 		if (!$row) {
-			global $wgDASmartContractAddress, $wgWitnessNetwork;
+			global $wgDASmartContractAddress, $wgDAWitnessNetwork;
 			// If witness_events table doesn't have it, then insert.
 			$dbw->insert( 'witness_events',
 				[
@@ -261,7 +261,7 @@ class SpecialWitness extends \SpecialPage {
 					'merkle_root' => $merkle_root,
 					'witness_event_verification_hash' => getHashSum($domain_manifest_verification_hash->hash_verification . $merkle_root),
 					'smart_contract_address' => $wgDASmartContractAddress,
-					'witness_network' => $wgWitnessNetwork,
+					'witness_network' => $wgDAWitnessNetwork,
 				],
 				"");
 		}
