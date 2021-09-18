@@ -154,7 +154,10 @@ class APIWrite extends SimpleHandler {
 
     /** @inheritDoc */
     public function run( $action ) {
-		if ( !$this->permissionManager->userHasRight( $this->user, 'writeapi' ) ) {
+        // Only user and sysop have the 'move' right. We choose this so that
+        // the DataAccounting extension works as expected even when not run via
+        // micro-PKC Docker.
+		if ( !$this->permissionManager->userHasRight( $this->user, 'move' ) ) {
 			throw new LocalizedHttpException(
 				MessageValue::new( 'rest-permission-denied-revision' )->plaintextParams(
                     'You are not allowed to use the REST API'
