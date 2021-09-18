@@ -57,10 +57,11 @@
         event.preventDefault()
         const urlObj = new URL(window.location.href)
         const pageTitle = extractPageTitle(urlObj)
+        const urlPrefix = window.location.protocol + '//' + window.location.host
         console.log(pageTitle)
         if (window.ethereum) {
           if (window.ethereum.isConnected() && window.ethereum.selectedAddress) {
-            fetch('http://localhost:9352/rest.php/data_accounting/v1/standard/get_page_last_rev?var1=' + pageTitle)
+            fetch(urlPrefix + '/rest.php/data_accounting/v1/standard/get_page_last_rev?var1=' + pageTitle)
             .then((resp) => {
               if (!resp.ok) {
                 resp.text().then(parsed => alert(parsed))
@@ -95,7 +96,7 @@
               console.log(`public key ${public_key}`);
               console.log(`original ${window.ethereum.selectedAddress}, recovered ${recAddress}`);
               fetch(
-                'http://localhost:9352/rest.php/data_accounting/v1/write/store_signed_tx' +
+                urlPrefix + '/rest.php/data_accounting/v1/write/store_signed_tx' +
                 '?var1=' + revId +
                   '&var2=' + signature +
                   '&var3=' + public_key +
@@ -107,7 +108,7 @@
 
             function next(revId) {
               console.log("Rev ID:", revId)
-              fetch('http://localhost:9352/rest.php/data_accounting/v1/standard/request_hash?var1=' + revId, { method: 'GET' })
+              fetch(urlPrefix + '/rest.php/data_accounting/v1/standard/request_hash?var1=' + revId, { method: 'GET' })
               .then((resp) => {
                 if (!resp.ok) {
                   resp.text().then(parsed => alert(parsed))
