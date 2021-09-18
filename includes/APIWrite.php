@@ -156,7 +156,8 @@ class APIWrite extends SimpleHandler {
     public function run( $action ) {
         // Only user and sysop have the 'move' right. We choose this so that
         // the DataAccounting extension works as expected even when not run via
-        // micro-PKC Docker.
+        // micro-PKC Docker. As in, it shouldn't depend on the configuration of
+        // an external, separate repo.
 		if ( !$this->permissionManager->userHasRight( $this->user, 'move' ) ) {
 			throw new LocalizedHttpException(
 				MessageValue::new( 'rest-permission-denied-revision' )->plaintextParams(
