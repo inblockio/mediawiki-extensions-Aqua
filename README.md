@@ -7,20 +7,10 @@ This is a code extension for MediaWiki to implement the basic principles of Data
 
 All Modules interface with the javascript frontend and the maria DB backend. To ensure that we have a modular approach to be able to easy maintain the extention we use Model-View-Controller to seperate functionalities clearly.
 
-# Frontend with Metamask as our default Wallet
+## Installation
 
-# We use example extension for MediaWiki
-
-The Examples extension is a collection of small example features that implement
-common extension interfaces in MediaWiki.
-
-The basic structure of this repository is based on the BoilerPlate extension.
-
-## Usage
-
-This repository is for reading, and contains verbose guidances and comments
-along the way. You can freely copy snippets from here. To start your own
-extension, it is recommended to copy the BoilerPlate extension instead.
+Follow the documentation of mediawiki to install the extension.
+https://www.mediawiki.org/wiki/Manual:Extensions#Installing_an_extension
 
 ## Testing
 
@@ -51,11 +41,6 @@ This will intall testing software to `node_modules/` in the current directory/
 
 Now, run `npm test` to run the automated front-end code checks..
 
-## Contributing
-
-```bash
-git clone https://gerrit.wikimedia.org/r/mediawiki/extensions/examples.git
-```
 ## Helpful comments
 Login to docker
 'docker exec -it pkc_database_1 bash' to enter the docker commandline.
@@ -66,5 +51,8 @@ USE my_wiki;
 SELECT * FROM page_verification;
 SELECT * FROM page_witness;
 
+If the extension is running and working, you will see entries in page_verification after doing your first page edits with the extension activitat.
+
 2. cp -r DataAccounting PKC/mountPoint/extensions
 3. docker exec pkc_mediawiki_1 php /var/www/html/maintenance/update.php
+*if you manually install DataAccounting extension you need to run the maintanance script to load the extension and update the sql database schemas
