@@ -19,7 +19,8 @@ class Hooks implements
 	\MediaWiki\Hook\BeforePageDisplayHook,
 	\MediaWiki\Hook\ParserFirstCallInitHook,
 	\MediaWiki\Hook\ParserGetVariableValueSwitchHook,
-	\MediaWiki\Hook\SkinTemplateNavigationHook
+	\MediaWiki\Hook\SkinTemplateNavigationHook,
+	\MediaWiki\Hook\OutputPageParserOutputHook
 {
 
 	/** @var PermissionManager */
@@ -48,6 +49,11 @@ class Hooks implements
 				$out->addModules( 'publishDomainManifest' );
 			}
 		}
+	}
+
+	public function onOutputPageParserOutput( $out, $parserOutput ) : void {
+		global $wgServer;
+		$out->addMeta("data-accounting-mediawiki", $wgServer);
 	}
 
 	/**
