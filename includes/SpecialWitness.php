@@ -167,6 +167,7 @@ class SpecialWitness extends \SpecialPage {
 
 		EOD;
 
+		$out = $this->getOutput();
         $verification_hashes = [];
         foreach ( $res as $row ) {
             $row3 = $dbw->selectRow(
@@ -176,13 +177,20 @@ class SpecialWitness extends \SpecialPage {
                 __METHOD__,
             );
 
-            $dbw->insert( 'witness_page', 
+			$vhash = $row3->hash_verification;
+			if (is_null($vhash)) {
+				$title = $row->page_title;
+				$out->addWikiTextAsContent("Error: [[$title]] has an empty verification hash. This indicates a manipulation, database corruption, or a bug. Recover or delete page.");
+				return false;
+			}
+
+            $dbw->insert( 'witness_page',
                 [
                     'witness_event_id' => $witness_event_id,
                     'domain_id' => $row3->domain_id,
-                    'page_title' => $row->page_title, 
+                    'page_title' => $row->page_title,
                     'rev_id' => $row->rev_id,
-                    'page_verification_hash' => $row3->hash_verification,
+                    'page_verification_hash' => $vhash,
                 ], 
                 "");
 
@@ -194,9 +202,9 @@ class SpecialWitness extends \SpecialPage {
                 __METHOD__,
             );
 
-            array_push($verification_hashes, $row3->hash_verification);
+            array_push($verification_hashes, $vhash);
 
-			$output .= "|-\n|" . $row4->id . "\n| [[" . $row->page_title . "]]\n|" . $row->rev_id . "\n|" . wikilinkifyHash($row3->hash_verification) . "\n";
+			$output .= "|-\n|" . $row4->id . "\n| [[" . $row->page_title . "]]\n|" . $row->rev_id . "\n|" . wikilinkifyHash($vhash) . "\n";
         }
 	    $output .= "|}\n";
 
@@ -205,7 +213,6 @@ class SpecialWitness extends \SpecialPage {
 		};
 
 		if (empty($verification_hashes)) {
-			$out = $this->getOutput();
 			$out->addHTML('No verified page revisions available. Create a new page revision first.');
 			return true;
 		}
@@ -215,7 +222,6 @@ class SpecialWitness extends \SpecialPage {
 		}
 		$treeLayers = $tree->getLayersAsObject();
 
-		$out = $this->getOutput();
 		$out->addWikiTextAsContent($output);
 
 		// Store the Merkle tree in the DB
