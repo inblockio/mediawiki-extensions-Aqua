@@ -42,6 +42,12 @@ use WikiImporter;
 use ImportReporter;
 
 /**
+ * DataAccounting modifications:
+ * - Change WikiImporter into VerifiedWikiImporter 
+ * - Remove the known-user option and set it to default true (see assignKnownUsers) and remove the HTML form button and functionality
+ */
+
+/**
  * MediaWiki page data importer
  *
  * @ingroup SpecialPage
@@ -143,7 +149,7 @@ class SpecialVerifiedImport extends \SpecialPage {
 		$isUpload = false;
 		$request = $this->getRequest();
 		$this->sourceName = $request->getVal( "source" );
-		$this->assignKnownUsers = $request->getCheck( 'assignKnownUsers' );
+		$this->assignKnownUsers = true;
 
 		$this->logcomment = $request->getText( 'log-comment' );
 		$this->pageLinkDepth = $this->getConfig()->get( 'ExportMaxLinkDepth' ) == 0
@@ -391,17 +397,6 @@ class SpecialVerifiedImport extends \SpecialPage {
 					"</td>
 				</tr>
 				<tr>
-					<td></td>
-					<td class='mw-input'>" .
-					Xml::checkLabel(
-						$this->msg( 'import-assign-known-users' )->text(),
-						'assignKnownUsers',
-						'assignKnownUsers',
-						$this->assignKnownUsers
-					) .
-					"</td>
-				</tr>
-				<tr>
 					<td class='mw-label'>" .
 					Xml::label( $this->msg( 'import-comment' )->text(), 'mw-import-comment' ) .
 					"</td>
@@ -549,17 +544,6 @@ class SpecialVerifiedImport extends \SpecialPage {
 						'interwikiTemplates',
 						'interwikiTemplates',
 						$this->includeTemplates
-					) .
-					"</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td class='mw-input'>" .
-					Xml::checkLabel(
-						$this->msg( 'import-assign-known-users' )->text(),
-						'assignKnownUsers',
-						'interwikiAssignKnownUsers',
-						$this->assignKnownUsers
 					) .
 					"</td>
 				</tr>
