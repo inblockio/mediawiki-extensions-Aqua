@@ -43,8 +43,10 @@ use ImportReporter;
 
 /**
  * DataAccounting modifications:
- * - Change WikiImporter into VerifiedWikiImporter 
- * - Remove the known-user option and set it to default true (see assignKnownUsers) and remove the HTML form button and functionality
+ * - Change WikiImporter into VerifiedWikiImporter.
+ * - Remove the known-user option and set it to default true (see
+ *   assignKnownUsers) and remove the HTML form button and functionality.
+ * - Default interwiki prefix to "imported" and remove the UI to specify it.
  */
 
 /**
@@ -170,7 +172,8 @@ class SpecialVerifiedImport extends \SpecialPage {
 			$source = Status::newFatal( 'import-token-mismatch' );
 		} elseif ( $this->sourceName === 'upload' ) {
 			$isUpload = true;
-			$this->usernamePrefix = $this->fullInterwikiPrefix = $request->getVal( 'usernamePrefix' );
+			# Data accounting modification: to "imported".
+			$this->usernamePrefix = $this->fullInterwikiPrefix = "imported";
 			if ( $this->permManager->userHasRight( $user, 'importupload' ) ) {
 				$source = ImportStreamSource::newFromUpload( "xmlimport" );
 			} else {
@@ -383,17 +386,6 @@ class SpecialVerifiedImport extends \SpecialPage {
 					"</td>
 					<td class='mw-input'>" .
 					Html::input( 'xmlimport', '', 'file', [ 'id' => 'xmlimport' ] ) . ' ' .
-					"</td>
-				</tr>
-				<tr>
-					<td class='mw-label'>" .
-					Xml::label( $this->msg( 'import-upload-username-prefix' )->text(),
-						'mw-import-usernamePrefix' ) .
-					"</td>
-					<td class='mw-input'>" .
-					Xml::input( 'usernamePrefix', 50,
-						$this->usernamePrefix,
-						[ 'id' => 'usernamePrefix', 'type' => 'text' ] ) . ' ' .
 					"</td>
 				</tr>
 				<tr>
