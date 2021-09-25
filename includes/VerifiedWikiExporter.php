@@ -8,6 +8,7 @@ use XmlDumpWriter;
 use MediaWiki\MediaWikiServices;
 
 use WikiExporter;
+use Title;
 
 function convertArray2XMLString($arr, $tag) {
 	$xml = new SimpleXMLElement($tag);
@@ -126,7 +127,16 @@ class VerifiedWikiExporter extends WikiExporter {
 				}
 				$output = $this->writer->openPage( $revRow );
 				// Data accounting modification
-				$chain_height = getPageChainHeight( $revRow->page_title );
+				$title = $revRow->page_title;
+				// Convert title text to without underscores.
+				// See https://www.mediawiki.org/wiki/Manual:PAGENAMEE_encoding
+				// TODO we might want to store titles that have been converted
+				// via wfEscapeWikiText()?
+				// See parser/CoreParserFunctions.php.
+				// Also Because the way we store the title is that we use
+				// $wikipage->getTitle().
+				$titleObj = Title::newFromText( $title );
+				$chain_height = getPageChainHeight( $titleObj->getText() );
 				$output .= "<data_accounting_chain_height>$chain_height</data_accounting_chain_height>\n";
 				// End of Data accounting modification
 				$this->sink->writeOpenPage( $revRow, $output );
