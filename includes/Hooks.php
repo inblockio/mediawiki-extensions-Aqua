@@ -115,6 +115,9 @@ class Hooks implements
 		$action = $skin->getRequest()->getText( 'action' );
 
 		if ( $skin->getTitle()->getNamespace() !== NS_SPECIAL ) {
+			if ( !$this->permissionManager->userCan( 'edit', $skin->getUser(), $skin->getTitle() ) ) {
+				return;
+			}
 			$cactions['actions']['daact'] = [
 				'class' => $action === 'daact' ? 'selected' : false,
 				'text' => $skin->msg( 'contentaction-daact' )->text(),
