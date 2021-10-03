@@ -153,14 +153,6 @@ class HashWriterHooks implements
             'source' => 'default',
         ];
         $dbw->update('page_verification', $data, ['rev_id' => $rev->getID()], __METHOD__);
-        /** re-initilizing variables to ensure they do not hold values for the next revision. */
-        $rev_id =[];
-        $pageContent =[];
-        $contentHash =[];
-        $parentId =[];
-        $metadata =[];
-        $metadataHash =[];
-        $data =[];
     }
 
     public function onArticleDeleteComplete( $wikiPage, $user, $reason, $id,
