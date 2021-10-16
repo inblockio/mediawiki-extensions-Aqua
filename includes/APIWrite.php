@@ -300,6 +300,15 @@ class APIWrite extends SimpleHandler {
                 ],
                 "witness_event_id = $witness_event_id");
 
+            // Patch witness data into domain manifest page.
+            $dbw->update(
+                'page_verification',
+                [
+                    'witness_event_id' => $witness_event_id,
+                ],
+                ["hash_verification" => $row->domain_manifest_verification_hash]
+            );
+
             // Add receipt to the domain manifest
             addReceiptToDomainManifest($witness_event_id, $dbw);
 
