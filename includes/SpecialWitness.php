@@ -205,7 +205,8 @@ class SpecialWitness extends \SpecialPage {
 
             array_push($verification_hashes, $vhash);
 
-			$output .= "|-\n|" . $tableIndexCount . "\n| [[" . $row->page_title . "]]\n|" . wikilinkifyHash($vhash) . "\n|" . $row->rev_id . "\n";
+			$revisionWikiLink = "[[Special:PermanentLink/{$row->rev_id}|See]]";
+			$output .= "|-\n|" . $tableIndexCount . "\n| [[" . $row->page_title . "]]\n|" . wikilinkifyHash($vhash) . "\n|" . $revisionWikiLink . "\n";
 			$tableIndexCount++;
         }
 	    $output .= "|}\n";
