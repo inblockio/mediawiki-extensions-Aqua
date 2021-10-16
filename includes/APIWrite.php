@@ -74,7 +74,7 @@ function injectSignature($titleString, $walletString) {
 }
 
 // TODO move to Util.php
-function updateDomainManifest($witness_event_id, $db) {
+function addReceiptToDomainManifest($witness_event_id, $db) {
     $row = $db->selectRow(
         'witness_events',
         [
@@ -300,8 +300,8 @@ class APIWrite extends SimpleHandler {
                 ],
                 "witness_event_id = $witness_event_id");
 
-            // Update the domain manifest
-            updateDomainManifest($witness_event_id, $dbw);
+            // Add receipt to the domain manifest
+            addReceiptToDomainManifest($witness_event_id, $dbw);
 
             return ( "Successfully stored data for witness_event_id[{$witness_event_id}] in Database[$table]! Data: account_address[{$account_address}], witness_event_transaction_hash[{$transaction_hash}]"  );
 
