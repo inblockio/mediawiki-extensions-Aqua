@@ -162,8 +162,8 @@ class SpecialWitness extends \SpecialPage {
 			|-
 			! Index
 			! Page Title
-			! Revision
 			! Verification Hash
+			! Revision
 
 		EOD;
 
@@ -205,7 +205,7 @@ class SpecialWitness extends \SpecialPage {
 
             array_push($verification_hashes, $vhash);
 
-			$output .= "|-\n|" . $tableIndexCount . "\n| [[" . $row->page_title . "]]\n|" . $row->rev_id . "\n|" . wikilinkifyHash($vhash) . "\n";
+			$output .= "|-\n|" . $tableIndexCount . "\n| [[" . $row->page_title . "]]\n|" . wikilinkifyHash($vhash) . "\n|" . $row->rev_id . "\n";
 			$tableIndexCount++;
         }
 	    $output .= "|}\n";
