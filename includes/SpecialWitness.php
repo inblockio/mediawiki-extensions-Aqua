@@ -169,6 +169,7 @@ class SpecialWitness extends \SpecialPage {
 
 		$out = $this->getOutput();
         $verification_hashes = [];
+		$tableIndexCount = 1;
         foreach ( $res as $row ) {
             $row3 = $dbw->selectRow(
                 'page_verification',
@@ -204,7 +205,8 @@ class SpecialWitness extends \SpecialPage {
 
             array_push($verification_hashes, $vhash);
 
-			$output .= "|-\n|" . $row4->id . "\n| [[" . $row->page_title . "]]\n|" . $row->rev_id . "\n|" . wikilinkifyHash($vhash) . "\n";
+			$output .= "|-\n|" . $tableIndexCount . "\n| [[" . $row->page_title . "]]\n|" . $row->rev_id . "\n|" . wikilinkifyHash($vhash) . "\n";
+			$tableIndexCount++;
         }
 	    $output .= "|}\n";
 
