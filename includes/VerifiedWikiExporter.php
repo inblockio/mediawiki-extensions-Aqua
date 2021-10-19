@@ -34,7 +34,7 @@ function getPageMetadataByRevId($rev_id) {
         [
             'domain_id', 
             'rev_id',
-            'hash_verification',
+            'verification_hash',
             'time_stamp',
             'witness_event_id',
             'signature',
@@ -51,7 +51,7 @@ function getPageMetadataByRevId($rev_id) {
 	$output = [
 		'domain_id' => $row->domain_id,
 		'rev_id' => $rev_id,
-		'verification_hash' => $row->hash_verification,
+		'verification_hash' => $row->verification_hash,
 		'time_stamp' => $row->time_stamp,
 		'witness_event_id' => $row->witness_event_id,
 		'signature' => $row->signature,

@@ -266,13 +266,13 @@ class APIWrite extends SimpleHandler {
                 $row = $dbw->selectRow(
                     'page_verification',
                     [ 'witness_event_id' ],
-                    [ 'hash_verification' => $vh ]
+                    [ 'verification_hash' => $vh ]
                 );
                 if (is_null($row->witness_event_id)) {
                     $dbw->update(
                         'page_verification',
                         [ 'witness_event_id' => $witness_event_id ],
-                        [ 'hash_verification' => $vh ]
+                        [ 'verification_hash' => $vh ]
                     );
                 }
             }
@@ -306,7 +306,7 @@ class APIWrite extends SimpleHandler {
                 [
                     'witness_event_id' => $witness_event_id,
                 ],
-                ["hash_verification" => $row->domain_manifest_verification_hash]
+                ["verification_hash" => $row->domain_manifest_verification_hash]
             );
 
             // Add receipt to the domain manifest

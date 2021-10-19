@@ -1066,7 +1066,7 @@ class VerifiedWikiImporter {
 
 				// Check if merkle tree proof is present, if so skip, if not
 				// import AND attribute to the correct witness_id
-				$page_verification_hash = $verificationInfo['hash_verification'];
+				$page_verification_hash = $verificationInfo['verification_hash'];
 
 				$rowProof = $dbw->selectRow(
 					'witness_merkle_tree',
@@ -1405,8 +1405,6 @@ class VerifiedWikiImporter {
 			}
 		}
 
-		// TODO this is for incompatible naming issue, fix this!!
-		$verificationInfo["hash_verification"] = $verificationInfo["verification_hash"];
 		unset($verificationInfo["verification_hash"]);
 		return $verificationInfo;
 	}

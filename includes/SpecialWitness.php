@@ -173,12 +173,12 @@ class SpecialWitness extends \SpecialPage {
         foreach ( $res as $row ) {
             $row3 = $dbw->selectRow(
                 'page_verification',
-                [ 'hash_verification', 'domain_id' ],
+                [ 'verification_hash', 'domain_id' ],
                 ['rev_id' => $row->rev_id],
                 __METHOD__,
             );
 
-			$vhash = $row3->hash_verification;
+			$vhash = $row3->verification_hash;
 			if (is_null($vhash)) {
 				$title = $row->page_title;
 				$out->addWikiTextAsContent("Error: [[$title]] has an empty verification hash. This indicates a manipulation, database corruption, or a bug. Recover or delete page.");
@@ -244,7 +244,7 @@ class SpecialWitness extends \SpecialPage {
         //Get the Domain Manifest verification hash
         $domain_manifest_verification_hash = $dbw->selectRow(
                 'page_verification',
-                [ 'hash_verification'],
+                [ 'verification_hash'],
                 ['page_title' => $title],
                 __METHOD__,
         );
@@ -266,9 +266,9 @@ class SpecialWitness extends \SpecialPage {
 					'witness_event_id' => $witness_event_id,
 					'domain_id' => getDomainId(),
 					'domain_manifest_title' => $title,
-					'domain_manifest_verification_hash' => $domain_manifest_verification_hash->hash_verification,
+					'domain_manifest_verification_hash' => $domain_manifest_verification_hash->verification_hash,
 					'merkle_root' => $merkle_root,
-					'witness_event_verification_hash' => getHashSum($domain_manifest_verification_hash->hash_verification . $merkle_root),
+					'witness_event_verification_hash' => getHashSum($domain_manifest_verification_hash->verification_hash . $merkle_root),
 					'smart_contract_address' => $wgDASmartContractAddress,
 					'witness_network' => $wgDAWitnessNetwork,
 				],

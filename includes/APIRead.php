@@ -52,7 +52,7 @@ class APIRead extends SimpleHandler {
                 [
                     'rev_id',
                     'domain_id',
-                    'hash_verification',
+                    'verification_hash',
                     'time_stamp',
                     'signature',
                     'public_key',
@@ -70,7 +70,7 @@ class APIRead extends SimpleHandler {
             $output = [
                 'rev_id' => $rev_id,
                 'domain_id' => $row->domain_id,
-                'verification_hash' => $row->hash_verification,
+                'verification_hash' => $row->verification_hash,
                 'time_stamp' => $row->time_stamp,
                 'signature' => $row->signature,
                 'public_key' => $row->public_key,
@@ -108,7 +108,7 @@ class APIRead extends SimpleHandler {
             // TODO use max(rev_id) instead
             $res = $dbr->select(
                 'page_verification',
-                [ 'rev_id', 'page_title', 'page_id', 'hash_verification' ],
+                [ 'rev_id', 'page_title', 'page_id', 'verification_hash' ],
                 [ 'page_title' => $page_title ],
                 __METHOD__,
                 [ 'ORDER BY' => 'rev_id' ] 
@@ -120,7 +120,7 @@ class APIRead extends SimpleHandler {
                     'page_title' => $row->page_title,
                     'page_id' => $row->page_id,
                     'rev_id' => $row->rev_id,
-                    'verification_hash' => $row->hash_verification,
+                    'verification_hash' => $row->verification_hash,
                 ];
             }
             return $output;
@@ -164,14 +164,14 @@ class APIRead extends SimpleHandler {
 
             $res = $dbr->select(
             'page_verification',
-            [ 'rev_id','hash_verification' ],
+            [ 'rev_id','verification_hash' ],
                 'rev_id = ' . $rev_id,
             __METHOD__
             );
 
             $output = '';
             foreach( $res as $row ) {
-                $output .= 'I sign the following page verification_hash: [0x' . $row->hash_verification .']';
+                $output .= 'I sign the following page verification_hash: [0x' . $row->verification_hash .']';
             }
             return $output;
 

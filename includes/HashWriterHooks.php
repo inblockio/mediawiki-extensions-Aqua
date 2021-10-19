@@ -41,7 +41,7 @@ function makeEmptyIfNonce($x) {
 function getPageVerificationData($dbr, $previous_rev_id) {
     $row = $dbr->selectRow(
         'page_verification',
-        [ 'rev_id', 'hash_verification', 'signature', 'public_key', 'wallet_address','witness_event_id' ],
+        [ 'rev_id', 'verification_hash', 'signature', 'public_key', 'wallet_address','witness_event_id' ],
         "rev_id = $previous_rev_id",
         __METHOD__
     );
@@ -49,7 +49,7 @@ function getPageVerificationData($dbr, $previous_rev_id) {
         // When $row is empty, we have to construct $output consisting of empty
         // strings.
         return [
-            'hash_verification' => "",
+            'verification_hash' => "",
             'signature' => "",
             'public_key' => "",
             'wallet_address' => "",
@@ -57,7 +57,7 @@ function getPageVerificationData($dbr, $previous_rev_id) {
         ];
     }
     $output = [
-        'hash_verification' => $row->hash_verification, 
+        'verification_hash' => $row->verification_hash, 
         'signature' =>  $row->signature,
         'public_key' => $row->public_key,
         'wallet_address' => $row->wallet_address,
@@ -116,7 +116,7 @@ class HashWriterHooks implements
         $verificationData = getPageVerificationData($dbw, $parentId);
 
         // META DATA HASH CALCULATOR
-        $previousVerificationHash = $verificationData['hash_verification'];
+        $previousVerificationHash = $verificationData['verification_hash'];
         $domainId = getDomainId();
         $timestamp = $rev->getTimeStamp();
         $metadataHash = calculateMetadataHash($domainId, $timestamp, $previousVerificationHash);
@@ -146,7 +146,7 @@ class HashWriterHooks implements
             'hash_content' => $contentHash,
             'time_stamp' => $timestamp,
             'hash_metadata' => $metadataHash,
-            'hash_verification' => calculateVerificationHash($contentHash, $metadataHash, $signatureHash, $witnessHash),
+            'verification_hash' => calculateVerificationHash($contentHash, $metadataHash, $signatureHash, $witnessHash),
             'signature' => '',
             'public_key' => '',
             'wallet_address' => '',
