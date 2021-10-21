@@ -135,7 +135,7 @@ class SpecialWitness extends \SpecialPage {
 		$out->setPageTitle( 'Domain Manifest Generator' );
 	}
 
-	public function generateDomainManifestTableHelper( $dbw, $out, $witness_event_id, $output ) {
+	public function helperGenerateDomainManifestTable( $dbw, $out, $witness_event_id, $output ) {
 		// For the table
 		$output .= <<<EOD
 
@@ -193,6 +193,19 @@ class SpecialWitness extends \SpecialPage {
 		return array(true, $verification_hashes, $output);
 	}
 
+	public function helperGenerateDomainManifestMerkleTree( $verification_hashes ) {
+		$hasher = function ($data) {
+			return hash('sha3-512', $data, false);
+		};
+
+		$tree = new FixedSizeTree(count($verification_hashes), $hasher, NULL, true);
+        for ($i = 0; $i < count($verification_hashes); $i++) {
+			$tree->set($i, $verification_hashes[$i]);
+		}
+		$treeLayers = $tree->getLayersAsObject();
+		return $treeLayers;
+	}
+
 	public function generateDomainManifest( $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
@@ -206,25 +219,18 @@ class SpecialWitness extends \SpecialPage {
         $output = 'Domain Manifest ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
 
 		$out = $this->getOutput();
-		list($is_valid, $verification_hashes, $output) = $this->generateDomainManifestTableHelper( $dbw, $out, $witness_event_id, $output );
+		list($is_valid, $verification_hashes, $output) = $this->helperGenerateDomainManifestTable( $dbw, $out, $witness_event_id, $output );
 		if (!$is_valid) {
 			// If there is a problem, we exit early.
 			return false;
 		}
 
-		$hasher = function ($data) {
-			return hash('sha3-512', $data, false);
-		};
-
 		if (empty($verification_hashes)) {
 			$out->addHTML('No verified page revisions available. Create a new page revision first.');
 			return true;
 		}
-		$tree = new FixedSizeTree(count($verification_hashes), $hasher, NULL, true);
-        for ($i = 0; $i < count($verification_hashes); $i++) {
-			$tree->set($i, $verification_hashes[$i]);
-		}
-		$treeLayers = $tree->getLayersAsObject();
+
+		$treeLayers = $this->helperGenerateDomainManifestMerkleTree($verification_hashes);
 
 		$out->addWikiTextAsContent($output);
 
