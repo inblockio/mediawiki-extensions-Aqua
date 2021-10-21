@@ -220,6 +220,42 @@ class SpecialWitness extends \SpecialPage {
 		return array($title, $merkleTreeHtmlText);
 	}
 
+	public function helperMaybeInsertWitnessEvent( $dbw, $witness_event_id, $title, $merkle_root ) {
+		// Check if $witness_event_id is already present in the witness_events
+		// table. If not, do insert.
+
+		//Get the Domain Manifest verification hash
+        $domain_manifest_verification_hash = $dbw->selectRow(
+                'page_verification',
+                [ 'verification_hash'],
+                ['page_title' => $title],
+                __METHOD__,
+        );
+
+		$row = $dbw->selectRow(
+			'witness_events',
+			[ 'witness_event_id' ],
+			[ 'witness_event_id' => $witness_event_id ]
+		);
+		if (!$row) {
+			global $wgDASmartContractAddress, $wgDAWitnessNetwork;
+			// If witness_events table doesn't have it, then insert.
+			$dbw->insert( 'witness_events',
+				[
+					'witness_event_id' => $witness_event_id,
+					'domain_id' => getDomainId(),
+					'domain_manifest_title' => $title,
+					'domain_manifest_verification_hash' => $domain_manifest_verification_hash->verification_hash,
+					'merkle_root' => $merkle_root,
+					'witness_event_verification_hash' => getHashSum($domain_manifest_verification_hash->verification_hash . $merkle_root),
+					'smart_contract_address' => $wgDASmartContractAddress,
+					'witness_network' => $wgDAWitnessNetwork,
+				],
+				"");
+		}
+
+	}
+
 	public function generateDomainManifest( $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
@@ -254,39 +290,12 @@ class SpecialWitness extends \SpecialPage {
         //Generate the Domain Manifest as a new page
 		list($title, $merkleTreeHtmlText) = $this->helperMakeNewDomainManifestpage( $witness_event_id, $treeLayers, $output );
 
-        //Get the Domain Manifest verification hash
-        $domain_manifest_verification_hash = $dbw->selectRow(
-                'page_verification',
-                [ 'verification_hash'],
-                ['page_title' => $title],
-                __METHOD__,
-        );
-
         //Write results into the witness_events DB
         $merkle_root = array_keys($treeLayers)[0];
 
-		// Check if $witness_event_id is already present in the witness_events table
-		$row = $dbw->selectRow(
-			'witness_events',
-			[ 'witness_event_id' ],
-			[ 'witness_event_id' => $witness_event_id ]
-		);
-		if (!$row) {
-			global $wgDASmartContractAddress, $wgDAWitnessNetwork;
-			// If witness_events table doesn't have it, then insert.
-			$dbw->insert( 'witness_events',
-				[
-					'witness_event_id' => $witness_event_id,
-					'domain_id' => getDomainId(),
-					'domain_manifest_title' => $title,
-					'domain_manifest_verification_hash' => $domain_manifest_verification_hash->verification_hash,
-					'merkle_root' => $merkle_root,
-					'witness_event_verification_hash' => getHashSum($domain_manifest_verification_hash->verification_hash . $merkle_root),
-					'smart_contract_address' => $wgDASmartContractAddress,
-					'witness_network' => $wgDAWitnessNetwork,
-				],
-				"");
-		}
+		// Check if $witness_event_id is already present in the witness_events
+		// table. If not, do insert.
+		$this->helperMaybeInsertWitnessEvent( $dbw, $witness_event_id, $title, $merkle_root );
 
 		$out->addHTML($merkleTreeHtmlText);
 		$out->addWikiTextAsContent("<br> Visit [[$title]] to see the Merkle proof.");
