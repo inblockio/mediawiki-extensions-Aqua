@@ -135,26 +135,7 @@ class SpecialWitness extends \SpecialPage {
 		$out->setPageTitle( 'Domain Manifest Generator' );
 	}
 
-	public function generateDomainManifest( $formData ) {
-		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
-
-        $res = $dbw->select(
-			'page_verification',
-			[ 'page_title', 'max(rev_id) as rev_id' ],
-			"page_title NOT LIKE 'Data Accounting:%'",
-			__METHOD__,
-			[ 'GROUP BY' => 'page_title']
-		);
-
-
-		$old_max_witness_event_id = getMaxWitnessEventId($dbw);
-		// Set to 0 if null.
-		$old_max_witness_event_id = is_null($old_max_witness_event_id) ? 0 : $old_max_witness_event_id;
-        $witness_event_id = $old_max_witness_event_id + 1;
-
-        $output = 'Domain Manifest ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
-
+	public function generateDomainManifestTableHelper( $dbw, $out, $witness_event_id, $output ) {
 		// For the table
 		$output .= <<<EOD
 
@@ -167,10 +148,17 @@ class SpecialWitness extends \SpecialPage {
 
 		EOD;
 
-		$out = $this->getOutput();
-        $verification_hashes = [];
+        $res = $dbw->select(
+			'page_verification',
+			[ 'page_title', 'max(rev_id) as rev_id' ],
+			"page_title NOT LIKE 'Data Accounting:%'",
+			__METHOD__,
+			[ 'GROUP BY' => 'page_title']
+		);
+
 		$tableIndexCount = 1;
-        foreach ( $res as $row ) {
+        $verification_hashes = [];
+		foreach ( $res as $row ) {
             $row3 = $dbw->selectRow(
                 'page_verification',
                 [ 'verification_hash', 'domain_id' ],
@@ -192,7 +180,7 @@ class SpecialWitness extends \SpecialPage {
                     'page_title' => $row->page_title,
                     'rev_id' => $row->rev_id,
                     'page_verification_hash' => $vhash,
-                ], 
+                ],
                 "");
 
             //TODO Rht:Optimize this!
@@ -210,6 +198,27 @@ class SpecialWitness extends \SpecialPage {
 			$tableIndexCount++;
         }
 	    $output .= "|}\n";
+		return array(true, $verification_hashes, $output);
+	}
+
+	public function generateDomainManifest( $formData ) {
+		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbw = $lb->getConnectionRef( DB_MASTER );
+
+
+		$old_max_witness_event_id = getMaxWitnessEventId($dbw);
+		// Set to 0 if null.
+		$old_max_witness_event_id = is_null($old_max_witness_event_id) ? 0 : $old_max_witness_event_id;
+        $witness_event_id = $old_max_witness_event_id + 1;
+
+        $output = 'Domain Manifest ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
+
+		$out = $this->getOutput();
+		list($is_valid, $verification_hashes, $output) = $this->generateDomainManifestTableHelper( $dbw, $out, $witness_event_id, $output );
+		if (!$is_valid) {
+			// If there is a problem, we exit early.
+			return false;
+		}
 
 		$hasher = function ($data) {
 			return hash('sha3-512', $data, false);
