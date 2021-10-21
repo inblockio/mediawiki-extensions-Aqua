@@ -206,6 +206,20 @@ class SpecialWitness extends \SpecialPage {
 		return $treeLayers;
 	}
 
+	public function helperMakeNewDomainManifestpage( $witness_event_id, $treeLayers, $output ) {
+        //Generate the Domain Manifest as a new page
+		$construct_title =  'Domain Manifest ' . $witness_event_id;
+		//6942 is custom namespace. See namespace definition in extension.json.
+        $title = Title::newFromText( $construct_title, 6942 );
+		$page = new WikiPage( $title );
+		$merkleTreeHtmlText = '<br><pre>' . tree_pprint(false, $treeLayers) . '</pre>';
+		$merkleTreeWikitext = tree_pprint(true, $treeLayers);
+		$pageContent = new WikitextContent($output . '<br>' . $merkleTreeWikitext);
+		$page->doEditContent( $pageContent,
+			"Page created automatically by [[Special:Witness]]" );
+		return array($title, $merkleTreeHtmlText);
+	}
+
 	public function generateDomainManifest( $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
@@ -238,15 +252,7 @@ class SpecialWitness extends \SpecialPage {
 		storeMerkleTree($dbw, $witness_event_id, $treeLayers);
 
         //Generate the Domain Manifest as a new page
-        $construct_title =  'Domain Manifest ' . $witness_event_id;
-		//6942 is custom namespace. See namespace definition in extension.json.
-        $title = Title::newFromText( $construct_title, 6942 );
-		$page = new WikiPage( $title );
-		$merkleTreeHtmlText = '<br><pre>' . tree_pprint(false, $treeLayers) . '</pre>';
-		$merkleTreeWikitext = tree_pprint(true, $treeLayers);
-		$pageContent = new WikitextContent($output . '<br>' . $merkleTreeWikitext);
-		$page->doEditContent( $pageContent,
-			"Page created automatically by [[Special:Witness]]" );
+		list($title, $merkleTreeHtmlText) = $this->helperMakeNewDomainManifestpage( $witness_event_id, $treeLayers, $output );
 
         //Get the Domain Manifest verification hash
         $domain_manifest_verification_hash = $dbw->selectRow(
