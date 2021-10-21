@@ -183,14 +183,6 @@ class SpecialWitness extends \SpecialPage {
                 ],
                 "");
 
-            //TODO Rht:Optimize this!
-            $row4 = $dbw->selectRow(
-                'witness_page',
-                [ 'id'],
-                ['page_title' => $row->page_title, 'witness_event_id' => $witness_event_id],
-                __METHOD__,
-            );
-
             array_push($verification_hashes, $vhash);
 
 			$revisionWikiLink = "[[Special:PermanentLink/{$row->rev_id}|See]]";
