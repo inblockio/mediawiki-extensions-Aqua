@@ -2,6 +2,8 @@
 
 namespace MediaWiki\Extension\Example;
 
+use \Exception as Exception;
+
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 use MediaWiki\MediaWikiServices;
@@ -74,7 +76,7 @@ function injectSignature($titleString, $walletString) {
 }
 
 // TODO move to Util.php
-function addReceiptToDomainManifest($witness_event_id, $db) {
+function addReceiptToDomainManifest($user, $witness_event_id, $db) {
     $row = $db->selectRow(
         'witness_events',
         [
@@ -91,21 +93,22 @@ function addReceiptToDomainManifest($witness_event_id, $db) {
         [ 'witness_event_id' => $witness_event_id ]
     );
     if (!$row) {
-        return;
+        throw new Exception("Witness event data is missing.");
     }
-    $dm = "Domain Manifest $witness_event_id";
-    if ( ('Data Accounting:' . $dm) !== $row->domain_manifest_title) {
-        return;
+
+    $dm = "DomainManifest $witness_event_id";
+    if ( "Data Accounting:$dm" !== $row->domain_manifest_title) {
+        throw new Exception("Domain manifest title is inconsistent.");
     }
+
     //6942 is custom namespace. See namespace definition in extension.json.
-    $title = Title::newFromText( $dm, 6942 );
-    $page = new WikiPage( $title );
+    $tentativeTitle = Title::newFromText( $dm, 6942 );
+    $page = new WikiPage( $tentativeTitle );
     $text = "\n<h1> Witness Event Publishing Data </h1>\n";
     $text .= "<p> This means, that the Witness Event Verification Hash has been written to a Witness Network and has been Timestamped.\n";
 
     $text .= "* Witness Event: " . $witness_event_id . "\n";
     $text .= "* Domain ID: " . $row->domain_id . "\n";
-    $text .= "* Domain Manifest Title: " . $row->domain_manifest_title . "\n";
     // We don't include witness hash.
     $text .= "* Page Domain Manifest verification Hash: " . $row->domain_manifest_verification_hash . "\n";
     $text .= "* Merkle Root: " . $row->merkle_root . "\n";
@@ -121,6 +124,22 @@ function addReceiptToDomainManifest($witness_event_id, $db) {
     $newContent = new WikitextContent($pageText . $text);
     $page->doEditContent( $newContent,
         "Domain Manifest witnessed" );
+
+    // Rename from tentative title to final title.
+    $domainManifestVH = $row->domain_manifest_verification_hash;
+    $finalTitle = Title::newFromText( "DomainManifest:$domainManifestVH", 6942 );
+    $mp = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage( $tentativeTitle, $finalTitle );
+    $reason = "Changed from tentative title to final title";
+    $createRedirect = false;
+    $mp->move( $user, $reason, $createRedirect );
+    $db->update(
+        'witness_events',
+        ['domain_manifest_title' => $finalTitle->getPrefixedText() ],
+        [
+            'domain_manifest_title' => $tentativeTitle->getPrefixedText(),
+            'witness_event_id' => $witness_event_id,
+        ],
+    );
 }
 
 /**
@@ -310,7 +329,7 @@ class APIWrite extends SimpleHandler {
             );
 
             // Add receipt to the domain manifest
-            addReceiptToDomainManifest($witness_event_id, $dbw);
+            addReceiptToDomainManifest($this->user, $witness_event_id, $dbw);
 
             return ( "Successfully stored data for witness_event_id[{$witness_event_id}] in Database[$table]! Data: account_address[{$account_address}], witness_event_transaction_hash[{$transaction_hash}]"  );
 

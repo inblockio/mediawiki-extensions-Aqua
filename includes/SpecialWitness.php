@@ -206,31 +206,32 @@ class SpecialWitness extends \SpecialPage {
 		return $treeLayers;
 	}
 
-	public function helperMakeNewDomainManifestpage( $witness_event_id, $treeLayers, $output ) {
+	public function helperMakeNewDomainManifestpage( $dbw, $witness_event_id, $treeLayers, $output ) {
         //Generate the Domain Manifest as a new page
-		$construct_title =  'Domain Manifest ' . $witness_event_id;
 		//6942 is custom namespace. See namespace definition in extension.json.
-        $title = Title::newFromText( $construct_title, 6942 );
+        $title = Title::newFromText( "DomainManifest $witness_event_id", 6942 );
 		$page = new WikiPage( $title );
 		$merkleTreeHtmlText = '<br><pre>' . tree_pprint(false, $treeLayers) . '</pre>';
 		$merkleTreeWikitext = tree_pprint(true, $treeLayers);
 		$pageContent = new WikitextContent($output . '<br>' . $merkleTreeWikitext);
 		$page->doEditContent( $pageContent,
 			"Page created automatically by [[Special:Witness]]" );
-		return array($title, $merkleTreeHtmlText);
-	}
 
-	public function helperMaybeInsertWitnessEvent( $dbw, $witness_event_id, $title, $merkle_root ) {
-		// Check if $witness_event_id is already present in the witness_events
-		// table. If not, do insert.
-
-		//Get the Domain Manifest verification hash
-        $domain_manifest_verification_hash = $dbw->selectRow(
+		//Get the freshly-generated Domain Manifest verification hash.
+        $rowDMVH = $dbw->selectRow(
                 'page_verification',
                 [ 'verification_hash'],
                 ['page_title' => $title],
                 __METHOD__,
         );
+		$domainManifestVH = $rowDMVH->verification_hash;
+
+		return array($title, $domainManifestVH, $merkleTreeHtmlText);
+	}
+
+	public function helperMaybeInsertWitnessEvent( $dbw, $domain_manifest_verification_hash, $witness_event_id, $title, $merkle_root ) {
+		// Check if $witness_event_id is already present in the witness_events
+		// table. If not, do insert.
 
 		$row = $dbw->selectRow(
 			'witness_events',
@@ -245,9 +246,9 @@ class SpecialWitness extends \SpecialPage {
 					'witness_event_id' => $witness_event_id,
 					'domain_id' => getDomainId(),
 					'domain_manifest_title' => $title,
-					'domain_manifest_verification_hash' => $domain_manifest_verification_hash->verification_hash,
+					'domain_manifest_verification_hash' => $domain_manifest_verification_hash,
 					'merkle_root' => $merkle_root,
-					'witness_event_verification_hash' => getHashSum($domain_manifest_verification_hash->verification_hash . $merkle_root),
+					'witness_event_verification_hash' => getHashSum($domain_manifest_verification_hash . $merkle_root),
 					'smart_contract_address' => $wgDASmartContractAddress,
 					'witness_network' => $wgDAWitnessNetwork,
 				],
@@ -266,7 +267,7 @@ class SpecialWitness extends \SpecialPage {
 		$old_max_witness_event_id = is_null($old_max_witness_event_id) ? 0 : $old_max_witness_event_id;
         $witness_event_id = $old_max_witness_event_id + 1;
 
-        $output = 'Domain Manifest ' . $witness_event_id . ' is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
+        $output = 'This page is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
 
 		$out = $this->getOutput();
 		list($is_valid, $verification_hashes, $output) = $this->helperGenerateDomainManifestTable( $dbw, $out, $witness_event_id, $output );
@@ -288,14 +289,14 @@ class SpecialWitness extends \SpecialPage {
 		storeMerkleTree($dbw, $witness_event_id, $treeLayers);
 
         //Generate the Domain Manifest as a new page
-		list($title, $merkleTreeHtmlText) = $this->helperMakeNewDomainManifestpage( $witness_event_id, $treeLayers, $output );
+		list($title, $domainManifestVH, $merkleTreeHtmlText) = $this->helperMakeNewDomainManifestpage( $dbw, $witness_event_id, $treeLayers, $output );
 
         //Write results into the witness_events DB
         $merkle_root = array_keys($treeLayers)[0];
 
 		// Check if $witness_event_id is already present in the witness_events
 		// table. If not, do insert.
-		$this->helperMaybeInsertWitnessEvent( $dbw, $witness_event_id, $title, $merkle_root );
+		$this->helperMaybeInsertWitnessEvent( $dbw, $domainManifestVH, $witness_event_id, $title, $merkle_root );
 
 		$out->addHTML($merkleTreeHtmlText);
 		$out->addWikiTextAsContent("<br> Visit [[$title]] to see the Merkle proof.");
