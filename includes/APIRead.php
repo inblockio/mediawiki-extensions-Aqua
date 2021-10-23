@@ -23,7 +23,6 @@ require_once("Util.php");
 class APIRead extends SimpleHandler {
 
     private const VALID_ACTIONS = [ 
-        'verify_page',
         'get_page_by_rev_id',
         'page_all_rev',
         'get_page_last_rev',
@@ -40,45 +39,6 @@ class APIRead extends SimpleHandler {
         $var3 = $params['var3'] ?? null;
         $var4 = $params['var4'] ?? null;
         switch ( $action ) {
-            #Expects rev_id as input and returns verification_hash(required), signature(optional), public_key(optional), wallet_address(optional), witness_id(optional)
-                case 'verify_page':
-
-            $rev_id = $var1;
-
-            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-            $dbr = $lb->getConnectionRef( DB_REPLICA );
-            $row = $dbr->selectRow(
-                'page_verification', 
-                [
-                    'rev_id',
-                    'domain_id',
-                    'verification_hash',
-                    'time_stamp',
-                    'signature',
-                    'public_key',
-                    'wallet_address',
-                    'witness_event_id'
-                ],
-                ['rev_id' => $var1],
-                __METHOD__
-            );
-
-            if (!$row) {
-                return [];
-            }
-
-            $output = [
-                'rev_id' => $rev_id,
-                'domain_id' => $row->domain_id,
-                'verification_hash' => $row->verification_hash,
-                'time_stamp' => $row->time_stamp,
-                'signature' => $row->signature,
-                'public_key' => $row->public_key,
-                'wallet_address' => $row->wallet_address,
-                'witness_event_id' => $row->witness_event_id,
-            ];
-            return $output;
-
             #Expects Revision_ID as input and returns page_title and page_id
         case 'get_page_by_rev_id':
             /** Database Query */ 

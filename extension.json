@@ -144,11 +144,15 @@
 		}
 	},
 	"RestRoutes": [
-		{ 
+		{
+			"path": "/data_accounting/v1/verify_page/{rev_id}",
+			"class": "MediaWiki\\Extension\\Example\\API\\VerifyPageHandler"
+		},
+		{
 			"path": "/data_accounting/v1/standard/{action}",
 			"class": "MediaWiki\\Extension\\Example\\APIRead"
 		},
-		{ 
+		{
 			"path": "/data_accounting/v1/write/{action}",
 			"class": "MediaWiki\\Extension\\Example\\APIWrite",
 			"services": [
