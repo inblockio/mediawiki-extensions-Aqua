@@ -1044,6 +1044,7 @@ class VerifiedWikiImporter {
 				);
 				if (!$rowWitness) {
 					$witnessInfo['source'] = 'imported';
+					$witnessInfo['domain_manifest_title'] = 'N/A';
 					$dbw->insert(
 						'witness_events',
 						$witnessInfo,
@@ -1417,7 +1418,6 @@ class VerifiedWikiImporter {
 		$witnessInfo = [];
 		$normalFields = [
 			"domain_id",
-			"domain_manifest_title",
 			"witness_event_verification_hash",
 			"witness_network",
 			"smart_contract_address",
