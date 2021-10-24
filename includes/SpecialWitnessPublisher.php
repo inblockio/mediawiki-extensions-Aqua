@@ -15,9 +15,21 @@ use PermissionsError;
 
 require_once('Util.php');
 
+function shortenHash($hash) {
+    return substr($hash, 0, 6) . "..." . substr($hash, -6, 6);
+}
+
 // TODO this function is duplicated in SpecialWitness
 function hrefifyHash($hash, $prefix = "") {
-	return "<a href='" . $prefix . $hash. "'>" . substr($hash, 0, 6) . "..." . substr($hash, -6, 6) . "</a>";
+	return "<a href='" . $prefix . $hash. "'>" . shortenHash($hash) . "</a>";
+}
+
+function shortenDomainManifestTitle($dm) {
+    // TODO we are hardcoding the name space here. Fix!
+    // 6942
+    $withoutNameSpace = str_replace("Data Accounting:", "", $dm);
+    $hashOnly = str_replace("DomainManifest:", "", $withoutNameSpace);
+    return "DomainManifest:" . shortenHash($hashOnly);
 }
 
 class SpecialWitnessPublisher extends \SpecialPage {
@@ -109,10 +121,7 @@ class SpecialWitnessPublisher extends \SpecialPage {
             if (is_null($row->domain_manifest_title)) {
                 $linkedDomainManifest = 'N/A';
             } else {
-                // TODO we are hardcoding the name space here. Fix!
-                // 6942
-                $withoutNameSpace = str_replace("Data Accounting:", "", $row->domain_manifest_title);
-                $linkedDomainManifest = '<a href=\'/index.php/' . $row->domain_manifest_title . '\'>' . $withoutNameSpace . '</a>';
+                $linkedDomainManifest = '<a href=\'/index.php/' . $row->domain_manifest_title . '\'>' . shortenDomainManifestTitle($row->domain_manifest_title) . '</a>';
             }
 
             $output .= <<<EOD
