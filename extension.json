@@ -104,7 +104,7 @@
 		{
 			"id": 6943,
 			"constant": "NS_DATAACCOUNTING_TALK",
-			"name": "Data_Accounting_Talk",
+			"name": "Data_Accounting_talk",
 			"subpages": true,
 			"content": false,
 			"defaultcontentmodel": "wikitext"
