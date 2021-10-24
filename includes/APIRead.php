@@ -23,7 +23,6 @@ require_once("Util.php");
 class APIRead extends SimpleHandler {
 
     private const VALID_ACTIONS = [ 
-        'get_page_by_rev_id',
         'page_all_rev',
         'get_page_last_rev',
         'get_witness_data',
@@ -39,24 +38,6 @@ class APIRead extends SimpleHandler {
         $var3 = $params['var3'] ?? null;
         $var4 = $params['var4'] ?? null;
         switch ( $action ) {
-            #Expects Revision_ID as input and returns page_title and page_id
-        case 'get_page_by_rev_id':
-            /** Database Query */ 
-            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-            $dbr = $lb->getConnectionRef( DB_REPLICA );
-            $res = $dbr->select(
-                'page_verification',
-                [ 'rev_id','page_title','page_id' ],
-                'rev_id = '.$var1,
-                __METHOD__
-            );
-
-            $output = '';
-            foreach( $res as $row ) {
-                $output = 'Page Title: ' . $row->page_title .' Page_ID: ' . $row->page_id;  
-            }
-            return $output;
-
             #Expects Page Title and returns LAST verified revision
             #select * from page_verification where page_title = 'Witness' ORDER BY rev_id DESC LIMIT 1;
             #POTENTIALLY USELESS AS ALL PAGES GET VERIFIED?  
