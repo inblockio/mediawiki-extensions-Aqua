@@ -164,8 +164,8 @@ class HashWriterHooks implements
     }
 
 	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ) {
-        $old_title = $old->getText();
-        $new_title = $new->getText();
+        $old_title = $old->getNamespace() . ':' . $old->getText();
+        $new_title = $new->getNamespace() . ':' . $new->getText();
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
         $dbw = $lb->getConnectionRef( DB_MASTER );
         $dbw->update(
