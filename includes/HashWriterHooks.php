@@ -164,8 +164,11 @@ class HashWriterHooks implements
     }
 
 	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ) {
-        $old_title = $old->getNamespace() . ':' . $old->getText();
-        $new_title = $new->getNamespace() . ':' . $new->getText();
+        // We use getPrefixedText() so that it uses spaces for the namespace,
+        // not underscores.
+        $old_title = $old->getPrefixedText();
+        $new_title = $new->getPrefixedText();
+        echo json_encode([$old_title, $new_title]);
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
         $dbw = $lb->getConnectionRef( DB_MASTER );
         $dbw->update(
