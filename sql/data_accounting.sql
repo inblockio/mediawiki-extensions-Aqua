@@ -4,9 +4,9 @@
 
 -- Page verification table
 CREATE TABLE IF NOT EXISTS `page_verification` (
-	`page_verification_id` INT(32) NOT NULL AUTO_INCREMENT, 
-	`domain_id` VARCHAR (128), 
-	`page_title` VARCHAR (128), 
+	`page_verification_id` INT(32) NOT NULL AUTO_INCREMENT,
+	`domain_id` VARCHAR(128),
+	`page_title` VARCHAR(255),
 	`page_id` INT COMMENT 'from page table',
 	`rev_id` INT COMMENT 'from revision table',
 	`hash_content` VARCHAR(128) DEFAULT '' COMMENT 'Hashing the page content of the current version',
@@ -26,7 +26,7 @@ revision table',
 CREATE TABLE IF NOT EXISTS `witness_events` (
         `witness_event_id` INT(32) NOT NULL AUTO_INCREMENT,
         `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
-        `domain_manifest_title` VARCHAR(128) COMMENT 'from page_verification',
+        `domain_manifest_title` VARCHAR(255) COMMENT 'from page_verification',
         `witness_hash` VARCHAR(128) COMMENT 'Hashes together domain_manifest_verification hash + merkle_root + witness_network + smart contract address',
         `domain_manifest_verification_hash` VARCHAR(128) COMMENT 'from page_verification table',
         `merkle_root` VARCHAR(128) COMMENT 'Merkle Root Hash',
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `witness_events` (
  `id` INT(32) NOT NULL AUTO_INCREMENT,
  `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
  `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
- `page_title` VARCHAR(128) COMMENT 'from page_verification',
+ `page_title` VARCHAR(255) COMMENT 'from page_verification',
  `rev_id` VARCHAR(128) COMMENT 'from page_verification',
  `page_verification_hash` VARCHAR(128) COMMENT 'Input values for merkle tree',
  PRIMARY KEY (`id`)
