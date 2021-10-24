@@ -6,7 +6,7 @@ use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 use MediaWiki\MediaWikiServices;
 
-use MediaWiki\Extension\Example\get_page_all_rev;
+use MediaWiki\Extension\Example\get_page_all_revs;
 
 # include / exclude for debugging
 error_reporting(E_ALL);
@@ -18,7 +18,7 @@ class GetPageAllRevsHandler extends SimpleHandler {
     /** @inheritDoc */
     public function run( $page_title ) {
         #Expects Page Title and returns ALL verified revisions
-        return \MediaWiki\Extension\Example\get_page_all_rev($page_title);
+        return \MediaWiki\Extension\Example\get_page_all_revs($page_title);
     }
 
     /** @inheritDoc */

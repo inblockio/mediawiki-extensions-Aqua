@@ -10,7 +10,7 @@ use MediaWiki\MediaWikiServices;
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-function get_page_all_rev($page_title) {
+function get_page_all_revs($page_title) {
 	//Database Query
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	$dbr = $lb->getConnectionRef( DB_REPLICA );
@@ -37,7 +37,7 @@ function get_page_all_rev($page_title) {
 }
 
 function getPageChainHeight($page_title) {
-	$revs = get_page_all_rev($page_title);
+	$revs = get_page_all_revs($page_title);
 	return count($revs);
 }
 
