@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `page_verification` (
 	`domain_id` VARCHAR(128),
 	`page_title` VARCHAR(255),
 	`page_id` INT COMMENT 'from page table',
-	`rev_id` INT COMMENT 'from revision table',
+	`rev_id` INT UNIQUE COMMENT 'from revision table',
 	`hash_content` VARCHAR(128) DEFAULT '' COMMENT 'Hashing the page content of the current version',
     `time_stamp` VARCHAR(128) COMMENT 'write the timestamp of the revision in to the DB',
 	`hash_metadata` VARCHAR(128) DEFAULT '' COMMENT 'Hashing all values of related revision_id tuble entry in 
