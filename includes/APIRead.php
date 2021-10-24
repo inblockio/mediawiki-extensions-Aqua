@@ -23,7 +23,6 @@ require_once("Util.php");
 class APIRead extends SimpleHandler {
 
     private const VALID_ACTIONS = [ 
-        'page_all_rev',
         'get_page_last_rev',
         'get_witness_data',
         'request_merkle_proof',
@@ -65,12 +64,6 @@ class APIRead extends SimpleHandler {
                 ];
             }
             return $output;
-
-            #Expects Page Title and returns ALL verified revisions
-            #NOT IMPLEMENTED
-        case 'page_all_rev':
-            $page_title = $var1;
-            return get_page_all_rev($page_title);
 
             #request_merkle_proof:expects witness_id and page_verification hash and returns left_leaf,righ_leaf and successor hash to verify the merkle proof node by node, data is retrieved from the witness_merkle_tree db. Note: in some cases there will be multiple replays to this query. In this case it is required to use the depth as a selector to go through the different layers. Depth can be specified via the $depth parameter; 
         case 'request_merkle_proof':

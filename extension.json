@@ -153,6 +153,10 @@
 			"class": "MediaWiki\\Extension\\Example\\API\\GetPageByRevIdHandler"
 		},
 		{
+			"path": "/data_accounting/v1/get_page_all_revs/{page_title}",
+			"class": "MediaWiki\\Extension\\Example\\API\\GetPageAllRevsHandler"
+		},
+		{
 			"path": "/data_accounting/v1/standard/{action}",
 			"class": "MediaWiki\\Extension\\Example\\APIRead"
 		},
