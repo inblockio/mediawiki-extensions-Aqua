@@ -60,7 +60,7 @@
         const server = window.location.protocol + '//' + window.location.host
         console.log(pageTitle)
         if (window.ethereum) {
-          if (window.ethereum.isConnected() && window.ethereum.selectedAddress) {
+          function doSignProcess() {
             fetch(server + '/rest.php/data_accounting/v1/standard/get_page_last_rev?var1=' + pageTitle)
             .then((resp) => {
               if (!resp.ok) {
@@ -118,8 +118,17 @@
               })
               .catch(() => console.log('error)'))
             }
+          }
+
+          if (window.ethereum.isConnected() && window.ethereum.selectedAddress) {
+            doSignProcess()
           } else {
             window.ethereum.request({ method: 'eth_requestAccounts' })
+              .then(doSignProcess)
+              .catch((error) => {
+                console.error(error);
+                alert(error.message);
+              })
           }
           console.log('hasEth')
         } else {
