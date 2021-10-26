@@ -2,6 +2,7 @@
 
 namespace MediaWiki\Extension\Example\API;
 
+use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 use MediaWiki\MediaWikiServices;
