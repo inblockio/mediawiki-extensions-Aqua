@@ -43,7 +43,7 @@
               const witnessEventID = $(this).attr('id')
               const host = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port
               fetch(
-                host + '/rest.php/data_accounting/v1/standard/get_witness_data?var1=' + witnessEventID,
+                host + '/rest.php/data_accounting/v1/get_witness_data/' + witnessEventID,
                 { method: 'GET' })
                 .then((resp) => {
                   if (!resp.ok) {

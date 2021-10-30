@@ -23,7 +23,6 @@ require_once("Util.php");
 class APIRead extends SimpleHandler {
 
     private const VALID_ACTIONS = [ 
-        'get_witness_data',
         'request_merkle_proof',
         'request_hash'
     ];
@@ -49,16 +48,6 @@ class APIRead extends SimpleHandler {
             $page_verification_hash = $var2;
             $depth = $var3;
             $output = requestMerkleProof($witness_event_id, $page_verification_hash, $depth);
-            return $output;
-
-            #Expects 'get_witness_data\'- USES witness_event_id - used to retrieve all required data to execute a witness event (including domain_manifest_verification_hash, merkle_root, network ID or name, witness smart contract address, transaction_id) for the publishing via Metamask'];
-        case 'get_witness_data':
-            if ($var1 === null) {
-                return "var1 (witness_event_id) is not specified but expected";
-            }
-            $witness_event_id = $var1;
-            $output = getWitnessData($witness_event_id);
-                                 
             return $output;
 
             #Expects Revision_ID [Required] Signature[Required], Public Key[Required] and Wallet Address[Required] as inputs; Returns a status for success or failure
