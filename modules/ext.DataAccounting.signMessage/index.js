@@ -108,7 +108,7 @@
 
             function next(revId) {
               console.log("Rev ID:", revId)
-              fetch(server + '/rest.php/data_accounting/v1/standard/request_hash?var1=' + revId, { method: 'GET' })
+              fetch(server + '/rest.php/data_accounting/v1/request_hash/' + revId, { method: 'GET' })
               .then((resp) => {
                 if (!resp.ok) {
                   resp.text().then(parsed => alert(parsed))
