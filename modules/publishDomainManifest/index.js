@@ -14,9 +14,9 @@
     console.log({txhash: txhash});
     const cmd =
       host
-    + '/rest.php/data_accounting/v1/write/store_witness_tx?var1=' + witnessEventID
-    + '&var2=' + ownAddress
-    + '&var3=' + txhash;
+    + '/rest.php/data_accounting/v1/write/store_witness_tx/' + witnessEventID
+    + '?account_address=' + ownAddress
+    + '&transaction_hash=' + txhash;
     console.log(cmd);
     fetch(cmd, { method: 'GET' })
     .then((out) => {

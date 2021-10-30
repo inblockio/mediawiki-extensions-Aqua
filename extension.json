@@ -180,8 +180,8 @@
 			]
 		},
 		{
-			"path": "/data_accounting/v1/write/store_witness_tx",
-			"class": "MediaWiki\\Extension\\Example\\APIWrite",
+			"path": "/data_accounting/v1/write/store_witness_tx/{witness_event_id}",
+			"class": "MediaWiki\\Extension\\Example\\API\\WriteStoreWitnessTx",
 			"services": [
 				"PermissionManager"
 			]

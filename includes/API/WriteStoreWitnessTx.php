@@ -1,9 +1,10 @@
 <?php
 
-namespace MediaWiki\Extension\Example;
+namespace MediaWiki\Extension\Example\API;
 
 use \Exception as Exception;
 
+use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 use MediaWiki\MediaWikiServices;
@@ -21,8 +22,8 @@ use Wikimedia\Message\MessageValue;
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-require_once("ApiUtil.php");
-require_once("Util.php");
+require_once(__DIR__ . "/../ApiUtil.php");
+require_once(__DIR__ . "/../Util.php");
 
 function selectToArray($db, $table, $col, $conds) {
     $out = array();
@@ -55,12 +56,12 @@ function addReceiptToDomainManifest($user, $witness_event_id, $db) {
         [ 'witness_event_id' => $witness_event_id ]
     );
     if (!$row) {
-        throw new Exception("Witness event data is missing.");
+        throw new HttpException("Witness event data is missing.", 400);
     }
 
     $dm = "DomainManifest $witness_event_id";
     if ( "Data Accounting:$dm" !== $row->domain_manifest_title) {
-        throw new Exception("Domain manifest title is inconsistent.");
+        throw new HttpException("Domain manifest title is inconsistent.", 400);
     }
 
     //6942 is custom namespace. See namespace definition in extension.json.
@@ -104,20 +105,13 @@ function addReceiptToDomainManifest($user, $witness_event_id, $db) {
     );
 }
 
-/**
- * Extension:DataAccounting Standard Rest API
- */
-class APIWrite extends SimpleHandler {
+class WriteStoreWitnessTx extends SimpleHandler {
 
 	/** @var PermissionManager */
 	private $permissionManager;
 
 	/** @var User */
 	private $user;
-
-    private const VALID_ACTIONS = [ 
-        'store_witness_tx', 
-    ];
 
 	/**
 	 * @param PermissionManager $permissionManager
@@ -133,7 +127,7 @@ class APIWrite extends SimpleHandler {
 
 
     /** @inheritDoc */
-    public function run( $action ) {
+    public function run( $witness_event_id ) {
         // Only user and sysop have the 'move' right. We choose this so that
         // the DataAccounting extension works as expected even when not run via
         // micro-PKC Docker. As in, it shouldn't depend on the configuration of
@@ -148,135 +142,99 @@ class APIWrite extends SimpleHandler {
 		}
 
         $params = $this->getValidatedParams();
-        $var1 = $params['var1'];
-        $var2 = $params['var2'] ?? null;
-        $var3 = $params['var3'] ?? null;
-        $var4 = $params['var4'] ?? null;
-        switch ( $action ) {
-            #Expects all required input for the page_witness database: Transaction Hash, Sender Address, List of Pages with witnessed revision
-        case 'store_witness_tx':
-            /** include functionality to write to database. 
-             * See https://www.mediawiki.org/wiki/Manual:Database_access */
-            if ($var1 == null) {
-                return "var1 (/witness_event_id) is not specified but expected";                
-            }
-            if ($var2 === null) {
-                return "var2 (account_address) is not specified but expected";
-            }
-            if ($var3 === null) {
-                return "var3 (transaction_hash) is not specified but expected";
-            }
+        $account_address = $params['account_address'];
+        $transaction_hash = $params['transaction_hash'];
 
-            //Redeclaration
-            $witness_event_id = $var1;
-            $account_address = $var2;
-            $transaction_hash = $var3;
+        $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+        $dbw = $lb->getConnectionRef( DB_MASTER );
 
-            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-            $dbw = $lb->getConnectionRef( DB_MASTER );
+        $table = 'witness_events';
 
-            $table = 'witness_events';
+        $verification_hashes = selectToArray(
+            $dbw,
+            'witness_page',
+            'page_verification_hash',
+            [ 'witness_event_id' => $witness_event_id ]
+        );
 
-            $verification_hashes = selectToArray(
-                $dbw,
-                'witness_page',
-                'page_verification_hash',
-                [ 'witness_event_id' => $witness_event_id ]
+        // If witness ID exists, don't write witness_id, if it does not
+        // exist update with witness id as oldest witness event has biggest
+        // value (proof of existence)
+        foreach ($verification_hashes as $vh) {
+            $row = $dbw->selectRow(
+                'page_verification',
+                [ 'witness_event_id' ],
+                [ 'verification_hash' => $vh ]
             );
-
-            // If witness ID exists, don't write witness_id, if it does not
-            // exist update with witness id as oldest witness event has biggest
-            // value (proof of existence)
-            foreach ($verification_hashes as $vh) {
-                $row = $dbw->selectRow(
+            if (is_null($row->witness_event_id)) {
+                $dbw->update(
                     'page_verification',
-                    [ 'witness_event_id' ],
+                    [ 'witness_event_id' => $witness_event_id ],
                     [ 'verification_hash' => $vh ]
                 );
-                if (is_null($row->witness_event_id)) {
-                    $dbw->update(
-                        'page_verification',
-                        [ 'witness_event_id' => $witness_event_id ],
-                        [ 'verification_hash' => $vh ]
-                    );
-                }
             }
-
-            // Generate the witness_hash
-            $row = $dbw->selectRow(
-                'witness_events',
-                [ 'domain_manifest_verification_hash', 'merkle_root', 'witness_network' ],
-                [ 'witness_event_id' => $witness_event_id ]
-            );
-            $witness_hash = getHashSum(
-                $row->domain_manifest_verification_hash .
-                $row->merkle_root .
-                $row->witness_network .
-                $transaction_hash
-            );
-            /** write data to database */
-            // Write the witness_hash into the witness_events table
-            $dbw->update( $table,
-                [
-                    'sender_account_address' => $account_address,
-                    'witness_event_transaction_hash' => $transaction_hash,
-                    'source' => 'default',
-                    'witness_hash' => $witness_hash,
-                ],
-                "witness_event_id = $witness_event_id");
-
-            // Patch witness data into domain manifest page.
-            $dbw->update(
-                'page_verification',
-                [
-                    'witness_event_id' => $witness_event_id,
-                ],
-                ["verification_hash" => $row->domain_manifest_verification_hash]
-            );
-
-            // Add receipt to the domain manifest
-            addReceiptToDomainManifest($this->user, $witness_event_id, $dbw);
-
-            return ( "Successfully stored data for witness_event_id[{$witness_event_id}] in Database[$table]! Data: account_address[{$account_address}], witness_event_transaction_hash[{$transaction_hash}]"  );
-
-        default:
-            //TODO Return correct error code https://www.mediawiki.org/wiki/API:REST_API/Reference#PHP_3
-            return 'ERROR: Invalid action';
         }
+
+        // Generate the witness_hash
+        $row = $dbw->selectRow(
+            'witness_events',
+            [ 'domain_manifest_verification_hash', 'merkle_root', 'witness_network' ],
+            [ 'witness_event_id' => $witness_event_id ]
+        );
+        $witness_hash = getHashSum(
+            $row->domain_manifest_verification_hash .
+            $row->merkle_root .
+            $row->witness_network .
+            $transaction_hash
+        );
+        /** write data to database */
+        // Write the witness_hash into the witness_events table
+        $dbw->update( $table,
+            [
+                'sender_account_address' => $account_address,
+                'witness_event_transaction_hash' => $transaction_hash,
+                'source' => 'default',
+                'witness_hash' => $witness_hash,
+            ],
+            "witness_event_id = $witness_event_id");
+
+        // Patch witness data into domain manifest page.
+        $dbw->update(
+            'page_verification',
+            [
+                'witness_event_id' => $witness_event_id,
+            ],
+            ["verification_hash" => $row->domain_manifest_verification_hash]
+        );
+
+        // Add receipt to the domain manifest
+        addReceiptToDomainManifest($this->user, $witness_event_id, $dbw);
+
+        return true;
     }
 
     /** @inheritDoc */
     public function needsWriteAccess() {
-        return false;
+        return true;
     }
 
     /** @inheritDoc */
     public function getParamSettings() {
         return [
-            'action' => [
+            'witness_event_id' => [
                 self::PARAM_SOURCE => 'path',
-                ParamValidator::PARAM_TYPE => self::VALID_ACTIONS,
-                ParamValidator::PARAM_REQUIRED => true,
-            ],
-            'var1' => [
-                self::PARAM_SOURCE => 'query',
                 ParamValidator::PARAM_TYPE => 'string',
                 ParamValidator::PARAM_REQUIRED => true,
             ],
-            'var2' => [
+            'account_address' => [
                 self::PARAM_SOURCE => 'query',
                 ParamValidator::PARAM_TYPE => 'string',
-                ParamValidator::PARAM_REQUIRED => false,
+                ParamValidator::PARAM_REQUIRED => true,
             ],
-            'var3' => [
+            'transaction_hash' => [
                 self::PARAM_SOURCE => 'query',
                 ParamValidator::PARAM_TYPE => 'string',
-                ParamValidator::PARAM_REQUIRED => false,
-            ],
-            'var4' => [
-                self::PARAM_SOURCE => 'query',
-                ParamValidator::PARAM_TYPE => 'string',
-                ParamValidator::PARAM_REQUIRED => false,
+                ParamValidator::PARAM_REQUIRED => true,
             ],
         ];
     }
