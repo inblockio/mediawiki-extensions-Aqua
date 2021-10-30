@@ -151,7 +151,6 @@ class WriteStoreSignedTx extends SimpleHandler {
         return true;
     }
 
-
 	/**
 	 * @inheritDoc
 	 */

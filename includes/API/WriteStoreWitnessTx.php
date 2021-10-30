@@ -6,6 +6,7 @@ use \Exception as Exception;
 
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
+use MediaWiki\Rest\Validator\JsonBodyValidator;
 use Wikimedia\ParamValidator\ParamValidator;
 use MediaWiki\MediaWikiServices;
 
@@ -127,7 +128,7 @@ class WriteStoreWitnessTx extends SimpleHandler {
 
 
     /** @inheritDoc */
-    public function run( $witness_event_id ) {
+    public function run() {
         // Only user and sysop have the 'move' right. We choose this so that
         // the DataAccounting extension works as expected even when not run via
         // micro-PKC Docker. As in, it shouldn't depend on the configuration of
@@ -141,9 +142,10 @@ class WriteStoreWitnessTx extends SimpleHandler {
 			);
 		}
 
-        $params = $this->getValidatedParams();
-        $account_address = $params['account_address'];
-        $transaction_hash = $params['transaction_hash'];
+        $body = $this->getValidatedBody();
+        $witness_event_id = $body['witness_event_id'];
+        $account_address = $body['account_address'];
+        $transaction_hash = $body['transaction_hash'];
 
         $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
         $dbw = $lb->getConnectionRef( DB_MASTER );
@@ -218,25 +220,34 @@ class WriteStoreWitnessTx extends SimpleHandler {
         return true;
     }
 
-    /** @inheritDoc */
-    public function getParamSettings() {
-        return [
+	/**
+	 * @inheritDoc
+     */
+    public function getBodyValidator( $contentType ) {
+        if ( $contentType !== 'application/json' ) {
+            throw new HttpException( "Unsupported Content-Type",
+                415,
+                [ 'content_type' => $contentType ]
+            );
+        }
+
+        return new JsonBodyValidator( [
             'witness_event_id' => [
-                self::PARAM_SOURCE => 'path',
-                ParamValidator::PARAM_TYPE => 'string',
+                self::PARAM_SOURCE => 'body',
+                ParamValidator::PARAM_TYPE => 'integer',
                 ParamValidator::PARAM_REQUIRED => true,
             ],
             'account_address' => [
-                self::PARAM_SOURCE => 'query',
+                self::PARAM_SOURCE => 'body',
                 ParamValidator::PARAM_TYPE => 'string',
                 ParamValidator::PARAM_REQUIRED => true,
             ],
             'transaction_hash' => [
-                self::PARAM_SOURCE => 'query',
+                self::PARAM_SOURCE => 'body',
                 ParamValidator::PARAM_TYPE => 'string',
                 ParamValidator::PARAM_REQUIRED => true,
             ],
-        ];
+        ] );
     }
 }
 

@@ -12,13 +12,23 @@
 
   function storeWitnessTx(txhash, host, witnessEventID, ownAddress) {
     console.log({txhash: txhash});
+    const payload = {
+      witness_event_id: witnessEventID,
+      account_address: ownAddress,
+      transaction_hash: txhash
+    }
     const cmd =
-      host
-    + '/rest.php/data_accounting/v1/write/store_witness_tx/' + witnessEventID
-    + '?account_address=' + ownAddress
-    + '&transaction_hash=' + txhash;
+      host + '/rest.php/data_accounting/v1/write/store_witness_tx';
     console.log(cmd);
-    fetch(cmd, { method: 'GET' })
+    fetch(
+      cmd,
+      { method: 'POST',
+        cache: 'no-cache',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
     .then((out) => {
       console.log("After DB operation");
       console.log(out);
