@@ -173,7 +173,8 @@
 			"class": "MediaWiki\\Extension\\Example\\API\\RequestHashHandler"
 		},
 		{
-			"path": "/data_accounting/v1/write/store_signed_tx/{rev_id}",
+			"method": "POST",
+			"path": "/data_accounting/v1/write/store_signed_tx",
 			"class": "MediaWiki\\Extension\\Example\\API\\WriteStoreSignedTx",
 			"services": [
 				"PermissionManager"

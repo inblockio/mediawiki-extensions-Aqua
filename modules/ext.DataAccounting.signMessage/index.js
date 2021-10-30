@@ -20,7 +20,11 @@
   }
 
   // TODO: Maybe replace with Bootstrap
-	function showConfirmation( data ) {
+	function showConfirmation( response ) {
+    let text = 'SIGNED!'
+    if (!response.ok) {
+      text = response.statusText
+    }
 		var $container, $popup, $content, timeoutId;
 
 		function fadeOutConfirmation() {
@@ -32,7 +36,7 @@
 		}
 
 		$content = $( '<div>' ).addClass( 'da-sign-content' )
-    $content.text( 'SIGNED!' )
+    $content.text( text )
 
 		$popup = $( '<div>' ).addClass( 'da-sign mw-notification' ).append( $content )
 			.on( 'click', function () {
@@ -95,12 +99,21 @@
               let recAddress = ethers.utils.recoverAddress(ethers.utils.hashMessage(parsed.value), signature);
               console.log(`public key ${public_key}`);
               console.log(`original ${window.ethereum.selectedAddress}, recovered ${recAddress}`);
+              const payload = {
+                rev_id: revId,
+                signature: signature,
+                public_key: public_key,
+                wallet_address: window.ethereum.selectedAddress,
+              }
               fetch(
-                server + '/rest.php/data_accounting/v1/write/store_signed_tx/' + revId +
-                  '?signature=' + signature +
-                  '&public_key=' + public_key +
-                  '&wallet_address=' + window.ethereum.selectedAddress,
-                { method: 'GET' }
+                server + '/rest.php/data_accounting/v1/write/store_signed_tx',
+                { method: 'POST',
+                  cache: 'no-cache',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(payload)
+                }
               )
               .then(showConfirmation)
             }

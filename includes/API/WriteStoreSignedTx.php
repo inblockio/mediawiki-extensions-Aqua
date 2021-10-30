@@ -4,6 +4,7 @@ namespace MediaWiki\Extension\Example\API;
 
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
+use MediaWiki\Rest\Validator\JsonBodyValidator;
 use Wikimedia\ParamValidator\ParamValidator;
 use MediaWiki\MediaWikiServices;
 
@@ -83,7 +84,7 @@ class WriteStoreSignedTx extends SimpleHandler {
 	}
 
     /** @inheritDoc */
-    public function run( $rev_id ) {
+    public function run() {
 		// Expects Revision_ID [Required] Signature[Required], Public
 		// Key[Required] and Wallet Address[Required] as inputs; Returns a
 		// status for success or failure
@@ -101,10 +102,11 @@ class WriteStoreSignedTx extends SimpleHandler {
 			);
 		}
 
-        $params = $this->getValidatedParams();
-		$signature = $params['signature'];
-		$public_key = $params['public_key'];
-		$wallet_address = $params['wallet_address'];
+        $body = $this->getValidatedBody();
+		$rev_id = $body['rev_id'];
+		$signature = $body['signature'];
+		$public_key = $body['public_key'];
+		$wallet_address = $body['wallet_address'];
 
 		// Generate signature_hash
 		$signature_hash = getHashSum($signature . $public_key);
@@ -149,29 +151,39 @@ class WriteStoreSignedTx extends SimpleHandler {
         return true;
     }
 
-    /** @inheritDoc */
-    public function getParamSettings() {
-        return [
-            'rev_id' => [
-				self::PARAM_SOURCE => 'path',
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getBodyValidator( $contentType ) {
+		if ( $contentType !== 'application/json' ) {
+			throw new HttpException( "Unsupported Content-Type",
+				415,
+				[ 'content_type' => $contentType ]
+			);
+		}
+
+		return new JsonBodyValidator( [
+			'rev_id' => [
+				self::PARAM_SOURCE => 'body',
 				ParamValidator::PARAM_TYPE => 'integer',
 				ParamValidator::PARAM_REQUIRED => true,
-            ],
-            'signature' => [
-                self::PARAM_SOURCE => 'query',
-                ParamValidator::PARAM_TYPE => 'string',
-                ParamValidator::PARAM_REQUIRED => true,
-            ],
-            'public_key' => [
-                self::PARAM_SOURCE => 'query',
-                ParamValidator::PARAM_TYPE => 'string',
-                ParamValidator::PARAM_REQUIRED => true,
-            ],
-            'wallet_address' => [
-                self::PARAM_SOURCE => 'query',
-                ParamValidator::PARAM_TYPE => 'string',
-                ParamValidator::PARAM_REQUIRED => true,
-            ],
-        ];
-    }
+			],
+			'signature' => [
+				self::PARAM_SOURCE => 'body',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'public_key' => [
+				self::PARAM_SOURCE => 'body',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'wallet_address' => [
+				self::PARAM_SOURCE => 'body',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+		] );
+	}
 }
