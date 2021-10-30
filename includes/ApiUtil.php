@@ -104,19 +104,7 @@ function requestMerkleProof($witness_event_id, $page_verification_hash, $depth =
 
 function getWitnessData($witness_event_id) {
 	if (is_null($witness_event_id)) {
-		return [
-			'domain_id' => '',
-			'domain_manifest_title' => '',
-			'witness_hash' => '',
-			'witness_event_verification_hash' => '',
-			'witness_network' => '',
-			'smart_contract_address' => '',
-			'domain_manifest_verification_hash' => '',
-			'merkle_root' => '',
-			'witness_event_transaction_hash' => '',
-			'sender_account_address' => '',
-			'source' => '',
-		];
+		return '';
 	}
 
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
