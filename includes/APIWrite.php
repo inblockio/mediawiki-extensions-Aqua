@@ -37,44 +37,6 @@ function selectToArray($db, $table, $col, $conds) {
     return $out;
 }
 
-function injectSignature($titleString, $walletString) {
-    //Get the article object with $title
-    $title = Title::newFromText( $titleString, 0 );
-    $page = new WikiPage( $title );
-    $pageText = $page->getContent()->getText();
-
-    //Early exit if signature injection is disabled.
-    global $wgDAInjectSignature;
-    if ( !$wgDAInjectSignature ) {
-        return;
-    }
-
-    $anchorString = "<div style=\"font-weight:bold;line-height:1.6;\">Data Accounting Signatures</div><div class=\"mw-collapsible-content\">";
-    $anchorLocation = strpos($pageText, $anchorString); 
-    if ( $anchorLocation === false ) {
-        $text = $pageText . "<hr>";
-        $text .= "<div class=\"toccolours mw-collapsible mw-collapsed\">";
-        $text .= $anchorString;
-        //Adding visual signature
-        $text .= "~~~~ <br>";
-        $text .= "</div>";
-    } else {
-        //insert only signature
-        $newEntry = "~~~~ <br>";
-        $text = substr_replace(
-            $pageText,
-            $newEntry,
-            $anchorLocation + strlen($anchorString),
-            0
-        );
-    }
-    // We create a new content using the old content, and append $text to it.
-    $newContent = new WikitextContent($text);
-    $signatureComment = "Page signed by wallet: " . $walletString;
-    $page->doEditContent( $newContent,
-        $signatureComment );
-}
-
 // TODO move to Util.php
 function addReceiptToDomainManifest($user, $witness_event_id, $db) {
     $row = $db->selectRow(
@@ -154,7 +116,6 @@ class APIWrite extends SimpleHandler {
 	private $user;
 
     private const VALID_ACTIONS = [ 
-        'store_signed_tx', 
         'store_witness_tx', 
     ];
 
@@ -192,61 +153,6 @@ class APIWrite extends SimpleHandler {
         $var3 = $params['var3'] ?? null;
         $var4 = $params['var4'] ?? null;
         switch ( $action ) {
-   
-            #Expects Revision_ID [Required] Signature[Required], Public Key[Required] and Wallet Address[Required] as inputs; Returns a status for success or failure
-        case 'store_signed_tx':
-            /** include functionality to write to database. 
-             * See https://www.mediawiki.org/wiki/Manual:Database_access */
-            if ($var2 === null) {
-                return "var2 is not specified";
-            }
-            if ($var3 === null) {
-                return "var3 is not specified";
-            }
-            if ($var4 === null) {
-                return "var4 is not specified";
-            }
-            $rev_id = $var1;
-            $signature = $var2;
-            $public_key = $var3;
-            $wallet_address = $var4;
-
-            //Generate signature_hash
-            $signature_hash = getHashSum($signature . $public_key);
-
-            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-            $dbw = $lb->getConnectionRef( DB_MASTER );
-            $table = 'page_verification';
-
-            $dbw->update( $table, 
-                [
-                    'signature' => $signature, 
-                    'public_key' => $public_key, 
-                    'wallet_address' => $wallet_address,
-                    'signature_hash' => $signature_hash,
-                ], 
-                ["rev_id" => $rev_id]);
-
-            #Get title of the page via the revision_id 
-            #$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
- 
-            //TODO Check if line row exists to catch error
-            $dbr = $lb->getConnectionRef( DB_REPLICA );
-            $row = $dbr->selectRow(
-                'page_verification',
-                [ 'rev_id','page_title','page_id' ],
-                'rev_id = '.$var1,
-                __METHOD__
-            );
-            
-            $title = $row->page_title;  
-
-            #Add functionality required for #84 visual signatures in page content
-            injectSignature($title,$wallet_address);
- 
-            //TODO return proper API status code
-            return ( "Successfully stored Data for Revision[{$var1}] in Database! Data: Signature[{$var2}], Public_Key[{$var3}] and Wallet_Address[{$var4}] "  );
-
             #Expects all required input for the page_witness database: Transaction Hash, Sender Address, List of Pages with witnessed revision
         case 'store_witness_tx':
             /** include functionality to write to database. 

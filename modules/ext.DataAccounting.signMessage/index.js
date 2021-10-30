@@ -96,11 +96,10 @@
               console.log(`public key ${public_key}`);
               console.log(`original ${window.ethereum.selectedAddress}, recovered ${recAddress}`);
               fetch(
-                server + '/rest.php/data_accounting/v1/write/store_signed_tx' +
-                '?var1=' + revId +
-                  '&var2=' + signature +
-                  '&var3=' + public_key +
-                  '&var4=' + window.ethereum.selectedAddress,
+                server + '/rest.php/data_accounting/v1/write/store_signed_tx/' + revId +
+                  '?signature=' + signature +
+                  '&public_key=' + public_key +
+                  '&wallet_address=' + window.ethereum.selectedAddress,
                 { method: 'GET' }
               )
               .then(showConfirmation)
