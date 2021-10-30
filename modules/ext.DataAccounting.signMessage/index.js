@@ -61,7 +61,7 @@
         console.log(pageTitle)
         if (window.ethereum) {
           function doSignProcess() {
-            fetch(server + '/rest.php/data_accounting/v1/standard/get_page_last_rev?var1=' + pageTitle)
+            fetch(server + '/rest.php/data_accounting/v1/get_page_last_rev/' + pageTitle)
             .then((resp) => {
               if (!resp.ok) {
                 resp.text().then(parsed => alert(parsed))

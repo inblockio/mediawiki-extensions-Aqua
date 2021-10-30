@@ -23,7 +23,6 @@ require_once("Util.php");
 class APIRead extends SimpleHandler {
 
     private const VALID_ACTIONS = [ 
-        'get_page_last_rev',
         'get_witness_data',
         'request_merkle_proof',
         'request_hash'
@@ -37,34 +36,6 @@ class APIRead extends SimpleHandler {
         $var3 = $params['var3'] ?? null;
         $var4 = $params['var4'] ?? null;
         switch ( $action ) {
-            #Expects Page Title and returns LAST verified revision
-            #select * from page_verification where page_title = 'Witness' ORDER BY rev_id DESC LIMIT 1;
-            #POTENTIALLY USELESS AS ALL PAGES GET VERIFIED?  
-        case 'get_page_last_rev':
-            $page_title = $var1;
-            /** Database Query */
-            $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-            $dbr = $lb->getConnectionRef( DB_REPLICA );
-            // TODO use max(rev_id) instead
-            $res = $dbr->select(
-                'page_verification',
-                [ 'rev_id', 'page_title', 'page_id', 'verification_hash' ],
-                [ 'page_title' => $page_title ],
-                __METHOD__,
-                [ 'ORDER BY' => 'rev_id' ] 
-            );
-
-            $output = json_decode("{}");
-            foreach( $res as $row ) {
-                $output = [
-                    'page_title' => $row->page_title,
-                    'page_id' => $row->page_id,
-                    'rev_id' => $row->rev_id,
-                    'verification_hash' => $row->verification_hash,
-                ];
-            }
-            return $output;
-
             #request_merkle_proof:expects witness_id and page_verification hash and returns left_leaf,righ_leaf and successor hash to verify the merkle proof node by node, data is retrieved from the witness_merkle_tree db. Note: in some cases there will be multiple replays to this query. In this case it is required to use the depth as a selector to go through the different layers. Depth can be specified via the $depth parameter; 
         case 'request_merkle_proof':
             if ($var1 == null) {
