@@ -165,6 +165,10 @@
 			"class": "MediaWiki\\Extension\\Example\\API\\GetWitnessDataHandler"
 		},
 		{
+			"path": "/data_accounting/v1/request_merkle_proof/{witness_event_id}/{page_verification_hash}",
+			"class": "MediaWiki\\Extension\\Example\\API\\RequestMerkleProofHandler"
+		},
+		{
 			"path": "/data_accounting/v1/standard/{action}",
 			"class": "MediaWiki\\Extension\\Example\\APIRead"
 		},
