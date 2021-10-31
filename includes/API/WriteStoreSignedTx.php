@@ -41,7 +41,7 @@ function injectSignatureToPage($titleString, $walletString) {
     $anchorString = "<div style=\"font-weight:bold;line-height:1.6;\">Data Accounting Signatures</div><div class=\"mw-collapsible-content\">";
     $anchorLocation = strpos($pageText, $anchorString);
     if ( $anchorLocation === false ) {
-        $text = $pageText . "<hr>";
+        $text = $pageText . "<br><br><hr>";
         $text .= "<div class=\"toccolours mw-collapsible mw-collapsed\">";
         $text .= $anchorString;
         //Adding visual signature
