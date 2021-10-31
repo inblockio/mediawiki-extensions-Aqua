@@ -1,0 +1,17 @@
+{
+	"private": true,
+	"scripts": {
+		"api-testing": "mocha --timeout 0 --recursive tests/api-testing"
+	},
+	"devDependencies": {
+		"api-testing": "^1.4.2",
+		"chai": "^4.3.4",
+		"eslint-config-wikimedia": "0.20.0",
+		"mocha": "^9.1.3",
+		"stylelint-config-wikimedia": "0.11.1"
+	},
+	"eslintIgnore": [
+		"coverage",
+		"vendor"
+	]
+}
