@@ -1,9 +1,9 @@
 {
-	"base_uri": "http://localhost:9352/",
+	"base_uri": "http://localhost/",
 	"main_page": "Main_Page",
 	"root_user": {
-		"name": "todo",
-		"password": "todo"
+		"name": "AdminUser",
+		"password": "AdminPassword"
 	},
 	"secret_key": "abcdef"
 }

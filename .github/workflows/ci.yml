@@ -1,0 +1,107 @@
+name: CI
+
+# Based on https://github.com/ProfessionalWiki/Maps/blob/master/.github/workflows/ci.yml
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+
+jobs:
+  test:
+    name: "PHPUnit: MW ${{ matrix.mw }}, PHP ${{ matrix.php }}"
+
+    strategy:
+      matrix:
+        include:
+          - mw: 'REL1_35'
+            php: 7.4
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: mediawiki
+
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl
+          tools: composer:1
+
+      - name: Cache MediaWiki
+        id: cache-mediawiki
+        uses: actions/cache@v2
+        with:
+          path: |
+            mediawiki
+            !mediawiki/extensions/
+            !mediawiki/vendor/
+          key: mw_${{ matrix.mw }}-php${{ matrix.php }}-v20
+
+      - name: Cache Composer cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.composer/cache
+          key: composer-php${{ matrix.php }}
+
+      - uses: actions/checkout@v2
+        with:
+          path: EarlyCopy
+
+      - name: Install MediaWiki
+        if: steps.cache-mediawiki.outputs.cache-hit != 'true'
+        working-directory: ~
+        run: bash EarlyCopy/.github/workflows/installWiki.sh ${{ matrix.mw }} DataAccounting
+
+      - uses: actions/checkout@v2
+        with:
+          path: mediawiki/extensions/DataAccounting
+
+      - name: MySQL to SQLite patch
+        run: |
+          # Workaround because MySQL syntax is incompatible with SQLite
+          fname=extensions/DataAccounting/sql/data_accounting.sql
+          sed -i 's/AUTO_INCREMENT/AUTOINCREMENT/g' $fname
+          sed -i "s/ COMMENT '.*'//g" $fname
+
+      - name: Composer update
+        run: composer update
+
+      - name: Run update.php to properly initialize the extension DB tables
+        run: |
+          php maintenance/update.php --quick
+
+      - name: Edit Main Page to populate DA tables
+        run: |
+          echo "Minor edit" | php maintenance/edit.php -s "Edit" -u AdminUser Main_Page
+
+      - name: Run Apache2
+        run: |
+          # https://gist.github.com/twfahey1/b8e45740e455181383d7a230a0db544a
+          sudo add-apt-repository ppa:ondrej/php
+          sudo apt-get update
+          sudo apt-get install libapache2-mod-php${{ matrix.php }}
+
+          sudo adduser $(whoami) www-data
+          sudo adduser $(whoami) root
+          sudo adduser root www-data
+
+          sudo sed -i "s|DocumentRoot .*|DocumentRoot $PWD|g" /etc/apache2/sites-available/000-default.conf
+
+          sudo chown -R www-data:www-data /etc/apache2/sites-available/
+          sudo chmod -R 777 /etc/apache2/sites-available/
+          sudo chown -R www-data:www-data $PWD
+          sudo chmod -R 777 $PWD
+
+          sudo sed -i "s|/var/www/|$PWD/|" /etc/apache2/apache2.conf
+          sudo service apache2 restart
+
+      - name: Run API test
+        run: |
+          cd extensions/DataAccounting
+          npm ci
+          npm run api-testing
