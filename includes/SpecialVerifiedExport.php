@@ -23,7 +23,7 @@
  * @ingroup SpecialPage
  */
 
-namespace MediaWiki\Extension\Example;
+namespace DataAccounting;
 
 use HTMLForm;
 

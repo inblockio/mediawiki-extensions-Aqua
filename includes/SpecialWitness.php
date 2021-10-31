@@ -8,7 +8,7 @@
  * @file
  */
 
-namespace MediaWiki\Extension\Example;
+namespace DataAccounting;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;

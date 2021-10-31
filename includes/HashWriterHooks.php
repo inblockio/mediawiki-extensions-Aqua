@@ -5,7 +5,7 @@
  * @file
  */
 
-namespace MediaWiki\Extension\Example;
+namespace DataAccounting;
 
 # include / exclude for debugging
 error_reporting(E_ALL);

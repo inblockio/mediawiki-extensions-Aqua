@@ -23,7 +23,7 @@
  *
  * @author Daniel Kinzler
  */
-namespace MediaWiki\Extension\Example;
+namespace DataAccounting;
 
 use Content;
 use IContextSource;

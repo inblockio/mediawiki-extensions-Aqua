@@ -1,6 +1,6 @@
 <?php
 
-namespace MediaWiki\Extension\Example;
+namespace DataAccounting;
 
 use ApiBase;
 

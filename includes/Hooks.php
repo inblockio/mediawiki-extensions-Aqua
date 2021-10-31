@@ -5,7 +5,7 @@
  * @file
  */
 
-namespace MediaWiki\Extension\Example;
+namespace DataAccounting;
 
 use FormatJson;
 use MediaWiki\Permissions\PermissionManager;

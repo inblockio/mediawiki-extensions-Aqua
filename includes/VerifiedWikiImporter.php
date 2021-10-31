@@ -24,7 +24,7 @@
  * @ingroup SpecialPage
  */
 
-namespace MediaWiki\Extension\Example;
+namespace DataAccounting;
 
 use MediaWiki\HookContainer\HookRunner;
 use MediaWiki\MediaWikiServices;

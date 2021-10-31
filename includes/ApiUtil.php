@@ -2,7 +2,7 @@
 
 // Common functions used by the API server and the extension in special pages.
 
-namespace MediaWiki\Extension\Example;
+namespace DataAccounting;
 
 use MediaWiki\MediaWikiServices;
 

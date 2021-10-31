@@ -1,6 +1,6 @@
 <?php
 
-namespace MediaWiki\Extension\Example\API;
+namespace DataAccounting\API;
 
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
@@ -25,7 +25,7 @@ class RequestMerkleProofHandler extends SimpleHandler {
         $params = $this->getValidatedParams();
         $depth = $params['depth'];
 
-        $output = \MediaWiki\Extension\Example\requestMerkleProof($witness_event_id, $page_verification_hash, $depth);
+        $output = \DataAccounting\requestMerkleProof($witness_event_id, $page_verification_hash, $depth);
         return $output;
     }
 

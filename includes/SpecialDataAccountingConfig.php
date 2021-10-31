@@ -13,7 +13,7 @@
  *          Set Witness Smart Contract (For SpecialPage:WitnessPublisher)
  *          Set Witness Network (For SpecialPage:WitnessPublisher)
  */
-namespace MediaWiki\Extension\Example;
+namespace DataAccounting;
 
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;

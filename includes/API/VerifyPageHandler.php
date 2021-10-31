@@ -1,6 +1,6 @@
 <?php
 
-namespace MediaWiki\Extension\Example\API;
+namespace DataAccounting\API;
 
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;

@@ -7,7 +7,7 @@
  * @license GPL-2.0-or-later
  */
 
-namespace MediaWiki\Extension\Example;
+namespace DataAccounting;
 
 class DAAction extends \FormlessAction {
 	/** @inheritDoc */
