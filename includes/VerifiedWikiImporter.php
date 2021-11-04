@@ -1406,7 +1406,6 @@ class VerifiedWikiImporter {
 			}
 		}
 
-		unset($verificationInfo["verification_hash"]);
 		return $verificationInfo;
 	}
 
