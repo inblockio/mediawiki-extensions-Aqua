@@ -2,8 +2,6 @@
 
 namespace DataAccounting\API;
 
-use \Exception as Exception;
-
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
 use MediaWiki\Rest\Validator\JsonBodyValidator;
