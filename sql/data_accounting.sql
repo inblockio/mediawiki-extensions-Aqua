@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `witness_events` (
         `source` VARCHAR(128) Comment 'possible values are "imported", "default"'
     );
 
- CREATE TABLE IF NOT EXISTS `witness_page` (
+CREATE TABLE IF NOT EXISTS `witness_page` (
  `id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
  `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
  `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
