@@ -64,7 +64,7 @@ function injectSignatureToPage($titleString, $walletString) {
         $signatureComment );
 }
 
-class WriteStoreSignedTx extends SimpleHandler {
+class WriteStoreSignedTxHandler extends SimpleHandler {
 	/** @var PermissionManager */
 	private $permissionManager;
 

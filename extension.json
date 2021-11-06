@@ -175,7 +175,7 @@
 		{
 			"method": "POST",
 			"path": "/data_accounting/v1/write/store_signed_tx",
-			"class": "DataAccounting\\API\\WriteStoreSignedTx",
+			"class": "DataAccounting\\API\\WriteStoreSignedTxHandler",
 			"services": [
 				"PermissionManager"
 			]
@@ -183,7 +183,7 @@
 		{
 			"method": "POST",
 			"path": "/data_accounting/v1/write/store_witness_tx",
-			"class": "DataAccounting\\API\\WriteStoreWitnessTx",
+			"class": "DataAccounting\\API\\WriteStoreWitnessTxHandler",
 			"services": [
 				"PermissionManager"
 			]

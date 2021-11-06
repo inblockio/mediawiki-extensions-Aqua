@@ -106,7 +106,7 @@ function addReceiptToDomainManifest($user, $witness_event_id, $db) {
     );
 }
 
-class WriteStoreWitnessTx extends SimpleHandler {
+class WriteStoreWitnessTxHandler extends SimpleHandler {
 
 	/** @var PermissionManager */
 	private $permissionManager;
