@@ -187,6 +187,22 @@
 			"services": [
 				"PermissionManager"
 			]
+		},
+		{
+			"method": "POST",
+			"path": "/data_accounting/v1/store_guardian_page_verification",
+			"class": "DataAccounting\\API\\GuardianWritePageVerificationHandler",
+			"services": [
+				"PermissionManager"
+			]
+		},
+		{
+			"method": "POST",
+			"path": "/data_accounting/v1/store_guardian_witness_event",
+			"class": "DataAccounting\\API\\GuardianWriteWitnessEventHandler.php",
+			"services": [
+				"PermissionManager"
+			]
 		}
 	],
 	"ResourceFileModulePaths": {
