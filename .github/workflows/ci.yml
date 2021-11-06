@@ -63,8 +63,11 @@ jobs:
 
       - name: MySQL to SQLite patch
         run: |
-          # Workaround because MySQL syntax is incompatible with SQLite
           fname=extensions/DataAccounting/sql/data_accounting.sql
+          # SQLite doesn't enable foreign key by default
+          cat <(echo "PRAGMA foreign_keys = ON;") $fname > "$fname".new
+          mv "$fname".new $fname
+          # Workaround because MySQL syntax is incompatible with SQLite
           sed -i 's/AUTO_INCREMENT/AUTOINCREMENT/g' $fname
           sed -i "s/ COMMENT '.*'//g" $fname
 

@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `page_verification` (
 	`hash_content` VARCHAR(128) DEFAULT '' COMMENT 'Hashing the page content of the current version',
     `time_stamp` VARCHAR(128) COMMENT 'write the timestamp of the revision in to the DB',
 	`hash_metadata` VARCHAR(128) DEFAULT '' COMMENT 'Hashing all values of related revision_id tuble entry in revision table',
-	`verification_hash` VARCHAR(128) COMMENT 'Combined metadata and content hash',
+	`verification_hash` VARCHAR(128) PRIMARY KEY COMMENT 'Combined metadata and content hash',
     `signature_hash` VARCHAR(128) DEFAULT '' COMMENT 'Hash of signature data (signature + public_key)',
 	`signature` VARCHAR(256) DEFAULT '',
 	`public_key` VARCHAR(256) DEFAULT '',

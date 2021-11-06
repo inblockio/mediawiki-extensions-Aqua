@@ -188,5 +188,6 @@ class HashWriterHooks implements
      */
     public function onLoadExtensionSchemaUpdates( $updater ) {
         $updater->addExtensionTable( 'data_accounting', dirname( __DIR__ ) . '/sql/data_accounting.sql' );
+        $updater->addExtensionTable( 'guardian', dirname( __DIR__ ) . '/sql/guardian.sql' );
     }
 }
