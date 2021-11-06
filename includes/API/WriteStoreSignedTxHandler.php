@@ -140,7 +140,7 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 		);
 
 		# Inject signature to the wiki page.
-		# See https://github.com/FantasticoFox/DataAccounting/issues/84
+		# See https://github.com/inblockio/DataAccounting/issues/84
 		injectSignatureToPage($title, $wallet_address);
 
 		return true;
