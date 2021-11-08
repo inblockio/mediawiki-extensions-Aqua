@@ -33,8 +33,8 @@ function injectSignatureToPage($titleString, $walletString) {
     $pageText = $page->getContent()->getText();
 
     //Early exit if signature injection is disabled.
-    global $wgDAInjectSignature;
-    if ( !$wgDAInjectSignature ) {
+    $doInject = MediaWikiServices::getInstance()->getMainConfig()->get( 'DAInjectSignature' );
+    if ( !$doInject ) {
         return;
     }
 

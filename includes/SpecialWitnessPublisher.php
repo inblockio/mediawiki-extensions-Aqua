@@ -92,7 +92,7 @@ class SpecialWitnessPublisher extends \SpecialPage {
             </tr>
         EOD;
 
-        global $wgDAWitnessNetwork;
+        $DAWitnessNetwork = MediaWikiServices::getInstance()->getMainConfig()->get( 'DAWitnessNetwork' );
         $witnessNetworkMap = [
           'mainnet' => 'https://etherscan.io/tx/',
           'ropsten' => 'https://ropsten.etherscan.io/tx/',
@@ -114,7 +114,7 @@ class SpecialWitnessPublisher extends \SpecialPage {
                 if ($row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE') {
                     $publishingStatus = '<td style="background-color:#F27049"><button type="button" class="publish-domain-manifest" id="' . $row->witness_event_id . '">Publish!</button></td>';
                 } else {
-                    $publishingStatus = '<td style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, $witnessNetworkMap[$wgDAWitnessNetwork]) . '</td>';
+                    $publishingStatus = '<td style="background-color:#B1C97F">' . hrefifyHash($row->witness_event_transaction_hash, $witnessNetworkMap[$DAWitnessNetwork]) . '</td>';
                 }
             };
 

@@ -13,6 +13,22 @@
 		"MediaWiki": ">= 1.35.0"
 	},
 	"config": {
+		"DADomainID": {
+			"description": "The identifier for this PKC MediaWiki instance.",
+			"value": null
+		},
+		"DAWitnessNetwork": {
+			"description": "The Ethereum blockhain network used for witnessing.",
+			"value": "goerli"
+		},
+		"DASmartContractAddress": {
+			"description": "The smart contract address used to publish for witnessing.",
+			"value": "0x45f59310ADD88E6d23ca58A0Fa7A55BEE6d2a611"
+		},
+		"DAInjectSignature": {
+			"description": "Whether to inject signature back to the page after signing.",
+			"value": true
+		},
 		"ExampleEnableWelcome": {
 			"description": "Enable the Welcome features",
 			"value": true

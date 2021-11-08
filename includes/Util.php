@@ -1,5 +1,7 @@
 <?php
 
+use MediaWiki\MediaWikiServices;
+
 global $da_config_filename;
 $da_config_filename = '/var/www/html/data_accounting_config.json';
 
@@ -23,8 +25,7 @@ function generateDomainId() {
 }
 
 function getDomainId() {
-    global $wgDADomainID;
-    return $wgDADomainID;
+    return MediaWikiServices::getInstance()->getMainConfig()->get( 'DADomainID' );
 }
 
 function setDataAccountingConfig($data) {
