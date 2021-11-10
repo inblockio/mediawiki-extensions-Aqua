@@ -6,8 +6,12 @@ namespace DataAccounting\Tests;
 
 use MediaWiki\Rest\RequestData;
 use DataAccounting\API\VerifyPageHandler;
+use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
+use MediaWikiIntegrationTestCase;
 
 class DAApiTest extends MediaWikiIntegrationTestCase {
+    use HandlerTestTrait;
+
     public function testVerifyPage(): void {
         $response = $this->executeHandler(
             new VerifyPageHandler(),
