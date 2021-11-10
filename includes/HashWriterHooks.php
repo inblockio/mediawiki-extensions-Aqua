@@ -147,6 +147,7 @@ class HashWriterHooks implements
         $data = [
             'domain_id' => getDomainId(),
             'page_title' => $wikiPage->getTitle(),
+            'genesis_hash' => getGenesisHash(getTitle()),
             'page_id' => $wikiPage->getId(),
             'rev_id' => $rev->getID(),
             'hash_content' => $contentHash,
