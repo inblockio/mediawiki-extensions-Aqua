@@ -9,6 +9,9 @@ use DataAccounting\API\VerifyPageHandler;
 use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
 use MediaWikiIntegrationTestCase;
 
+/**
+ * @group Database
+ */
 class DAApiTest extends MediaWikiIntegrationTestCase {
 	use HandlerTestTrait;
 
