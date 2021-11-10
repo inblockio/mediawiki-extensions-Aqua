@@ -157,6 +157,10 @@
 			"class": "DataAccounting\\API\\GetPageAllRevsHandler"
 		},
 		{
+			"path": "/data_accounting/v1/get_page_all_revs_by_genesis/{genesis_hash}",
+			"class": "DataAccounting\\API\\GetPageAllRevsByGenesisHandler"
+		},
+		{
 			"path": "/data_accounting/v1/get_page_last_rev/{page_title}",
 			"class": "DataAccounting\\API\\GetPageLastRevHandler"
 		},
