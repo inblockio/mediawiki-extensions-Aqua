@@ -11,20 +11,28 @@ function getHashSum($inputStr) {
 }
 
 function generateDomainId() {
-    //*todo* import public key via wizard instead of autogenerating random
-    //value
     $randomval = '';
-    for( $i=0; $i<10; $i++ ) {
+    for( $i=0; $i<64; $i++ ) {
         $randomval .= chr(rand(65, 90));
     }
     $domain_id = getHashSum($randomval);
     //print $domain_id;
-    return substr($domain_id, 0, 10);
+    return $domain_id;
 }
 
 function getDomainId() {
     global $wgDADomainID;
     return $wgDADomainID;
+}
+
+function getRdmHash() {
+    $randomval = '';
+    for( $i=0; $i<64; $i++ ) {
+        $randomval .= chr(rand(65, 90));
+    }
+    $seed = getHashSum($randomval);
+    //print $domain_id;
+    return $seed;
 }
 
 function setDataAccountingConfig($data) {
