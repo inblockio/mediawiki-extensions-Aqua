@@ -10,11 +10,36 @@ use MediaWiki\MediaWikiServices;
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-function get_page_all_revs($page_title) {
+function get_page_all_revs($page_title, $genesis_hash) {
 	//Database Query
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	$dbr = $lb->getConnectionRef( DB_REPLICA );
-	#INSERT LOOP AND PARSE INTO ARRAY TO GET ALL PAGES 
+	//Check if $page_title is a genesis_hash
+	if (empty($page_title)) {
+		#INSERT LOOP AND PARSE INTO ARRAY TO GET ALL PAGES BY GENESIS_HASH 
+		$res = $dbr->select(
+			'page_verification',
+			[ 'rev_id','page_title', 'genesis_hash','page_id' ],
+			'genesis_hash= \''.$genesis_hash.'\'',
+			__METHOD__,
+			[ 'ORDER BY' => 'rev_id' ]
+		);
+
+		$output = array();
+		$count = 0;
+		foreach( $res as $row ) {
+			$data = array();
+			$data['page_title'] = $row->page_title;
+			$data['genesis_hash'] = $row->genesis_hash;
+			$data['page_id'] = $row->page_id;
+			$data['rev_id'] = $row->rev_id;
+			$output[$count] = $data;
+			$count ++;
+		}
+		return $output;
+
+	}
+	#INSERT LOOP AND PARSE INTO ARRAY TO GET ALL PAGES
 	$res = $dbr->select(
 		'page_verification',
 		[ 'rev_id','page_title','page_id' ],
