@@ -25,7 +25,9 @@ class VerifyPageHandler extends SimpleHandler {
             [
                 'rev_id',
                 'domain_id',
+                'previous_verification_Hash',
                 'verification_hash',
+                'next_verification_hash'
                 'time_stamp',
                 'signature',
                 'public_key',
@@ -43,7 +45,9 @@ class VerifyPageHandler extends SimpleHandler {
         $output = [
             'rev_id' => $rev_id,
             'domain_id' => $row->domain_id,
+            'previous_verification_hash' => $row->previous_verification_hash,
             'verification_hash' => $row->verification_hash,
+            'next_verification_hash' => $row->next_verification_hash,
             'time_stamp' => $row->time_stamp,
             'signature' => $row->signature,
             'public_key' => $row->public_key,
