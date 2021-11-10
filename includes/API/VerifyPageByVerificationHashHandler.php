@@ -13,7 +13,7 @@ ini_set("display_errors", 1);
 
 class VerifyPageHandler extends SimpleHandler {
     /** @inheritDoc */
-    public function run( $rev_id ) {
+    public function run( $verification_hash ) {
         # Expects rev_id as input and returns verification_hash(required),
         # signature(optional), public_key(optional), wallet_address(optional),
         # witness_id(optional)
@@ -32,7 +32,7 @@ class VerifyPageHandler extends SimpleHandler {
                 'wallet_address',
                 'witness_event_id'
             ],
-            ['rev_id' => $rev_id],
+            ['verification_hash' => $verification_hash],
             __METHOD__
         );
 
