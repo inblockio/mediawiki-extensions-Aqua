@@ -27,19 +27,18 @@
 namespace DataAccounting;
 
 # include / exclude for debugging
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+error_reporting( E_ALL );
+ini_set( "display_errors", 1 );
 
+use DataAccounting\Status;
+use Html;
+use ImportReporter;
+use ImportStreamSource;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
-use DataAccounting\Status;
-
-use Xml;
-use Html;
 use PermissionsError;
-use ImportStreamSource;
-use WikiImporter;
-use ImportReporter;
+use SpecialPage;
+use Xml;
 
 /**
  * DataAccounting modifications:
@@ -54,7 +53,8 @@ use ImportReporter;
  *
  * @ingroup SpecialPage
  */
-class SpecialVerifiedImport extends \SpecialPage {
+class SpecialVerifiedImport extends SpecialPage {
+
 	private $sourceName = false;
 	private $interwiki = false;
 	private $subproject;
@@ -89,7 +89,9 @@ class SpecialVerifiedImport extends \SpecialPage {
 
 	/**
 	 * Execute
+	 *
 	 * @param string|null $par
+	 *
 	 * @throws PermissionsError
 	 * @throws ReadOnlyError
 	 */
@@ -206,7 +208,8 @@ class SpecialVerifiedImport extends \SpecialPage {
 						$this->frompage,
 						$this->history,
 						$this->includeTemplates,
-						$this->pageLinkDepth );
+						$this->pageLinkDepth
+					);
 				}
 			}
 		} else {
@@ -219,7 +222,8 @@ class SpecialVerifiedImport extends \SpecialPage {
 
 		$out = $this->getOutput();
 		if ( !$source->isGood() ) {
-			$out->wrapWikiTextAsInterface( 'error',
+			$out->wrapWikiTextAsInterface(
+				'error',
 				$this->msg( 'importfailed', $source->getWikiText( false, false, $this->getLanguage() ) )
 					->plain()
 			);
@@ -258,7 +262,8 @@ class SpecialVerifiedImport extends \SpecialPage {
 			$reporter->open();
 			try {
 				$importer->doImport();
-			} catch ( Exception $e ) {
+			}
+			catch ( Exception $e ) {
 				$exception = $e;
 			}
 			$result = $reporter->close();
@@ -290,70 +295,70 @@ class SpecialVerifiedImport extends \SpecialPage {
 					<td>
 					</td>
 					<td class='mw-input'>" .
-					Xml::radioLabel(
-						$this->msg( 'import-mapping-default' )->text(),
-						'mapping',
-						'default',
-						// mw-import-mapping-interwiki-default, mw-import-mapping-upload-default
-						"mw-import-mapping-$sourceName-default",
-						( $isSameSourceAsBefore ?
-							( $this->mapping === 'default' ) :
-							$defaultNamespace === null )
-					) .
-					"</td>
+			Xml::radioLabel(
+				$this->msg( 'import-mapping-default' )->text(),
+				'mapping',
+				'default',
+				// mw-import-mapping-interwiki-default, mw-import-mapping-upload-default
+				"mw-import-mapping-$sourceName-default",
+				( $isSameSourceAsBefore ?
+					( $this->mapping === 'default' ) :
+					$defaultNamespace === null )
+			) .
+			"</td>
 				</tr>
 				<tr>
 					<td>
 					</td>
 					<td class='mw-input'>" .
-					Xml::radioLabel(
-						$this->msg( 'import-mapping-namespace' )->text(),
-						'mapping',
-						'namespace',
-						// mw-import-mapping-interwiki-namespace, mw-import-mapping-upload-namespace
-						"mw-import-mapping-$sourceName-namespace",
-						( $isSameSourceAsBefore ?
-							( $this->mapping === 'namespace' ) :
-							$defaultNamespace !== null )
-					) . ' ' .
-					Html::namespaceSelector(
-						[
-							'selected' => ( $isSameSourceAsBefore ?
-								$this->namespace :
-								( $defaultNamespace || '' ) ),
-							'in-user-lang' => true,
-						], [
-							'name' => "namespace",
-							// mw-import-namespace-interwiki, mw-import-namespace-upload
-							'id' => "mw-import-namespace-$sourceName",
-							'class' => 'namespaceselector',
-						]
-					) .
-					"</td>
+			Xml::radioLabel(
+				$this->msg( 'import-mapping-namespace' )->text(),
+				'mapping',
+				'namespace',
+				// mw-import-mapping-interwiki-namespace, mw-import-mapping-upload-namespace
+				"mw-import-mapping-$sourceName-namespace",
+				( $isSameSourceAsBefore ?
+					( $this->mapping === 'namespace' ) :
+					$defaultNamespace !== null )
+			) . ' ' .
+			Html::namespaceSelector(
+				[
+					'selected' => ( $isSameSourceAsBefore ?
+						$this->namespace :
+						( $defaultNamespace || '' ) ),
+					'in-user-lang' => true,
+				], [
+					'name' => "namespace",
+					// mw-import-namespace-interwiki, mw-import-namespace-upload
+					'id' => "mw-import-namespace-$sourceName",
+					'class' => 'namespaceselector',
+				]
+			) .
+			"</td>
 				</tr>
 				<tr>
 					<td>
 					</td>
 					<td class='mw-input'>" .
-					Xml::radioLabel(
-						$this->msg( 'import-mapping-subpage' )->text(),
-						'mapping',
-						'subpage',
-						// mw-import-mapping-interwiki-subpage, mw-import-mapping-upload-subpage
-						"mw-import-mapping-$sourceName-subpage",
-						( $isSameSourceAsBefore ? ( $this->mapping === 'subpage' ) : '' )
-					) . ' ' .
-					Xml::input( 'rootpage', 50,
-						( $isSameSourceAsBefore ? $this->rootpage : '' ),
-						[
-							// Should be "mw-import-rootpage-...", but we keep this inaccurate
-							// ID for legacy reasons
-							// mw-interwiki-rootpage-interwiki, mw-interwiki-rootpage-upload
-							'id' => "mw-interwiki-rootpage-$sourceName",
-							'type' => 'text'
-						]
-					) . ' ' .
-					"</td>
+			Xml::radioLabel(
+				$this->msg( 'import-mapping-subpage' )->text(),
+				'mapping',
+				'subpage',
+				// mw-import-mapping-interwiki-subpage, mw-import-mapping-upload-subpage
+				"mw-import-mapping-$sourceName-subpage",
+				( $isSameSourceAsBefore ? ( $this->mapping === 'subpage' ) : '' )
+			) . ' ' .
+			Xml::input( 'rootpage', 50,
+				( $isSameSourceAsBefore ? $this->rootpage : '' ),
+				[
+					// Should be "mw-import-rootpage-...", but we keep this inaccurate
+					// ID for legacy reasons
+					// mw-interwiki-rootpage-interwiki, mw-interwiki-rootpage-upload
+					'id' => "mw-interwiki-rootpage-$sourceName",
+					'type' => 'text'
+				]
+			) . ' ' .
+			"</td>
 				</tr>";
 	}
 
@@ -367,48 +372,48 @@ class SpecialVerifiedImport extends \SpecialPage {
 			$mappingSelection = $this->getMappingFormPart( 'upload' );
 			$out->addHTML(
 				Xml::fieldset( $this->msg( 'import-upload' )->text() ) .
-					Xml::openElement(
-						'form',
-						[
-							'enctype' => 'multipart/form-data',
-							'method' => 'post',
-							'action' => $action,
-							'id' => 'mw-import-upload-form'
-						]
-					) .
-					$this->msg( 'importtext' )->parseAsBlock() .
-					Html::hidden( 'action', 'submit' ) .
-					Html::hidden( 'source', 'upload' ) .
-					Xml::openElement( 'table', [ 'id' => 'mw-import-table-upload' ] ) .
-					"<tr>
+				Xml::openElement(
+					'form',
+					[
+						'enctype' => 'multipart/form-data',
+						'method' => 'post',
+						'action' => $action,
+						'id' => 'mw-import-upload-form'
+					]
+				) .
+				$this->msg( 'importtext' )->parseAsBlock() .
+				Html::hidden( 'action', 'submit' ) .
+				Html::hidden( 'source', 'upload' ) .
+				Xml::openElement( 'table', [ 'id' => 'mw-import-table-upload' ] ) .
+				"<tr>
 					<td class='mw-label'>" .
-					Xml::label( $this->msg( 'import-upload-filename' )->text(), 'xmlimport' ) .
-					"</td>
+				Xml::label( $this->msg( 'import-upload-filename' )->text(), 'xmlimport' ) .
+				"</td>
 					<td class='mw-input'>" .
-					Html::input( 'xmlimport', '', 'file', [ 'id' => 'xmlimport' ] ) . ' ' .
-					"</td>
+				Html::input( 'xmlimport', '', 'file', [ 'id' => 'xmlimport' ] ) . ' ' .
+				"</td>
 				</tr>
 				<tr>
 					<td class='mw-label'>" .
-					Xml::label( $this->msg( 'import-comment' )->text(), 'mw-import-comment' ) .
-					"</td>
+				Xml::label( $this->msg( 'import-comment' )->text(), 'mw-import-comment' ) .
+				"</td>
 					<td class='mw-input'>" .
-					Xml::input( 'log-comment', 50,
-						( $this->sourceName === 'upload' ? $this->logcomment : '' ),
-						[ 'id' => 'mw-import-comment', 'type' => 'text' ] ) . ' ' .
-					"</td>
+				Xml::input( 'log-comment', 50,
+					( $this->sourceName === 'upload' ? $this->logcomment : '' ),
+					[ 'id' => 'mw-import-comment', 'type' => 'text' ] ) . ' ' .
+				"</td>
 				</tr>
 				$mappingSelection
 				<tr>
 					<td></td>
 					<td class='mw-submit'>" .
-					Xml::submitButton( $this->msg( 'uploadbtn' )->text() ) .
-					"</td>
+				Xml::submitButton( $this->msg( 'uploadbtn' )->text() ) .
+				"</td>
 				</tr>" .
-					Xml::closeElement( 'table' ) .
-					Html::hidden( 'editToken', $user->getEditToken() ) .
-					Xml::closeElement( 'form' ) .
-					Xml::closeElement( 'fieldset' )
+				Xml::closeElement( 'table' ) .
+				Html::hidden( 'editToken', $user->getEditToken() ) .
+				Xml::closeElement( 'form' ) .
+				Xml::closeElement( 'fieldset' )
 			);
 		} elseif ( empty( $this->importSources ) ) {
 			$out->addWikiMsg( 'importnosources' );
@@ -431,28 +436,28 @@ class SpecialVerifiedImport extends \SpecialPage {
 
 			$out->addHTML(
 				Xml::fieldset( $this->msg( 'importinterwiki' )->text() ) .
-					Xml::openElement(
-						'form',
-						[
-							'method' => 'post',
-							'action' => $action,
-							'id' => 'mw-import-interwiki-form'
-						]
-					) .
-					$this->msg( 'import-interwiki-text' )->parseAsBlock() .
-					Html::hidden( 'action', 'submit' ) .
-					Html::hidden( 'source', 'interwiki' ) .
-					Html::hidden( 'editToken', $user->getEditToken() ) .
-					Xml::openElement( 'table', [ 'id' => 'mw-import-table-interwiki' ] ) .
-					"<tr>
+				Xml::openElement(
+					'form',
+					[
+						'method' => 'post',
+						'action' => $action,
+						'id' => 'mw-import-interwiki-form'
+					]
+				) .
+				$this->msg( 'import-interwiki-text' )->parseAsBlock() .
+				Html::hidden( 'action', 'submit' ) .
+				Html::hidden( 'source', 'interwiki' ) .
+				Html::hidden( 'editToken', $user->getEditToken() ) .
+				Xml::openElement( 'table', [ 'id' => 'mw-import-table-interwiki' ] ) .
+				"<tr>
 					<td class='mw-label'>" .
-					Xml::label( $this->msg( 'import-interwiki-sourcewiki' )->text(), 'interwiki' ) .
-					"</td>
+				Xml::label( $this->msg( 'import-interwiki-sourcewiki' )->text(), 'interwiki' ) .
+				"</td>
 					<td class='mw-input'>" .
-					Xml::openElement(
-						'select',
-						[ 'name' => 'interwiki', 'id' => 'interwiki' ]
-					)
+				Xml::openElement(
+					'select',
+					[ 'name' => 'interwiki', 'id' => 'interwiki' ]
+				)
 			);
 
 			$needSubprojectField = false;
@@ -505,65 +510,65 @@ class SpecialVerifiedImport extends \SpecialPage {
 			}
 
 			$out->addHTML(
-					"</td>
+				"</td>
 				</tr>
 				<tr>
 					<td class='mw-label'>" .
-					Xml::label( $this->msg( 'import-interwiki-sourcepage' )->text(), 'frompage' ) .
-					"</td>
+				Xml::label( $this->msg( 'import-interwiki-sourcepage' )->text(), 'frompage' ) .
+				"</td>
 					<td class='mw-input'>" .
-					Xml::input( 'frompage', 50, $this->frompage, [ 'id' => 'frompage' ] ) .
-					"</td>
+				Xml::input( 'frompage', 50, $this->frompage, [ 'id' => 'frompage' ] ) .
+				"</td>
 				</tr>
 				<tr>
 					<td>
 					</td>
 					<td class='mw-input'>" .
-					Xml::checkLabel(
-						$this->msg( 'import-interwiki-history' )->text(),
-						'interwikiHistory',
-						'interwikiHistory',
-						$this->history
-					) .
-					"</td>
+				Xml::checkLabel(
+					$this->msg( 'import-interwiki-history' )->text(),
+					'interwikiHistory',
+					'interwikiHistory',
+					$this->history
+				) .
+				"</td>
 				</tr>
 				<tr>
 					<td>
 					</td>
 					<td class='mw-input'>" .
-					Xml::checkLabel(
-						$this->msg( 'import-interwiki-templates' )->text(),
-						'interwikiTemplates',
-						'interwikiTemplates',
-						$this->includeTemplates
-					) .
-					"</td>
+				Xml::checkLabel(
+					$this->msg( 'import-interwiki-templates' )->text(),
+					'interwikiTemplates',
+					'interwikiTemplates',
+					$this->includeTemplates
+				) .
+				"</td>
 				</tr>
 				$importDepth
 				<tr>
 					<td class='mw-label'>" .
-					Xml::label( $this->msg( 'import-comment' )->text(), 'mw-interwiki-comment' ) .
-					"</td>
+				Xml::label( $this->msg( 'import-comment' )->text(), 'mw-interwiki-comment' ) .
+				"</td>
 					<td class='mw-input'>" .
-					Xml::input( 'log-comment', 50,
-						( $this->sourceName === 'interwiki' ? $this->logcomment : '' ),
-						[ 'id' => 'mw-interwiki-comment', 'type' => 'text' ] ) . ' ' .
-					"</td>
+				Xml::input( 'log-comment', 50,
+					( $this->sourceName === 'interwiki' ? $this->logcomment : '' ),
+					[ 'id' => 'mw-interwiki-comment', 'type' => 'text' ] ) . ' ' .
+				"</td>
 				</tr>
 				$mappingSelection
 				<tr>
 					<td>
 					</td>
 					<td class='mw-submit'>" .
-					Xml::submitButton(
-						$this->msg( 'import-interwiki-submit' )->text(),
-						Linker::tooltipAndAccesskeyAttribs( 'import' )
-					) .
-					"</td>
+				Xml::submitButton(
+					$this->msg( 'import-interwiki-submit' )->text(),
+					Linker::tooltipAndAccesskeyAttribs( 'import' )
+				) .
+				"</td>
 				</tr>" .
-					Xml::closeElement( 'table' ) .
-					Xml::closeElement( 'form' ) .
-					Xml::closeElement( 'fieldset' )
+				Xml::closeElement( 'table' ) .
+				Xml::closeElement( 'form' ) .
+				Xml::closeElement( 'fieldset' )
 			);
 		}
 	}

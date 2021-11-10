@@ -23,6 +23,7 @@
  *
  * @author Daniel Kinzler
  */
+
 namespace DataAccounting;
 
 use Content;
@@ -56,6 +57,7 @@ use WikiPage;
  * @package DataPages
  */
 class XmlContent extends TextContent {
+
 	public const MODEL = 'xmldata';
 
 	/** @inheritDoc */

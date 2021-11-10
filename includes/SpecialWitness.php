@@ -10,25 +10,24 @@
 
 namespace DataAccounting;
 
+use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
-
-use HTMLForm;
-use WikiPage;
-use Title;
-use WikitextContent;
 use PermissionsError;
-
 use Rht\Merkle\FixedSizeTree;
+use SpecialPage;
+use Title;
+use WikiPage;
+use WikitextContent;
 
 require 'vendor/autoload.php';
 
 # include / exclude for debugging
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+error_reporting( E_ALL );
+ini_set( "display_errors", 1 );
 
-require_once('Util.php');
-require_once('ApiUtil.php');
+require_once( 'Util.php' );
+require_once( 'ApiUtil.php' );
 
 //class HtmlContent extends TextContent {
 //	protected function getHtml() {
@@ -36,66 +35,66 @@ require_once('ApiUtil.php');
 //	}
 //}
 
-function shortenHash($hash) {
-	return substr($hash, 0, 6) . "..." . substr($hash, -6, 6);
+function shortenHash( $hash ) {
+	return substr( $hash, 0, 6 ) . "..." . substr( $hash, -6, 6 );
 }
 
-function hrefifyHashW($hash) {
-	return "<a href='" . $hash . "'>" . shortenHash($hash) . "</a>";
+function hrefifyHashW( $hash ) {
+	return "<a href='" . $hash . "'>" . shortenHash( $hash ) . "</a>";
 }
 
-function wikilinkifyHash($hash) {
-	$shortened = shortenHash($hash);
+function wikilinkifyHash( $hash ) {
+	$shortened = shortenHash( $hash );
 	return "[http://$hash $shortened]";
 }
 
-function tree_pprint($do_wikitext, $layers, $out = "", $prefix = "└─ ", $level = 0, $is_last = true) {
-    # The default prefix is for level 0
-    $length = count($layers);
-    $idx = 1;
-    foreach ($layers as $key => $value) {
-        $is_last = $idx == $length;
-		if ($level == 0) {
+function tree_pprint( $do_wikitext, $layers, $out = "", $prefix = "└─ ", $level = 0, $is_last = true ) {
+	# The default prefix is for level 0
+	$length = count( $layers );
+	$idx = 1;
+	foreach ( $layers as $key => $value ) {
+		$is_last = $idx == $length;
+		if ( $level == 0 ) {
 			$out .= "Merkle root: " . $key . "\n";
 		} else {
-			$formatted_key = $do_wikitext ? wikilinkifyHash($key) : hrefifyHashW($key);
-			$glyph = $is_last ? "  └─ ": "  ├─ ";
+			$formatted_key = $do_wikitext ? wikilinkifyHash( $key ) : hrefifyHashW( $key );
+			$glyph = $is_last ? "  └─ " : "  ├─ ";
 			$out .= " " . $prefix . $glyph . $formatted_key . "\n";
 		}
-        if (!is_null($value)) {
-            if ($level == 0) {
-                $new_prefix = "";
-            } else {
-				$new_prefix = $prefix . ($is_last ? "   ": "  │");
-            }
-            $out .= tree_pprint($do_wikitext, $value, "", $new_prefix, $level + 1, $is_last);
-        }
-        $idx += 1;
-    }
-    return $out;
+		if ( !is_null( $value ) ) {
+			if ( $level == 0 ) {
+				$new_prefix = "";
+			} else {
+				$new_prefix = $prefix . ( $is_last ? "   " : "  │" );
+			}
+			$out .= tree_pprint( $do_wikitext, $value, "", $new_prefix, $level + 1, $is_last );
+		}
+		$idx += 1;
+	}
+	return $out;
 }
 
-function storeMerkleTree($dbw, $witness_event_id, $treeLayers, $depth = 0) {
-	foreach ($treeLayers as $parent => $children) {
-		if (is_null($children)) {
+function storeMerkleTree( $dbw, $witness_event_id, $treeLayers, $depth = 0 ) {
+	foreach ( $treeLayers as $parent => $children ) {
+		if ( is_null( $children ) ) {
 			continue;
 		}
-		$children_keys = array_keys($children);
+		$children_keys = array_keys( $children );
 		$dbw->insert(
 			"witness_merkle_tree",
 			[
 				"witness_event_id" => $witness_event_id,
 				"depth" => $depth,
 				"left_leaf" => $children_keys[0],
-				"right_leaf" => (count($children_keys) > 1) ? $children_keys[1]: null,
+				"right_leaf" => ( count( $children_keys ) > 1 ) ? $children_keys[1] : null,
 				"successor" => $parent,
 			]
 		);
-		storeMerkleTree($dbw, $witness_event_id, $children, $depth + 1);
+		storeMerkleTree( $dbw, $witness_event_id, $children, $depth + 1 );
 	}
 }
 
-class SpecialWitness extends \SpecialPage {
+class SpecialWitness extends SpecialPage {
 
 	/**
 	 * @var PermissionManager
@@ -115,7 +114,9 @@ class SpecialWitness extends \SpecialPage {
 
 	/**
 	 * Shows the page to the user.
+	 *
 	 * @param string $sub The subpage string argument (if any).
+	 *
 	 * @throws PermissionsError
 	 */
 	public function execute( $sub ) {
@@ -148,85 +149,93 @@ class SpecialWitness extends \SpecialPage {
 
 		EOD;
 
-        $res = $dbw->select(
+		$res = $dbw->select(
 			'page_verification',
 			[ 'page_title', 'max(rev_id) as rev_id' ],
 			"page_title NOT LIKE 'Data Accounting:%'",
 			__METHOD__,
-			[ 'GROUP BY' => 'page_title']
+			[ 'GROUP BY' => 'page_title' ]
 		);
 
 		$tableIndexCount = 1;
-        $verification_hashes = [];
+		$verification_hashes = [];
 		foreach ( $res as $row ) {
-            $row3 = $dbw->selectRow(
-                'page_verification',
-                [ 'verification_hash', 'domain_id' ],
-                ['rev_id' => $row->rev_id],
-                __METHOD__,
-            );
+			$row3 = $dbw->selectRow(
+				'page_verification',
+				[ 'verification_hash', 'domain_id' ],
+				[ 'rev_id' => $row->rev_id ],
+				__METHOD__,
+			);
 
 			$vhash = $row3->verification_hash;
-			if (is_null($vhash)) {
+			if ( is_null( $vhash ) ) {
 				$title = $row->page_title;
-				$out->addWikiTextAsContent("Error: [[$title]] has an empty verification hash. This indicates a manipulation, database corruption, or a bug. Recover or delete page.");
+				$out->addWikiTextAsContent(
+					"Error: [[$title]] has an empty verification hash. This indicates a manipulation, database corruption, or a bug. Recover or delete page."
+				);
 				return false;
 			}
 
-            $dbw->insert( 'witness_page',
-                [
-                    'witness_event_id' => $witness_event_id,
-                    'domain_id' => $row3->domain_id,
-                    'page_title' => $row->page_title,
-                    'rev_id' => $row->rev_id,
-                    'page_verification_hash' => $vhash,
-                ],
-                "");
+			$dbw->insert(
+				'witness_page',
+				[
+					'witness_event_id' => $witness_event_id,
+					'domain_id' => $row3->domain_id,
+					'page_title' => $row->page_title,
+					'rev_id' => $row->rev_id,
+					'page_verification_hash' => $vhash,
+				],
+				""
+			);
 
-            array_push($verification_hashes, $vhash);
+			array_push( $verification_hashes, $vhash );
 
 			$revisionWikiLink = "[[Special:PermanentLink/{$row->rev_id}|See]]";
-			$output .= "|-\n|" . $tableIndexCount . "\n| [[" . $row->page_title . "]]\n|" . wikilinkifyHash($vhash) . "\n|" . $revisionWikiLink . "\n";
+			$output .= "|-\n|" . $tableIndexCount . "\n| [[" . $row->page_title . "]]\n|" . wikilinkifyHash(
+					$vhash
+				) . "\n|" . $revisionWikiLink . "\n";
 			$tableIndexCount++;
-        }
-	    $output .= "|}\n";
-		return array(true, $verification_hashes, $output);
+		}
+		$output .= "|}\n";
+		return [ true, $verification_hashes, $output ];
 	}
 
 	public function helperGenerateDomainManifestMerkleTree( $verification_hashes ) {
-		$hasher = function ($data) {
-			return hash('sha3-512', $data, false);
+		$hasher = function ( $data ) {
+			return hash( 'sha3-512', $data, false );
 		};
 
-		$tree = new FixedSizeTree(count($verification_hashes), $hasher, NULL, true);
-        for ($i = 0; $i < count($verification_hashes); $i++) {
-			$tree->set($i, $verification_hashes[$i]);
+		$tree = new FixedSizeTree( count( $verification_hashes ), $hasher, null, true );
+		for ( $i = 0; $i < count( $verification_hashes ); $i++ ) {
+			$tree->set( $i, $verification_hashes[$i] );
 		}
 		$treeLayers = $tree->getLayersAsObject();
 		return $treeLayers;
 	}
 
 	public function helperMakeNewDomainManifestpage( $dbw, $witness_event_id, $treeLayers, $output ) {
-        //Generate the Domain Manifest as a new page
+		//Generate the Domain Manifest as a new page
 		//6942 is custom namespace. See namespace definition in extension.json.
-        $title = Title::newFromText( "DomainManifest $witness_event_id", 6942 );
+		$title = Title::newFromText( "DomainManifest $witness_event_id", 6942 );
 		$page = new WikiPage( $title );
-		$merkleTreeHtmlText = '<br><pre>' . tree_pprint(false, $treeLayers) . '</pre>';
-		$merkleTreeWikitext = tree_pprint(true, $treeLayers);
-		$pageContent = new WikitextContent($output . '<br>' . $merkleTreeWikitext);
-		$page->doEditContent( $pageContent,
-			"Page created automatically by [[Special:Witness]]" );
+		$merkleTreeHtmlText = '<br><pre>' . tree_pprint( false, $treeLayers ) . '</pre>';
+		$merkleTreeWikitext = tree_pprint( true, $treeLayers );
+		$pageContent = new WikitextContent( $output . '<br>' . $merkleTreeWikitext );
+		$page->doEditContent(
+			$pageContent,
+			"Page created automatically by [[Special:Witness]]"
+		);
 
 		//Get the freshly-generated Domain Manifest verification hash.
-        $rowDMVH = $dbw->selectRow(
-                'page_verification',
-                [ 'verification_hash'],
-                ['page_title' => $title],
-                __METHOD__,
-        );
+		$rowDMVH = $dbw->selectRow(
+			'page_verification',
+			[ 'verification_hash' ],
+			[ 'page_title' => $title ],
+			__METHOD__,
+		);
 		$domainManifestVH = $rowDMVH->verification_hash;
 
-		return array($title, $domainManifestVH, $merkleTreeHtmlText);
+		return [ $title, $domainManifestVH, $merkleTreeHtmlText ];
 	}
 
 	public function helperMaybeInsertWitnessEvent( $dbw, $domain_manifest_verification_hash, $witness_event_id, $title, $merkle_root ) {
@@ -238,23 +247,27 @@ class SpecialWitness extends \SpecialPage {
 			[ 'witness_event_id' ],
 			[ 'witness_event_id' => $witness_event_id ]
 		);
-		if (!$row) {
+		if ( !$row ) {
 			$config = MediaWikiServices::getInstance()->getMainConfig();
 			$DASmartContractAddress = $config->get( 'DASmartContractAddress' );
-		    $DAWitnessNetwork = $config->get( 'DAWitnessNetwork' );
+			$DAWitnessNetwork = $config->get( 'DAWitnessNetwork' );
 			// If witness_events table doesn't have it, then insert.
-			$dbw->insert( 'witness_events',
+			$dbw->insert(
+				'witness_events',
 				[
 					'witness_event_id' => $witness_event_id,
 					'domain_id' => getDomainId(),
 					'domain_manifest_title' => $title,
 					'domain_manifest_verification_hash' => $domain_manifest_verification_hash,
 					'merkle_root' => $merkle_root,
-					'witness_event_verification_hash' => getHashSum($domain_manifest_verification_hash . $merkle_root),
+					'witness_event_verification_hash' => getHashSum(
+						$domain_manifest_verification_hash . $merkle_root
+					),
 					'smart_contract_address' => $DASmartContractAddress,
 					'witness_network' => $DAWitnessNetwork,
 				],
-				"");
+				""
+			);
 		}
 
 	}
@@ -263,46 +276,55 @@ class SpecialWitness extends \SpecialPage {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
 
-
-		$old_max_witness_event_id = getMaxWitnessEventId($dbw);
+		$old_max_witness_event_id = getMaxWitnessEventId( $dbw );
 		// Set to 0 if null.
-		$old_max_witness_event_id = is_null($old_max_witness_event_id) ? 0 : $old_max_witness_event_id;
-        $witness_event_id = $old_max_witness_event_id + 1;
+		$old_max_witness_event_id = is_null( $old_max_witness_event_id ) ? 0 : $old_max_witness_event_id;
+		$witness_event_id = $old_max_witness_event_id + 1;
 
-        $output = 'This page is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
+		$output = 'This page is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
 
 		$out = $this->getOutput();
-		list($is_valid, $verification_hashes, $output) = $this->helperGenerateDomainManifestTable( $dbw, $out, $witness_event_id, $output );
-		if (!$is_valid) {
+		[ $is_valid, $verification_hashes, $output ] = $this->helperGenerateDomainManifestTable(
+			$dbw,
+			$out,
+			$witness_event_id,
+			$output
+		);
+		if ( !$is_valid ) {
 			// If there is a problem, we exit early.
 			return false;
 		}
 
-		if (empty($verification_hashes)) {
-			$out->addHTML('No verified page revisions available. Create a new page revision first.');
+		if ( empty( $verification_hashes ) ) {
+			$out->addHTML( 'No verified page revisions available. Create a new page revision first.' );
 			return true;
 		}
 
-		$treeLayers = $this->helperGenerateDomainManifestMerkleTree($verification_hashes);
+		$treeLayers = $this->helperGenerateDomainManifestMerkleTree( $verification_hashes );
 
-		$out->addWikiTextAsContent($output);
+		$out->addWikiTextAsContent( $output );
 
 		// Store the Merkle tree in the DB
-		storeMerkleTree($dbw, $witness_event_id, $treeLayers);
+		storeMerkleTree( $dbw, $witness_event_id, $treeLayers );
 
-        //Generate the Domain Manifest as a new page
-		list($title, $domainManifestVH, $merkleTreeHtmlText) = $this->helperMakeNewDomainManifestpage( $dbw, $witness_event_id, $treeLayers, $output );
+		//Generate the Domain Manifest as a new page
+		[ $title, $domainManifestVH, $merkleTreeHtmlText ] = $this->helperMakeNewDomainManifestpage(
+			$dbw,
+			$witness_event_id,
+			$treeLayers,
+			$output
+		);
 
-        //Write results into the witness_events DB
-        $merkle_root = array_keys($treeLayers)[0];
+		//Write results into the witness_events DB
+		$merkle_root = array_keys( $treeLayers )[0];
 
 		// Check if $witness_event_id is already present in the witness_events
 		// table. If not, do insert.
 		$this->helperMaybeInsertWitnessEvent( $dbw, $domainManifestVH, $witness_event_id, $title, $merkle_root );
 
-		$out->addHTML($merkleTreeHtmlText);
-		$out->addWikiTextAsContent("<br> Visit [[$title]] to see the Merkle proof.");
-        return true;
+		$out->addHTML( $merkleTreeHtmlText );
+		$out->addWikiTextAsContent( "<br> Visit [[$title]] to see the Merkle proof." );
+		return true;
 	}
 
 	/** @inheritDoc */

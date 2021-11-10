@@ -9,7 +9,10 @@
 
 namespace DataAccounting;
 
-class DAAction extends \FormlessAction {
+use FormlessAction;
+
+class DAAction extends FormlessAction {
+
 	/** @inheritDoc */
 	public function getName() {
 		return 'daact';

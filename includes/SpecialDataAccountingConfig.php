@@ -5,7 +5,7 @@
  * All configuration settings for all modules are set here. Following settings can be adujusted:
  * Module 1: Page Verification
  *          No Settings
- * Module 2: Verify Page History 
+ * Module 2: Verify Page History
  *          No Settings - Is now the external verifier. Settings for the external verifier have been moved into the chrome extension.
  * Module 3: Export / Import of Verified Page History
  *          No Settings
@@ -13,18 +13,19 @@
  *          Set Witness Smart Contract (For SpecialPage:WitnessPublisher)
  *          Set Witness Network (For SpecialPage:WitnessPublisher)
  */
+
 namespace DataAccounting;
 
+use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
-
-use HTMLForm;
 use PermissionsError;
+use SpecialPage;
 
-require_once('Util.php');
-require_once('ApiUtil.php');
+require_once( 'Util.php' );
+require_once( 'ApiUtil.php' );
 
-class SpecialDataAccountingConfig extends \SpecialPage {
+class SpecialDataAccountingConfig extends SpecialPage {
 
 	/**
 	 * @var PermissionManager
@@ -38,7 +39,9 @@ class SpecialDataAccountingConfig extends \SpecialPage {
 
 	/**
 	 * Show the page
+	 *
 	 * @param string|null $par
+	 *
 	 * @throws PermissionsError
 	 */
 	public function execute( $par = null ) {
@@ -72,8 +75,8 @@ class SpecialDataAccountingConfig extends \SpecialPage {
 			],
 		];
 
-        $htmlForm = new HTMLForm( $formDescriptor, $this->getContext(), 'daForm' );
-        $htmlForm->setSubmitText( 'Save' );
+		$htmlForm = new HTMLForm( $formDescriptor, $this->getContext(), 'daForm' );
+		$htmlForm->setSubmitText( 'Save' );
 		$htmlForm->setSubmitCallback( [ $this, 'saveWitnessConfig' ] );
 		$htmlForm->show();
 	}
@@ -81,6 +84,6 @@ class SpecialDataAccountingConfig extends \SpecialPage {
 	public static function saveWitnessConfig( $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
-		setDataAccountingConfig($formData);
+		setDataAccountingConfig( $formData );
 	}
 }

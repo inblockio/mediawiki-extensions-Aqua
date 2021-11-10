@@ -2,14 +2,20 @@
 
 namespace DataAccounting;
 
-class SignMessageModule extends \ResourceLoaderFileModule {
+use ResourceLoaderContext;
+use ResourceLoaderFileModule;
+use Xml;
+
+class SignMessageModule extends ResourceLoaderFileModule {
+
 	/** @inheritDoc */
-	public function getScript( \ResourceLoaderContext $context ) {
+	public function getScript( ResourceLoaderContext $context ) {
 		$conf = $this->getConfig();
-		return \Xml::encodeJsCall( 'mw.config.set', [ [
-			'wgExampleWelcomeColorDays' => $conf->get( 'ExampleWelcomeColorDays' ),
-			'wgExampleWelcomeColorDefault' => $conf->get( 'ExampleWelcomeColorDefault' ),
-			] ] )
+		return Xml::encodeJsCall( 'mw.config.set', [
+				[
+					'wgExampleWelcomeColorDays' => $conf->get( 'ExampleWelcomeColorDays' ),
+					'wgExampleWelcomeColorDefault' => $conf->get( 'ExampleWelcomeColorDefault' ),
+				] ] )
 			. parent::getScript( $context );
 	}
 

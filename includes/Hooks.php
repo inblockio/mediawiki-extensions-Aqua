@@ -8,7 +8,13 @@
 namespace DataAccounting;
 
 use FormatJson;
+use MediaWiki\Hook\BeforePageDisplayHook;
+use MediaWiki\Hook\OutputPageParserOutputHook;
+use MediaWiki\Hook\ParserFirstCallInitHook;
+use MediaWiki\Hook\ParserGetVariableValueSwitchHook;
+use MediaWiki\Hook\SkinTemplateNavigationHook;
 use MediaWiki\Permissions\PermissionManager;
+use MWException;
 use OutputPage;
 use Parser;
 use PPFrame;
@@ -16,12 +22,11 @@ use Skin;
 use SkinTemplate;
 
 class Hooks implements
-	\MediaWiki\Hook\BeforePageDisplayHook,
-	\MediaWiki\Hook\ParserFirstCallInitHook,
-	\MediaWiki\Hook\ParserGetVariableValueSwitchHook,
-	\MediaWiki\Hook\SkinTemplateNavigationHook,
-	\MediaWiki\Hook\OutputPageParserOutputHook
-{
+	BeforePageDisplayHook,
+	ParserFirstCallInitHook,
+	ParserGetVariableValueSwitchHook,
+	SkinTemplateNavigationHook,
+	OutputPageParserOutputHook {
 
 	/** @var PermissionManager */
 	private $permissionManager;
@@ -37,10 +42,11 @@ class Hooks implements
 	 * Customisations to OutputPage right before page display.
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/BeforePageDisplay
+	 *
 	 * @param OutputPage $out
 	 * @param Skin $skin
 	 */
-	public function onBeforePageDisplay( $out, $skin ) : void {
+	public function onBeforePageDisplay( $out, $skin ): void {
 		if ( $this->permissionManager->userCan( 'read', $out->getUser(), $out->getTitle() ) ) {
 			global $wgExampleEnableWelcome;
 			if ( $wgExampleEnableWelcome ) {
@@ -51,9 +57,9 @@ class Hooks implements
 		}
 	}
 
-	public function onOutputPageParserOutput( $out, $parserOutput ) : void {
+	public function onOutputPageParserOutput( $out, $parserOutput ): void {
 		global $wgServer;
-		$out->addMeta("data-accounting-mediawiki", $wgServer);
+		$out->addMeta( "data-accounting-mediawiki", $wgServer );
 	}
 
 	/**
@@ -68,6 +74,7 @@ class Hooks implements
 
 	/**
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ParserGetVariableValueSwitch
+	 *
 	 * @param Parser $parser
 	 * @param array &$cache
 	 * @param string $magicWordId
@@ -88,8 +95,10 @@ class Hooks implements
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ParserFirstCallInit
 	 * @see https://www.mediawiki.org/wiki/Manual:Parser_functions
+	 *
 	 * @param Parser $parser
-	 * @throws \MWException
+	 *
+	 * @throws MWException
 	 */
 	public function onParserFirstCallInit( $parser ) {
 		// Add the following to a wiki page to see how it works:
@@ -108,10 +117,11 @@ class Hooks implements
 
 	/**
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SkinTemplateNavigation
+	 *
 	 * @param SkinTemplate $skin
 	 * @param array &$cactions
 	 */
-	public function onSkinTemplateNavigation( $skin, &$cactions ) : void {
+	public function onSkinTemplateNavigation( $skin, &$cactions ): void {
 		$action = $skin->getRequest()->getText( 'action' );
 
 		if ( $skin->getTitle()->getNamespace() !== NS_SPECIAL ) {
@@ -135,6 +145,7 @@ class Hooks implements
 	 *  wikitext into html, or parser methods.
 	 * @param PPFrame $frame Can be used to see what template
 	 *  arguments ({{{1}}}) this hook was used with.
+	 *
 	 * @return string HTML to insert in the page.
 	 */
 	public static function parserTagDump( $data, $attribs, $parser, $frame ) {
@@ -145,7 +156,7 @@ class Hooks implements
 		// Very important to escape user data with htmlspecialchars() to prevent
 		// an XSS security vulnerability.
 		$html = '<pre>Dump Tag: '
-			. htmlspecialchars( FormatJson::encode( $dump, /*prettyPrint=*/true ) )
+			. htmlspecialchars( FormatJson::encode( $dump, /*prettyPrint=*/ true ) )
 			. '</pre>';
 
 		return $html;
@@ -169,6 +180,7 @@ class Hooks implements
 	 * @param Parser $parser
 	 * @param string $value
 	 * @param string ...$args
+	 *
 	 * @return string HTML to insert in the page.
 	 */
 	public static function parserFunctionShowme( Parser $parser, string $value, ...$args ) {
@@ -178,7 +190,7 @@ class Hooks implements
 		];
 
 		return '<pre>Showme Function: '
-			. htmlspecialchars( FormatJson::encode( $showme, /*prettyPrint=*/true ) )
+			. htmlspecialchars( FormatJson::encode( $showme, /*prettyPrint=*/ true ) )
 			. '</pre>';
 	}
 }

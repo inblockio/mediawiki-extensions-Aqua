@@ -3,8 +3,10 @@
 namespace DataAccounting;
 
 use ApiBase;
+use ApiQuery;
+use ApiQueryBase;
 
-class ApiQueryExample extends \ApiQueryBase {
+class ApiQueryExample extends ApiQueryBase {
 
 	/**
 	 * Constructor is optional. Only needed if we give
@@ -13,7 +15,8 @@ class ApiQueryExample extends \ApiQueryBase {
 	 * Query modules have the convention to use a property prefix.
 	 * Base modules generally don't use a prefix, and as such don't
 	 * need the constructor in most cases.
-	 * @param \ApiQuery $query
+	 *
+	 * @param ApiQuery $query
 	 * @param string $moduleName
 	 */
 	public function __construct( $query, $moduleName ) {
@@ -39,8 +42,8 @@ class ApiQueryExample extends \ApiQueryBase {
 				$stuff[$key] = $wgExampleFooStuff[$key];
 			}
 
-		// This is an unfiltered request, replace the array with the total
-		// set of properties instead.
+			// This is an unfiltered request, replace the array with the total
+			// set of properties instead.
 		} else {
 			$stuff = $wgExampleFooStuff;
 		}
@@ -62,9 +65,9 @@ class ApiQueryExample extends \ApiQueryBase {
 	protected function getExamplesMessages() {
 		return [
 			'action=query&list=example'
-				=> 'apihelp-query+example-example-1',
+			=> 'apihelp-query+example-example-1',
 			'action=query&list=example&key=do'
-				=> 'apihelp-query+example-example-2',
+			=> 'apihelp-query+example-example-2',
 		];
 	}
 }

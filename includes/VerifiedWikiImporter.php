@@ -26,34 +26,34 @@
 
 namespace DataAccounting;
 
+use Config;
+use DeferredUpdates;
+use ExternalUserNames;
+use Hooks;
+use ImportSource;
 use MediaWiki\HookContainer\HookRunner;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
-
-use ImportSource;
-use Config;
-use XMLReader;
-use Hooks;
-use UploadSourceAdapter;
-//use MWException;  // probably not necessary
-use NaiveImportTitleFactory;
-use ExternalUserNames;
-use NamespaceImportTitleFactory;
-use NamespaceAwareForeignTitleFactory;
-use SubpageImportTitleFactory;
-//use MWContentSerializationException;
-use NaiveForeignTitleFactory;
-use WikiRevision;
-use Status;
-use Title;
-use WikiPage;
-use DeferredUpdates;
-use SiteStatsUpdate;
-use RequestContext;
-
 use MovePage;
+use NaiveForeignTitleFactory;
+use NaiveImportTitleFactory;
+use NamespaceAwareForeignTitleFactory;
+use NamespaceImportTitleFactory;
+use RequestContext;
+use SiteStatsUpdate;
+use Status;
+use SubpageImportTitleFactory;
+use Title;
+use UploadSourceAdapter;
+use WikiPage;
+use WikiRevision;
+use XMLReader;
 
-require_once("ApiUtil.php");
+//use MWException;  // probably not necessary
+
+//use MWContentSerializationException;
+
+require_once( "ApiUtil.php" );
 
 /**
  * This class is cloned from Mediawiki 1.35.2's WikiImporter. Almost the same
@@ -70,9 +70,11 @@ require_once("ApiUtil.php");
  * XML file reader for the page data importer.
  *
  * implements Special:Import
+ *
  * @ingroup SpecialPage
  */
 class VerifiedWikiImporter {
+
 	/** @var XMLReader */
 	private $reader;
 	private $foreignNamespaces = null;
@@ -97,8 +99,10 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Creates an ImportXMLReader drawing from the source provided
+	 *
 	 * @param ImportSource $source
 	 * @param Config $config
+	 *
 	 * @throws Exception
 	 */
 	public function __construct( ImportSource $source, Config $config ) {
@@ -126,8 +130,10 @@ class VerifiedWikiImporter {
 		if ( !$status ) {
 			$error = libxml_get_last_error();
 			libxml_disable_entity_loader( $oldDisable );
-			throw new MWException( 'Encountered an internal error while initializing WikiImporter object: ' .
-				$error->message );
+			throw new MWException(
+				'Encountered an internal error while initializing WikiImporter object: ' .
+				$error->message
+			);
 		}
 		libxml_disable_entity_loader( $oldDisable );
 
@@ -176,6 +182,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Set debug mode...
+	 *
 	 * @param bool $debug
 	 */
 	public function setDebug( $debug ) {
@@ -184,6 +191,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Set 'no updates' mode. In this mode, the link tables will not be updated by the importer
+	 *
 	 * @param bool $noupdates
 	 */
 	public function setNoUpdates( $noupdates ) {
@@ -193,7 +201,9 @@ class VerifiedWikiImporter {
 	/**
 	 * Sets 'pageOffset' value. So it will skip the first n-1 pages
 	 * and start from the nth page. It's 1-based indexing.
+	 *
 	 * @param int $nthPage
+	 *
 	 * @since 1.29
 	 */
 	public function setPageOffset( $nthPage ) {
@@ -204,6 +214,7 @@ class VerifiedWikiImporter {
 	 * Set a callback that displays notice messages
 	 *
 	 * @param callable $callback
+	 *
 	 * @return callable
 	 */
 	public function setNoticeCallback( $callback ) {
@@ -212,7 +223,9 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Sets the action to perform as each new page in the stream is reached.
+	 *
 	 * @param callable $callback
+	 *
 	 * @return callable
 	 */
 	public function setPageCallback( $callback ) {
@@ -228,6 +241,7 @@ class VerifiedWikiImporter {
 	 * local namespace), and a count of revisions.
 	 *
 	 * @param callable $callback
+	 *
 	 * @return callable
 	 */
 	public function setPageOutCallback( $callback ) {
@@ -238,7 +252,9 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Sets the action to perform as each page revision is reached.
+	 *
 	 * @param callable $callback
+	 *
 	 * @return callable
 	 */
 	public function setRevisionCallback( $callback ) {
@@ -249,7 +265,9 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Sets the action to perform as each file upload version is reached.
+	 *
 	 * @param callable $callback
+	 *
 	 * @return callable
 	 */
 	public function setUploadCallback( $callback ) {
@@ -260,7 +278,9 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Sets the action to perform as each log item reached.
+	 *
 	 * @param callable $callback
+	 *
 	 * @return callable
 	 */
 	public function setLogItemCallback( $callback ) {
@@ -271,7 +291,9 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Sets the action to perform when site info is encountered
+	 *
 	 * @param callable $callback
+	 *
 	 * @return callable
 	 */
 	public function setSiteInfoCallback( $callback ) {
@@ -283,6 +305,7 @@ class VerifiedWikiImporter {
 	/**
 	 * Sets the factory object to use to convert ForeignTitle objects into local
 	 * Title objects
+	 *
 	 * @param ImportTitleFactory $factory
 	 */
 	public function setImportTitleFactory( $factory ) {
@@ -291,7 +314,9 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Set a target namespace to override the defaults
+	 *
 	 * @param null|int $namespace
+	 *
 	 * @return bool
 	 */
 	public function setTargetNamespace( $namespace ) {
@@ -313,7 +338,9 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Set a target root page under which all pages are imported
+	 *
 	 * @param null|string $rootpage
+	 *
 	 * @return Status
 	 */
 	public function setTargetRootPage( $rootpage ) {
@@ -334,7 +361,7 @@ class VerifiedWikiImporter {
 				$displayNSText = $title->getNamespace() == NS_MAIN
 					? wfMessage( 'blanknamespace' )->text()
 					: MediaWikiServices::getInstance()->getContentLanguage()->
-						getNsText( $title->getNamespace() );
+					getNsText( $title->getNamespace() );
 				$status->fatal( 'import-rootpage-nosubpage', $displayNSText );
 			} else {
 				// set namespace to 'all', so the namespace check in processTitle() can pass
@@ -361,6 +388,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * @since 1.31
+	 *
 	 * @param string $usernamePrefix Prefix to apply to unknown (and possibly also known) usernames
 	 * @param bool $assignKnownUsers Whether to apply the prefix to usernames that exist locally
 	 */
@@ -370,6 +398,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Statistics update can cause a lot of time
+	 *
 	 * @since 1.29
 	 */
 	public function disableStatisticsUpdate() {
@@ -378,8 +407,10 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Default per-page callback. Sets up some things related to site statistics
+	 *
 	 * @param array $titleAndForeignTitle Two-element array, with Title object at
 	 * index 0 and ForeignTitle object at index 1
+	 *
 	 * @return bool
 	 */
 	public function beforeImportPage( $titleAndForeignTitle ) {
@@ -391,28 +422,35 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Default per-revision callback, performs the import.
+	 *
 	 * @param WikiRevision $revision
+	 *
 	 * @return bool
 	 */
 	public function importRevision( $revision ) {
 		if ( !$revision->getContentHandler()->canBeUsedOn( $revision->getTitle() ) ) {
-			$this->notice( 'import-error-bad-location',
+			$this->notice(
+				'import-error-bad-location',
 				$revision->getTitle()->getPrefixedText(),
 				$revision->getID(),
 				$revision->getModel(),
-				$revision->getFormat() );
+				$revision->getFormat()
+			);
 
 			return false;
 		}
 
 		try {
 			return $revision->importOldRevision();
-		} catch ( MWContentSerializationException $ex ) {
-			$this->notice( 'import-error-unserialize',
+		}
+		catch ( MWContentSerializationException $ex ) {
+			$this->notice(
+				'import-error-unserialize',
 				$revision->getTitle()->getPrefixedText(),
 				$revision->getID(),
 				$revision->getModel(),
-				$revision->getFormat() );
+				$revision->getFormat()
+			);
 		}
 
 		return false;
@@ -420,7 +458,9 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Default per-revision callback, performs the import.
+	 *
 	 * @param WikiRevision $revision
+	 *
 	 * @return bool
 	 */
 	public function importLogItem( $revision ) {
@@ -429,7 +469,9 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Dummy for now...
+	 *
 	 * @param WikiRevision $revision
+	 *
 	 * @return bool
 	 */
 	public function importUpload( $revision ) {
@@ -438,11 +480,13 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Mostly for hook use
+	 *
 	 * @param Title $title
 	 * @param ForeignTitle $foreignTitle
 	 * @param int $revCount
 	 * @param int $sRevCount
 	 * @param array $pageInfo
+	 *
 	 * @return bool
 	 */
 	public function finishImportPage( $title, $foreignTitle, $revCount,
@@ -459,27 +503,37 @@ class VerifiedWikiImporter {
 			$page->loadPageData( 'fromdbmaster' );
 			$content = $page->getContent();
 			if ( $content === null ) {
-				wfDebug( __METHOD__ . ': Skipping article count adjustment for ' . $title .
-					' because WikiPage::getContent() returned null' );
+				wfDebug(
+					__METHOD__ . ': Skipping article count adjustment for ' . $title .
+					' because WikiPage::getContent() returned null'
+				);
 			} else {
 				$editInfo = $page->prepareContentForEdit( $content );
 				$countKey = 'title_' . $title->getPrefixedText();
 				$countable = $page->isCountable( $editInfo );
 				if ( array_key_exists( $countKey, $this->countableCache ) &&
 					$countable != $this->countableCache[$countKey] ) {
-					DeferredUpdates::addUpdate( SiteStatsUpdate::factory( [
-						'articles' => ( (int)$countable - (int)$this->countableCache[$countKey] )
-					] ) );
+					DeferredUpdates::addUpdate(
+						SiteStatsUpdate::factory( [
+							'articles' => ( (int)$countable - (int)$this->countableCache[$countKey] )
+						] )
+					);
 				}
 			}
 		}
 
-		return $this->hookRunner->onAfterImportPage( $title, $foreignTitle,
-			$revCount, $sRevCount, $pageInfo );
+		return $this->hookRunner->onAfterImportPage(
+			$title,
+			$foreignTitle,
+			$revCount,
+			$sRevCount,
+			$pageInfo
+		);
 	}
 
 	/**
 	 * Alternate per-revision callback, for debugging.
+	 *
 	 * @param WikiRevision &$revision
 	 */
 	public function debugRevisionHandler( &$revision ) {
@@ -497,13 +551,15 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Notify the callback function of site info
+	 *
 	 * @param array $siteInfo
+	 *
 	 * @return bool|mixed
 	 */
 	private function siteInfoCallback( $siteInfo ) {
 		if ( isset( $this->mSiteInfoCallback ) ) {
 			return call_user_func_array( $this->mSiteInfoCallback,
-					[ $siteInfo, $this ] );
+				[ $siteInfo, $this ] );
 		} else {
 			return false;
 		}
@@ -511,6 +567,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Notify the callback function when a new "<page>" is reached.
+	 *
 	 * @param array $title
 	 */
 	public function pageCallback( $title ) {
@@ -521,6 +578,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Notify the callback function when a "</page>" is closed.
+	 *
 	 * @param Title $title
 	 * @param ForeignTitle $foreignTitle
 	 * @param int $revCount
@@ -528,7 +586,7 @@ class VerifiedWikiImporter {
 	 * @param array $pageInfo Associative array of page information
 	 */
 	private function pageOutCallback( $title, $foreignTitle, $revCount,
-			$sucCount, $pageInfo ) {
+		$sucCount, $pageInfo ) {
 		if ( isset( $this->mPageOutCallback ) ) {
 			call_user_func_array( $this->mPageOutCallback, func_get_args() );
 		}
@@ -536,13 +594,15 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Notify the callback function of a revision
+	 *
 	 * @param WikiRevision $revision
+	 *
 	 * @return bool|mixed
 	 */
 	private function revisionCallback( $revision ) {
 		if ( isset( $this->mRevisionCallback ) ) {
 			return call_user_func_array( $this->mRevisionCallback,
-					[ $revision, $this ] );
+				[ $revision, $this ] );
 		} else {
 			return false;
 		}
@@ -550,13 +610,15 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Notify the callback function of a new log item
+	 *
 	 * @param WikiRevision $revision
+	 *
 	 * @return bool|mixed
 	 */
 	private function logItemCallback( $revision ) {
 		if ( isset( $this->mLogItemCallback ) ) {
 			return call_user_func_array( $this->mLogItemCallback,
-					[ $revision, $this ] );
+				[ $revision, $this ] );
 		} else {
 			return false;
 		}
@@ -564,7 +626,9 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Retrieves the contents of the named attribute of the current element.
+	 *
 	 * @param string $attr The name of the attribute
+	 *
 	 * @return string The value of the attribute or an empty string if it is not set in the current
 	 * element.
 	 */
@@ -576,6 +640,7 @@ class VerifiedWikiImporter {
 	 * Shouldn't something like this be built-in to XMLReader?
 	 * Fetches text contents of the current element, assuming
 	 * no sub-elements or such scary things.
+	 *
 	 * @return string
 	 * @internal
 	 */
@@ -602,6 +667,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Primary entry point
+	 *
 	 * @throws Exception
 	 * @throws MWException
 	 * @return bool
@@ -617,8 +683,10 @@ class VerifiedWikiImporter {
 
 			if ( $this->reader->localName != 'mediawiki' ) {
 				libxml_disable_entity_loader( $oldDisable );
-				throw new MWException( "Expected <mediawiki> tag, got " .
-					$this->reader->localName );
+				throw new MWException(
+					"Expected <mediawiki> tag, got " .
+					$this->reader->localName
+				);
 			}
 			$this->debug( "<mediawiki> tag is correct." );
 
@@ -681,7 +749,7 @@ class VerifiedWikiImporter {
 
 		while ( $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-					$this->reader->localName == 'siteinfo' ) {
+				$this->reader->localName == 'siteinfo' ) {
 				break;
 			}
 
@@ -704,12 +772,18 @@ class VerifiedWikiImporter {
 		$logInfo = [];
 
 		// Fields that can just be stuffed in the pageInfo object
-		$normalFields = [ 'id', 'comment', 'type', 'action', 'timestamp',
-					'logtitle', 'params' ];
+		$normalFields = [
+			'id',
+			'comment',
+			'type',
+			'action',
+			'timestamp',
+			'logtitle',
+			'params' ];
 
 		while ( $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-					$this->reader->localName == 'logitem' ) {
+				$this->reader->localName == 'logitem' ) {
 				break;
 			}
 
@@ -731,6 +805,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * @param array $logInfo
+	 *
 	 * @return bool|mixed
 	 */
 	private function processLogItem( $logInfo ) {
@@ -787,7 +862,7 @@ class VerifiedWikiImporter {
 
 		while ( $skip ? $this->reader->next() : $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-					$this->reader->localName == 'page' ) {
+				$this->reader->localName == 'page' ) {
 				break;
 			}
 
@@ -815,13 +890,15 @@ class VerifiedWikiImporter {
 				}
 			} elseif ( $tag == 'revision' || $tag == 'upload' ) {
 				if ( !isset( $title ) ) {
-					$title = $this->processTitle( $pageInfo['title'],
-						$pageInfo['ns'] ?? null );
+					$title = $this->processTitle(
+						$pageInfo['title'],
+						$pageInfo['ns'] ?? null
+					);
 
 					// $title is either an array of two titles or false.
 					if ( is_array( $title ) ) {
 						$this->pageCallback( $title );
-						list( $pageInfo['_title'], $foreignTitle ) = $title;
+						[ $pageInfo['_title'], $foreignTitle ] = $title;
 					} else {
 						$badTitle = true;
 						$skip = true;
@@ -837,20 +914,19 @@ class VerifiedWikiImporter {
 				}
 			} elseif ( $tag == 'data_accounting_chain_height' ) {
 				// Aqua modification
-				$own_chain_height = getPageChainHeight($pageInfo['title']);
-				if ($own_chain_height == 0) {
+				$own_chain_height = getPageChainHeight( $pageInfo['title'] );
+				if ( $own_chain_height == 0 ) {
 					continue;
 				}
 				$imported_chain_height = $this->nodeContents();
-				if ($own_chain_height <= $imported_chain_height) {
+				if ( $own_chain_height <= $imported_chain_height ) {
 					// Move and rename own page
 					// Rename the page that is about to be imported
-					$now = date('Y-m-d-H-i-s', time());
+					$now = date( 'Y-m-d-H-i-s', time() );
 					$newTitle = $pageInfo['title'] . "_ChainHeight_{$own_chain_height}_$now";
 
-
-					$ot = Title::newFromText($pageInfo['title']);
-					$nt = Title::newFromText($newTitle);
+					$ot = Title::newFromText( $pageInfo['title'] );
+					$nt = Title::newFromText( $newTitle );
 					$reason = "Resolving naming collision because imported page has longer verified chain height.";
 					$createRedirect = false;
 					$mp = new MovePage( $ot, $nt );
@@ -869,10 +945,13 @@ class VerifiedWikiImporter {
 		//       If $pageInfo['_title'] is not set, then $foreignTitle is also not
 		//       set since they both come from $title above.
 		if ( array_key_exists( '_title', $pageInfo ) ) {
-			$this->pageOutCallback( $pageInfo['_title'], $foreignTitle,
-					$pageInfo['revisionCount'],
-					$pageInfo['successfulRevisionCount'],
-					$pageInfo );
+			$this->pageOutCallback(
+				$pageInfo['_title'],
+				$foreignTitle,
+				$pageInfo['revisionCount'],
+				$pageInfo['successfulRevisionCount'],
+				$pageInfo
+			);
 		}
 	}
 
@@ -883,21 +962,33 @@ class VerifiedWikiImporter {
 		$this->debug( "Enter revision handler" );
 		$revisionInfo = [];
 
-		$normalFields = [ 'id', 'parentid', 'timestamp', 'comment', 'minor', 'origin',
-			'model', 'format', 'text', 'sha1' ];
+		$normalFields = [
+			'id',
+			'parentid',
+			'timestamp',
+			'comment',
+			'minor',
+			'origin',
+			'model',
+			'format',
+			'text',
+			'sha1' ];
 
 		$skip = false;
 
 		while ( $skip ? $this->reader->next() : $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-					$this->reader->localName == 'revision' ) {
+				$this->reader->localName == 'revision' ) {
 				break;
 			}
 
 			$tag = $this->reader->localName;
 
 			if ( !$this->hookRunner->onImportHandleRevisionXMLTag(
-				$this, $pageInfo, $revisionInfo )
+				$this,
+				$pageInfo,
+				$revisionInfo
+			)
 			) {
 				// Do nothing
 			} elseif ( in_array( $tag, $normalFields ) ) {
@@ -938,7 +1029,9 @@ class VerifiedWikiImporter {
 			$tag = $this->reader->localName;
 
 			if ( !$this->hookRunner->onImportHandleContentXMLTag(
-				$this, $contentInfo )
+				$this,
+				$contentInfo
+			)
 			) {
 				// Do nothing
 			} elseif ( in_array( $tag, $normalFields ) ) {
@@ -982,11 +1075,13 @@ class VerifiedWikiImporter {
 				] ) ) &&
 			strlen( $contentInfo['text'] ) > $wgMaxArticleSize * 1024
 		) {
-			throw new MWException( 'The text of ' .
+			throw new MWException(
+				'The text of ' .
 				( $revisionId ?
 					"the revision with ID $revisionId" :
 					'a revision'
-				) . " exceeds the maximum allowable size ($wgMaxArticleSize KB)" );
+				) . " exceeds the maximum allowable size ($wgMaxArticleSize KB)"
+			);
 		}
 
 		$role = $contentInfo['role'] ?? SlotRecord::MAIN;
@@ -1009,21 +1104,20 @@ class VerifiedWikiImporter {
 			$verificationInfo = $revisionInfo['verification'];
 			$verificationInfo['page_title'] = $title;
 			$verificationInfo['source'] = 'imported';
-			unset($verificationInfo["rev_id"]);
-
+			unset( $verificationInfo["rev_id"] );
 
 			$res = $dbw->select(
-			    $table,
-			    ['page_verification_id', 'rev_id', 'page_title', 'source'],
-			    ['page_title' => $title],
-			    __METHOD__,
-			    [ 'ORDER BY' => 'page_verification_id' ]
+				$table,
+				[ 'page_verification_id', 'rev_id', 'page_title', 'source' ],
+				[ 'page_title' => $title ],
+				__METHOD__,
+				[ 'ORDER BY' => 'page_verification_id' ]
 			);
 			$last_row = [];
-			foreach( $res as $row ) {
-			    $last_row = $row;
+			foreach ( $res as $row ) {
+				$last_row = $row;
 			}
-			if (empty($last_row)) {
+			if ( empty( $last_row ) ) {
 				// Do nothing if empty
 				return;
 			}
@@ -1031,28 +1125,28 @@ class VerifiedWikiImporter {
 			// Witness-specific
 			if ( isset( $verificationInfo['witness'] ) ) {
 				$witnessInfo = $verificationInfo['witness'];
-				$structured_merkle_proof = json_decode($witnessInfo['structured_merkle_proof'], true);
-				unset($witnessInfo['structured_merkle_proof']);
+				$structured_merkle_proof = json_decode( $witnessInfo['structured_merkle_proof'], true );
+				unset( $witnessInfo['structured_merkle_proof'] );
 
-                //Check if witness_event_verification_hash is already present,
-                //if so skip import into witness_events 
+				//Check if witness_event_verification_hash is already present,
+				//if so skip import into witness_events
 
-                $rowWitness = $dbw->selectRow(
-                    'witness_events',
-                    ['witness_event_id', 'witness_event_verification_hash'],
-					['witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash']]
+				$rowWitness = $dbw->selectRow(
+					'witness_events',
+					[ 'witness_event_id', 'witness_event_verification_hash' ],
+					[ 'witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash'] ]
 				);
-				if (!$rowWitness) {
+				if ( !$rowWitness ) {
 					$witnessInfo['source'] = 'imported';
 					$witnessInfo['domain_manifest_title'] = 'N/A';
 					$dbw->insert(
 						'witness_events',
 						$witnessInfo,
 					);
-					$local_witness_event_id = getMaxWitnessEventId($dbw);
-					if (is_null($local_witness_event_id)) {
-						$local_witness_event_id = 1;	
-					};
+					$local_witness_event_id = getMaxWitnessEventId( $dbw );
+					if ( is_null( $local_witness_event_id ) ) {
+						$local_witness_event_id = 1;
+					}
 				} else {
 					$local_witness_event_id = $rowWitness->witness_event_id;
 				}
@@ -1061,8 +1155,8 @@ class VerifiedWikiImporter {
 				// witness_event_id instead of from the foreign version.
 				$dbw->update(
 					'page_verification',
-					['witness_event_id' => $local_witness_event_id],
-					['page_verification_id' => $last_row->page_verification_id],
+					[ 'witness_event_id' => $local_witness_event_id ],
+					[ 'page_verification_id' => $last_row->page_verification_id ],
 				);
 
 				// Check if merkle tree proof is present, if so skip, if not
@@ -1074,11 +1168,11 @@ class VerifiedWikiImporter {
 					[ 'witness_event_id' ],
 					[
 						'left_leaf=\'' . $page_verification_hash . '\'' .
-						' OR right_leaf=\'' . $page_verification_hash .'\'' 
+						' OR right_leaf=\'' . $page_verification_hash . '\''
 					]
 				);
 
-				if (!$rowProof) {
+				if ( !$rowProof ) {
 					$latest_witness_event_id = $dbw->selectRow(
 						'witness_events',
 						[ 'max(witness_event_id) as witness_event_id' ],
@@ -1094,19 +1188,18 @@ class VerifiedWikiImporter {
 					}
 				}
 
-
 				// This unset is important, otherwise the dbw->update for
 				// page_verification accidentally includes witness.
-				unset($verificationInfo["witness"]);
+				unset( $verificationInfo["witness"] );
 			}
 			// End of witness-specific
 
 			$dbw->update(
 				$table,
 				$verificationInfo,
-				['page_verification_id' => $last_row->page_verification_id],
+				[ 'page_verification_id' => $last_row->page_verification_id ],
 				__METHOD__
-		   	);
+			);
 		} else {
 			$dbw->delete(
 				$table,
@@ -1118,6 +1211,7 @@ class VerifiedWikiImporter {
 	/**
 	 * @param array $pageInfo
 	 * @param array $revisionInfo
+	 *
 	 * @throws MWException
 	 * @return bool|mixed
 	 */
@@ -1172,27 +1266,36 @@ class VerifiedWikiImporter {
 		// Aqua modification
 		// We need to do this after the callback, which is `importRevision`,
 		// because we need the newly generated revision id.
-		$this->processVerification($revisionInfo, $title );
+		$this->processVerification( $revisionInfo, $title );
 
 		return $out;
 	}
 
 	/**
 	 * @param array &$pageInfo
+	 *
 	 * @return mixed
 	 */
 	private function handleUpload( &$pageInfo ) {
 		$this->debug( "Enter upload handler" );
 		$uploadInfo = [];
 
-		$normalFields = [ 'timestamp', 'comment', 'filename', 'text',
-					'src', 'size', 'sha1base36', 'archivename', 'rel' ];
+		$normalFields = [
+			'timestamp',
+			'comment',
+			'filename',
+			'text',
+			'src',
+			'size',
+			'sha1base36',
+			'archivename',
+			'rel' ];
 
 		$skip = false;
 
 		while ( $skip ? $this->reader->next() : $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-					$this->reader->localName == 'upload' ) {
+				$this->reader->localName == 'upload' ) {
 				break;
 			}
 
@@ -1232,6 +1335,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * @param string $contents
+	 *
 	 * @return string
 	 */
 	private function dumpTemp( $contents ) {
@@ -1243,6 +1347,7 @@ class VerifiedWikiImporter {
 	/**
 	 * @param array $pageInfo
 	 * @param array $uploadInfo
+	 *
 	 * @return mixed
 	 */
 	private function processUpload( $pageInfo, $uploadInfo ) {
@@ -1259,8 +1364,10 @@ class VerifiedWikiImporter {
 		}
 		$revision->setSrc( $uploadInfo['src'] );
 		if ( isset( $uploadInfo['fileSrc'] ) ) {
-			$revision->setFileSrc( $uploadInfo['fileSrc'],
-				!empty( $uploadInfo['isTempSrc'] ) );
+			$revision->setFileSrc(
+				$uploadInfo['fileSrc'],
+				!empty( $uploadInfo['isTempSrc'] )
+			);
 		}
 		if ( isset( $uploadInfo['sha1base36'] ) ) {
 			$revision->setSha1Base36( $uploadInfo['sha1base36'] );
@@ -1294,7 +1401,7 @@ class VerifiedWikiImporter {
 		}
 		while ( $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-					$this->reader->localName == 'contributor' ) {
+				$this->reader->localName == 'contributor' ) {
 				break;
 			}
 
@@ -1311,6 +1418,7 @@ class VerifiedWikiImporter {
 	/**
 	 * @param string $text
 	 * @param string|null $ns
+	 *
 	 * @return array|bool
 	 */
 	private function processTitle( $text, $ns = null ) {
@@ -1318,14 +1426,18 @@ class VerifiedWikiImporter {
 			$foreignTitleFactory = new NaiveForeignTitleFactory();
 		} else {
 			$foreignTitleFactory = new NamespaceAwareForeignTitleFactory(
-				$this->foreignNamespaces );
+				$this->foreignNamespaces
+			);
 		}
 
-		$foreignTitle = $foreignTitleFactory->createForeignTitle( $text,
-			intval( $ns ) );
+		$foreignTitle = $foreignTitleFactory->createForeignTitle(
+			$text,
+			intval( $ns )
+		);
 
 		$title = $this->importTitleFactory->createTitleFromForeignTitle(
-			$foreignTitle );
+			$foreignTitle
+		);
 
 		$commandLineMode = $this->config->get( 'CommandLineMode' );
 		if ( $title === null ) {
@@ -1362,6 +1474,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * @param string $model
+	 *
 	 * @return ContentHandler
 	 */
 	private function getContentHandler( $model ) {
@@ -1389,11 +1502,17 @@ class VerifiedWikiImporter {
 			return null;
 		}
 		$verificationInfo = [];
-		$normalFields = [ 'domain_id', 'rev_id', 'verification_hash', 'time_stamp',
-			'signature', 'public_key', 'wallet_address' ];
+		$normalFields = [
+			'domain_id',
+			'rev_id',
+			'verification_hash',
+			'time_stamp',
+			'signature',
+			'public_key',
+			'wallet_address' ];
 		while ( $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-					$this->reader->localName == 'verification' ) {
+				$this->reader->localName == 'verification' ) {
 				break;
 			}
 
@@ -1428,7 +1547,7 @@ class VerifiedWikiImporter {
 		];
 		while ( $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-					$this->reader->localName == 'witness' ) {
+				$this->reader->localName == 'witness' ) {
 				break;
 			}
 			$tag = $this->reader->localName;

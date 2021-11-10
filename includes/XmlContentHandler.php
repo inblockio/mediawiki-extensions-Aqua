@@ -23,6 +23,7 @@
  *
  * @author Daniel Kinzler
  */
+
 namespace DataAccounting;
 
 use Content;

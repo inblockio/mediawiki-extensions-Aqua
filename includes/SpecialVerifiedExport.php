@@ -26,18 +26,18 @@
 namespace DataAccounting;
 
 use HTMLForm;
-
-use MediaWiki\MediaWikiServices;
-use MediaWiki\Logger\LoggerFactory;
-use Wikimedia\Rdbms\ILoadBalancer;
 use HTMLTextAreaField;
+use MediaWiki\Logger\LoggerFactory;
+use MediaWiki\MediaWikiServices;
+use SpecialPage;
 use Title;
+use Wikimedia\Rdbms\ILoadBalancer;
 
 # include / exclude for debugging
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+error_reporting( E_ALL );
+ini_set( "display_errors", 1 );
 
-require_once("ApiUtil.php");
+require_once( "ApiUtil.php" );
 
 /**
  * DataAccounting modifications:
@@ -52,7 +52,8 @@ require_once("ApiUtil.php");
  *
  * @ingroup SpecialPage
  */
-class SpecialVerifiedExport extends \SpecialPage {
+class SpecialVerifiedExport extends SpecialPage {
+
 	protected $curonly, $doExport, $pageLinkDepth, $templates;
 
 	/** @var ILoadBalancer */
@@ -447,6 +448,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 
 	/**
 	 * @param Title $title
+	 *
 	 * @return string[]
 	 */
 	protected function getPagesFromCategory( $title ) {
@@ -474,6 +476,7 @@ class SpecialVerifiedExport extends \SpecialPage {
 
 	/**
 	 * @param int $nsindex
+	 *
 	 * @return string[]
 	 */
 	protected function getPagesFromNamespace( $nsindex ) {
@@ -499,8 +502,10 @@ class SpecialVerifiedExport extends \SpecialPage {
 
 	/**
 	 * Expand a list of pages to include templates used in those pages.
+	 *
 	 * @param array $inputPages List of titles to look up
 	 * @param array $pageSet Associative array indexed by titles for output
+	 *
 	 * @return array Associative array index by titles
 	 */
 	protected function getTemplates( $inputPages, $pageSet ) {
@@ -513,7 +518,9 @@ class SpecialVerifiedExport extends \SpecialPage {
 
 	/**
 	 * Validate link depth setting, if available.
+	 *
 	 * @param int $depth
+	 *
 	 * @return int
 	 */
 	protected function validateLinkDepth( $depth ) {
@@ -539,9 +546,11 @@ class SpecialVerifiedExport extends \SpecialPage {
 
 	/**
 	 * Expand a list of pages to include pages linked to from that page.
+	 *
 	 * @param array $inputPages
 	 * @param array $pageSet
 	 * @param int $depth
+	 *
 	 * @return array
 	 */
 	protected function getPageLinks( $inputPages, $pageSet, $depth ) {
@@ -559,11 +568,13 @@ class SpecialVerifiedExport extends \SpecialPage {
 
 	/**
 	 * Expand a list of pages to include items used in those pages.
+	 *
 	 * @param array $inputPages Array of page titles
 	 * @param array $pageSet
 	 * @param string $table
 	 * @param array $fields Array of field names
 	 * @param array $join
+	 *
 	 * @return array
 	 */
 	protected function getLinks( $inputPages, $pageSet, $table, $fields, $join ) {
