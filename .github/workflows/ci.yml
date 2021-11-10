@@ -81,4 +81,4 @@ jobs:
 
       - name: Run API test
         run: |
-          php tests/phpunit/phpunit.php extensions/DataAccounting
+          php tests/phpunit/phpunit.php -c extensions/DataAccounting
