@@ -118,8 +118,8 @@ class HashWriterHooks implements
         // META DATA HASH CALCULATOR
         $previousVerificationHash = $verificationData['verification_hash'];
         if (!empty($previousVerificationHash)) {
-                
-            $previousVerificationHash = getRdmSeed();
+            $seed = getRdmSeed();
+            $previousVerificationHash = $seed;
             //getRdmSeed is a random nummer hashed with SHA3-512 to provide additional entropy for Genesis
             //seed is written to the page_verification table for initial verification. To ensure backwards compatibility we do allow the seed to be optional.
         }
@@ -154,6 +154,7 @@ class HashWriterHooks implements
             'hash_metadata' => $metadataHash,
             'previous_verification_hash' => $previousVerificationHash,
             'verification_hash' => calculateVerificationHash($contentHash, $metadataHash, $signatureHash, $witnessHash),
+            'seed' => $seed,
             'signature' => '',
             'public_key' => '',
             'wallet_address' => '',
