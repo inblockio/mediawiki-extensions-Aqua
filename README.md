@@ -12,24 +12,52 @@ All Modules interface with the javascript frontend and the maria DB backend. To 
 Follow the documentation of mediawiki to install the extension.
 https://www.mediawiki.org/wiki/Manual:Extensions#Installing_an_extension
 
+Requirements:
+
+* MediaWiki 1.35 or later
+* PHP 7.4 or later. (with [Composer](https://getcomposer.org/))
+* [Node.js](https://nodejs.org/en/) 10, or later. (with [npm](https://nodejs.org/en/download/package-manager/))
+
 ## Testing
 
 This extension implements the **[recommended entry points](https://www.mediawiki.org/wiki/Continuous_integration/Entry_points)** of Wikimedia CI for PHP and Front-end projects.
 
-Before you can test and build code locally, you need:
+TODO: document or remove need to edit a page
 
-* PHP 7.1, or later. (with [Composer](https://getcomposer.org/))
-* [Node.js](https://nodejs.org/en/) 10, or later. (with [npm](https://nodejs.org/en/download/package-manager/))
+To ensure the dev dependencies get installed, have this in your `composer.local.json`:
 
-### PHP
+```json
+{
+	"require": {
+		"vimeo/psalm": "^4.7.2",
+		"phpstan/phpstan": "^0.12.99"
+	},
+	"extra": {
+		"merge-plugin": {
+			"include": [
+				"extensions/DataAccounting/composer.json"
+			]
+		}
+	}
+}
+```
 
-To run the PHP code checks and unit tests:
+Then run `composer update`
 
-* Run `composer update`
+### Running tests and CI checks
 
-This will install testing software to `vendor/` in the current directory.
+You can use the `Makefile` by running make commands in the `DataAccounting` directory.
 
-Now, run `compose test` whenever you want to run the automated checks and tests.
+* `make ci`: Run everything - TODO: include front-end tests
+* `make test`: Run all tests - TODO: include front-end tests
+* `make cs`: Run all style checks and static analysis
+
+Alternatively, you can execute commands from the MediaWiki root directory:
+
+* PHPUnit: `php tests/phpunit/phpunit.php -c extensions/DataAccounting/`
+* Style checks: `vendor/bin/phpcs -p -s --standard=extensions/DataAccounting/.phpcs.xml`
+* PHPStan: `vendor/bin/phpstan analyse --configuration=extensions/DataAccounting/phpstan.neon --memory-limit=2G`
+* Psalm: `php vendor/bin/psalm --config=extensions/DataAccounting/psalm.xml`
 
 ### Front-end
 
@@ -37,9 +65,9 @@ To run the checks for JavaScript, JSON, and CSS:
 
 * Run `npm install`
 
-This will intall testing software to `node_modules/` in the current directory/
+This will install testing software to `node_modules/` in the current directory/
 
-Now, run `npm test` to run the automated front-end code checks..
+Now, run `npm test` to run the automated front-end code checks.
 
 ## Helpful comments
 Login to docker
@@ -51,8 +79,8 @@ USE my_wiki;
 SELECT * FROM page_verification;
 SELECT * FROM page_witness;
 
-If the extension is running and working, you will see entries in page_verification after doing your first page edits with the extension activitat.
+If the extension is running and working, you will see entries in page_verification after doing your first page edits with the extension activated.
 
 2. cp -r DataAccounting PKC/mountPoint/extensions
 3. docker exec pkc_mediawiki_1 php /var/www/html/maintenance/update.php
-*if you manually install DataAccounting extension you need to run the maintanance script to load the extension and update the sql database schemas
+*if you manually install DataAccounting extension you need to run the maintenance script to load the extension and update the sql database schemas
