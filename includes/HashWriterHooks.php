@@ -152,6 +152,7 @@ class HashWriterHooks implements
             'hash_content' => $contentHash,
             'time_stamp' => $timestamp,
             'hash_metadata' => $metadataHash,
+            'previous_verification_hash' => $previousVerificationHash,
             'verification_hash' => calculateVerificationHash($contentHash, $metadataHash, $signatureHash, $witnessHash),
             'signature' => '',
             'public_key' => '',
@@ -159,6 +160,7 @@ class HashWriterHooks implements
             'source' => 'default',
         ];
         $dbw->update('page_verification', $data, ['rev_id' => $rev->getID()], __METHOD__);
+        //*TODO* Implement here the update query to update the last revisions field next_verification_hash with the newly generated verification_hash of the current revision;
     }
 
     public function onArticleDeleteComplete( $wikiPage, $user, $reason, $id,
