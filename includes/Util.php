@@ -35,6 +35,11 @@ function getRdmHash() {
     return $seed;
 }
 
+function getGenesisHash($page_title) {
+    //TODO add query to select verification_hash or the first revision of a MPCB
+    return echo 'getGenesisHash is not implemented';
+}
+
 function setDataAccountingConfig($data) {
     global $da_config_filename;
     if (!file_exists($da_config_filename)) {
