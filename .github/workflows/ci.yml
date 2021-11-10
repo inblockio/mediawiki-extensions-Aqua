@@ -79,29 +79,6 @@ jobs:
         run: |
           echo "Minor edit" | php maintenance/edit.php -s "Edit" -u AdminUser Main_Page
 
-      - name: Run Apache2
-        run: |
-          # https://gist.github.com/twfahey1/b8e45740e455181383d7a230a0db544a
-          sudo add-apt-repository ppa:ondrej/php
-          sudo apt-get update
-          sudo apt-get install libapache2-mod-php${{ matrix.php }}
-
-          sudo adduser $(whoami) www-data
-          sudo adduser $(whoami) root
-          sudo adduser root www-data
-
-          sudo sed -i "s|DocumentRoot .*|DocumentRoot $PWD|g" /etc/apache2/sites-available/000-default.conf
-
-          sudo chown -R www-data:www-data /etc/apache2/sites-available/
-          sudo chmod -R 777 /etc/apache2/sites-available/
-          sudo chown -R www-data:www-data $PWD
-          sudo chmod -R 777 $PWD
-
-          sudo sed -i "s|/var/www/|$PWD/|" /etc/apache2/apache2.conf
-          sudo service apache2 restart
-
       - name: Run API test
         run: |
-          cd extensions/DataAccounting
-          npm ci
-          npm run api-testing
+          php tests/phpunit/phpunit.php extensions/DataAccounting
