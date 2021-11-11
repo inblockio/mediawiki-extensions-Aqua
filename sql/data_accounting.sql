@@ -3,7 +3,7 @@
 --
 
 -- Page verification table
-CREATE TABLE IF NOT EXISTS `page_verification` (
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/page_verification (
 	`page_verification_id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	`domain_id` VARCHAR(128),
 	`page_title` VARCHAR(255),
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `page_verification` (
 	`source` VARCHAR(128) COMMENT 'possible values are "imported", "default"'
 );
 
-CREATE TABLE IF NOT EXISTS `witness_events` (
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_events (
         `witness_event_id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
         `domain_manifest_title` VARCHAR(255) COMMENT 'from page_verification',
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `witness_events` (
         `source` VARCHAR(128) Comment 'possible values are "imported", "default"'
     );
 
-CREATE TABLE IF NOT EXISTS `witness_page` (
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_page (
  `id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
  `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
  `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `witness_page` (
  `page_verification_hash` VARCHAR(128) COMMENT 'Input values for merkle tree'
  );
 
-CREATE TABLE IF NOT EXISTS `witness_merkle_tree` (
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_merkle_tree (
     `INDEX` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
     `depth` VARCHAR(64) COMMENT 'the depth of the node',
