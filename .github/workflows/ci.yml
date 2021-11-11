@@ -75,10 +75,6 @@ jobs:
         run: |
           php maintenance/update.php --quick
 
-      - name: Edit Main Page to populate DA tables
-        run: |
-          echo "Minor edit" | php maintenance/edit.php -s "Edit" -u AdminUser Main_Page
-
       - name: Run API test
         run: |
           php tests/phpunit/phpunit.php -c extensions/DataAccounting
