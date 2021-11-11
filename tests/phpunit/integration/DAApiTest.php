@@ -19,7 +19,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 	public function testVerifyPage(): void {
 		$response = $this->executeHandler(
 			new VerifyPageHandler(),
-			new RequestData( [ 'pathParams' => [ 'rev_id' => '2' ] ] )
+			new RequestData( [ 'pathParams' => [ 'rev_id' => '1' ] ] )
 		);
 
 		$this->assertSame( 'application/json', $response->getHeaderLine( 'Content-Type' ) );
