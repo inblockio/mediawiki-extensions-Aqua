@@ -71,10 +71,6 @@ jobs:
       - name: Composer update
         run: composer update
 
-      - name: Run update.php to properly initialize the extension DB tables
-        run: |
-          php maintenance/update.php --quick
-
       - name: Run API test
         run: |
           php tests/phpunit/phpunit.php -c extensions/DataAccounting
