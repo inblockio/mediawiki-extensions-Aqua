@@ -2,7 +2,7 @@
 
 namespace DataAccounting\API;
 
-use DataAccounting\get_page_all_revs;
+use DataAccounting\get_page_all_revs as get_page_all_revs;
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 
@@ -17,7 +17,7 @@ class GetPageAllRevsHandler extends SimpleHandler {
 	/** @inheritDoc */
 	public function run( $page_title ) {
 		#Expects Page Title and returns ALL verified revisions
-		return \DataAccounting\get_page_all_revs( $page_title );
+		return get_page_all_revs( $page_title );
 	}
 
 	/** @inheritDoc */
