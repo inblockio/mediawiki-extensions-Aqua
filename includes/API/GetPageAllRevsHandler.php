@@ -17,7 +17,7 @@ class GetPageAllRevsHandler extends SimpleHandler {
 	/** @inheritDoc */
 	public function run( $page_title ) {
 		#Expects Page Title and returns ALL verified revisions
-		return get_page_all_revs( $page_title );
+		return \DataAccounting\get_page_all_revs( $page_title );
 	}
 
 	/** @inheritDoc */
