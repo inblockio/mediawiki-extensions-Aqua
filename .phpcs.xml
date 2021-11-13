@@ -21,7 +21,7 @@
 		<!-- This is to avoid false positives when using PHP 8.0 named arguments -->
 		<exclude name="Generic.PHP.DiscourageGoto.Found" />
 	</rule>
-	<file>.</file>
+	<file>extensions/DataAccounting</file>
 	<arg name="extensions" value="php"/>
 	<arg name="encoding" value="UTF-8"/>
 </ruleset>

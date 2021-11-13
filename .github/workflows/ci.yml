@@ -71,6 +71,11 @@ jobs:
       - name: Composer update
         run: composer update
 
+      - name: Run PHP_CodeSniffer
+        run: |
+          cp extensions/DataAccounting/.phpcs.xml .
+          vendor/bin/phpcs -p -s
+
       - name: Run update.php to properly initialize the extension DB tables
         run: |
           php maintenance/update.php --quick
