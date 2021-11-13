@@ -1,9 +1,0 @@
-{
-	"base_uri": "http://localhost/",
-	"main_page": "Main_Page",
-	"root_user": {
-		"name": "AdminUser",
-		"password": "AdminPassword"
-	},
-	"secret_key": "abcdef"
-}
