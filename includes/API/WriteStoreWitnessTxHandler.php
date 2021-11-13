@@ -19,8 +19,8 @@ use WikitextContent;
 error_reporting( E_ALL );
 ini_set( "display_errors", 1 );
 
-require_once( __DIR__ . "/../ApiUtil.php" );
-require_once( __DIR__ . "/../Util.php" );
+require_once __DIR__ . "/../ApiUtil.php";
+require_once __DIR__ . "/../Util.php";
 
 function selectToArray( $db, $table, $col, $conds ) {
 	$out = [];
@@ -165,7 +165,7 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 				[ 'witness_event_id' ],
 				[ 'verification_hash' => $vh ]
 			);
-			if ( is_null( $row->witness_event_id ) ) {
+			if ( $row->witness_event_id === null ) {
 				$dbw->update(
 					'page_verification',
 					[ 'witness_event_id' => $witness_event_id ],
@@ -249,4 +249,3 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 		] );
 	}
 }
-

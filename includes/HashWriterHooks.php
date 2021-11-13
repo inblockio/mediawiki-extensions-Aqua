@@ -20,8 +20,8 @@ use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 use MediaWiki\Revision\Hook\RevisionRecordInsertedHook;
 use MediaWiki\Revision\SlotRecord;
 
-require_once( 'Util.php' );
-require_once( 'ApiUtil.php' );
+require_once 'Util.php';
+require_once 'ApiUtil.php';
 
 function calculateMetadataHash( $domainId, $timestamp, $previousVerificationHash = "" ) {
 	return getHashSum( $domainId . $timestamp . $previousVerificationHash );
@@ -76,7 +76,8 @@ class HashWriterHooks implements
 	RevisionRecordInsertedHook,
 	ArticleDeleteCompleteHook,
 	PageMoveCompleteHook,
-	LoadExtensionSchemaUpdatesHook {
+	LoadExtensionSchemaUpdatesHook 
+{
 
 	// This function updates the dataset wit the correct revision ID, especially important during import.
 	// https://github.com/inblockio/DataAccounting/commit/324cd13fadb1daed281c2df454268a7b1ba30fcd

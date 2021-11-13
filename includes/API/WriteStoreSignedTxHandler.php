@@ -19,8 +19,8 @@ use WikitextContent;
 error_reporting( E_ALL );
 ini_set( "display_errors", 1 );
 
-require_once( __DIR__ . "/../ApiUtil.php" );
-require_once( __DIR__ . "/../Util.php" );
+require_once __DIR__ . "/../ApiUtil.php";
+require_once __DIR__ . "/../Util.php";
 
 function injectSignatureToPage( $titleString, $walletString ) {
 	//Get the article object with $title

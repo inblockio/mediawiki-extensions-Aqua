@@ -50,7 +50,7 @@ function requestMerkleProof( $witness_event_id, $page_verification_hash, $depth 
 	$final_output = [];
 
 	while ( true ) {
-		if ( is_null( $depth ) ) {
+		if ( $depth === null ) {
 			$conds =
 				'left_leaf=\'' . $page_verification_hash .
 				'\' AND witness_event_id=' . $witness_event_id .
@@ -79,7 +79,7 @@ function requestMerkleProof( $witness_event_id, $page_verification_hash, $depth 
 		$output = [];
 		$max_depth = null;
 		foreach ( $res as $row ) {
-			if ( is_null( $max_depth ) || ( $row->depth > $max_depth ) ) {
+			if ( $max_depth === null || ( $row->depth > $max_depth ) ) {
 				$max_depth = $row->depth;
 				$output = [
 					'witness_event_id' => $row->witness_event_id,
@@ -104,7 +104,7 @@ function requestMerkleProof( $witness_event_id, $page_verification_hash, $depth 
 }
 
 function getWitnessData( $witness_event_id ) {
-	if ( is_null( $witness_event_id ) ) {
+	if ( $witness_event_id === null ) {
 		return '';
 	}
 

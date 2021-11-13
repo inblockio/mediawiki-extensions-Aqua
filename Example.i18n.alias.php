@@ -11,8 +11,8 @@ $specialPageAliases = [];
 $specialPageAliases['en'] = [
 	'VerifiedExport' => [ 'VerifiedExport' ],
 	'VerifiedImport' => [ 'VerifiedImport' ],
-    'WitnessPublisher' => [ 'WitnessPublisher' ],
-    'DataAccountingConfig' => [ 'DataAccountingConfig' ]
+	'WitnessPublisher' => [ 'WitnessPublisher' ],
+	'DataAccountingConfig' => [ 'DataAccountingConfig' ]
 ];
 
 /** Dutch (Nederlands) */

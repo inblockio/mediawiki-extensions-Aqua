@@ -11,7 +11,7 @@ use MediaWiki\Permissions\PermissionManager;
 use PermissionsError;
 use SpecialPage;
 
-require_once( 'Util.php' );
+require_once 'Util.php';
 
 function shortenHash( $hash ) {
 	return substr( $hash, 0, 6 ) . "..." . substr( $hash, -6, 6 );
@@ -121,7 +121,7 @@ class SpecialWitnessPublisher extends SpecialPage {
 				}
 			}
 
-			if ( is_null( $row->domain_manifest_title ) ) {
+			if ( $row->domain_manifest_title === null ) {
 				$linkedDomainManifest = 'N/A';
 			} else {
 				$linkedDomainManifest = '<a href=\'/index.php/' . $row->domain_manifest_title . '\'>' . shortenDomainManifestTitle(

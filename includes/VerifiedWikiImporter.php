@@ -53,7 +53,7 @@ use XMLReader;
 
 //use MWContentSerializationException;
 
-require_once( "ApiUtil.php" );
+require_once "ApiUtil.php";
 
 /**
  * This class is cloned from Mediawiki 1.35.2's WikiImporter. Almost the same
@@ -1144,7 +1144,7 @@ class VerifiedWikiImporter {
 						$witnessInfo,
 					);
 					$local_witness_event_id = getMaxWitnessEventId( $dbw );
-					if ( is_null( $local_witness_event_id ) ) {
+					if ( $local_witness_event_id === null ) {
 						$local_witness_event_id = 1;
 					}
 				} else {

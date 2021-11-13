@@ -37,7 +37,7 @@ use Wikimedia\Rdbms\ILoadBalancer;
 error_reporting( E_ALL );
 ini_set( "display_errors", 1 );
 
-require_once( "ApiUtil.php" );
+require_once "ApiUtil.php";
 
 /**
  * DataAccounting modifications:

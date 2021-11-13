@@ -62,7 +62,7 @@ function getPageMetadataByRevId( $rev_id ) {
 	$xmlString = convertArray2XMLString( $output, "<verification/>" );
 
 	//Inject <witness> data in case witness id is present
-	if ( !is_null( $output['witness_event_id'] ) ) {
+	if ( $output['witness_event_id'] !== null ) {
 		$wdXmlString = getPageWitnessData(
 			$output['witness_event_id'],
 			$output['verification_hash'],
@@ -156,4 +156,3 @@ class VerifiedWikiExporter extends WikiExporter {
 		return $lastRow;
 	}
 }
-

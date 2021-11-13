@@ -22,8 +22,8 @@ use MediaWiki\Permissions\PermissionManager;
 use PermissionsError;
 use SpecialPage;
 
-require_once( 'Util.php' );
-require_once( 'ApiUtil.php' );
+require_once 'Util.php';
+require_once 'ApiUtil.php';
 
 class SpecialDataAccountingConfig extends SpecialPage {
 

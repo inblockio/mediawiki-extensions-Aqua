@@ -29,8 +29,6 @@ namespace DataAccounting;
 # include / exclude for debugging
 error_reporting( E_ALL );
 ini_set( "display_errors", 1 );
-
-use DataAccounting\Status;
 use Html;
 use ImportReporter;
 use ImportStreamSource;

@@ -26,7 +26,8 @@ class Hooks implements
 	ParserFirstCallInitHook,
 	ParserGetVariableValueSwitchHook,
 	SkinTemplateNavigationHook,
-	OutputPageParserOutputHook {
+	OutputPageParserOutputHook 
+{
 
 	/** @var PermissionManager */
 	private $permissionManager;

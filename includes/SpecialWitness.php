@@ -26,8 +26,8 @@ require 'vendor/autoload.php';
 error_reporting( E_ALL );
 ini_set( "display_errors", 1 );
 
-require_once( 'Util.php' );
-require_once( 'ApiUtil.php' );
+require_once 'Util.php';
+require_once 'ApiUtil.php';
 
 //class HtmlContent extends TextContent {
 //	protected function getHtml() {
@@ -61,7 +61,7 @@ function tree_pprint( $do_wikitext, $layers, $out = "", $prefix = "└─ ", $le
 			$glyph = $is_last ? "  └─ " : "  ├─ ";
 			$out .= " " . $prefix . $glyph . $formatted_key . "\n";
 		}
-		if ( !is_null( $value ) ) {
+		if ( $value !== null ) {
 			if ( $level == 0 ) {
 				$new_prefix = "";
 			} else {
@@ -76,7 +76,7 @@ function tree_pprint( $do_wikitext, $layers, $out = "", $prefix = "└─ ", $le
 
 function storeMerkleTree( $dbw, $witness_event_id, $treeLayers, $depth = 0 ) {
 	foreach ( $treeLayers as $parent => $children ) {
-		if ( is_null( $children ) ) {
+		if ( $children === null ) {
 			continue;
 		}
 		$children_keys = array_keys( $children );
@@ -168,7 +168,7 @@ class SpecialWitness extends SpecialPage {
 			);
 
 			$vhash = $row3->verification_hash;
-			if ( is_null( $vhash ) ) {
+			if ( $vhash === null ) {
 				$title = $row->page_title;
 				$out->addWikiTextAsContent(
 					"Error: [[$title]] has an empty verification hash. This indicates a manipulation, database corruption, or a bug. Recover or delete page."
@@ -269,7 +269,6 @@ class SpecialWitness extends SpecialPage {
 				""
 			);
 		}
-
 	}
 
 	public function generateDomainManifest( $formData ) {
@@ -278,7 +277,7 @@ class SpecialWitness extends SpecialPage {
 
 		$old_max_witness_event_id = getMaxWitnessEventId( $dbw );
 		// Set to 0 if null.
-		$old_max_witness_event_id = is_null( $old_max_witness_event_id ) ? 0 : $old_max_witness_event_id;
+		$old_max_witness_event_id = $old_max_witness_event_id === null ? 0 : $old_max_witness_event_id;
 		$witness_event_id = $old_max_witness_event_id + 1;
 
 		$output = 'This page is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
