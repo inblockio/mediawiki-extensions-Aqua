@@ -2,7 +2,7 @@
 
 namespace DataAccounting\API;
 
-use function DataAccounting\get_page_all_revs as get_page_all_revs;
+use function DataAccounting\get_page_all_revs;
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 
