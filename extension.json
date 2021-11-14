@@ -148,7 +148,9 @@
 		"PageMoveComplete": "handleHashWriterHooks",
 		"LoadExtensionSchemaUpdates": {
 			"handler": "handleHashWriterHooks"
-		}
+		},
+		"XmlDumpWriterOpenPage": "DataAccounting\\Hooks::onXmlDumpWriterOpenPage",
+		"XmlDumpWriterWriteRevision": "DataAccounting\\Hooks::onXmlDumpWriterWriteRevision"
 	},
 	"HookHandlers": {
 		"handleHooks": {

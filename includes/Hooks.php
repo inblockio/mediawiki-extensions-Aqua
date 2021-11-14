@@ -13,20 +13,23 @@ use MediaWiki\Hook\OutputPageParserOutputHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\Hook\ParserGetVariableValueSwitchHook;
 use MediaWiki\Hook\SkinTemplateNavigationHook;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
+use MediaWiki\Revision\RevisionRecord;
 use MWException;
 use OutputPage;
 use Parser;
 use PPFrame;
 use Skin;
 use SkinTemplate;
+use stdClass;
 
 class Hooks implements
 	BeforePageDisplayHook,
 	ParserFirstCallInitHook,
 	ParserGetVariableValueSwitchHook,
 	SkinTemplateNavigationHook,
-	OutputPageParserOutputHook 
+	OutputPageParserOutputHook
 {
 
 	/** @var PermissionManager */
@@ -194,4 +197,18 @@ class Hooks implements
 			. htmlspecialchars( FormatJson::encode( $showme, /*prettyPrint=*/ true ) )
 			. '</pre>';
 	}
+
+	public static function onXmlDumpWriterOpenPage( \XmlDumpWriter $dumpWriter, string &$output, stdClass $page, \Title $title ): void {
+		$chain_height = getPageChainHeight( $title->getText() );
+		$output .= "<data_accounting_chain_height>$chain_height</data_accounting_chain_height>\n";
+	}
+
+	public static function onXmlDumpWriterWriteRevision( \XmlDumpWriter $dumpWriter, string &$output, stdClass $page, string $text, RevisionRecord $revision ): void {
+		$xmlBuilder = new RevisionXmlBuilder(
+			MediaWikiServices::getInstance()->getDBLoadBalancer()
+		);
+
+		$output .= $xmlBuilder->getPageMetadataByRevId( $revision->getId() );
+	}
+
 }
