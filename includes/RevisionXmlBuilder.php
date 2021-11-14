@@ -15,7 +15,7 @@ class RevisionXmlBuilder {
 	) {
 	}
 
-	public function getPageMetadataByRevId( $rev_id ): string {
+	public function getPageMetadataByRevId( int $revId ): string {
 		// This is based on the case of 'verify_page' API call in StandardRestApi.php.
 		$row = $this->loadBalancer->getConnectionRef( DB_REPLICA )->selectRow(
 			'page_verification',
@@ -27,8 +27,9 @@ class RevisionXmlBuilder {
 				'witness_event_id',
 				'signature',
 				'public_key',
-				'wallet_address' ],
-			'rev_id = ' . $rev_id,
+				'wallet_address'
+			],
+			[ 'rev_id' => $revId ],
 			__METHOD__
 		);
 
@@ -38,7 +39,7 @@ class RevisionXmlBuilder {
 
 		$output = [
 			'domain_id' => $row->domain_id,
-			'rev_id' => $rev_id,
+			'rev_id' => $revId,
 			'verification_hash' => $row->verification_hash,
 			'time_stamp' => $row->time_stamp,
 			'witness_event_id' => $row->witness_event_id,

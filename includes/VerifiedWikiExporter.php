@@ -71,7 +71,7 @@ class VerifiedWikiExporter extends WikiExporter {
 			$output = $this->writer->writeRevision( $revRow, $slotRows );
 			$output = str_replace(
 				"</revision>",
-				$this->getVerificationXml( $revRow->rev_id ) . "\n</revision>",
+				$this->getVerificationXml( (int)$revRow->rev_id ) . "\n</revision>",
 				$output
 			);
 			$this->sink->writeRevision( $revRow, $output );
@@ -85,7 +85,7 @@ class VerifiedWikiExporter extends WikiExporter {
 		return $lastRow;
 	}
 
-	private function getVerificationXml( $revId ): string {
+	private function getVerificationXml( int $revId ): string {
 		$xmlBuilder = new RevisionXmlBuilder(
 			MediaWikiServices::getInstance()->getDBLoadBalancer()
 		);
