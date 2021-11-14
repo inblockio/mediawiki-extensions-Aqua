@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="4.12.0@e42bc4a23f67acba28a23bb09c348e2ff38a1d87">
   <file src="../../includes/content/TextContent.php">
-    <UndefinedConstant occurrences="1">
-      <code>CONTENT_MODEL_TEXT</code>
-    </UndefinedConstant>
     <UndefinedFunction occurrences="1"/>
   </file>
   <file src="../../includes/content/TextContentHandler.php">
@@ -15,10 +12,6 @@
       <code>$formats</code>
       <code>$modelId</code>
     </MixedArgument>
-    <UndefinedConstant occurrences="2">
-      <code>CONTENT_FORMAT_TEXT</code>
-      <code>CONTENT_MODEL_TEXT</code>
-    </UndefinedConstant>
   </file>
   <file src="../../includes/export/WikiExporter.php">
     <InternalMethod occurrences="1">
@@ -69,9 +62,6 @@
       <code>$resRow-&gt;page_id</code>
       <code>$resRow-&gt;page_title</code>
     </PossiblyInvalidPropertyFetch>
-    <UndefinedConstant occurrences="1">
-      <code>DB_REPLICA</code>
-    </UndefinedConstant>
   </file>
   <file src="includes/API/GetPageLastRevHandler.php">
     <InvalidScalarArgument occurrences="1">
@@ -92,9 +82,6 @@
       <code>$row-&gt;rev_id</code>
       <code>$row-&gt;verification_hash</code>
     </PossiblyInvalidPropertyFetch>
-    <UndefinedConstant occurrences="1">
-      <code>DB_REPLICA</code>
-    </UndefinedConstant>
   </file>
   <file src="includes/API/GetWitnessDataHandler.php">
     <InvalidScalarArgument occurrences="1">
@@ -129,9 +116,6 @@
     <PossiblyInvalidPropertyFetch occurrences="1">
       <code>$row-&gt;verification_hash</code>
     </PossiblyInvalidPropertyFetch>
-    <UndefinedConstant occurrences="1">
-      <code>DB_REPLICA</code>
-    </UndefinedConstant>
   </file>
   <file src="includes/API/RequestMerkleProofHandler.php">
     <InvalidScalarArgument occurrences="1">
@@ -171,9 +155,6 @@
       <code>$row-&gt;wallet_address</code>
       <code>$row-&gt;witness_event_id</code>
     </PossiblyInvalidPropertyFetch>
-    <UndefinedConstant occurrences="1">
-      <code>DB_REPLICA</code>
-    </UndefinedConstant>
   </file>
   <file src="includes/API/WriteStoreSignedTxHandler.php">
     <DeprecatedMethod occurrences="1">
@@ -233,9 +214,6 @@
     <PossiblyNullReference occurrences="1">
       <code>getText</code>
     </PossiblyNullReference>
-    <UndefinedConstant occurrences="1">
-      <code>DB_MASTER</code>
-    </UndefinedConstant>
     <UndefinedDocblockClass occurrences="1">
       <code>User</code>
     </UndefinedDocblockClass>
@@ -338,9 +316,6 @@
     <PossiblyNullReference occurrences="1">
       <code>getText</code>
     </PossiblyNullReference>
-    <UndefinedConstant occurrences="1">
-      <code>DB_MASTER</code>
-    </UndefinedConstant>
     <UndefinedDocblockClass occurrences="1">
       <code>User</code>
     </UndefinedDocblockClass>
@@ -450,11 +425,6 @@
     <PossiblyUndefinedArrayOffset occurrences="1">
       <code>$output['successor']</code>
     </PossiblyUndefinedArrayOffset>
-    <UndefinedConstant occurrences="3">
-      <code>DB_REPLICA</code>
-      <code>DB_REPLICA</code>
-      <code>DB_REPLICA</code>
-    </UndefinedConstant>
   </file>
   <file src="includes/DAAction.php">
     <MissingReturnType occurrences="1">
@@ -559,12 +529,6 @@
     <PossiblyNullReference occurrences="1">
       <code>serialize</code>
     </PossiblyNullReference>
-    <UndefinedConstant occurrences="4">
-      <code>DB_MASTER</code>
-      <code>DB_MASTER</code>
-      <code>DB_MASTER</code>
-      <code>DB_MASTER</code>
-    </UndefinedConstant>
     <UndefinedInterfaceMethod occurrences="2">
       <code>getPrefixedText</code>
       <code>getPrefixedText</code>
@@ -606,11 +570,62 @@
       <code>getLocalURL</code>
       <code>getNamespace</code>
     </PossiblyNullReference>
-    <UndefinedConstant occurrences="1">
-      <code>NS_SPECIAL</code>
-    </UndefinedConstant>
     <UndefinedFunction occurrences="1">
       <code>wfEscapeWikiText( $wgExampleMyWord )</code>
+    </UndefinedFunction>
+  </file>
+  <file src="includes/RevisionXmlBuilder.php">
+    <MissingParamType occurrences="5">
+      <code>$arr</code>
+      <code>$page_verification_hash</code>
+      <code>$rev_id</code>
+      <code>$tag</code>
+      <code>$witness_event_id</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="2">
+      <code>convertArray2XMLString</code>
+      <code>getPageWitnessData</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="4">
+      <code>$arr</code>
+      <code>$tag</code>
+      <code>$xmlString</code>
+      <code>DB_REPLICA</code>
+    </MixedArgument>
+    <MixedArrayAssignment occurrences="1">
+      <code>$witness_data["structured_merkle_proof"]</code>
+    </MixedArrayAssignment>
+    <MixedAssignment occurrences="4">
+      <code>$wdXmlString</code>
+      <code>$witness_data</code>
+      <code>$xmlString</code>
+      <code>$xmlString</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedOperand occurrences="2">
+      <code>$rev_id</code>
+      <code>$wdXmlString</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="1">
+      <code>$xmlString</code>
+    </MixedReturnStatement>
+    <PossiblyFalseArgument occurrences="1">
+      <code>$xml-&gt;asXML()</code>
+    </PossiblyFalseArgument>
+    <PossiblyInvalidPropertyFetch occurrences="7">
+      <code>$row-&gt;domain_id</code>
+      <code>$row-&gt;public_key</code>
+      <code>$row-&gt;signature</code>
+      <code>$row-&gt;time_stamp</code>
+      <code>$row-&gt;verification_hash</code>
+      <code>$row-&gt;wallet_address</code>
+      <code>$row-&gt;witness_event_id</code>
+    </PossiblyInvalidPropertyFetch>
+    <UndefinedFunction occurrences="2">
+      <code>getWitnessData( $witness_event_id )</code>
+      <code>requestMerkleProof( $witness_event_id, $page_verification_hash )</code>
     </UndefinedFunction>
   </file>
   <file src="includes/SignMessageModule.php">
@@ -652,9 +667,6 @@
       <code>SpecialDataAccountingConfig</code>
       <code>SpecialDataAccountingConfig</code>
     </PropertyNotSetInConstructor>
-    <UndefinedConstant occurrences="1">
-      <code>DB_MASTER</code>
-    </UndefinedConstant>
     <UnusedVariable occurrences="1">
       <code>$dbw</code>
     </UnusedVariable>
@@ -734,10 +746,6 @@
       <code>$catname !== false</code>
       <code>$catname !== null</code>
     </RedundantConditionGivenDocblockType>
-    <UndefinedConstant occurrences="2">
-      <code>NS_MAIN</code>
-      <code>TS_MW</code>
-    </UndefinedConstant>
     <UndefinedFunction occurrences="3">
       <code>wfResetOutputBuffers()</code>
       <code>wfTimestamp( TS_MW, $rawOffset )</code>
@@ -974,9 +982,6 @@
       <code>SpecialWitness</code>
       <code>SpecialWitness</code>
     </PropertyNotSetInConstructor>
-    <UndefinedConstant occurrences="1">
-      <code>DB_MASTER</code>
-    </UndefinedConstant>
     <UnusedParam occurrences="1">
       <code>$is_last</code>
     </UnusedParam>
@@ -1035,9 +1040,6 @@
       <code>SpecialWitnessPublisher</code>
       <code>SpecialWitnessPublisher</code>
     </PropertyNotSetInConstructor>
-    <UndefinedConstant occurrences="1">
-      <code>DB_MASTER</code>
-    </UndefinedConstant>
   </file>
   <file src="includes/Util.php">
     <MissingParamType occurrences="2">
@@ -1077,76 +1079,33 @@
     <DocblockTypeContradiction occurrences="1">
       <code>$lastRow === null</code>
     </DocblockTypeContradiction>
-    <MissingParamType occurrences="9">
-      <code>$arr</code>
+    <MissingParamType occurrences="5">
       <code>$db</code>
       <code>$history</code>
       <code>$limitNamespaces</code>
-      <code>$page_verification_hash</code>
-      <code>$rev_id</code>
-      <code>$tag</code>
+      <code>$revId</code>
       <code>$text</code>
-      <code>$witness_event_id</code>
     </MissingParamType>
-    <MissingReturnType occurrences="3">
-      <code>convertArray2XMLString</code>
-      <code>getPageMetadataByRevId</code>
-      <code>getPageWitnessData</code>
-    </MissingReturnType>
-    <MixedArgument occurrences="10">
-      <code>$arr</code>
+    <MixedArgument occurrences="6">
       <code>$db</code>
       <code>$history</code>
       <code>$limitNamespaces</code>
-      <code>$tag</code>
       <code>$text</code>
       <code>$text</code>
       <code>$title</code>
-      <code>$xmlString</code>
-      <code>DB_REPLICA</code>
     </MixedArgument>
-    <MixedArrayAssignment occurrences="1">
-      <code>$witness_data["structured_merkle_proof"]</code>
-    </MixedArrayAssignment>
-    <MixedAssignment occurrences="7">
+    <MixedAssignment occurrences="2">
       <code>$chain_height</code>
       <code>$title</code>
-      <code>$verification_info</code>
-      <code>$wdXmlString</code>
-      <code>$witness_data</code>
-      <code>$xmlString</code>
-      <code>$xmlString</code>
     </MixedAssignment>
-    <MixedOperand occurrences="3">
-      <code>$rev_id</code>
-      <code>$verification_info</code>
-      <code>$wdXmlString</code>
-    </MixedOperand>
-    <PossiblyFalseArgument occurrences="1">
-      <code>$xml-&gt;asXML()</code>
-    </PossiblyFalseArgument>
-    <PossiblyInvalidPropertyFetch occurrences="7">
-      <code>$row-&gt;domain_id</code>
-      <code>$row-&gt;public_key</code>
-      <code>$row-&gt;signature</code>
-      <code>$row-&gt;time_stamp</code>
-      <code>$row-&gt;verification_hash</code>
-      <code>$row-&gt;wallet_address</code>
-      <code>$row-&gt;witness_event_id</code>
-    </PossiblyInvalidPropertyFetch>
     <PossiblyNullReference occurrences="1">
       <code>getText</code>
     </PossiblyNullReference>
     <RedundantConditionGivenDocblockType occurrences="1">
       <code>$lastRow !== null</code>
     </RedundantConditionGivenDocblockType>
-    <UndefinedConstant occurrences="1">
-      <code>DB_REPLICA</code>
-    </UndefinedConstant>
-    <UndefinedFunction occurrences="3">
+    <UndefinedFunction occurrences="1">
       <code>getPageChainHeight( $titleObj-&gt;getText() )</code>
-      <code>getWitnessData( $witness_event_id )</code>
-      <code>requestMerkleProof( $witness_event_id, $page_verification_hash )</code>
     </UndefinedFunction>
   </file>
   <file src="includes/VerifiedWikiImporter.php">
@@ -1454,10 +1413,6 @@
       <code>MWException</code>
       <code>MWException</code>
     </UndefinedClass>
-    <UndefinedConstant occurrences="2">
-      <code>DB_MASTER</code>
-      <code>NS_MAIN</code>
-    </UndefinedConstant>
     <UndefinedDocblockClass occurrences="14">
       <code>$handler</code>
       <code>$handler</code>
@@ -1536,8 +1491,5 @@
     <ParamNameMismatch occurrences="1">
       <code>$text</code>
     </ParamNameMismatch>
-    <UndefinedConstant occurrences="1">
-      <code>CONTENT_FORMAT_XML</code>
-    </UndefinedConstant>
   </file>
 </files>
