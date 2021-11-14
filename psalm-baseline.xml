@@ -38,9 +38,6 @@
     <InvalidScalarArgument occurrences="1">
       <code>1</code>
     </InvalidScalarArgument>
-    <MissingParamType occurrences="1">
-      <code>$page_title</code>
-    </MissingParamType>
     <MissingReturnType occurrences="1">
       <code>run</code>
     </MissingReturnType>
@@ -345,49 +342,39 @@
     </MixedAssignment>
   </file>
   <file src="includes/ApiUtil.php">
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
-    <MissingParamType occurrences="7">
+    <MissingParamType occurrences="5">
       <code>$db</code>
       <code>$depth</code>
-      <code>$page_title</code>
-      <code>$page_title</code>
       <code>$page_verification_hash</code>
       <code>$witness_event_id</code>
       <code>$witness_event_id</code>
     </MissingParamType>
-    <MissingReturnType occurrences="5">
+    <MissingReturnType occurrences="3">
       <code>getMaxWitnessEventId</code>
-      <code>getPageChainHeight</code>
       <code>getWitnessData</code>
-      <code>get_page_all_revs</code>
       <code>requestMerkleProof</code>
     </MissingReturnType>
-    <MixedArgument occurrences="4">
-      <code>$revs</code>
+    <MixedArgument occurrences="3">
       <code>DB_REPLICA</code>
       <code>DB_REPLICA</code>
       <code>DB_REPLICA</code>
     </MixedArgument>
-    <MixedAssignment occurrences="8">
+    <MixedAssignment occurrences="7">
       <code>$data['page_id']</code>
       <code>$data['page_title']</code>
       <code>$data['rev_id']</code>
       <code>$depth</code>
       <code>$max_depth</code>
       <code>$page_verification_hash</code>
-      <code>$revs</code>
       <code>$row</code>
     </MixedAssignment>
     <MixedMethodCall occurrences="1">
       <code>selectRow</code>
     </MixedMethodCall>
-    <MixedOperand occurrences="12">
+    <MixedOperand occurrences="11">
       <code>$depth</code>
       <code>$depth</code>
       <code>$max_depth</code>
-      <code>$page_title</code>
       <code>$page_verification_hash</code>
       <code>$page_verification_hash</code>
       <code>$page_verification_hash</code>
@@ -570,7 +557,8 @@
       <code>getLocalURL</code>
       <code>getNamespace</code>
     </PossiblyNullReference>
-    <UndefinedFunction occurrences="1">
+    <UndefinedFunction occurrences="2">
+      <code>getPageChainHeight( $title-&gt;getText() )</code>
       <code>wfEscapeWikiText( $wgExampleMyWord )</code>
     </UndefinedFunction>
   </file>
@@ -1157,8 +1145,9 @@
     <InvalidReturnType occurrences="1">
       <code>ContentHandler</code>
     </InvalidReturnType>
-    <InvalidScalarArgument occurrences="2">
+    <InvalidScalarArgument occurrences="3">
       <code>$pageInfo['ns'] ?? null</code>
+      <code>$pageInfo['title']</code>
       <code>$pageInfo['title']</code>
     </InvalidScalarArgument>
     <InvalidThrow occurrences="1">
@@ -1198,7 +1187,7 @@
       <code>throwXmlError</code>
       <code>warn</code>
     </MissingReturnType>
-    <MixedArgument occurrences="55">
+    <MixedArgument occurrences="56">
       <code>$contentInfo['text']</code>
       <code>$foreignTitle</code>
       <code>$logInfo['action']</code>
@@ -1217,6 +1206,7 @@
       <code>$pageInfo['ns'] ?? null</code>
       <code>$pageInfo['revisionCount']</code>
       <code>$pageInfo['successfulRevisionCount']</code>
+      <code>$pageInfo['title']</code>
       <code>$pageInfo['title']</code>
       <code>$pageInfo['title']</code>
       <code>$revId</code>
@@ -1276,7 +1266,7 @@
       <code>$witnessInfo['domain_manifest_title']</code>
       <code>$witnessInfo['source']</code>
     </MixedArrayAssignment>
-    <MixedAssignment occurrences="36">
+    <MixedAssignment occurrences="35">
       <code>$commandLineMode</code>
       <code>$content</code>
       <code>$displayNSText</code>
@@ -1285,7 +1275,6 @@
       <code>$local_witness_event_id</code>
       <code>$model</code>
       <code>$out</code>
-      <code>$own_chain_height</code>
       <code>$pageInfo['revisionCount']</code>
       <code>$pageInfo['successfulRevisionCount']</code>
       <code>$page_verification_hash</code>

@@ -15,7 +15,7 @@ require_once __DIR__ . "/../ApiUtil.php";
 class GetPageAllRevsHandler extends SimpleHandler {
 
 	/** @inheritDoc */
-	public function run( $page_title ) {
+	public function run( string $page_title ) {
 		#Expects Page Title and returns ALL verified revisions
 		return get_page_all_revs( $page_title );
 	}

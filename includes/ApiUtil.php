@@ -6,11 +6,10 @@ namespace DataAccounting;
 
 use MediaWiki\MediaWikiServices;
 
-# include / exclude for debugging
-error_reporting( E_ALL );
-ini_set( "display_errors", 1 );
-
-function get_page_all_revs( $page_title ) {
+/**
+ * @return array<int, array<string, mixed>>
+ */
+function get_page_all_revs( string $page_title ): array {
 	//Database Query
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	$dbr = $lb->getConnectionRef( DB_REPLICA );
@@ -36,9 +35,8 @@ function get_page_all_revs( $page_title ) {
 	return $output;
 }
 
-function getPageChainHeight( $page_title ) {
-	$revs = get_page_all_revs( $page_title );
-	return count( $revs );
+function getPageChainHeight( string $page_title ): int {
+	return count( get_page_all_revs( $page_title ) );
 }
 
 function requestMerkleProof( $witness_event_id, $page_verification_hash, $depth = null ) {

@@ -4,12 +4,8 @@ declare( strict_types = 1 );
 
 namespace DataAccounting\Tests;
 
-use DataAccounting\RevisionXmlBuilder;
-use MediaWiki\Revision\RevisionRecord;
 use MediaWikiIntegrationTestCase;
-use stdClass;
 use WikiExporter;
-use function DataAccounting\getPageChainHeight;
 
 /**
  * @group Database

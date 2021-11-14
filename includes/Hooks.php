@@ -199,8 +199,11 @@ class Hooks implements
 	}
 
 	public static function onXmlDumpWriterOpenPage( \XmlDumpWriter $dumpWriter, string &$output, stdClass $page, \Title $title ): void {
-		$chain_height = getPageChainHeight( $title->getText() );
-		$output .= "<data_accounting_chain_height>$chain_height</data_accounting_chain_height>\n";
+		$output .= \Xml::element(
+			'data_accounting_chain_height',
+			[],
+			(string)getPageChainHeight( $title->getText() )
+		);
 	}
 
 	public static function onXmlDumpWriterWriteRevision( \XmlDumpWriter $dumpWriter, string &$output, stdClass $page, string $text, RevisionRecord $revision ): void {
