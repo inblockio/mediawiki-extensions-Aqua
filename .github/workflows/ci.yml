@@ -76,8 +76,15 @@ jobs:
           php maintenance/update.php --quick
 
       - name: Run PHPUnit
+        run: php tests/phpunit/phpunit.php -c extensions/DataAccounting
+        if: matrix.mw != 'REL1_37'
+
+      - name: Run PHPUnit with code coverage
         run: |
-          php tests/phpunit/phpunit.php -c extensions/DataAccounting
+          php tests/phpunit/phpunit.php -c extensions/DataAccounting/ --coverage-clover coverage.xml
+          bash <(curl -s https://codecov.io/bash)
+        if: matrix.mw == 'REL1_37'
+
 
 
   static-analysis:
