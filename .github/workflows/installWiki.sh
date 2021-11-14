@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -e
+set -ex
 
 # Taken from https://github.com/ProfessionalWiki/Maps/blob/master/.github/workflows/installMediaWiki.sh
 # Modifications:
@@ -16,7 +16,8 @@ mv mediawiki-$MW_BRANCH mediawiki
 
 cd mediawiki
 
-composer install
+composer install --no-progress --no-interaction --prefer-dist --optimize-autoloader
+
 php maintenance/install.php \
 	--dbtype sqlite \
 	--dbuser root \
