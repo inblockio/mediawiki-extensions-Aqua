@@ -4,17 +4,26 @@ declare( strict_types = 1 );
 
 namespace DataAccounting\Tests;
 
-use DataAccounting\VerifiedWikiExporter;
 use MediaWikiIntegrationTestCase;
+use stdClass;
+use WikiExporter;
+use function DataAccounting\getPageChainHeight;
 
 /**
  * @group Database
- * @covers \DataAccounting\VerifiedWikiExporter
  */
 class VerifiedWikiExporterTest extends MediaWikiIntegrationTestCase {
 
 	public function testVerificationDataIsPresentInOutput(): void {
-		$exporter = new VerifiedWikiExporter(
+		$this->getServiceContainer()->getHookContainer()->register(
+			'XmlDumpWriterOpenPage',
+			function( \XmlDumpWriter $dumpWriter, string &$output, stdClass $page, \Title $title ) {
+				$chain_height = getPageChainHeight( $title->getText() );
+				$output .= "<data_accounting_chain_height>$chain_height</data_accounting_chain_height>\n";
+			}
+		);
+
+		$exporter = new WikiExporter(
 			$this->db
 		);
 
@@ -30,15 +39,15 @@ class VerifiedWikiExporterTest extends MediaWikiIntegrationTestCase {
 			$output->__toString()
 		);
 
-		$this->assertStringContainsString(
-			'<verification>',
-			$output->__toString()
-		);
-
-		$this->assertStringContainsString(
-			'<verification_hash>',
-			$output->__toString()
-		);
+//		$this->assertStringContainsString(
+//			'<verification>',
+//			$output->__toString()
+//		);
+//
+//		$this->assertStringContainsString(
+//			'<verification_hash>',
+//			$output->__toString()
+//		);
 	}
 
 }
