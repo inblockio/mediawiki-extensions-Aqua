@@ -7,7 +7,6 @@ use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 
-
 class GetPageLastRevHandler extends SimpleHandler {
 
 	/** @inheritDoc */

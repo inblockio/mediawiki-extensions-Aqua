@@ -9,8 +9,9 @@ use WikiExporter;
 
 /**
  * @group Database
+ * @covers \DataAccounting\Hooks
  */
-class VerifiedWikiExporterTest extends MediaWikiIntegrationTestCase {
+class ExportTest extends MediaWikiIntegrationTestCase {
 
 	public function testVerificationDataIsPresentInOutput(): void {
 		$exporter = new WikiExporter(
