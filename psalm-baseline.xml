@@ -1,0 +1,1567 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="4.12.0@e42bc4a23f67acba28a23bb09c348e2ff38a1d87">
+  <file src="../../includes/content/TextContent.php">
+    <UndefinedConstant occurrences="1">
+      <code>CONTENT_MODEL_TEXT</code>
+    </UndefinedConstant>
+    <UndefinedFunction occurrences="1"/>
+  </file>
+  <file src="../../includes/content/TextContentHandler.php">
+    <MissingParamType occurrences="2">
+      <code>$formats</code>
+      <code>$modelId</code>
+    </MissingParamType>
+    <MixedArgument occurrences="2">
+      <code>$formats</code>
+      <code>$modelId</code>
+    </MixedArgument>
+    <UndefinedConstant occurrences="2">
+      <code>CONTENT_FORMAT_TEXT</code>
+      <code>CONTENT_MODEL_TEXT</code>
+    </UndefinedConstant>
+  </file>
+  <file src="../../includes/export/WikiExporter.php">
+    <InternalMethod occurrences="1">
+      <code>new HookRunner( $services-&gt;getHookContainer() )</code>
+    </InternalMethod>
+    <MixedReturnStatement occurrences="1">
+      <code>$wgXmlDumpSchemaVersion</code>
+    </MixedReturnStatement>
+  </file>
+  <file src="../../includes/resourceloader/ResourceLoaderFileModule.php">
+    <MixedArgument occurrences="1">
+      <code>$templatePath</code>
+    </MixedArgument>
+    <MixedArrayAssignment occurrences="1">
+      <code>$this-&gt;{$member}[$key]</code>
+    </MixedArrayAssignment>
+    <MixedAssignment occurrences="3">
+      <code>$templatePath</code>
+      <code>$this-&gt;deprecated</code>
+      <code>$value</code>
+    </MixedAssignment>
+  </file>
+  <file src="includes/API/GetPageAllRevsHandler.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
+      <code>$page_title</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>run</code>
+    </MissingReturnType>
+  </file>
+  <file src="includes/API/GetPageByRevIdHandler.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
+      <code>$rev_id</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>run</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>DB_REPLICA</code>
+    </MixedArgument>
+    <PossiblyInvalidPropertyFetch occurrences="2">
+      <code>$resRow-&gt;page_id</code>
+      <code>$resRow-&gt;page_title</code>
+    </PossiblyInvalidPropertyFetch>
+    <UndefinedConstant occurrences="1">
+      <code>DB_REPLICA</code>
+    </UndefinedConstant>
+  </file>
+  <file src="includes/API/GetPageLastRevHandler.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
+      <code>$page_title</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>run</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>DB_REPLICA</code>
+    </MixedArgument>
+    <PossiblyInvalidPropertyFetch occurrences="4">
+      <code>$row-&gt;page_id</code>
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;rev_id</code>
+      <code>$row-&gt;verification_hash</code>
+    </PossiblyInvalidPropertyFetch>
+    <UndefinedConstant occurrences="1">
+      <code>DB_REPLICA</code>
+    </UndefinedConstant>
+  </file>
+  <file src="includes/API/GetWitnessDataHandler.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
+      <code>$witness_event_id</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>run</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="1">
+      <code>$output</code>
+    </MixedAssignment>
+  </file>
+  <file src="includes/API/RequestHashHandler.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
+      <code>$rev_id</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>run</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>DB_REPLICA</code>
+    </MixedArgument>
+    <MixedOperand occurrences="1">
+      <code>$row-&gt;verification_hash</code>
+    </MixedOperand>
+    <PossiblyInvalidPropertyFetch occurrences="1">
+      <code>$row-&gt;verification_hash</code>
+    </PossiblyInvalidPropertyFetch>
+    <UndefinedConstant occurrences="1">
+      <code>DB_REPLICA</code>
+    </UndefinedConstant>
+  </file>
+  <file src="includes/API/RequestMerkleProofHandler.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="2">
+      <code>$page_verification_hash</code>
+      <code>$witness_event_id</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>run</code>
+    </MissingReturnType>
+    <MixedAssignment occurrences="2">
+      <code>$depth</code>
+      <code>$output</code>
+    </MixedAssignment>
+  </file>
+  <file src="includes/API/VerifyPageHandler.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
+      <code>$rev_id</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="1">
+      <code>run</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>DB_REPLICA</code>
+    </MixedArgument>
+    <PossiblyInvalidPropertyFetch occurrences="7">
+      <code>$row-&gt;domain_id</code>
+      <code>$row-&gt;public_key</code>
+      <code>$row-&gt;signature</code>
+      <code>$row-&gt;time_stamp</code>
+      <code>$row-&gt;verification_hash</code>
+      <code>$row-&gt;wallet_address</code>
+      <code>$row-&gt;witness_event_id</code>
+    </PossiblyInvalidPropertyFetch>
+    <UndefinedConstant occurrences="1">
+      <code>DB_REPLICA</code>
+    </UndefinedConstant>
+  </file>
+  <file src="includes/API/WriteStoreSignedTxHandler.php">
+    <DeprecatedMethod occurrences="1">
+      <code>doEditContent</code>
+    </DeprecatedMethod>
+    <InvalidArgument occurrences="1">
+      <code>$this-&gt;user</code>
+    </InvalidArgument>
+    <InvalidPropertyAssignmentValue occurrences="1">
+      <code>RequestContext::getMain()-&gt;getUser()</code>
+    </InvalidPropertyAssignmentValue>
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="2">
+      <code>$titleString</code>
+      <code>$walletString</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="2">
+      <code>injectSignatureToPage</code>
+      <code>run</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="4">
+      <code>$pageText</code>
+      <code>$pageText</code>
+      <code>$titleString</code>
+      <code>DB_MASTER</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="4">
+      <code>$body['public_key']</code>
+      <code>$body['rev_id']</code>
+      <code>$body['signature']</code>
+      <code>$body['wallet_address']</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="9">
+      <code>$body</code>
+      <code>$doInject</code>
+      <code>$pageText</code>
+      <code>$public_key</code>
+      <code>$rev_id</code>
+      <code>$signature</code>
+      <code>$signature_hash</code>
+      <code>$title</code>
+      <code>$wallet_address</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="3">
+      <code>$pageText</code>
+      <code>$signature</code>
+      <code>$walletString</code>
+    </MixedOperand>
+    <PossiblyInvalidPropertyFetch occurrences="1">
+      <code>$row-&gt;page_title</code>
+    </PossiblyInvalidPropertyFetch>
+    <PossiblyNullArgument occurrences="1">
+      <code>$title</code>
+    </PossiblyNullArgument>
+    <PossiblyNullReference occurrences="1">
+      <code>getText</code>
+    </PossiblyNullReference>
+    <UndefinedConstant occurrences="1">
+      <code>DB_MASTER</code>
+    </UndefinedConstant>
+    <UndefinedDocblockClass occurrences="1">
+      <code>User</code>
+    </UndefinedDocblockClass>
+    <UndefinedInterfaceMethod occurrences="1">
+      <code>getText</code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="includes/API/WriteStoreWitnessTxHandler.php">
+    <DeprecatedMethod occurrences="1">
+      <code>doEditContent</code>
+    </DeprecatedMethod>
+    <InvalidArgument occurrences="1">
+      <code>$this-&gt;user</code>
+    </InvalidArgument>
+    <InvalidPropertyAssignmentValue occurrences="1">
+      <code>RequestContext::getMain()-&gt;getUser()</code>
+    </InvalidPropertyAssignmentValue>
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="7">
+      <code>$col</code>
+      <code>$conds</code>
+      <code>$db</code>
+      <code>$db</code>
+      <code>$table</code>
+      <code>$user</code>
+      <code>$witness_event_id</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="3">
+      <code>addReceiptToDomainManifest</code>
+      <code>run</code>
+      <code>selectToArray</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$user</code>
+      <code>DB_MASTER</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="3">
+      <code>$body['account_address']</code>
+      <code>$body['transaction_hash']</code>
+      <code>$body['witness_event_id']</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="12">
+      <code>$account_address</code>
+      <code>$body</code>
+      <code>$domainManifestVH</code>
+      <code>$pageText</code>
+      <code>$res</code>
+      <code>$row</code>
+      <code>$row</code>
+      <code>$transaction_hash</code>
+      <code>$verification_hashes</code>
+      <code>$vh</code>
+      <code>$witness_event_id</code>
+      <code>$witness_hash</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="3">
+      <code>select</code>
+      <code>selectRow</code>
+      <code>update</code>
+    </MixedMethodCall>
+    <MixedOperand occurrences="13">
+      <code>$pageText</code>
+      <code>$row-&gt;domain_id</code>
+      <code>$row-&gt;domain_manifest_verification_hash</code>
+      <code>$row-&gt;domain_manifest_verification_hash</code>
+      <code>$row-&gt;merkle_root</code>
+      <code>$row-&gt;sender_account_address</code>
+      <code>$row-&gt;smart_contract_address</code>
+      <code>$row-&gt;witness_event_transaction_hash</code>
+      <code>$row-&gt;witness_event_verification_hash</code>
+      <code>$row-&gt;witness_network</code>
+      <code>$row-&gt;witness_network</code>
+      <code>$transaction_hash</code>
+      <code>$witness_event_id</code>
+    </MixedOperand>
+    <MixedPropertyFetch occurrences="10">
+      <code>$row-&gt;domain_id</code>
+      <code>$row-&gt;domain_manifest_title</code>
+      <code>$row-&gt;domain_manifest_verification_hash</code>
+      <code>$row-&gt;merkle_root</code>
+      <code>$row-&gt;sender_account_address</code>
+      <code>$row-&gt;smart_contract_address</code>
+      <code>$row-&gt;witness_event_transaction_hash</code>
+      <code>$row-&gt;witness_event_verification_hash</code>
+      <code>$row-&gt;witness_network</code>
+      <code>$row-&gt;{$col}</code>
+    </MixedPropertyFetch>
+    <PossiblyInvalidPropertyFetch occurrences="4">
+      <code>$row-&gt;domain_manifest_verification_hash</code>
+      <code>$row-&gt;merkle_root</code>
+      <code>$row-&gt;witness_event_id</code>
+      <code>$row-&gt;witness_network</code>
+    </PossiblyInvalidPropertyFetch>
+    <PossiblyNullArgument occurrences="2">
+      <code>$finalTitle</code>
+      <code>$tentativeTitle</code>
+    </PossiblyNullArgument>
+    <PossiblyNullReference occurrences="1">
+      <code>getText</code>
+    </PossiblyNullReference>
+    <UndefinedConstant occurrences="1">
+      <code>DB_MASTER</code>
+    </UndefinedConstant>
+    <UndefinedDocblockClass occurrences="1">
+      <code>User</code>
+    </UndefinedDocblockClass>
+    <UndefinedInterfaceMethod occurrences="1">
+      <code>getText</code>
+    </UndefinedInterfaceMethod>
+  </file>
+  <file src="includes/ApiQueryExample.php">
+    <DeprecatedConstant occurrences="1">
+      <code>ApiBase::PARAM_TYPE</code>
+    </DeprecatedConstant>
+    <MissingReturnType occurrences="1">
+      <code>execute</code>
+    </MissingReturnType>
+    <MixedArrayAccess occurrences="1">
+      <code>$wgExampleFooStuff[$key]</code>
+    </MixedArrayAccess>
+    <MixedArrayOffset occurrences="3">
+      <code>$stuff[$key]</code>
+      <code>$wgExampleFooStuff[$key]</code>
+      <code>$wgExampleFooStuff[$key]</code>
+    </MixedArrayOffset>
+    <MixedAssignment occurrences="3">
+      <code>$key</code>
+      <code>$stuff</code>
+      <code>$stuff[$key]</code>
+    </MixedAssignment>
+  </file>
+  <file src="includes/ApiUtil.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="7">
+      <code>$db</code>
+      <code>$depth</code>
+      <code>$page_title</code>
+      <code>$page_title</code>
+      <code>$page_verification_hash</code>
+      <code>$witness_event_id</code>
+      <code>$witness_event_id</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="5">
+      <code>getMaxWitnessEventId</code>
+      <code>getPageChainHeight</code>
+      <code>getWitnessData</code>
+      <code>get_page_all_revs</code>
+      <code>requestMerkleProof</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="4">
+      <code>$revs</code>
+      <code>DB_REPLICA</code>
+      <code>DB_REPLICA</code>
+      <code>DB_REPLICA</code>
+    </MixedArgument>
+    <MixedAssignment occurrences="8">
+      <code>$data['page_id']</code>
+      <code>$data['page_title']</code>
+      <code>$data['rev_id']</code>
+      <code>$depth</code>
+      <code>$max_depth</code>
+      <code>$page_verification_hash</code>
+      <code>$revs</code>
+      <code>$row</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="1">
+      <code>selectRow</code>
+    </MixedMethodCall>
+    <MixedOperand occurrences="12">
+      <code>$depth</code>
+      <code>$depth</code>
+      <code>$max_depth</code>
+      <code>$page_title</code>
+      <code>$page_verification_hash</code>
+      <code>$page_verification_hash</code>
+      <code>$page_verification_hash</code>
+      <code>$page_verification_hash</code>
+      <code>$witness_event_id</code>
+      <code>$witness_event_id</code>
+      <code>$witness_event_id</code>
+      <code>$witness_event_id</code>
+    </MixedOperand>
+    <MixedPropertyFetch occurrences="1">
+      <code>$row-&gt;witness_event_id</code>
+    </MixedPropertyFetch>
+    <PossiblyInvalidPropertyFetch occurrences="20">
+      <code>$row-&gt;depth</code>
+      <code>$row-&gt;depth</code>
+      <code>$row-&gt;domain_id</code>
+      <code>$row-&gt;domain_manifest_title</code>
+      <code>$row-&gt;domain_manifest_verification_hash</code>
+      <code>$row-&gt;left_leaf</code>
+      <code>$row-&gt;merkle_root</code>
+      <code>$row-&gt;page_id</code>
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;rev_id</code>
+      <code>$row-&gt;right_leaf</code>
+      <code>$row-&gt;sender_account_address</code>
+      <code>$row-&gt;smart_contract_address</code>
+      <code>$row-&gt;source</code>
+      <code>$row-&gt;successor</code>
+      <code>$row-&gt;witness_event_id</code>
+      <code>$row-&gt;witness_event_transaction_hash</code>
+      <code>$row-&gt;witness_event_verification_hash</code>
+      <code>$row-&gt;witness_hash</code>
+      <code>$row-&gt;witness_network</code>
+    </PossiblyInvalidPropertyFetch>
+    <PossiblyUndefinedArrayOffset occurrences="1">
+      <code>$output['successor']</code>
+    </PossiblyUndefinedArrayOffset>
+    <UndefinedConstant occurrences="3">
+      <code>DB_REPLICA</code>
+      <code>DB_REPLICA</code>
+      <code>DB_REPLICA</code>
+    </UndefinedConstant>
+  </file>
+  <file src="includes/DAAction.php">
+    <MissingReturnType occurrences="1">
+      <code>show</code>
+    </MissingReturnType>
+    <PropertyNotSetInConstructor occurrences="1">
+      <code>DAAction</code>
+    </PropertyNotSetInConstructor>
+  </file>
+  <file src="includes/HashWriterHooks.php">
+    <DeprecatedInterface occurrences="1">
+      <code>HashWriterHooks</code>
+    </DeprecatedInterface>
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="16">
+      <code>$contentHash</code>
+      <code>$dbr</code>
+      <code>$domainId</code>
+      <code>$domain_manifest_verification_hash</code>
+      <code>$merkle_root</code>
+      <code>$metadataHash</code>
+      <code>$previousVerificationHash</code>
+      <code>$previous_rev_id</code>
+      <code>$publicKey</code>
+      <code>$signature</code>
+      <code>$signature_hash</code>
+      <code>$timestamp</code>
+      <code>$witness_hash</code>
+      <code>$witness_network</code>
+      <code>$witness_tx_hash</code>
+      <code>$x</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="6">
+      <code>calculateMetadataHash</code>
+      <code>calculateSignatureHash</code>
+      <code>calculateVerificationHash</code>
+      <code>calculateWitnessHash</code>
+      <code>getPageVerificationData</code>
+      <code>makeEmptyIfNonce</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="4">
+      <code>DB_MASTER</code>
+      <code>DB_MASTER</code>
+      <code>DB_MASTER</code>
+      <code>DB_MASTER</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="8">
+      <code>$verificationData['public_key']</code>
+      <code>$verificationData['signature']</code>
+      <code>$verificationData['verification_hash']</code>
+      <code>$verificationData['witness_event_id']</code>
+      <code>$witnessData['merkle_root']</code>
+      <code>$witnessData['witness_event_transaction_hash']</code>
+      <code>$witnessData['witness_event_verification_hash']</code>
+      <code>$witnessData['witness_network']</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="17">
+      <code>$contentHash</code>
+      <code>$domainId</code>
+      <code>$domain_manifest_verification_hash</code>
+      <code>$merkle_root</code>
+      <code>$metadataHash</code>
+      <code>$new_title</code>
+      <code>$old_title</code>
+      <code>$previousVerificationHash</code>
+      <code>$publicKey</code>
+      <code>$row</code>
+      <code>$signature</code>
+      <code>$signatureHash</code>
+      <code>$verificationData</code>
+      <code>$witnessData</code>
+      <code>$witnessHash</code>
+      <code>$witness_network</code>
+      <code>$witness_tx_hash</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="1">
+      <code>selectRow</code>
+    </MixedMethodCall>
+    <MixedOperand occurrences="9">
+      <code>$contentHash</code>
+      <code>$domainId</code>
+      <code>$domain_manifest_verification_hash</code>
+      <code>$previousVerificationHash</code>
+      <code>$signature</code>
+      <code>$signature_hash</code>
+      <code>$witness_hash</code>
+      <code>$witness_network</code>
+      <code>$witness_tx_hash</code>
+    </MixedOperand>
+    <MixedPropertyFetch occurrences="5">
+      <code>$row-&gt;public_key</code>
+      <code>$row-&gt;signature</code>
+      <code>$row-&gt;verification_hash</code>
+      <code>$row-&gt;wallet_address</code>
+      <code>$row-&gt;witness_event_id</code>
+    </MixedPropertyFetch>
+    <PossiblyNullPropertyFetch occurrences="1">
+      <code>$rev-&gt;getComment()-&gt;text</code>
+    </PossiblyNullPropertyFetch>
+    <PossiblyNullReference occurrences="1">
+      <code>serialize</code>
+    </PossiblyNullReference>
+    <UndefinedConstant occurrences="4">
+      <code>DB_MASTER</code>
+      <code>DB_MASTER</code>
+      <code>DB_MASTER</code>
+      <code>DB_MASTER</code>
+    </UndefinedConstant>
+    <UndefinedInterfaceMethod occurrences="2">
+      <code>getPrefixedText</code>
+      <code>getPrefixedText</code>
+    </UndefinedInterfaceMethod>
+    <UnusedVariable occurrences="1">
+      <code>$comment</code>
+    </UnusedVariable>
+  </file>
+  <file src="includes/Hooks.php">
+    <InvalidGlobal occurrences="1">
+      <code>global $wgExampleEnableWelcome;</code>
+    </InvalidGlobal>
+    <MixedArgument occurrences="1">
+      <code>$wgServer</code>
+    </MixedArgument>
+    <MixedArrayAssignment occurrences="1">
+      <code>$cactions['actions']['daact']</code>
+    </MixedArrayAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>string</code>
+    </MixedInferredReturnType>
+    <MixedReturnStatement occurrences="1">
+      <code>wfEscapeWikiText( $wgExampleMyWord )</code>
+    </MixedReturnStatement>
+    <ParamNameMismatch occurrences="3">
+      <code>$cache</code>
+      <code>$cactions</code>
+      <code>$skin</code>
+    </ParamNameMismatch>
+    <PossiblyFalseArgument occurrences="2">
+      <code>FormatJson::encode( $dump, /*prettyPrint=*/ true )</code>
+      <code>FormatJson::encode( $showme, /*prettyPrint=*/ true )</code>
+    </PossiblyFalseArgument>
+    <PossiblyNullArgument occurrences="2">
+      <code>$out-&gt;getTitle()</code>
+      <code>$skin-&gt;getTitle()</code>
+    </PossiblyNullArgument>
+    <PossiblyNullReference occurrences="2">
+      <code>getLocalURL</code>
+      <code>getNamespace</code>
+    </PossiblyNullReference>
+    <UndefinedConstant occurrences="1">
+      <code>NS_SPECIAL</code>
+    </UndefinedConstant>
+    <UndefinedFunction occurrences="1">
+      <code>wfEscapeWikiText( $wgExampleMyWord )</code>
+    </UndefinedFunction>
+  </file>
+  <file src="includes/SignMessageModule.php">
+    <PossiblyFalseOperand occurrences="1"/>
+    <PossiblyInvalidOperand occurrences="1">
+      <code>parent::getScript( $context )</code>
+    </PossiblyInvalidOperand>
+    <PropertyNotSetInConstructor occurrences="3">
+      <code>SignMessageModule</code>
+      <code>SignMessageModule</code>
+      <code>SignMessageModule</code>
+    </PropertyNotSetInConstructor>
+  </file>
+  <file src="includes/SpecialDataAccountingConfig.php">
+    <MissingParamType occurrences="1">
+      <code>$formData</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="2">
+      <code>execute</code>
+      <code>saveWitnessConfig</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="1">
+      <code>DB_MASTER</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="2">
+      <code>$data_accounting_config['smartcontractaddress']</code>
+      <code>$data_accounting_config['witnessnetwork']</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="1">
+      <code>$data_accounting_config</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="1">
+      <code>getDomainId()</code>
+    </MixedOperand>
+    <ParamNameMismatch occurrences="1">
+      <code>$par</code>
+    </ParamNameMismatch>
+    <PropertyNotSetInConstructor occurrences="2">
+      <code>SpecialDataAccountingConfig</code>
+      <code>SpecialDataAccountingConfig</code>
+    </PropertyNotSetInConstructor>
+    <UndefinedConstant occurrences="1">
+      <code>DB_MASTER</code>
+    </UndefinedConstant>
+    <UnusedVariable occurrences="1">
+      <code>$dbw</code>
+    </UnusedVariable>
+  </file>
+  <file src="includes/SpecialVerifiedExport.php">
+    <InvalidScalarArgument occurrences="2">
+      <code>$nsindex</code>
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingReturnType occurrences="2">
+      <code>doExport</code>
+      <code>execute</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="11">
+      <code>$history</code>
+      <code>$linkDepth</code>
+      <code>$page</code>
+      <code>$page</code>
+      <code>$row-&gt;namespace</code>
+      <code>$row-&gt;page_namespace</code>
+      <code>$row-&gt;page_namespace</code>
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;title</code>
+      <code>NS_MAIN</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$v</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="9">
+      <code>$history['offset']</code>
+      <code>$linkDepth</code>
+      <code>$maxHistory</code>
+      <code>$maxLinkDepth</code>
+      <code>$maxPages</code>
+      <code>$maxPages</code>
+      <code>$offset</code>
+      <code>$page</code>
+      <code>$page</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>int</code>
+    </MixedInferredReturnType>
+    <MixedOperand occurrences="1">
+      <code>$config-&gt;get( 'Sitename' )</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="1">
+      <code>$maxLinkDepth</code>
+    </MixedReturnStatement>
+    <ParamNameMismatch occurrences="1">
+      <code>$par</code>
+    </ParamNameMismatch>
+    <PossiblyInvalidPropertyFetch occurrences="6">
+      <code>$row-&gt;namespace</code>
+      <code>$row-&gt;page_namespace</code>
+      <code>$row-&gt;page_namespace</code>
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;title</code>
+    </PossiblyInvalidPropertyFetch>
+    <PossiblyNullArgument occurrences="3">
+      <code>$dir</code>
+      <code>$par</code>
+      <code>$request-&gt;getIntOrNull( 'pagelink-depth' )</code>
+    </PossiblyNullArgument>
+    <PossiblyUndefinedVariable occurrences="2">
+      <code>$history</code>
+      <code>$pages</code>
+    </PossiblyUndefinedVariable>
+    <PropertyNotSetInConstructor occurrences="2">
+      <code>SpecialVerifiedExport</code>
+      <code>SpecialVerifiedExport</code>
+    </PropertyNotSetInConstructor>
+    <RedundantConditionGivenDocblockType occurrences="4">
+      <code>$catname !== '' &amp;&amp; $catname !== null</code>
+      <code>$catname !== '' &amp;&amp; $catname !== null &amp;&amp; $catname !== false</code>
+      <code>$catname !== false</code>
+      <code>$catname !== null</code>
+    </RedundantConditionGivenDocblockType>
+    <UndefinedConstant occurrences="2">
+      <code>NS_MAIN</code>
+      <code>TS_MW</code>
+    </UndefinedConstant>
+    <UndefinedFunction occurrences="3">
+      <code>wfResetOutputBuffers()</code>
+      <code>wfTimestamp( TS_MW, $rawOffset )</code>
+      <code>wfTimestampNow()</code>
+    </UndefinedFunction>
+  </file>
+  <file src="includes/SpecialVerifiedImport.php">
+    <DeprecatedMethod occurrences="3">
+      <code>getEditToken</code>
+      <code>getEditToken</code>
+      <code>matchEditToken</code>
+    </DeprecatedMethod>
+    <InternalMethod occurrences="1">
+      <code>onImportSources</code>
+    </InternalMethod>
+    <InvalidScalarArgument occurrences="3">
+      <code>$isSameSourceAsBefore ? ( $this-&gt;mapping === 'subpage' ) : ''</code>
+      <code>0</code>
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingParamType occurrences="1">
+      <code>$sourceName</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="4">
+      <code>doImport</code>
+      <code>execute</code>
+      <code>getMappingFormPart</code>
+      <code>showForm</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="10">
+      <code>$errors</code>
+      <code>$isSameSourceAsBefore ? $this-&gt;rootpage : ''</code>
+      <code>$key</code>
+      <code>$subproject</code>
+      <code>$subproject</code>
+      <code>$this-&gt;frompage</code>
+      <code>$this-&gt;history</code>
+      <code>$this-&gt;includeTemplates</code>
+      <code>$this-&gt;sourceName === 'interwiki' ? $this-&gt;logcomment : ''</code>
+      <code>$this-&gt;sourceName === 'upload' ? $this-&gt;logcomment : ''</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$value</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="9">
+      <code>$defaultNamespace</code>
+      <code>$errors</code>
+      <code>$key</code>
+      <code>$mappingSelection</code>
+      <code>$mappingSelection</code>
+      <code>$subproject</code>
+      <code>$this-&gt;importSources</code>
+      <code>$value</code>
+      <code>$value</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="1"/>
+    <ParamNameMismatch occurrences="1">
+      <code>$par</code>
+    </ParamNameMismatch>
+    <PossiblyNullArgument occurrences="1">
+      <code>$request-&gt;getVal( 'editToken' )</code>
+    </PossiblyNullArgument>
+    <PropertyNotSetInConstructor occurrences="3">
+      <code>$importSources</code>
+      <code>SpecialVerifiedImport</code>
+      <code>SpecialVerifiedImport</code>
+    </PropertyNotSetInConstructor>
+    <TypeDoesNotContainType occurrences="1">
+      <code>''</code>
+    </TypeDoesNotContainType>
+    <UndefinedClass occurrences="3">
+      <code>Linker</code>
+      <code>Status</code>
+      <code>UnexpectedValueException</code>
+    </UndefinedClass>
+    <UndefinedDocblockClass occurrences="1">
+      <code>ReadOnlyError</code>
+    </UndefinedDocblockClass>
+    <UndefinedFunction occurrences="1"/>
+    <UnusedVariable occurrences="1">
+      <code>$key</code>
+    </UnusedVariable>
+  </file>
+  <file src="includes/SpecialWitness.php">
+    <DeprecatedMethod occurrences="1">
+      <code>doEditContent</code>
+    </DeprecatedMethod>
+    <InvalidScalarArgument occurrences="1">
+      <code>1</code>
+    </InvalidScalarArgument>
+    <MissingClosureParamType occurrences="1">
+      <code>$data</code>
+    </MissingClosureParamType>
+    <MissingParamType occurrences="28">
+      <code>$dbw</code>
+      <code>$dbw</code>
+      <code>$dbw</code>
+      <code>$dbw</code>
+      <code>$depth</code>
+      <code>$do_wikitext</code>
+      <code>$domain_manifest_verification_hash</code>
+      <code>$formData</code>
+      <code>$hash</code>
+      <code>$hash</code>
+      <code>$hash</code>
+      <code>$is_last</code>
+      <code>$layers</code>
+      <code>$level</code>
+      <code>$merkle_root</code>
+      <code>$out</code>
+      <code>$out</code>
+      <code>$output</code>
+      <code>$output</code>
+      <code>$prefix</code>
+      <code>$title</code>
+      <code>$treeLayers</code>
+      <code>$treeLayers</code>
+      <code>$verification_hashes</code>
+      <code>$witness_event_id</code>
+      <code>$witness_event_id</code>
+      <code>$witness_event_id</code>
+      <code>$witness_event_id</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="11">
+      <code>execute</code>
+      <code>generateDomainManifest</code>
+      <code>helperGenerateDomainManifestMerkleTree</code>
+      <code>helperGenerateDomainManifestTable</code>
+      <code>helperMakeNewDomainManifestpage</code>
+      <code>helperMaybeInsertWitnessEvent</code>
+      <code>hrefifyHashW</code>
+      <code>shortenHash</code>
+      <code>storeMerkleTree</code>
+      <code>tree_pprint</code>
+      <code>wikilinkifyHash</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="12">
+      <code>$children</code>
+      <code>$data</code>
+      <code>$hash</code>
+      <code>$hash</code>
+      <code>$layers</code>
+      <code>$merkleTreeHtmlText</code>
+      <code>$output</code>
+      <code>$treeLayers</code>
+      <code>$verification_hashes</code>
+      <code>$verification_hashes</code>
+      <code>$verification_hashes[$i]</code>
+      <code>DB_MASTER</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="7">
+      <code>$domainManifestVH</code>
+      <code>$is_valid</code>
+      <code>$merkleTreeHtmlText</code>
+      <code>$output</code>
+      <code>$title</code>
+      <code>$verification_hashes</code>
+      <code>$verification_hashes[$i]</code>
+    </MixedArrayAccess>
+    <MixedAssignment occurrences="24">
+      <code>$DASmartContractAddress</code>
+      <code>$DAWitnessNetwork</code>
+      <code>$children</code>
+      <code>$domainManifestVH</code>
+      <code>$formatted_key</code>
+      <code>$key</code>
+      <code>$merkleTreeWikitext</code>
+      <code>$old_max_witness_event_id</code>
+      <code>$old_max_witness_event_id</code>
+      <code>$parent</code>
+      <code>$res</code>
+      <code>$row</code>
+      <code>$row</code>
+      <code>$row3</code>
+      <code>$rowDMVH</code>
+      <code>$shortened</code>
+      <code>$title</code>
+      <code>$treeLayers</code>
+      <code>$treeLayers</code>
+      <code>$value</code>
+      <code>$vhash</code>
+      <code>$witness_event_id</code>
+      <code>[ $is_valid, $verification_hashes, $output ]</code>
+      <code>[ $title, $domainManifestVH, $merkleTreeHtmlText ]</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="8">
+      <code>addWikiTextAsContent</code>
+      <code>insert</code>
+      <code>insert</code>
+      <code>insert</code>
+      <code>select</code>
+      <code>selectRow</code>
+      <code>selectRow</code>
+      <code>selectRow</code>
+    </MixedMethodCall>
+    <MixedOperand occurrences="19">
+      <code>$depth</code>
+      <code>$domain_manifest_verification_hash</code>
+      <code>$formatted_key</code>
+      <code>$hash</code>
+      <code>$key</code>
+      <code>$level</code>
+      <code>$merkleTreeWikitext</code>
+      <code>$old_max_witness_event_id</code>
+      <code>$out</code>
+      <code>$out</code>
+      <code>$output</code>
+      <code>$output</code>
+      <code>$prefix</code>
+      <code>$prefix</code>
+      <code>$row-&gt;page_title</code>
+      <code>shortenHash( $hash )</code>
+      <code>tree_pprint( $do_wikitext, $value, "", $new_prefix, $level + 1, $is_last )</code>
+      <code>tree_pprint( false, $treeLayers )</code>
+    </MixedOperand>
+    <MixedPropertyFetch occurrences="6">
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;rev_id</code>
+      <code>$row3-&gt;domain_id</code>
+      <code>$row3-&gt;verification_hash</code>
+      <code>$rowDMVH-&gt;verification_hash</code>
+    </MixedPropertyFetch>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$sub</code>
+    </MoreSpecificImplementedParamType>
+    <ParamNameMismatch occurrences="1">
+      <code>$sub</code>
+    </ParamNameMismatch>
+    <PossiblyNullArgument occurrences="1">
+      <code>$title</code>
+    </PossiblyNullArgument>
+    <PropertyNotSetInConstructor occurrences="2">
+      <code>SpecialWitness</code>
+      <code>SpecialWitness</code>
+    </PropertyNotSetInConstructor>
+    <UndefinedConstant occurrences="1">
+      <code>DB_MASTER</code>
+    </UndefinedConstant>
+    <UnusedParam occurrences="1">
+      <code>$is_last</code>
+    </UnusedParam>
+  </file>
+  <file src="includes/SpecialWitnessPublisher.php">
+    <MissingParamType occurrences="4">
+      <code>$dm</code>
+      <code>$hash</code>
+      <code>$hash</code>
+      <code>$prefix</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="4">
+      <code>execute</code>
+      <code>hrefifyHash</code>
+      <code>shortenDomainManifestTitle</code>
+      <code>shortenHash</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="4">
+      <code>$dm</code>
+      <code>$hash</code>
+      <code>$hash</code>
+      <code>DB_MASTER</code>
+    </MixedArgument>
+    <MixedArrayOffset occurrences="1">
+      <code>$witnessNetworkMap[$DAWitnessNetwork]</code>
+    </MixedArrayOffset>
+    <MixedAssignment occurrences="3">
+      <code>$DAWitnessNetwork</code>
+      <code>$hrefWEVH</code>
+      <code>$my_domain_id</code>
+    </MixedAssignment>
+    <MixedOperand occurrences="8">
+      <code>$hash</code>
+      <code>$prefix</code>
+      <code>$row-&gt;domain_manifest_title</code>
+      <code>$row-&gt;witness_event_id</code>
+      <code>shortenHash( $hash )</code>
+      <code>shortenHash( $hashOnly )</code>
+    </MixedOperand>
+    <MoreSpecificImplementedParamType occurrences="1">
+      <code>$sub</code>
+    </MoreSpecificImplementedParamType>
+    <ParamNameMismatch occurrences="1">
+      <code>$sub</code>
+    </ParamNameMismatch>
+    <PossiblyInvalidPropertyFetch occurrences="7">
+      <code>$row-&gt;domain_id</code>
+      <code>$row-&gt;domain_manifest_title</code>
+      <code>$row-&gt;witness_event_id</code>
+      <code>$row-&gt;witness_event_id</code>
+      <code>$row-&gt;witness_event_transaction_hash</code>
+      <code>$row-&gt;witness_event_verification_hash</code>
+      <code>$row-&gt;witness_network</code>
+    </PossiblyInvalidPropertyFetch>
+    <PropertyNotSetInConstructor occurrences="2">
+      <code>SpecialWitnessPublisher</code>
+      <code>SpecialWitnessPublisher</code>
+    </PropertyNotSetInConstructor>
+    <UndefinedConstant occurrences="1">
+      <code>DB_MASTER</code>
+    </UndefinedConstant>
+  </file>
+  <file src="includes/Util.php">
+    <MissingParamType occurrences="2">
+      <code>$data</code>
+      <code>$inputStr</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="5">
+      <code>generateDomainId</code>
+      <code>getDataAccountingConfig</code>
+      <code>getDomainId</code>
+      <code>getHashSum</code>
+      <code>setDataAccountingConfig</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="2">
+      <code>$domain_id</code>
+      <code>$inputStr</code>
+    </MixedArgument>
+    <MixedArrayAssignment occurrences="1">
+      <code>$da_config[$key]</code>
+    </MixedArrayAssignment>
+    <MixedArrayOffset occurrences="1">
+      <code>$da_config[$key]</code>
+    </MixedArrayOffset>
+    <MixedAssignment occurrences="9">
+      <code>$da_config</code>
+      <code>$da_config</code>
+      <code>$da_config</code>
+      <code>$da_config[$key]</code>
+      <code>$dataArray</code>
+      <code>$domain_id</code>
+      <code>$domain_id</code>
+      <code>$key</code>
+      <code>$value</code>
+    </MixedAssignment>
+  </file>
+  <file src="includes/VerifiedWikiExporter.php">
+    <DocblockTypeContradiction occurrences="1">
+      <code>$lastRow === null</code>
+    </DocblockTypeContradiction>
+    <MissingParamType occurrences="9">
+      <code>$arr</code>
+      <code>$db</code>
+      <code>$history</code>
+      <code>$limitNamespaces</code>
+      <code>$page_verification_hash</code>
+      <code>$rev_id</code>
+      <code>$tag</code>
+      <code>$text</code>
+      <code>$witness_event_id</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="3">
+      <code>convertArray2XMLString</code>
+      <code>getPageMetadataByRevId</code>
+      <code>getPageWitnessData</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="11">
+      <code>$arr</code>
+      <code>$db</code>
+      <code>$history</code>
+      <code>$limitNamespaces</code>
+      <code>$output</code>
+      <code>$tag</code>
+      <code>$text</code>
+      <code>$text</code>
+      <code>$title</code>
+      <code>$xmlString</code>
+      <code>DB_REPLICA</code>
+    </MixedArgument>
+    <MixedArrayAssignment occurrences="1">
+      <code>$witness_data["structured_merkle_proof"]</code>
+    </MixedArrayAssignment>
+    <MixedAssignment occurrences="9">
+      <code>$chain_height</code>
+      <code>$output</code>
+      <code>$output</code>
+      <code>$title</code>
+      <code>$verification_info</code>
+      <code>$wdXmlString</code>
+      <code>$witness_data</code>
+      <code>$xmlString</code>
+      <code>$xmlString</code>
+    </MixedAssignment>
+    <MixedMethodCall occurrences="4">
+      <code>closePage</code>
+      <code>openPage</code>
+      <code>writeRevision</code>
+      <code>writeUploads</code>
+    </MixedMethodCall>
+    <MixedOperand occurrences="6">
+      <code>$output</code>
+      <code>$rev_id</code>
+      <code>$this-&gt;writer-&gt;closePage()</code>
+      <code>$this-&gt;writer-&gt;writeUploads( $lastRow, $this-&gt;dumpUploadFileContents )</code>
+      <code>$verification_info</code>
+      <code>$wdXmlString</code>
+    </MixedOperand>
+    <PossiblyFalseArgument occurrences="1">
+      <code>$xml-&gt;asXML()</code>
+    </PossiblyFalseArgument>
+    <PossiblyInvalidPropertyFetch occurrences="7">
+      <code>$row-&gt;domain_id</code>
+      <code>$row-&gt;public_key</code>
+      <code>$row-&gt;signature</code>
+      <code>$row-&gt;time_stamp</code>
+      <code>$row-&gt;verification_hash</code>
+      <code>$row-&gt;wallet_address</code>
+      <code>$row-&gt;witness_event_id</code>
+    </PossiblyInvalidPropertyFetch>
+    <PossiblyNullReference occurrences="1">
+      <code>getText</code>
+    </PossiblyNullReference>
+    <RedundantConditionGivenDocblockType occurrences="1">
+      <code>$lastRow !== null</code>
+    </RedundantConditionGivenDocblockType>
+    <UndefinedClass occurrences="1">
+      <code>LogicException</code>
+    </UndefinedClass>
+    <UndefinedConstant occurrences="1">
+      <code>DB_REPLICA</code>
+    </UndefinedConstant>
+    <UndefinedFunction occurrences="3">
+      <code>getPageChainHeight( $titleObj-&gt;getText() )</code>
+      <code>getWitnessData( $witness_event_id )</code>
+      <code>requestMerkleProof( $witness_event_id, $page_verification_hash )</code>
+    </UndefinedFunction>
+    <UndefinedThisPropertyAssignment occurrences="1">
+      <code>$this-&gt;writer</code>
+    </UndefinedThisPropertyAssignment>
+    <UndefinedThisPropertyFetch occurrences="4">
+      <code>$this-&gt;writer</code>
+      <code>$this-&gt;writer</code>
+      <code>$this-&gt;writer</code>
+      <code>$this-&gt;writer</code>
+    </UndefinedThisPropertyFetch>
+  </file>
+  <file src="includes/VerifiedWikiImporter.php">
+    <DeprecatedMethod occurrences="9">
+      <code>WikiPage::factory( $title )</code>
+      <code>getContentHandler</code>
+      <code>getFormat</code>
+      <code>getFormat</code>
+      <code>getModel</code>
+      <code>getModel</code>
+      <code>importOldRevision</code>
+      <code>importUpload</code>
+      <code>setText</code>
+    </DeprecatedMethod>
+    <DeprecatedProperty occurrences="1">
+      <code>$revision-&gt;text</code>
+    </DeprecatedProperty>
+    <InternalMethod occurrences="6">
+      <code>onImportHandleContentXMLTag</code>
+      <code>onImportHandleLogItemXMLTag</code>
+      <code>onImportHandlePageXMLTag</code>
+      <code>onImportHandleRevisionXMLTag</code>
+      <code>onImportHandleToplevelXMLTag</code>
+      <code>onImportHandleUploadXMLTag</code>
+    </InternalMethod>
+    <InvalidArgument occurrences="14">
+      <code>$content</code>
+      <code>$content</code>
+      <code>$namespace</code>
+      <code>$this</code>
+      <code>$this</code>
+      <code>$this</code>
+      <code>$this</code>
+      <code>$this</code>
+      <code>$this</code>
+      <code>$title</code>
+      <code>new NaiveImportTitleFactory()</code>
+      <code>new NaiveImportTitleFactory()</code>
+      <code>new NamespaceImportTitleFactory( $namespace )</code>
+      <code>new SubpageImportTitleFactory( $title )</code>
+    </InvalidArgument>
+    <InvalidNullableReturnType occurrences="1">
+      <code>string</code>
+    </InvalidNullableReturnType>
+    <InvalidPropertyAssignmentValue occurrences="1">
+      <code>new NaiveImportTitleFactory()</code>
+    </InvalidPropertyAssignmentValue>
+    <InvalidReturnStatement occurrences="1"/>
+    <InvalidReturnType occurrences="1">
+      <code>ContentHandler</code>
+    </InvalidReturnType>
+    <InvalidScalarArgument occurrences="2">
+      <code>$pageInfo['ns'] ?? null</code>
+      <code>$pageInfo['title']</code>
+    </InvalidScalarArgument>
+    <InvalidThrow occurrences="1">
+      <code>throw new MWException( "Missing role for imported slot." );</code>
+    </InvalidThrow>
+    <MissingParamType occurrences="7">
+      <code>$data</code>
+      <code>$data</code>
+      <code>$err</code>
+      <code>$msg</code>
+      <code>$params</code>
+      <code>$revisionInfo</code>
+      <code>$title</code>
+    </MissingParamType>
+    <MissingReturnType occurrences="23">
+      <code>debug</code>
+      <code>debugRevisionHandler</code>
+      <code>disableStatisticsUpdate</code>
+      <code>handleContent</code>
+      <code>handleLogItem</code>
+      <code>handlePage</code>
+      <code>handleRevision</code>
+      <code>handleSiteInfo</code>
+      <code>handleVerification</code>
+      <code>handleWitness</code>
+      <code>notice</code>
+      <code>pageCallback</code>
+      <code>pageOutCallback</code>
+      <code>processVerification</code>
+      <code>setDebug</code>
+      <code>setImageBasePath</code>
+      <code>setImportTitleFactory</code>
+      <code>setImportUploads</code>
+      <code>setNoUpdates</code>
+      <code>setPageOffset</code>
+      <code>setUsernamePrefix</code>
+      <code>throwXmlError</code>
+      <code>warn</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="55">
+      <code>$contentInfo['text']</code>
+      <code>$foreignTitle</code>
+      <code>$logInfo['action']</code>
+      <code>$logInfo['comment']</code>
+      <code>$logInfo['contributor']['ip']</code>
+      <code>$logInfo['contributor']['username']</code>
+      <code>$logInfo['id']</code>
+      <code>$logInfo['logtitle']</code>
+      <code>$logInfo['params']</code>
+      <code>$logInfo['timestamp']</code>
+      <code>$logInfo['type']</code>
+      <code>$model</code>
+      <code>$pageInfo['_title']</code>
+      <code>$pageInfo['_title']</code>
+      <code>$pageInfo['id']</code>
+      <code>$pageInfo['ns'] ?? null</code>
+      <code>$pageInfo['revisionCount']</code>
+      <code>$pageInfo['successfulRevisionCount']</code>
+      <code>$pageInfo['title']</code>
+      <code>$pageInfo['title']</code>
+      <code>$revId</code>
+      <code>$revId</code>
+      <code>$revisionInfo['comment']</code>
+      <code>$revisionInfo['contributor']['ip']</code>
+      <code>$revisionInfo['contributor']['username']</code>
+      <code>$revisionInfo['id']</code>
+      <code>$revisionInfo['sha1']</code>
+      <code>$revisionInfo['timestamp'] ?? wfTimestampNow()</code>
+      <code>$role</code>
+      <code>$row</code>
+      <code>$slotInfo</code>
+      <code>$slotInfo['role']</code>
+      <code>$text</code>
+      <code>$this-&gt;foreignNamespaces</code>
+      <code>$this-&gt;mNoUpdates</code>
+      <code>$this-&gt;mNoUpdates</code>
+      <code>$this-&gt;mNoUpdates</code>
+      <code>$title</code>
+      <code>$title</code>
+      <code>$title</code>
+      <code>$title</code>
+      <code>$uploadInfo['archivename']</code>
+      <code>$uploadInfo['comment']</code>
+      <code>$uploadInfo['contributor']['ip']</code>
+      <code>$uploadInfo['contributor']['username']</code>
+      <code>$uploadInfo['fileSrc']</code>
+      <code>$uploadInfo['filename']</code>
+      <code>$uploadInfo['sha1base36']</code>
+      <code>$uploadInfo['src']</code>
+      <code>$uploadInfo['timestamp']</code>
+      <code>$verificationInfo</code>
+      <code>$witnessInfo</code>
+      <code>$witnessInfo['structured_merkle_proof']</code>
+      <code>DB_MASTER</code>
+      <code>wfTempDir()</code>
+    </MixedArgument>
+    <MixedArrayAccess occurrences="10">
+      <code>$revisionInfo['contributor']['username']</code>
+      <code>$revisionInfo['verification']</code>
+      <code>$slotInfo['role']</code>
+      <code>$verificationInfo["rev_id"]</code>
+      <code>$verificationInfo["witness"]</code>
+      <code>$verificationInfo['verification_hash']</code>
+      <code>$verificationInfo['witness']</code>
+      <code>$witnessInfo['structured_merkle_proof']</code>
+      <code>$witnessInfo['structured_merkle_proof']</code>
+      <code>$witnessInfo['witness_event_verification_hash']</code>
+    </MixedArrayAccess>
+    <MixedArrayAssignment occurrences="7">
+      <code>$revisionInfo[$tag][]</code>
+      <code>$row["witness_event_id"]</code>
+      <code>$this-&gt;foreignNamespaces[$this-&gt;nodeAttribute( 'key' )]</code>
+      <code>$verificationInfo['page_title']</code>
+      <code>$verificationInfo['source']</code>
+      <code>$witnessInfo['domain_manifest_title']</code>
+      <code>$witnessInfo['source']</code>
+    </MixedArrayAssignment>
+    <MixedAssignment occurrences="36">
+      <code>$commandLineMode</code>
+      <code>$content</code>
+      <code>$displayNSText</code>
+      <code>$latest_witness_event_id</code>
+      <code>$local_witness_event_id</code>
+      <code>$local_witness_event_id</code>
+      <code>$model</code>
+      <code>$out</code>
+      <code>$own_chain_height</code>
+      <code>$pageInfo['revisionCount']</code>
+      <code>$pageInfo['successfulRevisionCount']</code>
+      <code>$page_verification_hash</code>
+      <code>$previous</code>
+      <code>$previous</code>
+      <code>$previous</code>
+      <code>$previous</code>
+      <code>$previous</code>
+      <code>$previous</code>
+      <code>$revId</code>
+      <code>$revisionInfo[$tag][]</code>
+      <code>$revisionInfo['verification']</code>
+      <code>$role</code>
+      <code>$row</code>
+      <code>$row["witness_event_id"]</code>
+      <code>$siteInfo['_namespaces']</code>
+      <code>$slotInfo</code>
+      <code>$structured_merkle_proof</code>
+      <code>$text</code>
+      <code>$text</code>
+      <code>$title</code>
+      <code>$title</code>
+      <code>$title</code>
+      <code>$verificationInfo</code>
+      <code>$verificationInfo[$tag]</code>
+      <code>$verificationInfo['page_title']</code>
+      <code>$witnessInfo</code>
+    </MixedAssignment>
+    <MixedFunctionCall occurrences="5">
+      <code>call_user_func( $this-&gt;mPageCallback, $title )</code>
+      <code>call_user_func( $this-&gt;mUploadCallback, $revision )</code>
+    </MixedFunctionCall>
+    <MixedInferredReturnType occurrences="9">
+      <code>Content</code>
+      <code>bool</code>
+      <code>callable</code>
+      <code>callable</code>
+      <code>callable</code>
+      <code>callable</code>
+      <code>callable</code>
+      <code>callable</code>
+      <code>callable</code>
+    </MixedInferredReturnType>
+    <MixedMethodCall occurrences="5">
+      <code>canExist</code>
+      <code>getPrefixedText</code>
+      <code>getPrefixedText</code>
+      <code>isExternal</code>
+      <code>text</code>
+    </MixedMethodCall>
+    <MixedOperand occurrences="6">
+      <code>$pageInfo['revisionCount']</code>
+      <code>$pageInfo['successfulRevisionCount']</code>
+      <code>$pageInfo['title']</code>
+      <code>$page_verification_hash</code>
+      <code>$page_verification_hash</code>
+      <code>$wgMaxArticleSize</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="8">
+      <code>$content</code>
+      <code>$previous</code>
+      <code>$previous</code>
+      <code>$previous</code>
+      <code>$previous</code>
+      <code>$previous</code>
+      <code>$previous</code>
+      <code>wfSetVar( $this-&gt;mNoticeCallback, $callback )</code>
+    </MixedReturnStatement>
+    <MixedStringOffsetAssignment occurrences="1">
+      <code>$revisionInfo[$tag][]</code>
+    </MixedStringOffsetAssignment>
+    <NullableReturnStatement occurrences="1">
+      <code>$this-&gt;reader-&gt;getAttribute( $attr )</code>
+    </NullableReturnStatement>
+    <PossiblyInvalidArgument occurrences="1">
+      <code>$pageInfo['_title']</code>
+    </PossiblyInvalidArgument>
+    <PossiblyInvalidCast occurrences="1">
+      <code>$uploadInfo['rel']</code>
+    </PossiblyInvalidCast>
+    <PossiblyInvalidPropertyFetch occurrences="4">
+      <code>$last_row-&gt;page_verification_id</code>
+      <code>$last_row-&gt;page_verification_id</code>
+      <code>$rowWitness-&gt;witness_event_id</code>
+    </PossiblyInvalidPropertyFetch>
+    <PossiblyNullArgument occurrences="3">
+      <code>$nt</code>
+      <code>$ot</code>
+      <code>Title::newFromText( $logInfo['logtitle'] )</code>
+    </PossiblyNullArgument>
+    <PossiblyUndefinedVariable occurrences="1">
+      <code>$foreignTitle</code>
+    </PossiblyUndefinedVariable>
+    <RedundantCondition occurrences="2">
+      <code>$tag != '#text'</code>
+      <code>$tag == 'mediawiki'</code>
+    </RedundantCondition>
+    <RedundantConditionGivenDocblockType occurrences="1">
+      <code>is_object( $revision-&gt;title )</code>
+    </RedundantConditionGivenDocblockType>
+    <TooFewArguments occurrences="6">
+      <code>new NaiveForeignTitleFactory()</code>
+      <code>new NaiveImportTitleFactory()</code>
+      <code>new NaiveImportTitleFactory()</code>
+      <code>new NaiveImportTitleFactory()</code>
+      <code>new NamespaceImportTitleFactory( $namespace )</code>
+      <code>new SubpageImportTitleFactory( $title )</code>
+    </TooFewArguments>
+    <TypeDoesNotContainType occurrences="8">
+      <code>$tag == 'logitem'</code>
+      <code>$tag == 'logitem'</code>
+      <code>$tag == 'page'</code>
+      <code>$tag == 'page'</code>
+      <code>$tag == 'siteinfo'</code>
+      <code>$tag == 'siteinfo'</code>
+      <code>$tag === 'page'</code>
+      <code>$tag === 'page'</code>
+    </TypeDoesNotContainType>
+    <UndefinedClass occurrences="7">
+      <code>Exception</code>
+      <code>MWContentSerializationException</code>
+      <code>MWException</code>
+      <code>MWException</code>
+      <code>MWException</code>
+      <code>MWException</code>
+      <code>MWException</code>
+    </UndefinedClass>
+    <UndefinedConstant occurrences="2">
+      <code>DB_MASTER</code>
+      <code>NS_MAIN</code>
+    </UndefinedConstant>
+    <UndefinedDocblockClass occurrences="14">
+      <code>$handler</code>
+      <code>$handler</code>
+      <code>$this-&gt;importTitleFactory</code>
+      <code>Content</code>
+      <code>ContentHandler</code>
+      <code>Exception</code>
+      <code>Exception</code>
+      <code>ForeignTitle</code>
+      <code>ForeignTitle</code>
+      <code>ImportTitleFactory</code>
+      <code>ImportTitleFactory</code>
+      <code>MWException</code>
+      <code>MWException</code>
+      <code>MWException</code>
+    </UndefinedDocblockClass>
+    <UndefinedFunction occurrences="7">
+      <code>wfDebug( "IMPORT: $data" )</code>
+      <code>wfDebug( "IMPORT: $data" )</code>
+      <code>wfDebug( "WikiImporter XML error: $err" )</code>
+      <code>wfMessage( 'blanknamespace' )</code>
+      <code>wfSetVar( $this-&gt;mNoticeCallback, $callback )</code>
+      <code>wfTempDir()</code>
+      <code>wfTimestampNow()</code>
+    </UndefinedFunction>
+    <UndefinedInterfaceMethod occurrences="4">
+      <code>exists</code>
+      <code>getPrefixedText</code>
+      <code>getPrefixedText</code>
+      <code>getPrefixedText</code>
+    </UndefinedInterfaceMethod>
+    <UnusedVariable occurrences="2">
+      <code>$rethrow</code>
+      <code>$status</code>
+    </UnusedVariable>
+  </file>
+  <file src="includes/XmlContent.php">
+    <ImplementedReturnTypeMismatch occurrences="3">
+      <code>Content|bool|null</code>
+      <code>Content|null</code>
+      <code>string</code>
+    </ImplementedReturnTypeMismatch>
+    <InvalidReturnStatement occurrences="1">
+      <code>parent::convert( $toModel, $lossy )</code>
+    </InvalidReturnStatement>
+    <InvalidReturnType occurrences="1">
+      <code>string</code>
+    </InvalidReturnType>
+    <MissingClosureParamType occurrences="2">
+      <code>$error</code>
+      <code>$msg</code>
+    </MissingClosureParamType>
+    <MissingParamType occurrences="2">
+      <code>$model_id</code>
+      <code>$text</code>
+    </MissingParamType>
+    <MixedArgument occurrences="2">
+      <code>$model_id</code>
+      <code>$text</code>
+    </MixedArgument>
+    <MixedOperand occurrences="3">
+      <code>$error-&gt;line</code>
+      <code>$error-&gt;message</code>
+      <code>$msg</code>
+    </MixedOperand>
+    <MixedPropertyFetch occurrences="2">
+      <code>$error-&gt;line</code>
+      <code>$error-&gt;message</code>
+    </MixedPropertyFetch>
+  </file>
+  <file src="includes/XmlContentHandler.php">
+    <MissingParamType occurrences="2">
+      <code>$formats</code>
+      <code>$modelId</code>
+    </MissingParamType>
+    <ParamNameMismatch occurrences="1">
+      <code>$text</code>
+    </ParamNameMismatch>
+    <UndefinedConstant occurrences="1">
+      <code>CONTENT_FORMAT_XML</code>
+    </UndefinedConstant>
+  </file>
+</files>

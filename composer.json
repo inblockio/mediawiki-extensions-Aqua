@@ -1,5 +1,10 @@
 {
-    "require": {
-        "rht/merkle-tree": "dev-master"
-    }
+	"require": {
+		"rht/merkle-tree": "dev-master"
+	},
+	"require-dev": {
+		"vimeo/psalm": "^4.7.2",
+		"phpstan/phpstan": "^0.12.99",
+		"mediawiki/mediawiki-codesniffer": "37.0.0"
+	}
 }

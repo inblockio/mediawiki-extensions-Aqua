@@ -24,25 +24,9 @@ This extension implements the **[recommended entry points](https://www.mediawiki
 
 TODO: document or remove need to edit a page
 
-To ensure the dev dependencies get installed, have this in your `composer.local.json`:
-
-```json
-{
-	"require": {
-		"vimeo/psalm": "^4.7.2",
-		"phpstan/phpstan": "^0.12.99"
-	},
-	"extra": {
-		"merge-plugin": {
-			"include": [
-				"extensions/DataAccounting/composer.json"
-			]
-		}
-	}
-}
-```
-
-Then run `composer update`
+Run `composer update` in the `extensions/DataAccounting/` directory. This pulls in code analysis tools.
+You might want to mark `extensions/DataAccounting/vendor/` as excluded in your IDE or tools to avoid
+them loading certain libraries twice.
 
 ### Running tests and CI checks
 
@@ -52,12 +36,7 @@ You can use the `Makefile` by running make commands in the `DataAccounting` dire
 * `make test`: Run all tests - TODO: include front-end tests
 * `make cs`: Run all style checks and static analysis
 
-Alternatively, you can execute commands from the MediaWiki root directory:
-
-* PHPUnit: `php tests/phpunit/phpunit.php -c extensions/DataAccounting/`
-* Style checks: `vendor/bin/phpcs -p -s --standard=extensions/DataAccounting/.phpcs.xml`
-* PHPStan: `vendor/bin/phpstan analyse --configuration=extensions/DataAccounting/phpstan.neon --memory-limit=2G`
-* Psalm: `php vendor/bin/psalm --config=extensions/DataAccounting/psalm.xml`
+See the `Makefile` contents for all commands and how to run them without Make.
 
 ### Front-end
 
