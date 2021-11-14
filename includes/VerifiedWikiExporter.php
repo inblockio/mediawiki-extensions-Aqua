@@ -86,6 +86,8 @@ function getPageWitnessData( $witness_event_id, $page_verification_hash ) {
 
 class VerifiedWikiExporter extends WikiExporter {
 
+	private XmlDumpWriter $writer;
+
 	public function __construct(
 		$db,
 		$history = self::CURRENT,
