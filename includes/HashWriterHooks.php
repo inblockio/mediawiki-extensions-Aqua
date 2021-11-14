@@ -7,10 +7,6 @@
 
 namespace DataAccounting;
 
-# include / exclude for debugging
-error_reporting( E_ALL );
-ini_set( "display_errors", 1 );
-
 use DatabaseUpdater;
 use MediaWiki\Hook\PageMoveCompleteHook;
 use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
@@ -76,7 +72,7 @@ class HashWriterHooks implements
 	RevisionRecordInsertedHook,
 	ArticleDeleteCompleteHook,
 	PageMoveCompleteHook,
-	LoadExtensionSchemaUpdatesHook 
+	LoadExtensionSchemaUpdatesHook
 {
 
 	// This function updates the dataset wit the correct revision ID, especially important during import.

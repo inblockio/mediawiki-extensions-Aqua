@@ -6,10 +6,6 @@ use function DataAccounting\get_page_all_revs;
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 
-# include / exclude for debugging
-error_reporting( E_ALL );
-ini_set( "display_errors", 1 );
-
 require_once __DIR__ . "/../ApiUtil.php";
 
 class GetPageAllRevsHandler extends SimpleHandler {

@@ -7,9 +7,6 @@ use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 
-# include / exclude for debugging
-error_reporting( E_ALL );
-ini_set( "display_errors", 1 );
 
 class GetPageLastRevHandler extends SimpleHandler {
 
