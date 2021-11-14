@@ -87,12 +87,6 @@
 				"PermissionManager"
 			]
 		},
-		"VerifiedExport": {
-			"class": "DataAccounting\\SpecialVerifiedExport",
-			"services": [
-				"DBLoadBalancer"
-			]
-		},
 		"VerifiedImport": {
 			"class": "DataAccounting\\SpecialVerifiedImport",
 			"services": [

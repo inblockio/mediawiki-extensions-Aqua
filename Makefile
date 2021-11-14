@@ -1,4 +1,4 @@
-.PHONY: ci test cs phpunit phpcs stan stan-baseline psalm psalm-baseline
+.PHONY: ci test cs phpunit phpcs stan stan-baseline psalm psalm-baseline baseline
 
 ci: test cs
 test: phpunit
@@ -21,3 +21,5 @@ psalm:
 
 psalm-baseline:
 	vendor/bin/psalm --set-baseline=psalm-baseline.xml
+
+baseline: stan-baseline psalm-baseline

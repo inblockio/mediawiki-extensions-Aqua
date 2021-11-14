@@ -13,14 +13,6 @@
       <code>$modelId</code>
     </MixedArgument>
   </file>
-  <file src="../../includes/export/WikiExporter.php">
-    <InternalMethod occurrences="1">
-      <code>new HookRunner( $services-&gt;getHookContainer() )</code>
-    </InternalMethod>
-    <MixedReturnStatement occurrences="1">
-      <code>$wgXmlDumpSchemaVersion</code>
-    </MixedReturnStatement>
-  </file>
   <file src="../../includes/resourceloader/ResourceLoaderFileModule.php">
     <MixedArgument occurrences="1">
       <code>$templatePath</code>
@@ -35,17 +27,11 @@
     </MixedAssignment>
   </file>
   <file src="includes/API/GetPageAllRevsHandler.php">
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
     <MissingReturnType occurrences="1">
       <code>run</code>
     </MissingReturnType>
   </file>
   <file src="includes/API/GetPageByRevIdHandler.php">
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
     <MissingParamType occurrences="1">
       <code>$rev_id</code>
     </MissingParamType>
@@ -61,9 +47,6 @@
     </PossiblyInvalidPropertyFetch>
   </file>
   <file src="includes/API/GetPageLastRevHandler.php">
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
     <MissingParamType occurrences="1">
       <code>$page_title</code>
     </MissingParamType>
@@ -81,9 +64,6 @@
     </PossiblyInvalidPropertyFetch>
   </file>
   <file src="includes/API/GetWitnessDataHandler.php">
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
     <MissingParamType occurrences="1">
       <code>$witness_event_id</code>
     </MissingParamType>
@@ -95,9 +75,6 @@
     </MixedAssignment>
   </file>
   <file src="includes/API/RequestHashHandler.php">
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
     <MissingParamType occurrences="1">
       <code>$rev_id</code>
     </MissingParamType>
@@ -115,9 +92,6 @@
     </PossiblyInvalidPropertyFetch>
   </file>
   <file src="includes/API/RequestMerkleProofHandler.php">
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
     <MissingParamType occurrences="2">
       <code>$page_verification_hash</code>
       <code>$witness_event_id</code>
@@ -131,9 +105,6 @@
     </MixedAssignment>
   </file>
   <file src="includes/API/VerifyPageHandler.php">
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
     <MissingParamType occurrences="1">
       <code>$rev_id</code>
     </MissingParamType>
@@ -163,9 +134,6 @@
     <InvalidPropertyAssignmentValue occurrences="1">
       <code>RequestContext::getMain()-&gt;getUser()</code>
     </InvalidPropertyAssignmentValue>
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
     <MissingParamType occurrences="2">
       <code>$titleString</code>
       <code>$walletString</code>
@@ -228,9 +196,6 @@
     <InvalidPropertyAssignmentValue occurrences="1">
       <code>RequestContext::getMain()-&gt;getUser()</code>
     </InvalidPropertyAssignmentValue>
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
     <MissingParamType occurrences="7">
       <code>$col</code>
       <code>$conds</code>
@@ -425,9 +390,6 @@
     <DeprecatedInterface occurrences="1">
       <code>HashWriterHooks</code>
     </DeprecatedInterface>
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
     <MissingParamType occurrences="16">
       <code>$contentHash</code>
       <code>$dbr</code>
@@ -534,12 +496,10 @@
     <MixedArrayAssignment occurrences="1">
       <code>$cactions['actions']['daact']</code>
     </MixedArrayAssignment>
-    <MixedInferredReturnType occurrences="1">
-      <code>string</code>
-    </MixedInferredReturnType>
-    <MixedReturnStatement occurrences="1">
-      <code>wfEscapeWikiText( $wgExampleMyWord )</code>
-    </MixedReturnStatement>
+    <MixedAssignment occurrences="2">
+      <code>$cache['myword']</code>
+      <code>$ret</code>
+    </MixedAssignment>
     <ParamNameMismatch occurrences="3">
       <code>$cache</code>
       <code>$cactions</code>
@@ -549,8 +509,9 @@
       <code>FormatJson::encode( $dump, /*prettyPrint=*/ true )</code>
       <code>FormatJson::encode( $showme, /*prettyPrint=*/ true )</code>
     </PossiblyFalseArgument>
-    <PossiblyNullArgument occurrences="2">
+    <PossiblyNullArgument occurrences="3">
       <code>$out-&gt;getTitle()</code>
+      <code>$revision-&gt;getId()</code>
       <code>$skin-&gt;getTitle()</code>
     </PossiblyNullArgument>
     <PossiblyNullReference occurrences="2">
@@ -559,14 +520,13 @@
     </PossiblyNullReference>
     <UndefinedFunction occurrences="2">
       <code>getPageChainHeight( $title-&gt;getText() )</code>
-      <code>wfEscapeWikiText( $wgExampleMyWord )</code>
+      <code>wfEscapeWikiText( $GLOBALS['wgExampleMyWord'] )</code>
     </UndefinedFunction>
   </file>
   <file src="includes/RevisionXmlBuilder.php">
-    <MissingParamType occurrences="5">
+    <MissingParamType occurrences="4">
       <code>$arr</code>
       <code>$page_verification_hash</code>
-      <code>$rev_id</code>
       <code>$tag</code>
       <code>$witness_event_id</code>
     </MissingParamType>
@@ -592,8 +552,7 @@
     <MixedInferredReturnType occurrences="1">
       <code>string</code>
     </MixedInferredReturnType>
-    <MixedOperand occurrences="2">
-      <code>$rev_id</code>
+    <MixedOperand occurrences="1">
       <code>$wdXmlString</code>
     </MixedOperand>
     <MixedReturnStatement occurrences="1">
@@ -659,87 +618,6 @@
       <code>$dbw</code>
     </UnusedVariable>
   </file>
-  <file src="includes/SpecialVerifiedExport.php">
-    <InvalidScalarArgument occurrences="2">
-      <code>$nsindex</code>
-      <code>1</code>
-    </InvalidScalarArgument>
-    <MissingReturnType occurrences="2">
-      <code>doExport</code>
-      <code>execute</code>
-    </MissingReturnType>
-    <MixedArgument occurrences="11">
-      <code>$history</code>
-      <code>$linkDepth</code>
-      <code>$page</code>
-      <code>$page</code>
-      <code>$row-&gt;namespace</code>
-      <code>$row-&gt;page_namespace</code>
-      <code>$row-&gt;page_namespace</code>
-      <code>$row-&gt;page_title</code>
-      <code>$row-&gt;page_title</code>
-      <code>$row-&gt;title</code>
-      <code>NS_MAIN</code>
-    </MixedArgument>
-    <MixedArgumentTypeCoercion occurrences="1">
-      <code>$v</code>
-    </MixedArgumentTypeCoercion>
-    <MixedAssignment occurrences="9">
-      <code>$history['offset']</code>
-      <code>$linkDepth</code>
-      <code>$maxHistory</code>
-      <code>$maxLinkDepth</code>
-      <code>$maxPages</code>
-      <code>$maxPages</code>
-      <code>$offset</code>
-      <code>$page</code>
-      <code>$page</code>
-    </MixedAssignment>
-    <MixedInferredReturnType occurrences="1">
-      <code>int</code>
-    </MixedInferredReturnType>
-    <MixedOperand occurrences="1">
-      <code>$config-&gt;get( 'Sitename' )</code>
-    </MixedOperand>
-    <MixedReturnStatement occurrences="1">
-      <code>$maxLinkDepth</code>
-    </MixedReturnStatement>
-    <ParamNameMismatch occurrences="1">
-      <code>$par</code>
-    </ParamNameMismatch>
-    <PossiblyInvalidPropertyFetch occurrences="6">
-      <code>$row-&gt;namespace</code>
-      <code>$row-&gt;page_namespace</code>
-      <code>$row-&gt;page_namespace</code>
-      <code>$row-&gt;page_title</code>
-      <code>$row-&gt;page_title</code>
-      <code>$row-&gt;title</code>
-    </PossiblyInvalidPropertyFetch>
-    <PossiblyNullArgument occurrences="3">
-      <code>$dir</code>
-      <code>$par</code>
-      <code>$request-&gt;getIntOrNull( 'pagelink-depth' )</code>
-    </PossiblyNullArgument>
-    <PossiblyUndefinedVariable occurrences="2">
-      <code>$history</code>
-      <code>$pages</code>
-    </PossiblyUndefinedVariable>
-    <PropertyNotSetInConstructor occurrences="2">
-      <code>SpecialVerifiedExport</code>
-      <code>SpecialVerifiedExport</code>
-    </PropertyNotSetInConstructor>
-    <RedundantConditionGivenDocblockType occurrences="4">
-      <code>$catname !== '' &amp;&amp; $catname !== null</code>
-      <code>$catname !== '' &amp;&amp; $catname !== null &amp;&amp; $catname !== false</code>
-      <code>$catname !== false</code>
-      <code>$catname !== null</code>
-    </RedundantConditionGivenDocblockType>
-    <UndefinedFunction occurrences="3">
-      <code>wfResetOutputBuffers()</code>
-      <code>wfTimestamp( TS_MW, $rawOffset )</code>
-      <code>wfTimestampNow()</code>
-    </UndefinedFunction>
-  </file>
   <file src="includes/SpecialVerifiedImport.php">
     <DeprecatedMethod occurrences="3">
       <code>getEditToken</code>
@@ -749,10 +627,9 @@
     <InternalMethod occurrences="1">
       <code>onImportSources</code>
     </InternalMethod>
-    <InvalidScalarArgument occurrences="3">
+    <InvalidScalarArgument occurrences="2">
       <code>$isSameSourceAsBefore ? ( $this-&gt;mapping === 'subpage' ) : ''</code>
       <code>0</code>
-      <code>1</code>
     </InvalidScalarArgument>
     <MissingParamType occurrences="1">
       <code>$sourceName</code>
@@ -821,9 +698,6 @@
     <DeprecatedMethod occurrences="1">
       <code>doEditContent</code>
     </DeprecatedMethod>
-    <InvalidScalarArgument occurrences="1">
-      <code>1</code>
-    </InvalidScalarArgument>
     <MissingClosureParamType occurrences="1">
       <code>$data</code>
     </MissingClosureParamType>
@@ -1062,39 +936,6 @@
       <code>$key</code>
       <code>$value</code>
     </MixedAssignment>
-  </file>
-  <file src="includes/VerifiedWikiExporter.php">
-    <DocblockTypeContradiction occurrences="1">
-      <code>$lastRow === null</code>
-    </DocblockTypeContradiction>
-    <MissingParamType occurrences="5">
-      <code>$db</code>
-      <code>$history</code>
-      <code>$limitNamespaces</code>
-      <code>$revId</code>
-      <code>$text</code>
-    </MissingParamType>
-    <MixedArgument occurrences="6">
-      <code>$db</code>
-      <code>$history</code>
-      <code>$limitNamespaces</code>
-      <code>$text</code>
-      <code>$text</code>
-      <code>$title</code>
-    </MixedArgument>
-    <MixedAssignment occurrences="2">
-      <code>$chain_height</code>
-      <code>$title</code>
-    </MixedAssignment>
-    <PossiblyNullReference occurrences="1">
-      <code>getText</code>
-    </PossiblyNullReference>
-    <RedundantConditionGivenDocblockType occurrences="1">
-      <code>$lastRow !== null</code>
-    </RedundantConditionGivenDocblockType>
-    <UndefinedFunction occurrences="1">
-      <code>getPageChainHeight( $titleObj-&gt;getText() )</code>
-    </UndefinedFunction>
   </file>
   <file src="includes/VerifiedWikiImporter.php">
     <DeprecatedMethod occurrences="9">
