@@ -3,6 +3,7 @@
 namespace DataAccounting;
 
 use DOMDocument;
+use LogicException;
 use MediaWiki\MediaWikiServices;
 use SimpleXMLElement;
 use Title;
