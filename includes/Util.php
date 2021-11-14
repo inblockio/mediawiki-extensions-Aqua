@@ -2,9 +2,6 @@
 
 use MediaWiki\MediaWikiServices;
 
-global $da_config_filename;
-$da_config_filename = '/var/www/html/data_accounting_config.json';
-
 function getHashSum( $inputStr ) {
 	if ( $inputStr == '' ) {
 		return '';
@@ -29,7 +26,7 @@ function getDomainId() {
 }
 
 function setDataAccountingConfig( $data ) {
-	global $da_config_filename;
+	$da_config_filename = '/var/www/html/data_accounting_config.json';
 	if ( !file_exists( $da_config_filename ) ) {
 		$da_config = $data;
 	} else {
@@ -45,7 +42,7 @@ function setDataAccountingConfig( $data ) {
 
 function getDataAccountingConfig() {
 	//*todo* validate domain_id
-	global $da_config_filename;
+	$da_config_filename = '/var/www/html/data_accounting_config.json';
 	if ( !file_exists( $da_config_filename ) ) {
 		$domain_id = generateDomainId();
 		$da_config = [
