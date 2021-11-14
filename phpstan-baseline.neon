@@ -1,66 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Constant DB_REPLICA not found\\.$#"
-			count: 1
-			path: includes/API/GetPageByRevIdHandler.php
-
-		-
-			message: "#^Constant DB_REPLICA not found\\.$#"
-			count: 1
-			path: includes/API/GetPageLastRevHandler.php
-
-		-
-			message: "#^Constant DB_REPLICA not found\\.$#"
-			count: 1
-			path: includes/API/RequestHashHandler.php
-
-		-
-			message: "#^Constant DB_REPLICA not found\\.$#"
-			count: 1
-			path: includes/API/VerifyPageHandler.php
-
-		-
-			message: "#^Constant DB_MASTER not found\\.$#"
-			count: 1
-			path: includes/API/WriteStoreSignedTxHandler.php
-
-		-
-			message: "#^Constant DB_MASTER not found\\.$#"
-			count: 1
-			path: includes/API/WriteStoreWitnessTxHandler.php
-
-		-
-			message: "#^Constant DB_REPLICA not found\\.$#"
-			count: 3
-			path: includes/ApiUtil.php
-
-		-
-			message: "#^Constant DB_MASTER not found\\.$#"
-			count: 4
-			path: includes/HashWriterHooks.php
-
-		-
-			message: "#^Constant NS_SPECIAL not found\\.$#"
-			count: 1
-			path: includes/Hooks.php
-
-		-
-			message: "#^Constant DB_MASTER not found\\.$#"
-			count: 1
-			path: includes/SpecialDataAccountingConfig.php
-
-		-
-			message: "#^Constant NS_MAIN not found\\.$#"
-			count: 1
-			path: includes/SpecialVerifiedExport.php
-
-		-
-			message: "#^Constant TS_MW not found\\.$#"
-			count: 1
-			path: includes/SpecialVerifiedExport.php
-
-		-
 			message: "#^Variable \\$history might not be defined\\.$#"
 			count: 1
 			path: includes/SpecialVerifiedExport.php
@@ -84,31 +24,6 @@ parameters:
 			message: "#^Instantiated class DataAccounting\\\\UnexpectedValueException not found\\.$#"
 			count: 1
 			path: includes/SpecialVerifiedImport.php
-
-		-
-			message: "#^Constant DB_MASTER not found\\.$#"
-			count: 1
-			path: includes/SpecialWitness.php
-
-		-
-			message: "#^Constant DB_MASTER not found\\.$#"
-			count: 1
-			path: includes/SpecialWitnessPublisher.php
-
-		-
-			message: "#^Access to private property \\$writer of parent class WikiExporter\\.$#"
-			count: 5
-			path: includes/VerifiedWikiExporter.php
-
-		-
-			message: "#^Constant DB_REPLICA not found\\.$#"
-			count: 1
-			path: includes/VerifiedWikiExporter.php
-
-		-
-			message: "#^Instantiated class DataAccounting\\\\LogicException not found\\.$#"
-			count: 1
-			path: includes/VerifiedWikiExporter.php
 
 		-
 			message: "#^Caught class DataAccounting\\\\MWContentSerializationException not found\\.$#"
@@ -136,16 +51,6 @@ parameters:
 			path: includes/VerifiedWikiImporter.php
 
 		-
-			message: "#^Constant DB_MASTER not found\\.$#"
-			count: 1
-			path: includes/VerifiedWikiImporter.php
-
-		-
-			message: "#^Constant NS_MAIN not found\\.$#"
-			count: 1
-			path: includes/VerifiedWikiImporter.php
-
-		-
 			message: "#^Instantiated class DataAccounting\\\\Exception not found\\.$#"
 			count: 1
 			path: includes/VerifiedWikiImporter.php
@@ -159,9 +64,4 @@ parameters:
 			message: "#^Variable \\$foreignTitle might not be defined\\.$#"
 			count: 1
 			path: includes/VerifiedWikiImporter.php
-
-		-
-			message: "#^Constant CONTENT_FORMAT_XML not found\\.$#"
-			count: 1
-			path: includes/XmlContentHandler.php
 

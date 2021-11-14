@@ -10,3 +10,5 @@ parameters:
 		- ../../includes
 		- ../../tests/phpunit
 		- ../../vendor
+	ignoreErrors:
+		- '#Constant [a-zA-Z0-9\\_]+ not found#'

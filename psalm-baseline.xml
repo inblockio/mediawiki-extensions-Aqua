@@ -1093,12 +1093,11 @@
       <code>getPageMetadataByRevId</code>
       <code>getPageWitnessData</code>
     </MissingReturnType>
-    <MixedArgument occurrences="11">
+    <MixedArgument occurrences="10">
       <code>$arr</code>
       <code>$db</code>
       <code>$history</code>
       <code>$limitNamespaces</code>
-      <code>$output</code>
       <code>$tag</code>
       <code>$text</code>
       <code>$text</code>
@@ -1109,10 +1108,8 @@
     <MixedArrayAssignment occurrences="1">
       <code>$witness_data["structured_merkle_proof"]</code>
     </MixedArrayAssignment>
-    <MixedAssignment occurrences="9">
+    <MixedAssignment occurrences="7">
       <code>$chain_height</code>
-      <code>$output</code>
-      <code>$output</code>
       <code>$title</code>
       <code>$verification_info</code>
       <code>$wdXmlString</code>
@@ -1120,17 +1117,8 @@
       <code>$xmlString</code>
       <code>$xmlString</code>
     </MixedAssignment>
-    <MixedMethodCall occurrences="4">
-      <code>closePage</code>
-      <code>openPage</code>
-      <code>writeRevision</code>
-      <code>writeUploads</code>
-    </MixedMethodCall>
-    <MixedOperand occurrences="6">
-      <code>$output</code>
+    <MixedOperand occurrences="3">
       <code>$rev_id</code>
-      <code>$this-&gt;writer-&gt;closePage()</code>
-      <code>$this-&gt;writer-&gt;writeUploads( $lastRow, $this-&gt;dumpUploadFileContents )</code>
       <code>$verification_info</code>
       <code>$wdXmlString</code>
     </MixedOperand>
@@ -1152,9 +1140,6 @@
     <RedundantConditionGivenDocblockType occurrences="1">
       <code>$lastRow !== null</code>
     </RedundantConditionGivenDocblockType>
-    <UndefinedClass occurrences="1">
-      <code>LogicException</code>
-    </UndefinedClass>
     <UndefinedConstant occurrences="1">
       <code>DB_REPLICA</code>
     </UndefinedConstant>
@@ -1163,15 +1148,6 @@
       <code>getWitnessData( $witness_event_id )</code>
       <code>requestMerkleProof( $witness_event_id, $page_verification_hash )</code>
     </UndefinedFunction>
-    <UndefinedThisPropertyAssignment occurrences="1">
-      <code>$this-&gt;writer</code>
-    </UndefinedThisPropertyAssignment>
-    <UndefinedThisPropertyFetch occurrences="4">
-      <code>$this-&gt;writer</code>
-      <code>$this-&gt;writer</code>
-      <code>$this-&gt;writer</code>
-      <code>$this-&gt;writer</code>
-    </UndefinedThisPropertyFetch>
   </file>
   <file src="includes/VerifiedWikiImporter.php">
     <DeprecatedMethod occurrences="9">
