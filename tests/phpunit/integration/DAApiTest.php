@@ -11,9 +11,9 @@ use MediaWikiIntegrationTestCase;
 
 /**
  * @group Database
+ * @covers \DataAccounting\API\VerifyPageHandler
  */
 class DAApiTest extends MediaWikiIntegrationTestCase {
-
 	use HandlerTestTrait;
 
 	public function testVerifyPage(): void {
@@ -39,4 +39,5 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			$this->assertArrayHasKey( $key, $data );
 		}
 	}
+
 }
