@@ -32,12 +32,8 @@ class Hooks implements
 	OutputPageParserOutputHook
 {
 
-	/** @var PermissionManager */
-	private $permissionManager;
+	private PermissionManager $permissionManager;
 
-	/**
-	 * @param PermissionManager $permissionManager example injected service
-	 */
 	public function __construct( PermissionManager $permissionManager ) {
 		$this->permissionManager = $permissionManager;
 	}
@@ -67,16 +63,6 @@ class Hooks implements
 	}
 
 	/**
-	 * Parser magic word handler for {{MYWORD}}.
-	 *
-	 * @return string Wikitext to be rendered in the page.
-	 */
-	public static function parserGetWordMyword() {
-		global $wgExampleMyWord;
-		return wfEscapeWikiText( $wgExampleMyWord );
-	}
-
-	/**
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ParserGetVariableValueSwitch
 	 *
 	 * @param Parser $parser
@@ -84,13 +70,12 @@ class Hooks implements
 	 * @param string $magicWordId
 	 * @param string &$ret
 	 * @param PPFrame $frame
-	 *
 	 */
 	public function onParserGetVariableValueSwitch( $parser, &$cache, $magicWordId, &$ret, $frame ) {
 		if ( $magicWordId === 'myword' ) {
 			// Return value and cache should match. Cache is used to save
 			// additional call when it is used multiple times on a page.
-			$ret = $cache['myword'] = self::parserGetWordMyword();
+			$ret = $cache['myword'] = wfEscapeWikiText( $GLOBALS['wgExampleMyWord'] );
 		}
 	}
 
