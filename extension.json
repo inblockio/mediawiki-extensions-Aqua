@@ -99,9 +99,6 @@
 		"daact": "DataAccounting\\DAAction"
 	},
 
-	"ContentHandlers": {
-		"xmldata": "DataAccounting\\XmlContentHandler"
-	},
 	"namespaces": [
 		{
 			"id": 6942,
