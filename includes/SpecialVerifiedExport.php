@@ -108,7 +108,7 @@ class SpecialVerifiedExport extends SpecialPage {
 			];
 			$historyCheck = $request->getCheck( 'history' );
 
-			if  ( !$historyCheck ) {
+			if ( !$historyCheck ) {
 				if ( $limit > 0 && ( $maxHistory == 0 || $limit < $maxHistory ) ) {
 					$history['limit'] = $limit;
 				}
