@@ -1,6 +1,11 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Variable \\$history might not be defined\\.$#"
+			count: 1
+			path: includes/SpecialVerifiedExport.php
+
+		-
 			message: "#^Call to static method newFatal\\(\\) on an unknown class DataAccounting\\\\Status\\.$#"
 			count: 4
 			path: includes/SpecialVerifiedImport.php

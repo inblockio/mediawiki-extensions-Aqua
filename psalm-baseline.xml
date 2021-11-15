@@ -618,6 +618,86 @@
       <code>$dbw</code>
     </UnusedVariable>
   </file>
+  <file src="includes/SpecialVerifiedExport.php">
+    <InvalidScalarArgument occurrences="1">
+      <code>$nsindex</code>
+    </InvalidScalarArgument>
+    <MissingReturnType occurrences="2">
+      <code>doExport</code>
+      <code>execute</code>
+    </MissingReturnType>
+    <MixedArgument occurrences="11">
+      <code>$history</code>
+      <code>$linkDepth</code>
+      <code>$page</code>
+      <code>$page</code>
+      <code>$row-&gt;namespace</code>
+      <code>$row-&gt;page_namespace</code>
+      <code>$row-&gt;page_namespace</code>
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;title</code>
+      <code>NS_MAIN</code>
+    </MixedArgument>
+    <MixedArgumentTypeCoercion occurrences="1">
+      <code>$v</code>
+    </MixedArgumentTypeCoercion>
+    <MixedAssignment occurrences="9">
+      <code>$history['offset']</code>
+      <code>$linkDepth</code>
+      <code>$maxHistory</code>
+      <code>$maxLinkDepth</code>
+      <code>$maxPages</code>
+      <code>$maxPages</code>
+      <code>$offset</code>
+      <code>$page</code>
+      <code>$page</code>
+    </MixedAssignment>
+    <MixedInferredReturnType occurrences="1">
+      <code>int</code>
+    </MixedInferredReturnType>
+    <MixedOperand occurrences="1">
+      <code>$config-&gt;get( 'Sitename' )</code>
+    </MixedOperand>
+    <MixedReturnStatement occurrences="1">
+      <code>$maxLinkDepth</code>
+    </MixedReturnStatement>
+    <ParamNameMismatch occurrences="1">
+      <code>$par</code>
+    </ParamNameMismatch>
+    <PossiblyInvalidPropertyFetch occurrences="6">
+      <code>$row-&gt;namespace</code>
+      <code>$row-&gt;page_namespace</code>
+      <code>$row-&gt;page_namespace</code>
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;page_title</code>
+      <code>$row-&gt;title</code>
+    </PossiblyInvalidPropertyFetch>
+    <PossiblyNullArgument occurrences="3">
+      <code>$dir</code>
+      <code>$par</code>
+      <code>$request-&gt;getIntOrNull( 'pagelink-depth' )</code>
+    </PossiblyNullArgument>
+    <PossiblyUndefinedVariable occurrences="2">
+      <code>$history</code>
+      <code>$pages</code>
+    </PossiblyUndefinedVariable>
+    <PropertyNotSetInConstructor occurrences="2">
+      <code>SpecialVerifiedExport</code>
+      <code>SpecialVerifiedExport</code>
+    </PropertyNotSetInConstructor>
+    <RedundantConditionGivenDocblockType occurrences="4">
+      <code>$catname !== '' &amp;&amp; $catname !== null</code>
+      <code>$catname !== '' &amp;&amp; $catname !== null &amp;&amp; $catname !== false</code>
+      <code>$catname !== false</code>
+      <code>$catname !== null</code>
+    </RedundantConditionGivenDocblockType>
+    <UndefinedFunction occurrences="3">
+      <code>wfResetOutputBuffers()</code>
+      <code>wfTimestamp( TS_MW, $rawOffset )</code>
+      <code>wfTimestampNow()</code>
+    </UndefinedFunction>
+  </file>
   <file src="includes/SpecialVerifiedImport.php">
     <DeprecatedMethod occurrences="3">
       <code>getEditToken</code>
