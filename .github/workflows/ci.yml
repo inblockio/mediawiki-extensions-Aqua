@@ -139,6 +139,10 @@ jobs:
       - name: PHPStan
         run: php vendor/bin/phpstan analyse --error-format=checkstyle --no-progress | cs2pr
 
+      # Commented out because:
+      # Being too much of a pain, and it seems to be getting confused, possibly
+      # due to the ~1000 errors. No point constantly updating the baseline with
+      # each commit.
 #      - run: php vendor/bin/psalm --shepherd --stats
 #        if: true
 
