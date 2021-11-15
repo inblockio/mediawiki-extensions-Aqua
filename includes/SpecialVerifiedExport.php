@@ -12,7 +12,7 @@ use WikiExporter;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 class SpecialVerifiedExport extends SpecialPage {
-	protected $curonly, $doExport, $pageLinkDepth, $templates;
+	protected $doExport, $pageLinkDepth, $templates;
 
 	private ILoadBalancer $loadBalancer;
 
@@ -26,8 +26,6 @@ class SpecialVerifiedExport extends SpecialPage {
 		$this->outputHeader();
 		$config = $this->getConfig();
 
-		// Set some variables
-		$this->curonly = true;
 		$this->doExport = false;
 		$request = $this->getRequest();
 		$this->templates = $request->getCheck( 'templates' );
@@ -92,7 +90,6 @@ class SpecialVerifiedExport extends SpecialPage {
 			] );
 
 			$page = $request->getText( 'pages' );
-			$this->curonly = $request->getCheck( 'curonly' );
 			$rawOffset = $request->getVal( 'offset' );
 
 			if ( $rawOffset ) {
@@ -111,9 +108,7 @@ class SpecialVerifiedExport extends SpecialPage {
 			];
 			$historyCheck = $request->getCheck( 'history' );
 
-			if ( $this->curonly ) {
-				$history = WikiExporter::CURRENT;
-			} elseif ( !$historyCheck ) {
+			if  ( !$historyCheck ) {
 				if ( $limit > 0 && ( $maxHistory == 0 || $limit < $maxHistory ) ) {
 					$history['limit'] = $limit;
 				}
@@ -152,7 +147,7 @@ class SpecialVerifiedExport extends SpecialPage {
 		}
 
 		$list_authors = $request->getCheck( 'listauthors' );
-		if ( !$this->curonly || !$config->get( 'ExportAllowListContributors' ) ) {
+		if ( !$config->get( 'ExportAllowListContributors' ) ) {
 			$list_authors = false;
 		}
 
@@ -240,20 +235,6 @@ class SpecialVerifiedExport extends SpecialPage {
 				'hide-if' => [ '===', 'exportall', '1' ],
 			],
 		];
-
-		if ( $config->get( 'ExportAllowHistory' ) ) {
-			$formDescriptor += [
-				'curonly' => [
-					'type' => 'check',
-					'label-message' => 'exportcuronly',
-					'name' => 'curonly',
-					'id' => 'curonly',
-					'default' => $request->wasPosted() ? $request->getCheck( 'curonly' ) : true,
-				],
-			];
-		} else {
-			$out->addWikiMsg( 'exportnohistory' );
-		}
 
 		$formDescriptor += [
 			'templates' => [
