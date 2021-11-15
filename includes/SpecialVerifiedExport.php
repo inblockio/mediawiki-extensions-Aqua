@@ -180,7 +180,21 @@ class SpecialVerifiedExport extends SpecialPage {
 			$categoryName = '';
 		}
 
-		$formDescriptor = [
+		$formDescriptor = [];
+
+		$formDescriptor += [
+			'textarea' => [
+				'class' => HTMLTextAreaField::class,
+				'name' => 'pages',
+				'label-message' => 'export-manual',
+				'nodata' => true,
+				'rows' => 10,
+				'default' => $page,
+				'hide-if' => [ '===', 'exportall', '1' ],
+			],
+		];
+
+		$formDescriptor += [
 			'catname' => [
 				'type' => 'textwithbutton',
 				'name' => 'catname',
@@ -194,6 +208,7 @@ class SpecialVerifiedExport extends SpecialPage {
 				'hide-if' => [ '===', 'exportall', '1' ],
 			],
 		];
+
 		if ( $config->get( 'ExportFromNamespaces' ) ) {
 			$formDescriptor += [
 				'nsindex' => [
@@ -223,18 +238,6 @@ class SpecialVerifiedExport extends SpecialPage {
 				],
 			];
 		}
-
-		$formDescriptor += [
-			'textarea' => [
-				'class' => HTMLTextAreaField::class,
-				'name' => 'pages',
-				'label-message' => 'export-manual',
-				'nodata' => true,
-				'rows' => 10,
-				'default' => $page,
-				'hide-if' => [ '===', 'exportall', '1' ],
-			],
-		];
 
 		$formDescriptor += [
 			'templates' => [
