@@ -92,6 +92,9 @@
 			"services": [
 				"PermissionManager"
 			]
+		},
+		"VerifiedExport": {
+			"class": "DataAccounting\\SpecialVerifiedExport"
 		}
 	},
 
