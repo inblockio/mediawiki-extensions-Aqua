@@ -34,7 +34,6 @@ use ImportSource;
 use MediaWiki\HookContainer\HookRunner;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
-use MovePage;
 use NaiveForeignTitleFactory;
 use NaiveImportTitleFactory;
 use NamespaceAwareForeignTitleFactory;
@@ -912,27 +911,6 @@ class VerifiedWikiImporter {
 						$this->handleUpload( $pageInfo );
 					}
 				}
-			} elseif ( $tag == 'data_accounting_chain_height' ) {
-				// Aqua modification
-				$own_chain_height = getPageChainHeight( $pageInfo['title'] );
-				if ( $own_chain_height == 0 ) {
-					continue;
-				}
-				$imported_chain_height = $this->nodeContents();
-				if ( $own_chain_height <= $imported_chain_height ) {
-					// Move and rename own page
-					// Rename the page that is about to be imported
-					$now = date( 'Y-m-d-H-i-s', time() );
-					$newTitle = $pageInfo['title'] . "_ChainHeight_{$own_chain_height}_$now";
-
-					$ot = Title::newFromText( $pageInfo['title'] );
-					$nt = Title::newFromText( $newTitle );
-					$reason = "Resolving naming collision because imported page has longer verified chain height.";
-					$createRedirect = false;
-					$mp = new MovePage( $ot, $nt );
-					$user = RequestContext::getMain()->getUser();
-					$status = $mp->moveIfAllowed( $user, $reason, $createRedirect );
-				}
 			} elseif ( $tag != '#text' ) {
 				$this->warn( "Unhandled page XML tag $tag" );
 				$skip = true;
@@ -998,8 +976,6 @@ class VerifiedWikiImporter {
 				$revisionInfo[$tag][] = $this->handleContent();
 			} elseif ( $tag == 'contributor' ) {
 				$revisionInfo['contributor'] = $this->handleContributor();
-			} elseif ( $tag == 'verification' ) { // Aqua modification
-				$revisionInfo['verification'] = $this->handleVerification();
 			} elseif ( $tag != '#text' ) {
 				$this->warn( "Unhandled revision XML tag $tag" );
 				$skip = true;
@@ -1095,119 +1071,6 @@ class VerifiedWikiImporter {
 		return $content;
 	}
 
-	// Aqua modification
-	private function processVerification( $revisionInfo, $title ) {
-		$table = 'revision_verification';
-		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
-		if ( isset( $revisionInfo['verification'] ) ) {
-			$verificationInfo = $revisionInfo['verification'];
-			$verificationInfo['page_title'] = $title;
-			$verificationInfo['source'] = 'imported';
-			unset( $verificationInfo["rev_id"] );
-
-			$res = $dbw->select(
-				$table,
-				[ 'revision_verification_id', 'rev_id', 'page_title', 'source' ],
-				[ 'page_title' => $title ],
-				__METHOD__,
-				[ 'ORDER BY' => 'revision_verification_id' ]
-			);
-			$last_row = [];
-			foreach ( $res as $row ) {
-				$last_row = $row;
-			}
-			if ( empty( $last_row ) ) {
-				// Do nothing if empty
-				return;
-			}
-
-			// Witness-specific
-			if ( isset( $verificationInfo['witness'] ) ) {
-				$witnessInfo = $verificationInfo['witness'];
-				$structured_merkle_proof = json_decode( $witnessInfo['structured_merkle_proof'], true );
-				unset( $witnessInfo['structured_merkle_proof'] );
-
-				//Check if witness_event_verification_hash is already present,
-				//if so skip import into witness_events
-
-				$rowWitness = $dbw->selectRow(
-					'witness_events',
-					[ 'witness_event_id', 'witness_event_verification_hash' ],
-					[ 'witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash'] ]
-				);
-				if ( !$rowWitness ) {
-					$witnessInfo['source'] = 'imported';
-					$witnessInfo['domain_manifest_title'] = 'N/A';
-					$dbw->insert(
-						'witness_events',
-						$witnessInfo,
-					);
-					$local_witness_event_id = getMaxWitnessEventId( $dbw );
-					if ( $local_witness_event_id === null ) {
-						$local_witness_event_id = 1;
-					}
-				} else {
-					$local_witness_event_id = $rowWitness->witness_event_id;
-				}
-
-				// Patch revision_verification table to use the local version of
-				// witness_event_id instead of from the foreign version.
-				$dbw->update(
-					'revision_verification',
-					[ 'witness_event_id' => $local_witness_event_id ],
-					[ 'revision_verification_id' => $last_row->revision_verification_id ],
-				);
-
-				// Check if merkle tree proof is present, if so skip, if not
-				// import AND attribute to the correct witness_id
-				$revision_verification_hash = $verificationInfo['verification_hash'];
-
-				$rowProof = $dbw->selectRow(
-					'witness_merkle_tree',
-					[ 'witness_event_id' ],
-					[
-						'left_leaf=\'' . $revision_verification_hash . '\'' .
-						' OR right_leaf=\'' . $revision_verification_hash . '\''
-					]
-				);
-
-				if ( !$rowProof ) {
-					$latest_witness_event_id = $dbw->selectRow(
-						'witness_events',
-						[ 'max(witness_event_id) as witness_event_id' ],
-						''
-					)->witness_event_id;
-
-					foreach ( $structured_merkle_proof as $row ) {
-						$row["witness_event_id"] = $latest_witness_event_id;
-						$dbw->insert(
-							'witness_merkle_tree',
-							$row,
-						);
-					}
-				}
-
-				// This unset is important, otherwise the dbw->update for
-				// revision_verification accidentally includes witness.
-				unset( $verificationInfo["witness"] );
-			}
-			// End of witness-specific
-
-			$dbw->update(
-				$table,
-				$verificationInfo,
-				[ 'revision_verification_id' => $last_row->revision_verification_id ],
-				__METHOD__
-			);
-		} else {
-			$dbw->delete(
-				$table,
-				[ 'page_title' => $title ]
-			);
-		}
-	}
-
 	/**
 	 * @param array $pageInfo
 	 * @param array $revisionInfo
@@ -1260,15 +1123,7 @@ class VerifiedWikiImporter {
 		}
 		$revision->setNoUpdates( $this->mNoUpdates );
 
-		// Callback
-		$out = $this->revisionCallback( $revision );
-
-		// Aqua modification
-		// We need to do this after the callback, which is `importRevision`,
-		// because we need the newly generated revision id.
-		$this->processVerification( $revisionInfo, $title );
-
-		return $out;
+		return $this->revisionCallback( $revision );
 	}
 
 	/**
@@ -1496,65 +1351,4 @@ class VerifiedWikiImporter {
 			->getDefaultModel( $title );
 	}
 
-	// Aqua modification
-	private function handleVerification() {
-		if ( $this->reader->isEmptyElement ) {
-			return null;
-		}
-		$verificationInfo = [];
-		$normalFields = [
-			'domain_id',
-			'rev_id',
-			'verification_hash',
-			'time_stamp',
-			'signature',
-			'public_key',
-			'wallet_address' ];
-		while ( $this->reader->read() ) {
-			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-				$this->reader->localName == 'verification' ) {
-				break;
-			}
-
-			$tag = $this->reader->localName;
-
-			if ( in_array( $tag, $normalFields ) ) {
-				$verificationInfo[$tag] = $this->nodeContents();
-			} elseif ( $tag == 'witness' ) {
-				$verificationInfo[$tag] = $this->handleWitness();
-			}
-		}
-
-		return $verificationInfo;
-	}
-
-	// Aqua modification
-	private function handleWitness() {
-		if ( $this->reader->isEmptyElement ) {
-			return null;
-		}
-		$witnessInfo = [];
-		$normalFields = [
-			"domain_id",
-			"witness_event_verification_hash",
-			"witness_network",
-			"smart_contract_address",
-			"domain_manifest_verification_hash",
-			"merkle_root",
-			"structured_merkle_proof",
-			"witness_event_transaction_hash",
-			"sender_account_address"
-		];
-		while ( $this->reader->read() ) {
-			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-				$this->reader->localName == 'witness' ) {
-				break;
-			}
-			$tag = $this->reader->localName;
-			if ( in_array( $tag, $normalFields ) ) {
-				$witnessInfo[$tag] = $this->nodeContents();
-			}
-		}
-		return $witnessInfo;
-	}
 }
