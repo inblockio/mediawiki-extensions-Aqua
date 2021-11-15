@@ -209,7 +209,7 @@ class SpecialVerifiedExport extends SpecialPage {
 			],
 		];
 
-		if ( $config->get( 'ExportFromNamespaces' ) ) {
+//		if ( $config->get( 'ExportFromNamespaces' ) ) {
 			$formDescriptor += [
 				'nsindex' => [
 					'type' => 'namespaceselectwithbutton',
@@ -225,9 +225,9 @@ class SpecialVerifiedExport extends SpecialPage {
 					'hide-if' => [ '===', 'exportall', '1' ],
 				],
 			];
-		}
+//		}
 
-		if ( $config->get( 'ExportAllowAll' ) ) {
+//		if ( $config->get( 'ExportAllowAll' ) ) {
 			$formDescriptor += [
 				'exportall' => [
 					'type' => 'check',
@@ -237,7 +237,7 @@ class SpecialVerifiedExport extends SpecialPage {
 					'default' => $request->wasPosted() ? $request->getCheck( 'exportall' ) : false,
 				],
 			];
-		}
+//		}
 
 		$formDescriptor += [
 			'templates' => [
@@ -249,7 +249,7 @@ class SpecialVerifiedExport extends SpecialPage {
 			],
 		];
 
-		if ( $config->get( 'ExportMaxLinkDepth' ) || $this->userCanOverrideExportDepth() ) {
+//		if ( $config->get( 'ExportMaxLinkDepth' ) || $this->userCanOverrideExportDepth() ) {
 			$formDescriptor += [
 				'pagelink-depth' => [
 					'type' => 'text',
@@ -260,7 +260,7 @@ class SpecialVerifiedExport extends SpecialPage {
 					'size' => 20,
 				],
 			];
-		}
+//		}
 
 		$formDescriptor += [
 			'wpDownload' => [
@@ -272,7 +272,7 @@ class SpecialVerifiedExport extends SpecialPage {
 			],
 		];
 
-		if ( $config->get( 'ExportAllowListContributors' ) ) {
+//		if ( $config->get( 'ExportAllowListContributors' ) ) {
 			$formDescriptor += [
 				'listauthors' => [
 					'type' => 'check',
@@ -282,7 +282,7 @@ class SpecialVerifiedExport extends SpecialPage {
 					'id' => 'listauthors',
 				],
 			];
-		}
+//		}
 
 		$htmlForm = HTMLForm::factory( 'ooui', $formDescriptor, $this->getContext() );
 		$htmlForm->setSubmitTextMsg( 'export-submit' );
