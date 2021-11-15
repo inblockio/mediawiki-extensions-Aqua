@@ -242,7 +242,7 @@ class SpecialVerifiedExport extends SpecialPage {
 				'label-message' => 'export-templates',
 				'name' => 'templates',
 				'id' => 'wpExportTemplates',
-				'default' => $request->wasPosted() ? $request->getCheck( 'templates' ) : false,
+				'default' => $request->wasPosted() ? $request->getCheck( 'templates' ) : true,
 			],
 		];
 
