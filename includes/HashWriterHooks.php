@@ -22,10 +22,6 @@ use WikiPage;
 require_once 'Util.php';
 require_once 'ApiUtil.php';
 
-function makeEmptyIfNonce( $x ) {
-	return ( $x == "nonce" ) ? "" : $x;
-}
-
 class HashWriterHooks implements
 	RevisionFromEditCompleteHook,
 	RevisionRecordInsertedHook,
