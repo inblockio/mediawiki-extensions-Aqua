@@ -24,8 +24,14 @@ class DataAccountingFactory {
 
 	public function newPageVerificationBuilder(): PageVerificationBuilder {
 		return new PageVerificationBuilder(
-			MediaWikiServices::getInstance()->getDBLoadBalancer(),
+			$this->newPageVerificationRepo(),
 			new HashingService( getDomainId() )
+		);
+	}
+
+	private function newPageVerificationRepo(): PageVerificationRepo {
+		return new DbPageVerificationRepo(
+			MediaWikiServices::getInstance()->getDBLoadBalancer()
 		);
 	}
 
