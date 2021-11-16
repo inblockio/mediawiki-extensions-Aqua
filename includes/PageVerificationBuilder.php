@@ -4,8 +4,8 @@ declare( strict_types = 1 );
 
 namespace DataAccounting;
 
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
-use MediaWiki\Storage\RevisionRecord;
 
 class PageVerificationBuilder {
 
