@@ -22,7 +22,7 @@ class PageVerificationBuilder {
 
 		// GET DATA FOR META DATA and SIGNATURE DATA
 		$parentId = $rev->getParentId();
-		$verificationData = getPageVerificationData( $this->loadBalancer->getConnection( DB_PRIMARY ), $parentId );
+		$verificationData = $this->getPageVerificationData( $parentId );
 
 		// META DATA HASH CALCULATOR
 		$previousVerificationHash = $verificationData['verification_hash'];
@@ -70,6 +70,37 @@ class PageVerificationBuilder {
 			'public_key' => '',
 			'wallet_address' => '',
 			'source' => 'default',
+		];
+	}
+
+	private function getPageVerificationData( $previous_rev_id ): array {
+		$dbr = $this->loadBalancer->getConnection( DB_PRIMARY );
+
+		$row = $dbr->selectRow(
+			'page_verification',
+			[ 'rev_id', 'verification_hash', 'signature', 'public_key', 'wallet_address', 'witness_event_id' ],
+			"rev_id = $previous_rev_id",
+			__METHOD__
+		);
+
+		if ( !$row ) {
+			// When $row is empty, we have to construct $output consisting of empty
+			// strings.
+			return [
+				'verification_hash' => "",
+				'signature' => "",
+				'public_key' => "",
+				'wallet_address' => "",
+				'witness_event_id' => null,
+			];
+		}
+
+		return [
+			'verification_hash' => $row->verification_hash,
+			'signature' => $row->signature,
+			'public_key' => $row->public_key,
+			'wallet_address' => $row->wallet_address,
+			'witness_event_id' => $row->witness_event_id
 		];
 	}
 

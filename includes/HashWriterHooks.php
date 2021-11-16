@@ -42,34 +42,6 @@ function makeEmptyIfNonce( $x ) {
 	return ( $x == "nonce" ) ? "" : $x;
 }
 
-function getPageVerificationData( $dbr, $previous_rev_id ) {
-	$row = $dbr->selectRow(
-		'page_verification',
-		[ 'rev_id', 'verification_hash', 'signature', 'public_key', 'wallet_address', 'witness_event_id' ],
-		"rev_id = $previous_rev_id",
-		__METHOD__
-	);
-	if ( !$row ) {
-		// When $row is empty, we have to construct $output consisting of empty
-		// strings.
-		return [
-			'verification_hash' => "",
-			'signature' => "",
-			'public_key' => "",
-			'wallet_address' => "",
-			'witness_event_id' => null,
-		];
-	}
-	$output = [
-		'verification_hash' => $row->verification_hash,
-		'signature' => $row->signature,
-		'public_key' => $row->public_key,
-		'wallet_address' => $row->wallet_address,
-		'witness_event_id' => $row->witness_event_id
-	];
-	return $output;
-}
-
 class HashWriterHooks implements
 	RevisionFromEditCompleteHook,
 	RevisionRecordInsertedHook,
