@@ -14,7 +14,10 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\Hook\ArticleDeleteCompleteHook;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 use MediaWiki\Revision\Hook\RevisionRecordInsertedHook;
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\User\UserIdentity;
+use WikiPage;
 
 require_once 'Util.php';
 require_once 'ApiUtil.php';
@@ -91,6 +94,13 @@ class HashWriterHooks implements
 		$dbw->insert( $table_name, $data, __METHOD__ );
 	}
 
+	/**
+	 * @param WikiPage $wikiPage
+	 * @param RevisionRecord $rev
+	 * @param int|bool $originalRevId
+	 * @param UserIdentity $user
+	 * @param string[] &$tags
+	 */
 	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
 		/**
 		 * We check if a comment 'revision imported' or 'revisions imported' is
