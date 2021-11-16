@@ -22,22 +22,6 @@ use WikiPage;
 require_once 'Util.php';
 require_once 'ApiUtil.php';
 
-function calculateMetadataHash( $domainId, $timestamp, $previousVerificationHash = "" ) {
-	return getHashSum( $domainId . $timestamp . $previousVerificationHash );
-}
-
-function calculateSignatureHash( $signature, $publicKey ) {
-	return getHashSum( $signature . $publicKey );
-}
-
-function calculateWitnessHash( $domain_manifest_verification_hash, $merkle_root, $witness_network, $witness_tx_hash ) {
-	return getHashSum( $domain_manifest_verification_hash . $merkle_root . $witness_network . $witness_tx_hash );
-}
-
-function calculateVerificationHash( $contentHash, $metadataHash, $signature_hash, $witness_hash ) {
-	return getHashSum( $contentHash . $metadataHash . $signature_hash . $witness_hash );
-}
-
 function makeEmptyIfNonce( $x ) {
 	return ( $x == "nonce" ) ? "" : $x;
 }

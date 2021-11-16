@@ -11,7 +11,8 @@ use Wikimedia\Rdbms\ILoadBalancer;
 class PageVerificationBuilder {
 
 	public function __construct(
-		private ILoadBalancer $loadBalancer
+		private ILoadBalancer $loadBalancer,
+		private HashingService $hashingService
 	) {
 	}
 
@@ -26,14 +27,13 @@ class PageVerificationBuilder {
 
 		// META DATA HASH CALCULATOR
 		$previousVerificationHash = $verificationData['verification_hash'];
-		$domainId = getDomainId();
 		$timestamp = $rev->getTimeStamp();
-		$metadataHash = calculateMetadataHash( $domainId, $timestamp, $previousVerificationHash );
+		$metadataHash = $this->hashingService->calculateMetadataHash( $timestamp, $previousVerificationHash );
 
 		// SIGNATURE DATA HASH CALCULATOR
 		$signature = $verificationData['signature'];
 		$publicKey = $verificationData['public_key'];
-		$signatureHash = calculateSignatureHash( $signature, $publicKey );
+		$signatureHash = $this->hashingService->calculateSignatureHash( $signature, $publicKey );
 
 		// WITNESS DATA HASH CALCULATOR
 		$witnessData = getWitnessData( $verificationData['witness_event_id'] );
@@ -42,7 +42,7 @@ class PageVerificationBuilder {
 			$merkle_root = $witnessData['merkle_root'];
 			$witness_network = $witnessData['witness_network'];
 			$witness_tx_hash = $witnessData['witness_event_transaction_hash'];
-			$witnessHash = calculateWitnessHash(
+			$witnessHash = $this->hashingService->calculateWitnessHash(
 				$domain_manifest_verification_hash,
 				$merkle_root,
 				$witness_network,
@@ -60,7 +60,7 @@ class PageVerificationBuilder {
 			'hash_content' => $contentHash,
 			'time_stamp' => $timestamp,
 			'hash_metadata' => $metadataHash,
-			'verification_hash' => calculateVerificationHash(
+			'verification_hash' => $this->hashingService->calculateVerificationHash(
 				$contentHash,
 				$metadataHash,
 				$signatureHash,
