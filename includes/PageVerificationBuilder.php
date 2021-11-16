@@ -10,7 +10,7 @@ use MediaWiki\Revision\SlotRecord;
 class PageVerificationBuilder {
 
 	public function __construct(
-		private DbPageVerificationRepo $verificationRepo,
+		private PageVerificationRepo $verificationRepo,
 		private HashingService $hashingService
 	) {
 	}
