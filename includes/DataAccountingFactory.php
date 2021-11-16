@@ -4,6 +4,9 @@ declare( strict_types = 1 );
 
 namespace DataAccounting;
 
+use MediaWiki\MediaWikiServices;
+use Wikimedia\Rdbms\ILoadBalancer;
+
 /**
  * Top level factory for services construction.
  */
@@ -20,7 +23,9 @@ class DataAccountingFactory {
 	}
 
 	public function newPageVerificationBuilder(): PageVerificationBuilder {
-		return new PageVerificationBuilder();
+		return new PageVerificationBuilder(
+			MediaWikiServices::getInstance()->getDBLoadBalancer()
+		);
 	}
 
 }

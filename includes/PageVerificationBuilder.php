@@ -4,23 +4,25 @@ declare( strict_types = 1 );
 
 namespace DataAccounting;
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Storage\RevisionRecord;
+use Wikimedia\Rdbms\ILoadBalancer;
 
 class PageVerificationBuilder {
 
-	public function buildVerificationData( RevisionRecord $rev ): array {
-		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
+	public function __construct(
+		private ILoadBalancer $loadBalancer
+	) {
+	}
 
+	public function buildVerificationData( RevisionRecord $rev ): array {
 		// CONTENT DATA HASH CALCULATOR
 		$pageContent = $rev->getContent( SlotRecord::MAIN )->serialize();
 		$contentHash = getHashSum( $pageContent );
 
 		// GET DATA FOR META DATA and SIGNATURE DATA
 		$parentId = $rev->getParentId();
-		$verificationData = getPageVerificationData( $dbw, $parentId );
+		$verificationData = getPageVerificationData( $this->loadBalancer->getConnection( DB_PRIMARY ), $parentId );
 
 		// META DATA HASH CALCULATOR
 		$previousVerificationHash = $verificationData['verification_hash'];
