@@ -35,6 +35,7 @@ class DbPageVerificationRepo implements PageVerificationRepo {
 			];
 		}
 
+		// TODO: return new PageVerification object
 		return [
 			'verification_hash' => $row->verification_hash,
 			'signature' => $row->signature,

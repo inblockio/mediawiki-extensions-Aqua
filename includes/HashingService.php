@@ -27,4 +27,11 @@ class HashingService {
 		return getHashSum( $contentHash . $metadataHash . $signature_hash . $witness_hash );
 	}
 
+	// TODO: maybe better to keep $domainId as parameter since the using service needs to have it injected anyway
+	// TODO: perhaps we can have a single function like below:
+
+//	public function hash( string ...$strings ): string {
+//		return getHashSum( implode( '', $strings ) );
+//	}
+
 }

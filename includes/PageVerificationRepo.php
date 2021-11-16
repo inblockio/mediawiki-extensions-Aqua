@@ -6,6 +6,7 @@ namespace DataAccounting;
 
 interface PageVerificationRepo {
 
-	public function getPageVerificationData( int $revId ): array;
+	// TODO: does this naming make sense? Which one is it: page or revision?
+	public function getPageVerificationData( int $revisionId ): array;
 
 }

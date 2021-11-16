@@ -35,7 +35,7 @@ class PageVerificationBuilder {
 		$signatureHash = $this->hashingService->calculateSignatureHash( $signature, $publicKey );
 
 		// WITNESS DATA HASH CALCULATOR
-		$witnessData = getWitnessData( $verificationData['witness_event_id'] );
+		$witnessData = getWitnessData( $verificationData['witness_event_id'] ); // TODO: inject new service
 		if ( !empty( $witnessData ) ) {
 			$domain_manifest_verification_hash = $witnessData['witness_event_verification_hash'];
 			$merkle_root = $witnessData['merkle_root'];
@@ -51,8 +51,9 @@ class PageVerificationBuilder {
 			$witnessHash = '';
 		}
 
+		// TODO: return new PageVerification object. Or maybe write to the repo here, turning this into a "PageVerifier"?
 		return [
-			'domain_id' => getDomainId(),
+			'domain_id' => getDomainId(), // TODO: inject global
 			'page_title' => $rev->getPage()->getDBkey(),
 			'page_id' => $rev->getPage()->getId(),
 			'rev_id' => $rev->getID(),
