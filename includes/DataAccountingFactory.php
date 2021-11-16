@@ -25,7 +25,7 @@ class DataAccountingFactory {
 	public function newPageVerificationBuilder(): PageVerificationBuilder {
 		return new PageVerificationBuilder(
 			$this->newPageVerificationRepo(),
-			new HashingService( getDomainId() )
+			new HashingService( getDomainId() ?? '' )
 		);
 	}
 
