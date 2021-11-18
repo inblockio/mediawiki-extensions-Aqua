@@ -71,8 +71,7 @@ class HashWriterHooks implements
 	RevisionFromEditCompleteHook,
 	RevisionRecordInsertedHook,
 	ArticleDeleteCompleteHook,
-	PageMoveCompleteHook,
-	LoadExtensionSchemaUpdatesHook
+	PageMoveCompleteHook
 {
 
 	// This function updates the dataset wit the correct revision ID, especially important during import.
@@ -196,10 +195,14 @@ class HashWriterHooks implements
 	 * Register our database schema.
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/LoadExtensionSchemaUpdates
-	 *
-	 * @param DatabaseUpdater $updater
 	 */
-	public function onLoadExtensionSchemaUpdates( $updater ) {
+	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
 		$updater->addExtensionTable( 'data_accounting', dirname( __DIR__ ) . '/sql/data_accounting.sql' );
+
+		// TODO: create new service to generate and persist the domain id, perhaps "DomainIdInitializer"?
+		// This service will need to check if the id is already initialized and run itself conditionally
+		$updater->addExtensionUpdate( [
+			fn( DatabaseUpdater $updater ) => 'TODO' // Something like: DataAccountingFactory::getInstance()->newDomainIdInitializer()->initialize( $updater->getDB() );
+		] );
 	}
 }

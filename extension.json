@@ -137,9 +137,7 @@
 		"RevisionRecordInserted": "handleHashWriterHooks",
 		"ArticleDeleteComplete": "handleHashWriterHooks",
 		"PageMoveComplete": "handleHashWriterHooks",
-		"LoadExtensionSchemaUpdates": {
-			"handler": "handleHashWriterHooks"
-		},
+		"LoadExtensionSchemaUpdates": "DataAccounting\\Hooks::onLoadExtensionSchemaUpdates",
 		"XmlDumpWriterOpenPage": "DataAccounting\\Hooks::onXmlDumpWriterOpenPage",
 		"XmlDumpWriterWriteRevision": "DataAccounting\\Hooks::onXmlDumpWriterWriteRevision"
 	},
