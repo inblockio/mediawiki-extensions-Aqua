@@ -2,10 +2,15 @@
 
 declare( strict_types = 1 );
 
-namespace DataAccounting;
+namespace DataAccounting\Hasher;
 
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
+
+require_once __DIR__ . "/../ApiUtil.php";
+require_once __DIR__ . "/../Util.php";
+
+use function DataAccounting\getWitnessData;
 
 class RevisionVerificationBuilder {
 

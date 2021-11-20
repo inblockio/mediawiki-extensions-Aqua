@@ -2,7 +2,9 @@
 
 declare( strict_types = 1 );
 
-namespace DataAccounting;
+namespace DataAccounting\Hasher;
+
+require_once __DIR__ . "/../Util.php";
 
 class HashingService {
 

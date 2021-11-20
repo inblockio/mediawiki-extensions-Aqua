@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace DataAccounting;
+namespace DataAccounting\Hasher;
 
 interface RevisionVerificationRepo {
 

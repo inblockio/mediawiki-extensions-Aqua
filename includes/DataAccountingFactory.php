@@ -7,6 +7,11 @@ namespace DataAccounting;
 use MediaWiki\MediaWikiServices;
 use Wikimedia\Rdbms\ILoadBalancer;
 
+use DataAccounting\Hasher\RevisionVerificationBuilder;
+use DataAccounting\Hasher\RevisionVerificationRepo;
+use DataAccounting\Hasher\HashingService;
+use DataAccounting\Hasher\DbRevisionVerificationRepo;
+
 /**
  * Top level factory for services construction.
  */
