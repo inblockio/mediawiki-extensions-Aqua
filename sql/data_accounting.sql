@@ -24,9 +24,9 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/revision_verification (
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_events (
         `witness_event_id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
         `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
-        `domain_manifest_title` VARCHAR(255) COMMENT 'from page_verification',
+        `domain_manifest_title` VARCHAR(255) COMMENT 'from revision_verification',
         `witness_hash` VARCHAR(128) COMMENT 'Hashes together domain_manifest_verification hash + merkle_root + witness_network + smart contract address',
-        `domain_manifest_verification_hash` VARCHAR(128) COMMENT 'from page_verification table',
+        `domain_manifest_verification_hash` VARCHAR(128) COMMENT 'from revision_verification table',
         `merkle_root` VARCHAR(128) COMMENT 'Merkle Root Hash',
         `witness_event_verification_hash` VARCHAR(128) COMMENT 'XOR of domain_manifest_verification_hash and merkle_root - populated when witness event is triggered',
         `witness_network` VARCHAR(128) DEFAULT 'PLEASE SET THE VARIABLE IN THE SPECIALPAGE:WITNESS' COMMENT 'populated by SpecialPage:Witness configuration input fields',
@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_page (
  `id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
  `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
  `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
- `page_title` VARCHAR(255) COMMENT 'from page_verification',
- `rev_id` VARCHAR(128) COMMENT 'from page_verification',
+ `page_title` VARCHAR(255) COMMENT 'from revision_verification',
+ `rev_id` VARCHAR(128) COMMENT 'from revision_verification',
  `revision_verification_hash` VARCHAR(128) COMMENT 'Input values for merkle tree'
  );
 
