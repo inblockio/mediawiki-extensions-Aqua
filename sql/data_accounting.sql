@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_page (
  `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
  `page_title` VARCHAR(255) COMMENT 'from page_verification',
  `rev_id` VARCHAR(128) COMMENT 'from page_verification',
- `page_verification_hash` VARCHAR(128) COMMENT 'Input values for merkle tree'
+ `revision_verification_hash` VARCHAR(128) COMMENT 'Input values for merkle tree'
  );
 
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_merkle_tree (

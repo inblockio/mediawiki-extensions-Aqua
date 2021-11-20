@@ -179,7 +179,7 @@ class SpecialWitness extends SpecialPage {
 					'domain_id' => $row3->domain_id,
 					'page_title' => $row->page_title,
 					'rev_id' => $row->rev_id,
-					'page_verification_hash' => $vhash,
+					'revision_verification_hash' => $vhash,
 				],
 				""
 			);

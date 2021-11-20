@@ -63,12 +63,12 @@ class RevisionXmlBuilder {
 		return $xmlString;
 	}
 
-	private function getPageWitnessData( $witness_event_id, $page_verification_hash ) {
+	private function getPageWitnessData( $witness_event_id, $revision_verification_hash ) {
 		$witness_data = getWitnessData( $witness_event_id );
 		if ( empty( $witness_data ) ) {
 			return '';
 		}
-		$structured_merkle_proof = json_encode( requestMerkleProof( $witness_event_id, $page_verification_hash ) );
+		$structured_merkle_proof = json_encode( requestMerkleProof( $witness_event_id, $revision_verification_hash ) );
 		$witness_data["structured_merkle_proof"] = $structured_merkle_proof;
 		$xmlString = $this->convertArray2XMLString( $witness_data, "<witness/>" );
 		return $xmlString;

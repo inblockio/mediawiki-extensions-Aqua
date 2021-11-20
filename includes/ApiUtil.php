@@ -39,7 +39,7 @@ function getPageChainHeight( string $page_title ): int {
 	return count( get_page_all_revs( $page_title ) );
 }
 
-function requestMerkleProof( $witness_event_id, $page_verification_hash, $depth = null ) {
+function requestMerkleProof( $witness_event_id, $revision_verification_hash, $depth = null ) {
 	//IF query returns a left or right leaf empty, it means the successor string will be identifical the next layer up. In this case it is required to read the depth and start the query with a depth parameter -1 to go to the next layer. This is repeated until the left or right leaf is present and the successor hash different.
 
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -50,16 +50,16 @@ function requestMerkleProof( $witness_event_id, $page_verification_hash, $depth 
 	while ( true ) {
 		if ( $depth === null ) {
 			$conds =
-				'left_leaf=\'' . $page_verification_hash .
+				'left_leaf=\'' . $revision_verification_hash .
 				'\' AND witness_event_id=' . $witness_event_id .
-				' OR right_leaf=\'' . $page_verification_hash .
+				' OR right_leaf=\'' . $revision_verification_hash .
 				'\' AND witness_event_id=' . $witness_event_id;
 		} else {
 			$conds =
-				'left_leaf=\'' . $page_verification_hash .
+				'left_leaf=\'' . $revision_verification_hash .
 				'\' AND witness_event_id=' . $witness_event_id .
 				' AND depth=' . $depth .
-				' OR right_leaf=\'' . $page_verification_hash .
+				' OR right_leaf=\'' . $revision_verification_hash .
 				'\'  AND witness_event_id=' . $witness_event_id .
 				' AND depth=' . $depth;
 		}
@@ -92,7 +92,7 @@ function requestMerkleProof( $witness_event_id, $page_verification_hash, $depth 
 			break;
 		}
 		$depth = $max_depth - 1;
-		$page_verification_hash = $output['successor'];
+		$revision_verification_hash = $output['successor'];
 		array_push( $final_output, $output );
 		if ( $depth == -1 ) {
 			break;

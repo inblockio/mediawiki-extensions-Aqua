@@ -148,7 +148,7 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 		$verification_hashes = selectToArray(
 			$dbw,
 			'witness_page',
-			'page_verification_hash',
+			'revision_verification_hash',
 			[ 'witness_event_id' => $witness_event_id ]
 		);
 

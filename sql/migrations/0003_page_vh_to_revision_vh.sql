@@ -1,0 +1,1 @@
+ALTER TABLE witness_page RENAME COLUMN page_verification_hash to revision_verification_hash;

@@ -1161,14 +1161,14 @@ class VerifiedWikiImporter {
 
 				// Check if merkle tree proof is present, if so skip, if not
 				// import AND attribute to the correct witness_id
-				$page_verification_hash = $verificationInfo['verification_hash'];
+				$revision_verification_hash = $verificationInfo['verification_hash'];
 
 				$rowProof = $dbw->selectRow(
 					'witness_merkle_tree',
 					[ 'witness_event_id' ],
 					[
-						'left_leaf=\'' . $page_verification_hash . '\'' .
-						' OR right_leaf=\'' . $page_verification_hash . '\''
+						'left_leaf=\'' . $revision_verification_hash . '\'' .
+						' OR right_leaf=\'' . $revision_verification_hash . '\''
 					]
 				);
 

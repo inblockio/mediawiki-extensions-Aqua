@@ -93,7 +93,7 @@
   </file>
   <file src="includes/API/RequestMerkleProofHandler.php">
     <MissingParamType occurrences="2">
-      <code>$page_verification_hash</code>
+      <code>$revision_verification_hash</code>
       <code>$witness_event_id</code>
     </MissingParamType>
     <MissingReturnType occurrences="1">
@@ -310,7 +310,7 @@
     <MissingParamType occurrences="5">
       <code>$db</code>
       <code>$depth</code>
-      <code>$page_verification_hash</code>
+      <code>$revision_verification_hash</code>
       <code>$witness_event_id</code>
       <code>$witness_event_id</code>
     </MissingParamType>
@@ -330,7 +330,7 @@
       <code>$data['rev_id']</code>
       <code>$depth</code>
       <code>$max_depth</code>
-      <code>$page_verification_hash</code>
+      <code>$revision_verification_hash</code>
       <code>$row</code>
     </MixedAssignment>
     <MixedMethodCall occurrences="1">
@@ -340,10 +340,10 @@
       <code>$depth</code>
       <code>$depth</code>
       <code>$max_depth</code>
-      <code>$page_verification_hash</code>
-      <code>$page_verification_hash</code>
-      <code>$page_verification_hash</code>
-      <code>$page_verification_hash</code>
+      <code>$revision_verification_hash</code>
+      <code>$revision_verification_hash</code>
+      <code>$revision_verification_hash</code>
+      <code>$revision_verification_hash</code>
       <code>$witness_event_id</code>
       <code>$witness_event_id</code>
       <code>$witness_event_id</code>
@@ -526,7 +526,7 @@
   <file src="includes/RevisionXmlBuilder.php">
     <MissingParamType occurrences="4">
       <code>$arr</code>
-      <code>$page_verification_hash</code>
+      <code>$revision_verification_hash</code>
       <code>$tag</code>
       <code>$witness_event_id</code>
     </MissingParamType>
@@ -572,7 +572,7 @@
     </PossiblyInvalidPropertyFetch>
     <UndefinedFunction occurrences="2">
       <code>getWitnessData( $witness_event_id )</code>
-      <code>requestMerkleProof( $witness_event_id, $page_verification_hash )</code>
+      <code>requestMerkleProof( $witness_event_id, $revision_verification_hash )</code>
     </UndefinedFunction>
   </file>
   <file src="includes/SignMessageModule.php">
@@ -1118,7 +1118,7 @@
       <code>$out</code>
       <code>$pageInfo['revisionCount']</code>
       <code>$pageInfo['successfulRevisionCount']</code>
-      <code>$page_verification_hash</code>
+      <code>$revision_verification_hash</code>
       <code>$previous</code>
       <code>$previous</code>
       <code>$previous</code>
@@ -1170,8 +1170,8 @@
       <code>$pageInfo['revisionCount']</code>
       <code>$pageInfo['successfulRevisionCount']</code>
       <code>$pageInfo['title']</code>
-      <code>$page_verification_hash</code>
-      <code>$page_verification_hash</code>
+      <code>$revision_verification_hash</code>
+      <code>$revision_verification_hash</code>
       <code>$wgMaxArticleSize</code>
     </MixedOperand>
     <MixedReturnStatement occurrences="8">

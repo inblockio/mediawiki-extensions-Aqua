@@ -11,8 +11,8 @@ require_once __DIR__ . "/../ApiUtil.php";
 class RequestMerkleProofHandler extends SimpleHandler {
 
 	/** @inheritDoc */
-	public function run( $witness_event_id, $page_verification_hash ) {
-		#request_merkle_proof:expects witness_id and page_verification hash and
+	public function run( $witness_event_id, $revision_verification_hash ) {
+		#request_merkle_proof:expects witness_id and revision_verification_hash and
 		#returns left_leaf,righ_leaf and successor hash to verify the merkle
 		#proof node by node, data is retrieved from the witness_merkle_tree db.
 		#Note: in some cases there will be multiple replays to this query. In
@@ -22,7 +22,7 @@ class RequestMerkleProofHandler extends SimpleHandler {
 		$params = $this->getValidatedParams();
 		$depth = $params['depth'];
 
-		$output = requestMerkleProof( $witness_event_id, $page_verification_hash, $depth );
+		$output = requestMerkleProof( $witness_event_id, $revision_verification_hash, $depth );
 		return $output;
 	}
 
@@ -39,7 +39,7 @@ class RequestMerkleProofHandler extends SimpleHandler {
 				ParamValidator::PARAM_TYPE => 'integer',
 				ParamValidator::PARAM_REQUIRED => true,
 			],
-			'page_verification_hash' => [
+			'revision_verification_hash' => [
 				self::PARAM_SOURCE => 'path',
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => true,
