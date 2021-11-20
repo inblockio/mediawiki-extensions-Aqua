@@ -7,10 +7,10 @@ namespace DataAccounting;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 
-class PageVerificationBuilder {
+class RevisionVerificationBuilder {
 
 	public function __construct(
-		private PageVerificationRepo $verificationRepo,
+		private RevisionVerificationRepo $verificationRepo,
 		private HashingService $hashingService
 	) {
 	}
@@ -51,7 +51,8 @@ class PageVerificationBuilder {
 			$witnessHash = '';
 		}
 
-		// TODO: return new PageVerification object. Or maybe write to the repo here, turning this into a "PageVerifier"?
+		// TODO: return new RevisionVerification object. Or maybe write to the repo
+		// here, turning this into a "RevisionVerifier"?
 		return [
 			'domain_id' => getDomainId(), // TODO: inject global
 			'page_title' => $rev->getPage()->getDBkey(),

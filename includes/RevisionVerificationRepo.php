@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 
 namespace DataAccounting;
 
-interface PageVerificationRepo {
+interface RevisionVerificationRepo {
 
 	public function getRevisionVerificationData( int $revisionId ): array;
 

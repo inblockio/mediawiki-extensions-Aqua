@@ -22,15 +22,15 @@ class DataAccountingFactory {
 	final protected function __construct() {
 	}
 
-	public function newPageVerificationBuilder(): PageVerificationBuilder {
-		return new PageVerificationBuilder(
-			$this->newPageVerificationRepo(),
+	public function newRevisionVerificationBuilder(): RevisionVerificationBuilder {
+		return new RevisionVerificationBuilder(
+			$this->newRevisionVerificationRepo(),
 			new HashingService( getDomainId() )
 		);
 	}
 
-	private function newPageVerificationRepo(): PageVerificationRepo {
-		return new DbPageVerificationRepo(
+	private function newRevisionVerificationRepo(): RevisionVerificationRepo {
+		return new DbRevisionVerificationRepo(
 			MediaWikiServices::getInstance()->getDBLoadBalancer()
 		);
 	}

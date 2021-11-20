@@ -65,7 +65,7 @@ class HashWriterHooks implements
 
 		$dbw->update(
 			'page_verification',
-			DataAccountingFactory::getInstance()->newPageVerificationBuilder()->buildVerificationData( $rev ),
+			DataAccountingFactory::getInstance()->newRevisionVerificationBuilder()->buildVerificationData( $rev ),
 			[ 'rev_id' => $rev->getID() ],
 			__METHOD__
 		);

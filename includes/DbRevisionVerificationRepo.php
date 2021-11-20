@@ -6,14 +6,14 @@ namespace DataAccounting;
 
 use Wikimedia\Rdbms\ILoadBalancer;
 
-class DbPageVerificationRepo implements PageVerificationRepo {
+class DbRevisionVerificationRepo implements RevisionVerificationRepo {
 
 	public function __construct(
 		private ILoadBalancer $loadBalancer
 	) {
 	}
 
-	public function getPageVerificationData( int $revId ): array {
+	public function getRevisionVerificationData( int $revId ): array {
 		$dbr = $this->loadBalancer->getConnection( DB_PRIMARY );
 
 		$row = $dbr->selectRow(
@@ -35,7 +35,7 @@ class DbPageVerificationRepo implements PageVerificationRepo {
 			];
 		}
 
-		// TODO: return new PageVerification object
+		// TODO: return new RevisionVerification object
 		return [
 			'verification_hash' => $row->verification_hash,
 			'signature' => $row->signature,
