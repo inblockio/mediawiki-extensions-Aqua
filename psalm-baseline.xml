@@ -413,7 +413,7 @@
       <code>calculateSignatureHash</code>
       <code>calculateVerificationHash</code>
       <code>calculateWitnessHash</code>
-      <code>getPageVerificationData</code>
+      <code>getRevisionVerificationData</code>
       <code>makeEmptyIfNonce</code>
     </MissingReturnType>
     <MixedArgument occurrences="4">

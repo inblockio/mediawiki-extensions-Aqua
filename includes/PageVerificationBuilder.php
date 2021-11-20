@@ -22,7 +22,7 @@ class PageVerificationBuilder {
 
 		// GET DATA FOR META DATA and SIGNATURE DATA
 		$parentId = $rev->getParentId();
-		$verificationData = $this->verificationRepo->getPageVerificationData( $parentId );
+		$verificationData = $this->verificationRepo->getRevisionVerificationData( $parentId );
 
 		// META DATA HASH CALCULATOR
 		$previousVerificationHash = $verificationData['verification_hash'];
