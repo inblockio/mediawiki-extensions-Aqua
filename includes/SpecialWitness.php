@@ -10,6 +10,8 @@
 
 namespace DataAccounting;
 
+use Exception;
+
 use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
@@ -229,6 +231,9 @@ class SpecialWitness extends SpecialPage {
 			[ 'page_title' => $title ],
 			__METHOD__,
 		);
+		if ( !$rowDMVH ) {
+			throw new Exception( "Verification hash not found for $title" );
+		}
 		$domainManifestVH = $rowDMVH->verification_hash;
 
 		return [ $title, $domainManifestVH, $merkleTreeHtmlText ];
