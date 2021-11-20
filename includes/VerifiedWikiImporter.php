@@ -1108,10 +1108,10 @@ class VerifiedWikiImporter {
 
 			$res = $dbw->select(
 				$table,
-				[ 'page_verification_id', 'rev_id', 'page_title', 'source' ],
+				[ 'revision_verification_id', 'rev_id', 'page_title', 'source' ],
 				[ 'page_title' => $title ],
 				__METHOD__,
-				[ 'ORDER BY' => 'page_verification_id' ]
+				[ 'ORDER BY' => 'revision_verification_id' ]
 			);
 			$last_row = [];
 			foreach ( $res as $row ) {
@@ -1156,7 +1156,7 @@ class VerifiedWikiImporter {
 				$dbw->update(
 					'page_verification',
 					[ 'witness_event_id' => $local_witness_event_id ],
-					[ 'page_verification_id' => $last_row->page_verification_id ],
+					[ 'revision_verification_id' => $last_row->revision_verification_id ],
 				);
 
 				// Check if merkle tree proof is present, if so skip, if not
@@ -1197,7 +1197,7 @@ class VerifiedWikiImporter {
 			$dbw->update(
 				$table,
 				$verificationInfo,
-				[ 'page_verification_id' => $last_row->page_verification_id ],
+				[ 'revision_verification_id' => $last_row->revision_verification_id ],
 				__METHOD__
 			);
 		} else {

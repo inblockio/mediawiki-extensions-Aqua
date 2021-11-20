@@ -1197,8 +1197,8 @@
       <code>$uploadInfo['rel']</code>
     </PossiblyInvalidCast>
     <PossiblyInvalidPropertyFetch occurrences="4">
-      <code>$last_row-&gt;page_verification_id</code>
-      <code>$last_row-&gt;page_verification_id</code>
+      <code>$last_row-&gt;revision_verification_id</code>
+      <code>$last_row-&gt;revision_verification_id</code>
       <code>$rowWitness-&gt;witness_event_id</code>
     </PossiblyInvalidPropertyFetch>
     <PossiblyNullArgument occurrences="3">

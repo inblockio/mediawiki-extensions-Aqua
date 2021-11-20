@@ -1,0 +1,1 @@
+ALTER TABLE page_verification RENAME COLUMN page_verification_id to revision_verification_id;

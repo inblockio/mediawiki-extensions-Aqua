@@ -4,7 +4,7 @@
 
 -- Page verification table
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/page_verification (
-	`page_verification_id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	`revision_verification_id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	`domain_id` VARCHAR(128),
 	`page_title` VARCHAR(255),
 	`page_id` INT COMMENT 'from page table',
