@@ -76,7 +76,7 @@ class SpecialWitnessPublisher extends SpecialPage {
 			[ 'ORDER BY' => ' witness_event_id DESC' ]
 		);
 
-		$output = 'The Domain Manifest Publisher shows you a list of all Domain Manifests. You can publish a Domain Manifest from here to the Ethereum Network to timestamp all page verification hashes and the related page revisions included in the manifest. After publishing the manifest, this will be written into the page_verification data and included into the page history.<br><br>';
+		$output = 'The Domain Manifest Publisher shows you a list of all Domain Manifests. You can publish a Domain Manifest from here to the Ethereum Network to timestamp all page verification hashes and the related page revisions included in the manifest. After publishing the manifest, this will be written into the revision_verification data and included into the page history.<br><br>';
 		$out = $this->getOutput();
 		$out->addHTML( $output );
 

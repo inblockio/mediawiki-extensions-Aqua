@@ -55,10 +55,10 @@ Access MYSQL Database:
 Inside the bash prompt: 'mysql -u wikiuser -p my_wiki' and enter your password which you can find in the dockercompose.yml file.
 SHOW DATABASES;
 USE my_wiki;
-SELECT * FROM page_verification;
+SELECT * FROM revision_verification;
 SELECT * FROM page_witness;
 
-If the extension is running and working, you will see entries in page_verification after doing your first page edits with the extension activated.
+If the extension is running and working, you will see entries in revision_verification after doing your first page edits with the extension activated.
 
 2. cp -r DataAccounting PKC/mountPoint/extensions
 3. docker exec pkc_mediawiki_1 php /var/www/html/maintenance/update.php

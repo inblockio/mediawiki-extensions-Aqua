@@ -18,7 +18,7 @@ class RevisionXmlBuilder {
 	public function getPageMetadataByRevId( int $revId ): string {
 		// This is based on the case of 'verify_page' API call in StandardRestApi.php.
 		$row = $this->loadBalancer->getConnectionRef( DB_REPLICA )->selectRow(
-			'page_verification',
+			'revision_verification',
 			[
 				'domain_id',
 				'rev_id',

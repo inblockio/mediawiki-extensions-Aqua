@@ -146,7 +146,7 @@ class SpecialWitness extends SpecialPage {
 		EOD;
 
 		$res = $dbw->select(
-			'page_verification',
+			'revision_verification',
 			[ 'page_title', 'max(rev_id) as rev_id' ],
 			"page_title NOT LIKE 'Data Accounting:%'",
 			__METHOD__,
@@ -157,7 +157,7 @@ class SpecialWitness extends SpecialPage {
 		$verification_hashes = [];
 		foreach ( $res as $row ) {
 			$row3 = $dbw->selectRow(
-				'page_verification',
+				'revision_verification',
 				[ 'verification_hash', 'domain_id' ],
 				[ 'rev_id' => $row->rev_id ],
 				__METHOD__,
@@ -224,7 +224,7 @@ class SpecialWitness extends SpecialPage {
 
 		//Get the freshly-generated Domain Manifest verification hash.
 		$rowDMVH = $dbw->selectRow(
-			'page_verification',
+			'revision_verification',
 			[ 'verification_hash' ],
 			[ 'page_title' => $title ],
 			__METHOD__,

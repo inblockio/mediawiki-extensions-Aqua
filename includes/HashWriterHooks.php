@@ -35,7 +35,7 @@ class HashWriterHooks implements
 	public function onRevisionRecordInserted( $revisionRecord ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
-		$table_name = 'page_verification';
+		$table_name = 'revision_verification';
 		$data = [
 			'page_title' => $revisionRecord->getPageAsLinkTarget(),
 			'page_id' => $revisionRecord->getPageId(),
@@ -64,7 +64,7 @@ class HashWriterHooks implements
 		$dbw = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
 
 		$dbw->update(
-			'page_verification',
+			'revision_verification',
 			DataAccountingFactory::getInstance()->newRevisionVerificationBuilder()->buildVerificationData( $rev ),
 			[ 'rev_id' => $rev->getID() ],
 			__METHOD__
@@ -76,7 +76,7 @@ class HashWriterHooks implements
 	) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
-		$dbw->delete( 'page_verification', [ 'page_id' => $id ], __METHOD__ );
+		$dbw->delete( 'revision_verification', [ 'page_id' => $id ], __METHOD__ );
 	}
 
 	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ) {
@@ -88,7 +88,7 @@ class HashWriterHooks implements
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
 		$dbw->update(
-			'page_verification',
+			'revision_verification',
 			[ 'page_title' => $new_title ],
 			[
 				'page_title' => $old_title,

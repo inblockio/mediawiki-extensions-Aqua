@@ -18,7 +18,7 @@ class VerifyPageHandler extends SimpleHandler {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbr = $lb->getConnectionRef( DB_REPLICA );
 		$row = $dbr->selectRow(
-			'page_verification',
+			'revision_verification',
 			[
 				'rev_id',
 				'domain_id',

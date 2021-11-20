@@ -111,7 +111,7 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 
 		// Get title of the page via the revision_id
 		$row = $dbw->selectRow(
-			'page_verification',
+			'revision_verification',
 			[ 'page_title' ],
 			[ 'rev_id' => $rev_id ],
 			__METHOD__
@@ -124,7 +124,7 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 
 		// Insert signature detail to the page revision
 		$dbw->update(
-			'page_verification',
+			'revision_verification',
 			[
 				'signature' => $signature,
 				'public_key' => $public_key,

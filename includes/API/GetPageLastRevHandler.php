@@ -16,7 +16,7 @@ class GetPageLastRevHandler extends SimpleHandler {
 		$dbr = $lb->getConnectionRef( DB_REPLICA );
 		// TODO use max(rev_id) instead
 		$row = $dbr->selectRow(
-			'page_verification',
+			'revision_verification',
 			[ 'rev_id', 'page_title', 'page_id', 'verification_hash' ],
 			[ 'page_title' => $page_title ],
 			__METHOD__,

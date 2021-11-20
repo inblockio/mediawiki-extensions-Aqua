@@ -1097,7 +1097,7 @@ class VerifiedWikiImporter {
 
 	// Aqua modification
 	private function processVerification( $revisionInfo, $title ) {
-		$table = 'page_verification';
+		$table = 'revision_verification';
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
 		if ( isset( $revisionInfo['verification'] ) ) {
@@ -1151,10 +1151,10 @@ class VerifiedWikiImporter {
 					$local_witness_event_id = $rowWitness->witness_event_id;
 				}
 
-				// Patch page_verification table to use the local version of
+				// Patch revision_verification table to use the local version of
 				// witness_event_id instead of from the foreign version.
 				$dbw->update(
-					'page_verification',
+					'revision_verification',
 					[ 'witness_event_id' => $local_witness_event_id ],
 					[ 'revision_verification_id' => $last_row->revision_verification_id ],
 				);
@@ -1189,7 +1189,7 @@ class VerifiedWikiImporter {
 				}
 
 				// This unset is important, otherwise the dbw->update for
-				// page_verification accidentally includes witness.
+				// revision_verification accidentally includes witness.
 				unset( $verificationInfo["witness"] );
 			}
 			// End of witness-specific

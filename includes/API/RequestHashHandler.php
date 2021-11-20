@@ -15,7 +15,7 @@ class RequestHashHandler extends SimpleHandler {
 		$dbr = $lb->getConnectionRef( DB_REPLICA );
 
 		$row = $dbr->selectRow(
-			'page_verification',
+			'revision_verification',
 			[ 'rev_id', 'verification_hash' ],
 			[ 'rev_id' => $rev_id ],
 			__METHOD__

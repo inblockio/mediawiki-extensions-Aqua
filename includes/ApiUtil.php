@@ -15,7 +15,7 @@ function get_page_all_revs( string $page_title ): array {
 	$dbr = $lb->getConnectionRef( DB_REPLICA );
 	#INSERT LOOP AND PARSE INTO ARRAY TO GET ALL PAGES
 	$res = $dbr->select(
-		'page_verification',
+		'revision_verification',
 		[ 'rev_id', 'page_title', 'page_id' ],
 		'page_title= \'' . $page_title . '\'',
 		__METHOD__,

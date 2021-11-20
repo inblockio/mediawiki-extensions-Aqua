@@ -157,13 +157,13 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 		// value (proof of existence)
 		foreach ( $verification_hashes as $vh ) {
 			$row = $dbw->selectRow(
-				'page_verification',
+				'revision_verification',
 				[ 'witness_event_id' ],
 				[ 'verification_hash' => $vh ]
 			);
 			if ( $row->witness_event_id === null ) {
 				$dbw->update(
-					'page_verification',
+					'revision_verification',
 					[ 'witness_event_id' => $witness_event_id ],
 					[ 'verification_hash' => $vh ]
 				);
@@ -197,7 +197,7 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 
 		// Patch witness data into domain manifest page.
 		$dbw->update(
-			'page_verification',
+			'revision_verification',
 			[
 				'witness_event_id' => $witness_event_id,
 			],

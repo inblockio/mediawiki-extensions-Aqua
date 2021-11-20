@@ -3,7 +3,7 @@
 --
 
 -- Page verification table
-CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/page_verification (
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/revision_verification (
 	`revision_verification_id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	`domain_id` VARCHAR(128),
 	`page_title` VARCHAR(255),

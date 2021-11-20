@@ -15,7 +15,7 @@ class GetPageByRevIdHandler extends SimpleHandler {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbr = $lb->getConnectionRef( DB_REPLICA );
 		$resRow = $dbr->selectRow(
-			'page_verification',
+			'revision_verification',
 			[ 'rev_id', 'page_title', 'page_id' ],
 			[ 'rev_id' => $rev_id ],
 			__METHOD__

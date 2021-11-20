@@ -17,7 +17,7 @@ class DbRevisionVerificationRepo implements RevisionVerificationRepo {
 		$dbr = $this->loadBalancer->getConnection( DB_PRIMARY );
 
 		$row = $dbr->selectRow(
-			'page_verification',
+			'revision_verification',
 			[ 'rev_id', 'verification_hash', 'signature', 'public_key', 'wallet_address', 'witness_event_id' ],
 			[ 'rev_id' => $revId ],
 			__METHOD__
