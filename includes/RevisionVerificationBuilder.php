@@ -55,7 +55,9 @@ class RevisionVerificationBuilder {
 		// here, turning this into a "RevisionVerifier"?
 		return [
 			'domain_id' => getDomainId(), // TODO: inject global
-			'page_title' => $rev->getPage()->getDBkey(),
+			// getPrefixedText() gets the page title, not page content.
+			// It includes the namespace.
+			'page_title' => $rev->getPage()->getPrefixedText(),
 			'page_id' => $rev->getPage()->getId(),
 			'rev_id' => $rev->getID(),
 			'hash_content' => $contentHash,
