@@ -11,6 +11,14 @@ use Title;
 use WikiExporter;
 use Wikimedia\Rdbms\ILoadBalancer;
 
+/**
+ * See https://github.com/inblockio/DataAccounting/pull/147.
+ * DataAccounting modifications over MediaWiki Special:Export:
+ * - Remove the option to export only the latest revision.
+ * - Include templates by default.
+ * - Put manual page entry field first.
+ * - Disable conditional display of options for now.
+ */
 class SpecialVerifiedExport extends SpecialPage {
 	protected $doExport, $pageLinkDepth, $templates;
 
