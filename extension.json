@@ -90,7 +90,8 @@
 		"VerifiedImport": {
 			"class": "DataAccounting\\SpecialVerifiedImport",
 			"services": [
-				"PermissionManager"
+				"PermissionManager",
+				"WikiImporterFactory"
 			]
 		},
 		"VerifiedExport": {
