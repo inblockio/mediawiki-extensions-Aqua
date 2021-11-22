@@ -26,8 +26,6 @@ use stdClass;
 
 require_once 'ApiUtil.php';
 
-use function DataAccounting\getPageChainHeight;
-
 class Hooks implements
 	BeforePageDisplayHook,
 	ParserFirstCallInitHook,
