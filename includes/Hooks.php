@@ -190,6 +190,7 @@ class Hooks implements
 	}
 
 	public static function onXmlDumpWriterOpenPage( \XmlDumpWriter $dumpWriter, string &$output, stdClass $page, \Title $title ): void {
+		// This method is for verified exporter.
 		$output .= \Xml::element(
 			'data_accounting_chain_height',
 			[],
@@ -198,6 +199,7 @@ class Hooks implements
 	}
 
 	public static function onXmlDumpWriterWriteRevision( \XmlDumpWriter $dumpWriter, string &$output, stdClass $page, string $text, RevisionRecord $revision ): void {
+		// This method is for verified exporter.
 		$xmlBuilder = new RevisionXmlBuilder(
 			MediaWikiServices::getInstance()->getDBLoadBalancer()
 		);
