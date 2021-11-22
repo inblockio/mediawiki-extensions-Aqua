@@ -164,7 +164,8 @@ class SpecialVerifiedImport extends SpecialPage {
 			$source = Status::newFatal( 'import-token-mismatch' );
 		} elseif ( $sourceName === 'upload' ) {
 			$isUpload = true;
-			$fullInterwikiPrefix = $request->getVal( 'usernamePrefix' );
+			# Data accounting modification: to "imported".
+			$fullInterwikiPrefix = "imported";
 			if ( $this->permManager->userHasRight( $user, 'importupload' ) ) {
 				$source = ImportStreamSource::newFromUpload( "xmlimport" );
 			} else {
@@ -336,12 +337,6 @@ class SpecialVerifiedImport extends SpecialPage {
 					'accept' => [ 'application/xml', 'text/xml' ],
 					'label-message' => 'import-upload-filename',
 					'required' => true,
-				],
-				'usernamePrefix' => [
-					'type' => 'text',
-					'name' => 'usernamePrefix',
-					'label-message' => 'import-upload-username-prefix',
-					// TODO: Is this field required?
 				],
 				'assignKnownUsers' => [
 					'type' => 'check',
