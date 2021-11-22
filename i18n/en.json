@@ -17,5 +17,6 @@
 	"apihelp-query+example-example-1": "Query 1",
 	"apihelp-query+example-example-2": "Query 2",
 	"contentaction-daact": "Sign 🔑",
-	"verifiedexport": "Verified Export"
+	"verifiedexport": "Verified Export",
+	"verifiedimport": "Verified Import"
 }
