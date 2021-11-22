@@ -141,7 +141,8 @@ class SpecialVerifiedImport extends SpecialPage {
 		$isUpload = false;
 		$request = $this->getRequest();
 		$sourceName = $request->getVal( 'source' );
-		$assignKnownUsers = $request->getCheck( 'assignKnownUsers' );
+		# Data accounting modification: hardcoded to true.
+		$assignKnownUsers = true;
 
 		$logcomment = $request->getText( 'log-comment' );
 		$pageLinkDepth = $this->getConfig()->get( 'ExportMaxLinkDepth' ) == 0
@@ -337,11 +338,6 @@ class SpecialVerifiedImport extends SpecialPage {
 					'accept' => [ 'application/xml', 'text/xml' ],
 					'label-message' => 'import-upload-filename',
 					'required' => true,
-				],
-				'assignKnownUsers' => [
-					'type' => 'check',
-					'name' => 'assignKnownUsers',
-					'label-message' => 'import-assign-known-users'
 				],
 				'log-comment' => [
 					'type' => 'text',
