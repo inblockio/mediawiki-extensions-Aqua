@@ -13,11 +13,15 @@ require_once __DIR__ . "/../Util.php";
 use function DataAccounting\getWitnessData;
 
 class RevisionVerificationBuilder {
+	private RevisionVerificationRepo $verificationRepo;
+	private HashingService $hashingService;
 
 	public function __construct(
-		private RevisionVerificationRepo $verificationRepo,
-		private HashingService $hashingService
+		RevisionVerificationRepo $verificationRepo,
+		HashingService $hashingService
 	) {
+		$this->verificationRepo = $verificationRepo;
+		$this->hashingService = $hashingService;
 	}
 
 	public function buildVerificationData( RevisionRecord $rev ): array {

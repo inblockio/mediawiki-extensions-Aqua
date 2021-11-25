@@ -7,10 +7,12 @@ namespace DataAccounting\Hasher;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 class DbRevisionVerificationRepo implements RevisionVerificationRepo {
+	private ILoadBalancer $loadBalancer;
 
 	public function __construct(
-		private ILoadBalancer $loadBalancer
+		ILoadBalancer $loadBalancer
 	) {
+		$this->loadBalancer = $loadBalancer;
 	}
 
 	public function getRevisionVerificationData( int $revId ): array {

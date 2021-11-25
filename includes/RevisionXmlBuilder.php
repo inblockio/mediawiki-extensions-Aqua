@@ -9,10 +9,12 @@ use SimpleXMLElement;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 class RevisionXmlBuilder {
+	private ILoadBalancer $loadBalancer;
 
 	public function __construct(
-		private ILoadBalancer $loadBalancer
+		ILoadBalancer $loadBalancer
 	) {
+		$this->loadBalancer = $loadBalancer;
 	}
 
 	public function getPageMetadataByRevId( int $revId ): string {

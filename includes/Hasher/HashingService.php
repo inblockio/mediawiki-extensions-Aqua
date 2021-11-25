@@ -7,10 +7,12 @@ namespace DataAccounting\Hasher;
 require_once __DIR__ . "/../Util.php";
 
 class HashingService {
+	private string $domainId;
 
 	public function __construct(
-		private string $domainId
+		string $domainId
 	) {
+		$this->domainId = $domainId;
 	}
 
 	public function calculateMetadataHash( $timestamp, $previousVerificationHash = "" ): string {
