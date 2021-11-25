@@ -43,8 +43,10 @@ use MediaWiki\Revision\SlotRoleRegistry;
  * 2. handleRevision does handleVerification
  * 3. processVerification is implemented, which writes verification info into the DB
  * 4. processRevision does processVerification
- * 5. handlePage handles data_accounting_chain_height tag
- * 6. handleWitness for witness-related operation
+ * 5. handleWitness for witness-related operation
+ *
+ * You can search for "Data Accounting modification" in this file to see
+ * DA-specific code.
  */
 
 /**
@@ -991,6 +993,8 @@ class VerifiedWikiImporter {
 				$revisionInfo[$tag][] = $this->handleContent();
 			} elseif ( $tag == 'contributor' ) {
 				$revisionInfo['contributor'] = $this->handleContributor();
+			} elseif ( $tag == 'verification' ) { // Data accounting modification
+				$revisionInfo['verification'] = $this->handleVerification();
 			} elseif ( $tag != '#text' ) {
 				$this->warn( "Unhandled revision XML tag $tag" );
 				$skip = true;
@@ -1131,7 +1135,13 @@ class VerifiedWikiImporter {
 		}
 		$revision->setNoUpdates( $this->mNoUpdates );
 
-		return $this->revisionCallback( $revision );
+		$out = $this->revisionCallback( $revision );
+
+		// Data Accounting modification.
+		// We need to do this after the callback, which is `importRevision`,
+		// because we need the newly generated revision id.
+		$this->processVerification( $revisionInfo['verification'], $title );
+		return $out;
 	}
 
 	/**
@@ -1334,5 +1344,181 @@ class VerifiedWikiImporter {
 		return $this->slotRoleRegistry
 			->getRoleHandler( $role )
 			->getDefaultModel( $title );
+	}
+
+	// Data Accounting modification
+	private function handleVerification(): ?array {
+		if ( $this->getReader()->isEmptyElement ) {
+			return null;
+		}
+		$verificationInfo = [];
+		$normalFields = [
+			'domain_id',
+			'rev_id',
+			'verification_hash',
+			'time_stamp',
+			'signature',
+			'public_key',
+			'wallet_address' ];
+		while ( $this->getReader()->read() ) {
+			if ( $this->getReader()->nodeType == XMLReader::END_ELEMENT &&
+				$this->getReader()->localName == 'verification' ) {
+				break;
+			}
+
+			$tag = $this->getReader()->localName;
+
+			if ( in_array( $tag, $normalFields ) ) {
+				$verificationInfo[$tag] = $this->nodeContents();
+			} elseif ( $tag == 'witness' ) {
+				$verificationInfo[$tag] = $this->handleWitness();
+			}
+		}
+
+		return $verificationInfo;
+	}
+
+	// Data Accounting modification
+	private static function processVerification( ?array $verificationInfo, string $title ) {
+		$table = 'revision_verification';
+		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbw = $lb->getConnectionRef( DB_MASTER );
+
+		if ( $verificationInfo !== null ) {
+			$verificationInfo['page_title'] = $title;
+			$verificationInfo['source'] = 'imported';
+			unset( $verificationInfo["rev_id"] );
+
+			$res = $dbw->select(
+				$table,
+				[ 'revision_verification_id', 'rev_id', 'page_title', 'source' ],
+				[ 'page_title' => $title ],
+				__METHOD__,
+				[ 'ORDER BY' => 'revision_verification_id' ]
+			);
+			$last_row = [];
+			foreach ( $res as $row ) {
+				$last_row = $row;
+			}
+			if ( empty( $last_row ) ) {
+				// Do nothing if empty
+				return;
+			}
+
+			// Witness-specific
+			// TODO move this to processWitness
+			if ( isset( $verificationInfo['witness'] ) ) {
+				$witnessInfo = $verificationInfo['witness'];
+				$structured_merkle_proof = json_decode( $witnessInfo['structured_merkle_proof'], true );
+				unset( $witnessInfo['structured_merkle_proof'] );
+
+				//Check if witness_event_verification_hash is already present,
+				//if so skip import into witness_events
+
+				$rowWitness = $dbw->selectRow(
+					'witness_events',
+					[ 'witness_event_id', 'witness_event_verification_hash' ],
+					[ 'witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash'] ]
+				);
+				if ( !$rowWitness ) {
+					$witnessInfo['source'] = 'imported';
+					$witnessInfo['domain_manifest_title'] = 'N/A';
+					$dbw->insert(
+						'witness_events',
+						$witnessInfo,
+					);
+					$local_witness_event_id = getMaxWitnessEventId( $dbw );
+					if ( $local_witness_event_id === null ) {
+						$local_witness_event_id = 1;
+					}
+				} else {
+					$local_witness_event_id = $rowWitness->witness_event_id;
+				}
+
+				// Patch revision_verification table to use the local version of
+				// witness_event_id instead of from the foreign version.
+				$dbw->update(
+					'revision_verification',
+					[ 'witness_event_id' => $local_witness_event_id ],
+					[ 'revision_verification_id' => $last_row->revision_verification_id ],
+				);
+
+				// Check if merkle tree proof is present, if so skip, if not
+				// import AND attribute to the correct witness_id
+				$revision_verification_hash = $verificationInfo['verification_hash'];
+
+				$rowProof = $dbw->selectRow(
+					'witness_merkle_tree',
+					[ 'witness_event_id' ],
+					[
+						'left_leaf=\'' . $revision_verification_hash . '\'' .
+						' OR right_leaf=\'' . $revision_verification_hash . '\''
+					]
+				);
+
+				if ( !$rowProof ) {
+					$latest_witness_event_id = $dbw->selectRow(
+						'witness_events',
+						[ 'max(witness_event_id) as witness_event_id' ],
+						''
+					)->witness_event_id;
+
+					foreach ( $structured_merkle_proof as $row ) {
+						$row["witness_event_id"] = $latest_witness_event_id;
+						$dbw->insert(
+							'witness_merkle_tree',
+							$row,
+						);
+					}
+				}
+
+				// This unset is important, otherwise the dbw->update for
+				// revision_verification accidentally includes witness.
+				unset( $verificationInfo["witness"] );
+			}
+			// End of witness-specific
+
+			$dbw->update(
+				$table,
+				$verificationInfo,
+				[ 'revision_verification_id' => $last_row->revision_verification_id ],
+				__METHOD__
+			);
+		} else {
+			$dbw->delete(
+				$table,
+				[ 'page_title' => $title ]
+			);
+		}
+	}
+
+	private function handleWitness(): ?array {
+		if ( $this->getReader()->isEmptyElement ) {
+			return null;
+		}
+
+		$witnessInfo = [];
+		$normalFields = [
+			"domain_id",
+			"witness_event_verification_hash",
+			"witness_network",
+			"smart_contract_address",
+			"domain_manifest_verification_hash",
+			"merkle_root",
+			"structured_merkle_proof",
+			"witness_event_transaction_hash",
+			"sender_account_address"
+		];
+		while ( $this->getReader()->read() ) {
+			if ( $this->getReader()->nodeType == XMLReader::END_ELEMENT &&
+				$this->getReader()->localName == 'witness' ) {
+				break;
+			}
+			$tag = $this->getReader()->localName;
+			if ( in_array( $tag, $normalFields ) ) {
+				$witnessInfo[$tag] = $this->nodeContents();
+			}
+		}
+		return $witnessInfo;
 	}
 }
