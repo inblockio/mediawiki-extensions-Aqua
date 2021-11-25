@@ -34,8 +34,6 @@ use MediaWiki\Permissions\PermissionManager;
 use PermissionsError;
 use SpecialPage;
 use Status;
-use WikiImporter;
-use WikiImporterFactory;
 use Xml;
 
 /**
@@ -58,16 +56,16 @@ class SpecialVerifiedImport extends SpecialPage {
 	/** @var PermissionManager */
 	private $permManager;
 
-	/** @var WikiImporterFactory */
+	/** @var VerifiedWikiImporterFactory */
 	private $wikiImporterFactory;
 
 	/**
 	 * @param PermissionManager $permManager
-	 * @param WikiImporterFactory $wikiImporterFactory
+	 * @param VerifiedWikiImporterFactory $wikiImporterFactory
 	 */
 	public function __construct(
 		PermissionManager $permManager,
-		WikiImporterFactory $wikiImporterFactory
+		VerifiedWikiImporterFactory $wikiImporterFactory
 	) {
 		// Data accounting modification
 		parent::__construct( 'VerifiedImport', 'import' );
