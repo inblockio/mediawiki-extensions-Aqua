@@ -26,36 +26,18 @@
 
 namespace DataAccounting;
 
-use Config;
-use DeferredUpdates;
-use ExternalUserNames;
-use Hooks;
-use ImportSource;
+use MediaWiki\Cache\CacheKeyHelper;
+use MediaWiki\Content\IContentHandlerFactory;
+use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\HookContainer\HookRunner;
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\PageIdentity;
+use MediaWiki\Page\WikiPageFactory;
+use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\SlotRecord;
-use NaiveForeignTitleFactory;
-use NaiveImportTitleFactory;
-use NamespaceAwareForeignTitleFactory;
-use NamespaceImportTitleFactory;
-use RequestContext;
-use SiteStatsUpdate;
-use Status;
-use SubpageImportTitleFactory;
-use Title;
-use UploadSourceAdapter;
-use WikiPage;
-use WikiRevision;
-use XMLReader;
-
-//use MWException;  // probably not necessary
-
-//use MWContentSerializationException;
-
-require_once "ApiUtil.php";
+use MediaWiki\Revision\SlotRoleRegistry;
 
 /**
- * This class is cloned from Mediawiki 1.35.2's WikiImporter. Almost the same
+ * This class is cloned from Mediawiki 1.37.0's WikiImporter. Almost the same
  * except that:
  * 1. handleVerification is implemented
  * 2. handleRevision does handleVerification
@@ -69,49 +51,132 @@ require_once "ApiUtil.php";
  * XML file reader for the page data importer.
  *
  * implements Special:Import
- *
  * @ingroup SpecialPage
  */
 class VerifiedWikiImporter {
-
 	/** @var XMLReader */
 	private $reader;
+
+	/** @var array|null */
 	private $foreignNamespaces = null;
-	private $mLogItemCallback, $mUploadCallback, $mRevisionCallback, $mPageCallback;
-	private $mSiteInfoCallback, $mPageOutCallback;
-	private $mNoticeCallback, $mDebug;
-	private $mImportUploads, $mImageBasePath;
+
+	/** @var callable */
+	private $mLogItemCallback;
+
+	/** @var callable */
+	private $mUploadCallback;
+
+	/** @var callable */
+	private $mRevisionCallback;
+
+	/** @var callable */
+	private $mPageCallback;
+
+	/** @var callable|null */
+	private $mSiteInfoCallback;
+
+	/** @var callable */
+	private $mPageOutCallback;
+
+	/** @var callable|null */
+	private $mNoticeCallback;
+
+	/** @var bool|null */
+	private $mDebug;
+
+	/** @var bool|null */
+	private $mImportUploads;
+
+	/** @var string|null */
+	private $mImageBasePath;
+
+	/** @var bool */
 	private $mNoUpdates = false;
+
+	/** @var int */
 	private $pageOffset = 0;
+
 	/** @var Config */
 	private $config;
+
 	/** @var ImportTitleFactory */
 	private $importTitleFactory;
+
 	/** @var HookRunner */
 	private $hookRunner;
+
 	/** @var array */
 	private $countableCache = [];
+
 	/** @var bool */
 	private $disableStatisticsUpdate = false;
+
 	/** @var ExternalUserNames */
 	private $externalUserNames;
 
+	/** @var Language */
+	private $contentLanguage;
+
+	/** @var NamespaceInfo */
+	private $namespaceInfo;
+
+	/** @var TitleFactory */
+	private $titleFactory;
+
+	/** @var WikiPageFactory */
+	private $wikiPageFactory;
+
+	/** @var UploadRevisionImporter */
+	private $uploadRevisionImporter;
+
+	/** @var PermissionManager */
+	private $permissionManager;
+
+	/** @var IContentHandlerFactory */
+	private $contentHandlerFactory;
+
+	/** @var SlotRoleRegistry */
+	private $slotRoleRegistry;
+
 	/**
 	 * Creates an ImportXMLReader drawing from the source provided
-	 *
 	 * @param ImportSource $source
 	 * @param Config $config
-	 *
-	 * @throws Exception
+	 * @param HookContainer $hookContainer
+	 * @param Language $contentLanguage
+	 * @param NamespaceInfo $namespaceInfo
+	 * @param TitleFactory $titleFactory
+	 * @param WikiPageFactory $wikiPageFactory
+	 * @param UploadRevisionImporter $uploadRevisionImporter
+	 * @param PermissionManager $permissionManager
+	 * @param IContentHandlerFactory $contentHandlerFactory
+	 * @param SlotRoleRegistry $slotRoleRegistry
+	 * @throws MWException
 	 */
-	public function __construct( ImportSource $source, Config $config ) {
-		if ( !class_exists( 'XMLReader' ) ) {
-			throw new Exception( 'Import requires PHP to have been compiled with libxml support' );
-		}
-
+	public function __construct(
+		ImportSource $source,
+		Config $config,
+		HookContainer $hookContainer,
+		Language $contentLanguage,
+		NamespaceInfo $namespaceInfo,
+		TitleFactory $titleFactory,
+		WikiPageFactory $wikiPageFactory,
+		UploadRevisionImporter $uploadRevisionImporter,
+		PermissionManager $permissionManager,
+		IContentHandlerFactory $contentHandlerFactory,
+		SlotRoleRegistry $slotRoleRegistry
+	) {
 		$this->reader = new XMLReader();
 		$this->config = $config;
-		$this->hookRunner = Hooks::runner();
+		$this->hookRunner = new HookRunner( $hookContainer );
+		$this->contentLanguage = $contentLanguage;
+		$this->namespaceInfo = $namespaceInfo;
+		$this->titleFactory = $titleFactory;
+		$this->wikiPageFactory = $wikiPageFactory;
+		$this->uploadRevisionImporter = $uploadRevisionImporter;
+		$this->permissionManager = $permissionManager;
+		$this->contentHandlerFactory = $contentHandlerFactory;
+		$this->slotRoleRegistry = $slotRoleRegistry;
 
 		if ( !in_array( 'uploadsource', stream_get_wrappers() ) ) {
 			stream_wrapper_register( 'uploadsource', UploadSourceAdapter::class );
@@ -129,10 +194,8 @@ class VerifiedWikiImporter {
 		if ( !$status ) {
 			$error = libxml_get_last_error();
 			libxml_disable_entity_loader( $oldDisable );
-			throw new MWException(
-				'Encountered an internal error while initializing WikiImporter object: ' .
-				$error->message
-			);
+			throw new MWException( 'Encountered an internal error while initializing WikiImporter object: ' .
+				$error->message );
 		}
 		libxml_disable_entity_loader( $oldDisable );
 
@@ -143,7 +206,11 @@ class VerifiedWikiImporter {
 		$this->setLogItemCallback( [ $this, 'importLogItem' ] );
 		$this->setPageOutCallback( [ $this, 'finishImportPage' ] );
 
-		$this->importTitleFactory = new NaiveImportTitleFactory();
+		$this->importTitleFactory = new NaiveImportTitleFactory(
+			$this->contentLanguage,
+			$this->namespaceInfo,
+			$this->titleFactory
+		);
 		$this->externalUserNames = new ExternalUserNames( 'imported', false );
 	}
 
@@ -154,21 +221,34 @@ class VerifiedWikiImporter {
 		return $this->reader;
 	}
 
+	/**
+	 * @param string $err
+	 */
 	public function throwXmlError( $err ) {
 		$this->debug( "FAILURE: $err" );
 		wfDebug( "WikiImporter XML error: $err" );
 	}
 
+	/**
+	 * @param string $data
+	 */
 	public function debug( $data ) {
 		if ( $this->mDebug ) {
 			wfDebug( "IMPORT: $data" );
 		}
 	}
 
+	/**
+	 * @param string $data
+	 */
 	public function warn( $data ) {
 		wfDebug( "IMPORT: $data" );
 	}
 
+	/**
+	 * @param string $msg
+	 * @param mixed ...$params
+	 */
 	public function notice( $msg, ...$params ) {
 		if ( is_callable( $this->mNoticeCallback ) ) {
 			call_user_func( $this->mNoticeCallback, $msg, $params );
@@ -181,7 +261,6 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Set debug mode...
-	 *
 	 * @param bool $debug
 	 */
 	public function setDebug( $debug ) {
@@ -190,7 +269,6 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Set 'no updates' mode. In this mode, the link tables will not be updated by the importer
-	 *
 	 * @param bool $noupdates
 	 */
 	public function setNoUpdates( $noupdates ) {
@@ -200,9 +278,7 @@ class VerifiedWikiImporter {
 	/**
 	 * Sets 'pageOffset' value. So it will skip the first n-1 pages
 	 * and start from the nth page. It's 1-based indexing.
-	 *
 	 * @param int $nthPage
-	 *
 	 * @since 1.29
 	 */
 	public function setPageOffset( $nthPage ) {
@@ -213,7 +289,6 @@ class VerifiedWikiImporter {
 	 * Set a callback that displays notice messages
 	 *
 	 * @param callable $callback
-	 *
 	 * @return callable
 	 */
 	public function setNoticeCallback( $callback ) {
@@ -222,9 +297,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Sets the action to perform as each new page in the stream is reached.
-	 *
 	 * @param callable $callback
-	 *
 	 * @return callable
 	 */
 	public function setPageCallback( $callback ) {
@@ -240,7 +313,6 @@ class VerifiedWikiImporter {
 	 * local namespace), and a count of revisions.
 	 *
 	 * @param callable $callback
-	 *
 	 * @return callable
 	 */
 	public function setPageOutCallback( $callback ) {
@@ -251,9 +323,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Sets the action to perform as each page revision is reached.
-	 *
 	 * @param callable $callback
-	 *
 	 * @return callable
 	 */
 	public function setRevisionCallback( $callback ) {
@@ -264,9 +334,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Sets the action to perform as each file upload version is reached.
-	 *
 	 * @param callable $callback
-	 *
 	 * @return callable
 	 */
 	public function setUploadCallback( $callback ) {
@@ -277,9 +345,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Sets the action to perform as each log item reached.
-	 *
 	 * @param callable $callback
-	 *
 	 * @return callable
 	 */
 	public function setLogItemCallback( $callback ) {
@@ -290,9 +356,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Sets the action to perform when site info is encountered
-	 *
 	 * @param callable $callback
-	 *
 	 * @return callable
 	 */
 	public function setSiteInfoCallback( $callback ) {
@@ -304,7 +368,6 @@ class VerifiedWikiImporter {
 	/**
 	 * Sets the factory object to use to convert ForeignTitle objects into local
 	 * Title objects
-	 *
 	 * @param ImportTitleFactory $factory
 	 */
 	public function setImportTitleFactory( $factory ) {
@@ -313,22 +376,32 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Set a target namespace to override the defaults
-	 *
 	 * @param null|int $namespace
-	 *
 	 * @return bool
 	 */
 	public function setTargetNamespace( $namespace ) {
 		if ( $namespace === null ) {
 			// Don't override namespaces
-			$this->setImportTitleFactory( new NaiveImportTitleFactory() );
+			$this->setImportTitleFactory(
+				new NaiveImportTitleFactory(
+					$this->contentLanguage,
+					$this->namespaceInfo,
+					$this->titleFactory
+				)
+			);
 			return true;
 		} elseif (
 			$namespace >= 0 &&
-			MediaWikiServices::getInstance()->getNamespaceInfo()->exists( intval( $namespace ) )
+			$this->namespaceInfo->exists( intval( $namespace ) )
 		) {
 			$namespace = intval( $namespace );
-			$this->setImportTitleFactory( new NamespaceImportTitleFactory( $namespace ) );
+			$this->setImportTitleFactory(
+				new NamespaceImportTitleFactory(
+					$this->namespaceInfo,
+					$this->titleFactory,
+					$namespace
+				)
+			);
 			return true;
 		} else {
 			return false;
@@ -337,35 +410,42 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Set a target root page under which all pages are imported
-	 *
 	 * @param null|string $rootpage
-	 *
 	 * @return Status
 	 */
 	public function setTargetRootPage( $rootpage ) {
 		$status = Status::newGood();
+		$nsInfo = $this->namespaceInfo;
 		if ( $rootpage === null ) {
 			// No rootpage
-			$this->setImportTitleFactory( new NaiveImportTitleFactory() );
+			$this->setImportTitleFactory(
+				new NaiveImportTitleFactory(
+					$this->contentLanguage,
+					$nsInfo,
+					$this->titleFactory
+				)
+			);
 		} elseif ( $rootpage !== '' ) {
 			$rootpage = rtrim( $rootpage, '/' ); // avoid double slashes
 			$title = Title::newFromText( $rootpage );
 
 			if ( !$title || $title->isExternal() ) {
 				$status->fatal( 'import-rootpage-invalid' );
-			} elseif (
-				!MediaWikiServices::getInstance()->getNamespaceInfo()->
-				hasSubpages( $title->getNamespace() )
-			) {
-				$displayNSText = $title->getNamespace() == NS_MAIN
+			} elseif ( !$nsInfo->hasSubpages( $title->getNamespace() ) ) {
+				$displayNSText = $title->getNamespace() === NS_MAIN
 					? wfMessage( 'blanknamespace' )->text()
-					: MediaWikiServices::getInstance()->getContentLanguage()->
-					getNsText( $title->getNamespace() );
+					: $this->contentLanguage->getNsText( $title->getNamespace() );
 				$status->fatal( 'import-rootpage-nosubpage', $displayNSText );
 			} else {
 				// set namespace to 'all', so the namespace check in processTitle() can pass
 				$this->setTargetNamespace( null );
-				$this->setImportTitleFactory( new SubpageImportTitleFactory( $title ) );
+				$this->setImportTitleFactory(
+					new SubpageImportTitleFactory(
+						$nsInfo,
+						$this->titleFactory,
+						$title
+					)
+				);
 			}
 		}
 		return $status;
@@ -387,7 +467,6 @@ class VerifiedWikiImporter {
 
 	/**
 	 * @since 1.31
-	 *
 	 * @param string $usernamePrefix Prefix to apply to unknown (and possibly also known) usernames
 	 * @param bool $assignKnownUsers Whether to apply the prefix to usernames that exist locally
 	 */
@@ -397,7 +476,6 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Statistics update can cause a lot of time
-	 *
 	 * @since 1.29
 	 */
 	public function disableStatisticsUpdate() {
@@ -406,30 +484,25 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Default per-page callback. Sets up some things related to site statistics
-	 *
 	 * @param array $titleAndForeignTitle Two-element array, with Title object at
 	 * index 0 and ForeignTitle object at index 1
-	 *
 	 * @return bool
 	 */
 	public function beforeImportPage( $titleAndForeignTitle ) {
 		$title = $titleAndForeignTitle[0];
-		$page = WikiPage::factory( $title );
+		$page = $this->wikiPageFactory->newFromTitle( $title );
 		$this->countableCache['title_' . $title->getPrefixedText()] = $page->isCountable();
 		return true;
 	}
 
 	/**
 	 * Default per-revision callback, performs the import.
-	 *
 	 * @param WikiRevision $revision
-	 *
 	 * @return bool
 	 */
 	public function importRevision( $revision ) {
 		if ( !$revision->getContentHandler()->canBeUsedOn( $revision->getTitle() ) ) {
-			$this->notice(
-				'import-error-bad-location',
+			$this->notice( 'import-error-bad-location',
 				$revision->getTitle()->getPrefixedText(),
 				$revision->getID(),
 				$revision->getModel(),
@@ -441,10 +514,8 @@ class VerifiedWikiImporter {
 
 		try {
 			return $revision->importOldRevision();
-		}
-		catch ( MWContentSerializationException $ex ) {
-			$this->notice(
-				'import-error-unserialize',
+		} catch ( MWContentSerializationException $ex ) {
+			$this->notice( 'import-error-unserialize',
 				$revision->getTitle()->getPrefixedText(),
 				$revision->getID(),
 				$revision->getModel(),
@@ -457,9 +528,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Default per-revision callback, performs the import.
-	 *
 	 * @param WikiRevision $revision
-	 *
 	 * @return bool
 	 */
 	public function importLogItem( $revision ) {
@@ -468,27 +537,24 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Dummy for now...
-	 *
 	 * @param WikiRevision $revision
-	 *
 	 * @return bool
 	 */
 	public function importUpload( $revision ) {
-		return $revision->importUpload();
+		$status = $this->uploadRevisionImporter->import( $revision );
+		return $status->isGood();
 	}
 
 	/**
 	 * Mostly for hook use
-	 *
-	 * @param Title $title
+	 * @param PageIdentity $pageIdentity
 	 * @param ForeignTitle $foreignTitle
 	 * @param int $revCount
 	 * @param int $sRevCount
 	 * @param array $pageInfo
-	 *
 	 * @return bool
 	 */
-	public function finishImportPage( $title, $foreignTitle, $revCount,
+	public function finishImportPage( PageIdentity $pageIdentity, $foreignTitle, $revCount,
 		$sRevCount, $pageInfo
 	) {
 		// Update article count statistics (T42009)
@@ -498,67 +564,44 @@ class VerifiedWikiImporter {
 		// and revision count, and we implement our own custom logic for the
 		// article (content page) count.
 		if ( !$this->disableStatisticsUpdate ) {
-			$page = WikiPage::factory( $title );
+			$page = $this->wikiPageFactory->newFromTitle( $pageIdentity );
+
 			$page->loadPageData( 'fromdbmaster' );
 			$content = $page->getContent();
 			if ( $content === null ) {
-				wfDebug(
-					__METHOD__ . ': Skipping article count adjustment for ' . $title .
-					' because WikiPage::getContent() returned null'
-				);
+				wfDebug( __METHOD__ . ': Skipping article count adjustment for ' . $pageIdentity .
+					' because WikiPage::getContent() returned null' );
 			} else {
-				$editInfo = $page->prepareContentForEdit( $content );
-				$countKey = 'title_' . $title->getPrefixedText();
+				// No user is available
+				$user = RequestContext::getMain()->getUser();
+				$editInfo = $page->prepareContentForEdit( $content, null, $user );
+				$countKey = 'title_' . CacheKeyHelper::getKeyForPage( $pageIdentity );
 				$countable = $page->isCountable( $editInfo );
 				if ( array_key_exists( $countKey, $this->countableCache ) &&
 					$countable != $this->countableCache[$countKey] ) {
-					DeferredUpdates::addUpdate(
-						SiteStatsUpdate::factory( [
-							'articles' => ( (int)$countable - (int)$this->countableCache[$countKey] )
-						] )
-					);
+					DeferredUpdates::addUpdate( SiteStatsUpdate::factory( [
+						'articles' => ( (int)$countable - (int)$this->countableCache[$countKey] )
+					] ) );
 				}
 			}
 		}
 
-		return $this->hookRunner->onAfterImportPage(
-			$title,
-			$foreignTitle,
-			$revCount,
-			$sRevCount,
-			$pageInfo
-		);
-	}
-
-	/**
-	 * Alternate per-revision callback, for debugging.
-	 *
-	 * @param WikiRevision &$revision
-	 */
-	public function debugRevisionHandler( &$revision ) {
-		$this->debug( "Got revision:" );
-		if ( is_object( $revision->title ) ) {
-			$this->debug( "-- Title: " . $revision->title->getPrefixedText() );
-		} else {
-			$this->debug( "-- Title: <invalid>" );
-		}
-		$this->debug( "-- User: " . $revision->user_text );
-		$this->debug( "-- Timestamp: " . $revision->timestamp );
-		$this->debug( "-- Comment: " . $revision->comment );
-		$this->debug( "-- Text: " . $revision->text );
+		$title = Title::castFromPageIdentity( $pageIdentity );
+		return $this->hookRunner->onAfterImportPage( $title, $foreignTitle,
+			$revCount, $sRevCount, $pageInfo );
 	}
 
 	/**
 	 * Notify the callback function of site info
-	 *
 	 * @param array $siteInfo
-	 *
-	 * @return bool|mixed
+	 * @return mixed|false
 	 */
 	private function siteInfoCallback( $siteInfo ) {
 		if ( isset( $this->mSiteInfoCallback ) ) {
-			return call_user_func_array( $this->mSiteInfoCallback,
-				[ $siteInfo, $this ] );
+			return call_user_func_array(
+				$this->mSiteInfoCallback,
+				[ $siteInfo, $this ]
+			);
 		} else {
 			return false;
 		}
@@ -566,7 +609,6 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Notify the callback function when a new "<page>" is reached.
-	 *
 	 * @param array $title
 	 */
 	public function pageCallback( $title ) {
@@ -577,15 +619,14 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Notify the callback function when a "</page>" is closed.
-	 *
-	 * @param Title $title
+	 * @param PageIdentity $pageIdentity
 	 * @param ForeignTitle $foreignTitle
 	 * @param int $revCount
 	 * @param int $sucCount Number of revisions for which callback returned true
 	 * @param array $pageInfo Associative array of page information
 	 */
-	private function pageOutCallback( $title, $foreignTitle, $revCount,
-		$sucCount, $pageInfo ) {
+	private function pageOutCallback( PageIdentity $pageIdentity, $foreignTitle, $revCount,
+			$sucCount, $pageInfo ) {
 		if ( isset( $this->mPageOutCallback ) ) {
 			call_user_func_array( $this->mPageOutCallback, func_get_args() );
 		}
@@ -593,15 +634,15 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Notify the callback function of a revision
-	 *
 	 * @param WikiRevision $revision
-	 *
 	 * @return bool|mixed
 	 */
 	private function revisionCallback( $revision ) {
 		if ( isset( $this->mRevisionCallback ) ) {
-			return call_user_func_array( $this->mRevisionCallback,
-				[ $revision, $this ] );
+			return call_user_func_array(
+				$this->mRevisionCallback,
+				[ $revision, $this ]
+			);
 		} else {
 			return false;
 		}
@@ -609,15 +650,15 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Notify the callback function of a new log item
-	 *
 	 * @param WikiRevision $revision
-	 *
-	 * @return bool|mixed
+	 * @return mixed|false
 	 */
 	private function logItemCallback( $revision ) {
 		if ( isset( $this->mLogItemCallback ) ) {
-			return call_user_func_array( $this->mLogItemCallback,
-				[ $revision, $this ] );
+			return call_user_func_array(
+				$this->mLogItemCallback,
+				[ $revision, $this ]
+			);
 		} else {
 			return false;
 		}
@@ -625,9 +666,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Retrieves the contents of the named attribute of the current element.
-	 *
 	 * @param string $attr The name of the attribute
-	 *
 	 * @return string The value of the attribute or an empty string if it is not set in the current
 	 * element.
 	 */
@@ -639,7 +678,6 @@ class VerifiedWikiImporter {
 	 * Shouldn't something like this be built-in to XMLReader?
 	 * Fetches text contents of the current element, assuming
 	 * no sub-elements or such scary things.
-	 *
 	 * @return string
 	 * @internal
 	 */
@@ -666,7 +704,6 @@ class VerifiedWikiImporter {
 
 	/**
 	 * Primary entry point
-	 *
 	 * @throws Exception
 	 * @throws MWException
 	 * @return bool
@@ -676,16 +713,13 @@ class VerifiedWikiImporter {
 		// libxml_disable_entity_loader() to avoid local file
 		// inclusion attacks (T48932).
 		$oldDisable = libxml_disable_entity_loader( true );
-		$rethrow = null;
 		try {
 			$this->reader->read();
 
 			if ( $this->reader->localName != 'mediawiki' ) {
 				libxml_disable_entity_loader( $oldDisable );
-				throw new MWException(
-					"Expected <mediawiki> tag, got " .
-					$this->reader->localName
-				);
+				throw new MWException( "Expected <mediawiki> tag, got " .
+					$this->reader->localName );
 			}
 			$this->debug( "<mediawiki> tag is correct." );
 
@@ -748,7 +782,7 @@ class VerifiedWikiImporter {
 
 		while ( $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-				$this->reader->localName == 'siteinfo' ) {
+					$this->reader->localName == 'siteinfo' ) {
 				break;
 			}
 
@@ -771,18 +805,12 @@ class VerifiedWikiImporter {
 		$logInfo = [];
 
 		// Fields that can just be stuffed in the pageInfo object
-		$normalFields = [
-			'id',
-			'comment',
-			'type',
-			'action',
-			'timestamp',
-			'logtitle',
-			'params' ];
+		$normalFields = [ 'id', 'comment', 'type', 'action', 'timestamp',
+			'logtitle', 'params' ];
 
 		while ( $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-				$this->reader->localName == 'logitem' ) {
+					$this->reader->localName == 'logitem' ) {
 				break;
 			}
 
@@ -804,8 +832,7 @@ class VerifiedWikiImporter {
 
 	/**
 	 * @param array $logInfo
-	 *
-	 * @return bool|mixed
+	 * @return mixed|false
 	 */
 	private function processLogItem( $logInfo ) {
 		$revision = new WikiRevision( $this->config );
@@ -861,7 +888,7 @@ class VerifiedWikiImporter {
 
 		while ( $skip ? $this->reader->next() : $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-				$this->reader->localName == 'page' ) {
+					$this->reader->localName == 'page' ) {
 				break;
 			}
 
@@ -889,15 +916,13 @@ class VerifiedWikiImporter {
 				}
 			} elseif ( $tag == 'revision' || $tag == 'upload' ) {
 				if ( !isset( $title ) ) {
-					$title = $this->processTitle(
-						$pageInfo['title'],
-						$pageInfo['ns'] ?? null
-					);
+					$title = $this->processTitle( $pageInfo['title'],
+						$pageInfo['ns'] ?? null );
 
 					// $title is either an array of two titles or false.
 					if ( is_array( $title ) ) {
 						$this->pageCallback( $title );
-						[ $pageInfo['_title'], $foreignTitle ] = $title;
+						list( $pageInfo['_title'], $foreignTitle ) = $title;
 					} else {
 						$badTitle = true;
 						$skip = true;
@@ -923,8 +948,10 @@ class VerifiedWikiImporter {
 		//       If $pageInfo['_title'] is not set, then $foreignTitle is also not
 		//       set since they both come from $title above.
 		if ( array_key_exists( '_title', $pageInfo ) ) {
+			/** @var Title $title */
+			$title = $pageInfo['_title'];
 			$this->pageOutCallback(
-				$pageInfo['_title'],
+				$title,
 				$foreignTitle,
 				$pageInfo['revisionCount'],
 				$pageInfo['successfulRevisionCount'],
@@ -940,33 +967,21 @@ class VerifiedWikiImporter {
 		$this->debug( "Enter revision handler" );
 		$revisionInfo = [];
 
-		$normalFields = [
-			'id',
-			'parentid',
-			'timestamp',
-			'comment',
-			'minor',
-			'origin',
-			'model',
-			'format',
-			'text',
-			'sha1' ];
+		$normalFields = [ 'id', 'parentid', 'timestamp', 'comment', 'minor', 'origin',
+			'model', 'format', 'text', 'sha1' ];
 
 		$skip = false;
 
 		while ( $skip ? $this->reader->next() : $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-				$this->reader->localName == 'revision' ) {
+					$this->reader->localName == 'revision' ) {
 				break;
 			}
 
 			$tag = $this->reader->localName;
 
 			if ( !$this->hookRunner->onImportHandleRevisionXMLTag(
-				$this,
-				$pageInfo,
-				$revisionInfo
-			)
+				$this, $pageInfo, $revisionInfo )
 			) {
 				// Do nothing
 			} elseif ( in_array( $tag, $normalFields ) ) {
@@ -1005,9 +1020,7 @@ class VerifiedWikiImporter {
 			$tag = $this->reader->localName;
 
 			if ( !$this->hookRunner->onImportHandleContentXMLTag(
-				$this,
-				$contentInfo
-			)
+				$this, $contentInfo )
 			) {
 				// Do nothing
 			} elseif ( in_array( $tag, $normalFields ) ) {
@@ -1051,13 +1064,11 @@ class VerifiedWikiImporter {
 				] ) ) &&
 			strlen( $contentInfo['text'] ) > $wgMaxArticleSize * 1024
 		) {
-			throw new MWException(
-				'The text of ' .
+			throw new MWException( 'The text of ' .
 				( $revisionId ?
 					"the revision with ID $revisionId" :
 					'a revision'
-				) . " exceeds the maximum allowable size ($wgMaxArticleSize KB)"
-			);
+				) . " exceeds the maximum allowable size ($wgMaxArticleSize KiB)" );
 		}
 
 		$role = $contentInfo['role'] ?? SlotRecord::MAIN;
@@ -1066,17 +1077,14 @@ class VerifiedWikiImporter {
 
 		$text = $handler->importTransform( $contentInfo['text'] );
 
-		$content = $handler->unserializeContent( $text );
-
-		return $content;
+		return $handler->unserializeContent( $text );
 	}
 
 	/**
 	 * @param array $pageInfo
 	 * @param array $revisionInfo
-	 *
 	 * @throws MWException
-	 * @return bool|mixed
+	 * @return mixed|false
 	 */
 	private function processRevision( $pageInfo, $revisionInfo ) {
 		$revision = new WikiRevision( $this->config );
@@ -1128,29 +1136,20 @@ class VerifiedWikiImporter {
 
 	/**
 	 * @param array &$pageInfo
-	 *
 	 * @return mixed
 	 */
 	private function handleUpload( &$pageInfo ) {
 		$this->debug( "Enter upload handler" );
 		$uploadInfo = [];
 
-		$normalFields = [
-			'timestamp',
-			'comment',
-			'filename',
-			'text',
-			'src',
-			'size',
-			'sha1base36',
-			'archivename',
-			'rel' ];
+		$normalFields = [ 'timestamp', 'comment', 'filename', 'text',
+			'src', 'size', 'sha1base36', 'archivename', 'rel' ];
 
 		$skip = false;
 
 		while ( $skip ? $this->reader->next() : $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-				$this->reader->localName == 'upload' ) {
+					$this->reader->localName == 'upload' ) {
 				break;
 			}
 
@@ -1190,7 +1189,6 @@ class VerifiedWikiImporter {
 
 	/**
 	 * @param string $contents
-	 *
 	 * @return string
 	 */
 	private function dumpTemp( $contents ) {
@@ -1202,25 +1200,25 @@ class VerifiedWikiImporter {
 	/**
 	 * @param array $pageInfo
 	 * @param array $uploadInfo
-	 *
 	 * @return mixed
 	 */
 	private function processUpload( $pageInfo, $uploadInfo ) {
 		$revision = new WikiRevision( $this->config );
-		$text = $uploadInfo['text'] ?? '';
+		$revId = $pageInfo['id'];
+		$title = $pageInfo['_title'];
+		$content = $this->makeContent( $title, $revId, $uploadInfo );
 
-		$revision->setTitle( $pageInfo['_title'] );
-		$revision->setID( $pageInfo['id'] );
+		$revision->setTitle( $title );
+		$revision->setID( $revId );
 		$revision->setTimestamp( $uploadInfo['timestamp'] );
-		$revision->setText( $text );
+		$revision->setContent( SlotRecord::MAIN, $content );
 		$revision->setFilename( $uploadInfo['filename'] );
 		if ( isset( $uploadInfo['archivename'] ) ) {
 			$revision->setArchiveName( $uploadInfo['archivename'] );
 		}
 		$revision->setSrc( $uploadInfo['src'] );
 		if ( isset( $uploadInfo['fileSrc'] ) ) {
-			$revision->setFileSrc(
-				$uploadInfo['fileSrc'],
+			$revision->setFileSrc( $uploadInfo['fileSrc'],
 				!empty( $uploadInfo['isTempSrc'] )
 			);
 		}
@@ -1248,15 +1246,17 @@ class VerifiedWikiImporter {
 	 */
 	private function handleContributor() {
 		$this->debug( "Enter contributor handler." );
+
+		if ( $this->reader->isEmptyElement ) {
+			return [];
+		}
+
 		$fields = [ 'id', 'ip', 'username' ];
 		$info = [];
 
-		if ( $this->reader->isEmptyElement ) {
-			return $info;
-		}
 		while ( $this->reader->read() ) {
 			if ( $this->reader->nodeType == XMLReader::END_ELEMENT &&
-				$this->reader->localName == 'contributor' ) {
+					$this->reader->localName == 'contributor' ) {
 				break;
 			}
 
@@ -1273,26 +1273,23 @@ class VerifiedWikiImporter {
 	/**
 	 * @param string $text
 	 * @param string|null $ns
-	 *
-	 * @return array|bool
+	 * @return array|false
 	 */
 	private function processTitle( $text, $ns = null ) {
 		if ( $this->foreignNamespaces === null ) {
-			$foreignTitleFactory = new NaiveForeignTitleFactory();
+			$foreignTitleFactory = new NaiveForeignTitleFactory(
+				$this->contentLanguage
+			);
 		} else {
 			$foreignTitleFactory = new NamespaceAwareForeignTitleFactory(
-				$this->foreignNamespaces
-			);
+				$this->foreignNamespaces );
 		}
 
-		$foreignTitle = $foreignTitleFactory->createForeignTitle(
-			$text,
-			intval( $ns )
-		);
+		$foreignTitle = $foreignTitleFactory->createForeignTitle( $text,
+			intval( $ns ) );
 
 		$title = $this->importTitleFactory->createTitleFromForeignTitle(
-			$foreignTitle
-		);
+			$foreignTitle );
 
 		$commandLineMode = $this->config->get( 'CommandLineMode' );
 		if ( $title === null ) {
@@ -1306,19 +1303,11 @@ class VerifiedWikiImporter {
 			$this->notice( 'import-error-special', $title->getPrefixedText() );
 			return false;
 		} elseif ( !$commandLineMode ) {
-			$permissionManager = MediaWikiServices::getInstance()->getPermissionManager();
 			$user = RequestContext::getMain()->getUser();
 
-			if ( !$permissionManager->userCan( 'edit', $user, $title ) ) {
+			if ( !$this->permissionManager->userCan( 'edit', $user, $title ) ) {
 				# Do not import if the importing wiki user cannot edit this page
 				$this->notice( 'import-error-edit', $title->getPrefixedText() );
-
-				return false;
-			}
-
-			if ( !$title->exists() && !$permissionManager->userCan( 'create', $user, $title ) ) {
-				# Do not import if the importing wiki user cannot create this page
-				$this->notice( 'import-error-create', $title->getPrefixedText() );
 
 				return false;
 			}
@@ -1329,13 +1318,10 @@ class VerifiedWikiImporter {
 
 	/**
 	 * @param string $model
-	 *
 	 * @return ContentHandler
 	 */
 	private function getContentHandler( $model ) {
-		return MediaWikiServices::getInstance()
-			->getContentHandlerFactory()
-			->getContentHandler( $model );
+		return $this->contentHandlerFactory->getContentHandler( $model );
 	}
 
 	/**
@@ -1345,10 +1331,8 @@ class VerifiedWikiImporter {
 	 * @return string
 	 */
 	private function getDefaultContentModel( $title, $role ) {
-		return MediaWikiServices::getInstance()
-			->getSlotRoleRegistry()
+		return $this->slotRoleRegistry
 			->getRoleHandler( $role )
 			->getDefaultModel( $title );
 	}
-
 }
