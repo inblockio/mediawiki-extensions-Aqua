@@ -91,7 +91,7 @@
 			"class": "DataAccounting\\SpecialVerifiedImport",
 			"services": [
 				"PermissionManager",
-				"DataAccounting\\VerifiedWikiImporterFactory"
+				"VerifiedWikiImporterFactory"
 			]
 		},
 		"VerifiedExport": {
@@ -241,5 +241,8 @@
 			]
 		}
 	},
+	"ServiceWiringFiles": [
+		"includes/ExportImport/ServiceWiring.php"
+	],
 	"manifest_version": 2
 }

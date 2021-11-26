@@ -36,6 +36,10 @@ use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\SlotRoleRegistry;
 
+// DA modification; For typing.
+use ImportSource;
+use Config;
+
 /**
  * This class is cloned from Mediawiki 1.37.0's WikiImporter. Almost the same
  * except that:

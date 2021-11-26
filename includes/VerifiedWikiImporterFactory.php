@@ -27,6 +27,13 @@ use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\SlotRoleRegistry;
 
+use Config;
+use Language;
+use NamespaceInfo;
+use TitleFactory;
+use UploadRevisionImporter;
+use ImportSource;
+
 /**
  * Data Accounting modifications:
  * - Change WikiImporter to VerifiedWikiImporter.
