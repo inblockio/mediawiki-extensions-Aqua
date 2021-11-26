@@ -146,8 +146,7 @@
 		},
 		"XmlDumpWriterOpenPage": "DataAccounting\\Hooks::onXmlDumpWriterOpenPage",
 		"XmlDumpWriterWriteRevision": "DataAccounting\\Hooks::onXmlDumpWriterWriteRevision",
-		"ImportHandlePageXMLTag": "DataAccounting\\Hooks::onImportHandlePageXMLTag",
-		"ImportHandleRevisionXMLTag": "DataAccounting\\Hooks::onImportHandleRevisionXMLTag"
+		"ImportHandlePageXMLTag": "DataAccounting\\Hooks::onImportHandlePageXMLTag"
 	},
 	"HookHandlers": {
 		"handleHooks": {

@@ -39,6 +39,20 @@ use MediaWiki\Revision\SlotRoleRegistry;
 // DA modification; For typing.
 use ImportSource;
 use Config;
+use Language;
+use NamespaceInfo;
+use TitleFactory;
+use UploadRevisionImporter;
+use XMLReader;
+use UploadSourceAdapter;
+use NaiveImportTitleFactory;
+use ExternalUserNames;
+use Status;
+use NamespaceAwareForeignTitleFactory;
+use RequestContext;
+use MediaWiki\MediaWikiServices;
+use WikiRevision;
+use Title;
 
 /**
  * This class is cloned from Mediawiki 1.37.0's WikiImporter. Almost the same
