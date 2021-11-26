@@ -207,7 +207,7 @@ class Hooks implements
 		$output .= $xmlBuilder->getPageMetadataByRevId( $revision->getId() );
 	}
 
-	public static function onImportHandlePageXMLTag( \WikiImporter|VerifiedWikiImporter $importer, array &$pageInfo ): bool {
+	public static function onImportHandlePageXMLTag( $importer, array &$pageInfo ): bool {
 		// This method is for verified importer.
 		if ( $importer->getReader()->localName !== 'data_accounting_chain_height' ) {
 			return true;
