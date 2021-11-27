@@ -102,12 +102,14 @@ class SpecialWitness extends SpecialPage {
 	/**
 	 * Initialize the special page.
 	 */
-	public function __construct() {
+	public function __construct(
+		PermissionManager $permManager
+	) {
 		// A special page should at least have a name.
 		// We do this by calling the parent class (the SpecialPage class)
 		// constructor method with the name as first and only parameter.
 		parent::__construct( 'Witness' );
-		$this->permManager = MediaWikiServices::getInstance()->getPermissionManager();
+		$this->permManager = $permManager;
 	}
 
 	/**
