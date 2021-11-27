@@ -8,12 +8,18 @@ use MediaWiki\Rest\RequestData;
 use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
 use MediaWikiIntegrationTestCase;
 use MediaWiki\Rest\HttpException;
+use MediaWiki\Rest\LocalizedHttpException;
+use MediaWiki\Permissions\PermissionManager;
 
-use DataAccounting\API\VerifyPageHandler;
 use DataAccounting\API\GetPageAllRevsHandler;
 use DataAccounting\API\GetPageByRevIdHandler;
 use DataAccounting\API\GetPageLastRevHandler;
+use DataAccounting\API\GetWitnessDataHandler;  // untested
 use DataAccounting\API\RequestHashHandler;
+use DataAccounting\API\RequestMerkleProofHandler; // untested
+use DataAccounting\API\VerifyPageHandler;
+use DataAccounting\API\WriteStoreSignedTxHandler;
+use DataAccounting\API\WriteStoreWitnessTxHandler; // untested
 
 /**
  * @group Database
@@ -37,7 +43,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		// Testing the case when the rev_id is found.
 		$response = $this->executeHandler(
 			new VerifyPageHandler(),
-			new RequestData( [ 'pathParams' => [ 'rev_id' => '1' ] ] )
+			new RequestData( [ 'pathParams' => [ 'rev_id' => 1 ] ] )
 		);
 
 		$this->assertJsonContentType( $response );
@@ -58,14 +64,14 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		}
 
 		// Testing the case when the rev_id is not found.
-		try {
-			$response = $this->executeHandler(
-				new VerifyPageHandler(),
-				new RequestData( [ 'pathParams' => [ 'rev_id' => '0' ] ] )
-			);
-		} catch ( HttpException $ex ) {
-			$this->assertSame( 'rev_id not found in the database', $ex->getMessage() );
-		}
+		$this->expectExceptionObject(
+			new HttpException( "rev_id not found in the database", 404 )
+		);
+
+		$response = $this->executeHandler(
+			new VerifyPageHandler(),
+			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
+		);
 	}
 
 	/**
@@ -91,6 +97,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		$this->assertSame( [ [
 			'page_title' => 'UTPage',
 			'page_id' => '1',
+			// TODO why is this not an int?
 			'rev_id' => '1'
 		] ], $data );
 	}
@@ -100,19 +107,18 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 	 */
 	public function testGetPageByRevId(): void {
 		// Testing the case when the rev_id is not found.
-		try {
-			$response = $this->executeHandler(
-				new GetPageByRevIdHandler(),
-				new RequestData( [ 'pathParams' => [ 'rev_id' => '0' ] ] )
-			);
-		} catch ( HttpException $ex ) {
-			$this->assertSame( 'rev_id not found in the database', $ex->getMessage() );
-		}
+		$this->expectExceptionObject(
+			new HttpException( "rev_id not found in the database", 404 )
+		);
+		$response = $this->executeHandler(
+			new GetPageByRevIdHandler(),
+			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
+		);
 
 		// Testing the case when the rev_id is found.
 		$response = $this->executeHandler(
 			new VerifyPageHandler(),
-			new RequestData( [ 'pathParams' => [ 'rev_id' => '1' ] ] )
+			new RequestData( [ 'pathParams' => [ 'rev_id' => 1 ] ] )
 		);
 		$this->assertJsonContentType( $response );
 		$data = $this->getJsonBody( $response );
@@ -138,14 +144,14 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 	 */
 	public function testGetPageLastRev(): void {
 		// Testing the case when the page is not found.
-		try {
-			$response = $this->executeHandler(
-				new GetPageLastRevHandler(),
-				new RequestData( [ 'pathParams' => [ 'page_title' => 'IDONTEXIST IDONTEXIST' ] ] )
-			);
-		} catch ( HttpException $ex ) {
-			$this->assertSame( 'page_title not found in the database', $ex->getMessage() );
-		}
+		$this->expectExceptionObject(
+			new HttpException( "page_title not found in the database", 404 )
+		);
+
+		$response = $this->executeHandler(
+			new GetPageLastRevHandler(),
+			new RequestData( [ 'pathParams' => [ 'page_title' => 'IDONTEXIST IDONTEXIST' ] ] )
+		);
 
 		// Testing the case when the page is found.
 		$response = $this->executeHandler(
@@ -174,19 +180,18 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 	 */
 	public function testRequestHash(): void {
 		// Testing the case when the rev_id is not found.
-		try {
-			$response = $this->executeHandler(
-				new RequestHashHandler(),
-				new RequestData( [ 'pathParams' => [ 'rev_id' => '0' ] ] )
-			);
-		} catch ( HttpException $ex ) {
-			$this->assertSame( 'rev_id not found in the database', $ex->getMessage() );
-		}
+		$this->expectExceptionObject(
+			new HttpException( "rev_id not found in the database", 404 )
+		);
+		$response = $this->executeHandler(
+			new RequestHashHandler(),
+			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
+		);
 
 		// Testing the case when the rev_id is found.
 		$response = $this->executeHandler(
 			new RequestHashHandler(),
-			new RequestData( [ 'pathParams' => [ 'rev_id' => '1' ] ] )
+			new RequestData( [ 'pathParams' => [ 'rev_id' => 1 ] ] )
 		);
 		$this->assertJsonContentType( $response );
 		$data = $this->getJsonBody( $response );
@@ -196,5 +201,54 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			'I sign the following page verification_hash: [0x',
 			$data['value'],
 		);
+	}
+
+	/**
+	 * @covers \DataAccounting\API\WriteStoreSignedTxHandler
+	 */
+	public function testWriteStoreSigned(): void {
+		$requestData = new RequestData( [
+			'method' => 'POST',
+			'headers' => [ 'Content-Type' => 'application/json' ],
+			'bodyContents' => json_encode( [
+			'rev_id' => 1,
+			'signature' => 'signature',
+			'public_key' => 'public key',
+			'wallet_address' => 'wallet address',
+		] ) ] );
+		$permissionManager = $this->getServiceContainer()->getPermissionManager();
+
+		// Should be denied permission unless the user is authorized.
+		try {
+			$response = $this->executeHandler(
+				new WriteStoreSignedTxHandler( $permissionManager ),
+				$requestData
+			);
+		} catch ( LocalizedHttpException $ex ) {
+			$this->assertSame(
+				'Localized exception with key rest-permission-denied-revision',
+				$ex->getMessage()
+			);
+			$this->assertSame(
+				'You are not allowed to use the REST API',
+				$ex->getMessageValue()->getParams()[0]->getValue()
+			);
+		}
+
+		// Let's authorize the user. Because this API endpoint requires 'move'
+		// permission.
+		// TODO we should authorize the user instead of disabling the
+		// permission check.
+		$permissionManager = $this->createMock( PermissionManager::class );
+		$permissionManager->method( 'userHasRight' )->willReturn( true );
+
+		// Should work now.
+		$response = $this->executeHandler(
+			new WriteStoreSignedTxHandler( $permissionManager ),
+			$requestData
+		);
+		$this->assertJsonContentType( $response );
+		$data = $this->getJsonBody( $response );
+		$this->assertSame( [ 'value' => true ], $data );
 	}
 }
