@@ -14,12 +14,9 @@ use MediaWiki\Permissions\PermissionManager;
 use DataAccounting\API\GetPageAllRevsHandler;
 use DataAccounting\API\GetPageByRevIdHandler;
 use DataAccounting\API\GetPageLastRevHandler;
-use DataAccounting\API\GetWitnessDataHandler;  // untested
 use DataAccounting\API\RequestHashHandler;
-use DataAccounting\API\RequestMerkleProofHandler; // untested
 use DataAccounting\API\VerifyPageHandler;
 use DataAccounting\API\WriteStoreSignedTxHandler;
-use DataAccounting\API\WriteStoreWitnessTxHandler; // untested
 
 /**
  * @group Database
@@ -203,6 +200,24 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		);
 	}
 
+	public function expectPermissionDenied( $handler, RequestData $requestData ) {
+		try {
+			$response = $this->executeHandler(
+				$handler,
+				$requestData
+			);
+		} catch ( LocalizedHttpException $ex ) {
+			$this->assertSame(
+				'Localized exception with key rest-permission-denied-revision',
+				$ex->getMessage()
+			);
+			$this->assertSame(
+				'You are not allowed to use the REST API',
+				$ex->getMessageValue()->getParams()[0]->getValue()
+			);
+		}
+	}
+
 	/**
 	 * @covers \DataAccounting\API\WriteStoreSignedTxHandler
 	 */
@@ -219,26 +234,15 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		$permissionManager = $this->getServiceContainer()->getPermissionManager();
 
 		// Should be denied permission unless the user is authorized.
-		try {
-			$response = $this->executeHandler(
-				new WriteStoreSignedTxHandler( $permissionManager ),
-				$requestData
-			);
-		} catch ( LocalizedHttpException $ex ) {
-			$this->assertSame(
-				'Localized exception with key rest-permission-denied-revision',
-				$ex->getMessage()
-			);
-			$this->assertSame(
-				'You are not allowed to use the REST API',
-				$ex->getMessageValue()->getParams()[0]->getValue()
-			);
-		}
-
+		$this->expectPermissionDenied(
+			new WriteStoreSignedTxHandler( $permissionManager ),
+			$requestData
+		);
 		// Let's authorize the user. Because this API endpoint requires 'move'
 		// permission.
 		// TODO we should authorize the user instead of disabling the
 		// permission check.
+		// If this is changed, don't forget to also change for WitnessTest.php.
 		$permissionManager = $this->createMock( PermissionManager::class );
 		$permissionManager->method( 'userHasRight' )->willReturn( true );
 
