@@ -17,8 +17,10 @@ jobs:
         include:
           - mw: 'REL1_37'
             php: 7.4
+            coverage: true
           - mw: 'REL1_37'
             php: 8.0
+            coverage: false
 
     runs-on: ubuntu-latest
 
@@ -79,13 +81,13 @@ jobs:
 
       - name: Run PHPUnit
         run: php tests/phpunit/phpunit.php -c extensions/DataAccounting
-        if: matrix.mw != 'REL1_37'
+        if: ${{ ! matrix.coverage }}
 
       - name: Run PHPUnit with code coverage
         run: |
           php tests/phpunit/phpunit.php -c extensions/DataAccounting/ --coverage-clover coverage.xml
           bash <(curl -s https://codecov.io/bash)
-        if: matrix.mw == 'REL1_37'
+        if: ${{ matrix.coverage }}
 
 
 
