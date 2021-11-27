@@ -21,13 +21,13 @@ class HasherTest extends TestCase {
 	private string $expectedWitnessHash;
 
 	public function setUp(): void {
-		$domainID = '6eda4376fa';
+		$domainID = '95d7c6609a';
 		$this->hs = new HashingService( $domainID );
-		$this->expectedMetadataHash = '2acc3d342f60d8dd45bc235cd7edb84fb00af82f84455a0566406fdc4b57db210e761103f1e0df8d05a0c938ca1bf7e3858ecf94fcc557a88d940b084ccacf0f';
-		$this->content = 'Now I am become Death, the destroyer of worlds.<br><br><hr><div class="toccolours mw-collapsible mw-collapsed"><div style="font-weight:bold;line-height:1.6;">Data Accounting Signatures</div><div class="mw-collapsible-content">[[User:0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0|0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0]] ([[User talk:0x1ad5da43de60aa7d311f9b4e9c3342c155e6d2e0|talk]]) 23:45, 22 November 2021 (UTC) <br></div>';
-		$this->expectedContentHash = '193249c9e9090557dfc1c4305b450fbfe12216a7fff98ecdc6ac6ce38edda8e90b8c85c6fe83991a602b504f04d66d092fad0b9b51e11fdc08c2550815f7a097';
-		$this->expectedSignatureHash = '42b15d9ef32d9fb58061e45351c70a1f06c00bbd19ee4451cfb34a45fe73f53adffd5d2fde9da2c3a549102566cfae0c61994e2cd634d7a65609c7d799c4a342';
-		$this->expectedWitnessHash = 'd7a53836f1e772c3b027684cbeb4e6beffd94d5bc96ed5043bd4321d7df167958ccc3da3655f9d32c2538ad4ca6782e2a37240937d667dbf2adc2f8d84d85972';
+		$this->expectedMetadataHash = '4cc996ffbc5237e15fd4e2fc67795fb7fa9563805ae04071ef20ace02535be2fb336f8de4cb3bebfc7afdefa0420d3ba8085d5a6f891464908bf3a08d57bfb77';
+		$this->content = "Look again at that dot. That's here. That's home. That's us. On it everyone you love, everyone you know, everyone you ever heard of, every human being who ever was, lived out their lives. The aggregate of our joy and suffering, thousands of confident religions, ideologies, and economic doctrines, every hunter and forager, every hero and coward, every creator and destroyer of civilization, every king and peasant, every young couple in love, every mother and father, hopeful child, inventor and explorer, every teacher of morals, every corrupt politician, every \"superstar,\" every \"supreme leader,\" every saint and sinner in the history of our species lived there--on a mote of dust suspended in a sunbeam.\n\n<br>\n-- Carl Sagan<br><br><hr><div class=\"toccolours mw-collapsible mw-collapsed\"><div style=\"font-weight:bold;line-height:1.6;\">Data Accounting Signatures</div><div class=\"mw-collapsible-content\">[[User:0xa2026582b94feb9124231fbf7b052c39218954c2|0xa2026582b94feb9124231fbf7b052c39218954c2]] ([[User talk:0xa2026582b94feb9124231fbf7b052c39218954c2|talk]]) 03:52, 27 November 2021 (UTC) <br></div>";
+		$this->expectedContentHash = '83bc065434d5efc36876ee3b4b09ad03fbbf9d6c209a8066f2f6257f0841b2617f91dc73eae770e7b19545c257fc79a39bfb7ccac915ac588f892a4298f85397';
+		$this->expectedSignatureHash = '9d774d430284394aab69cc16b19fcddd0a9704130d08e74805f7adff0a5f16bf14dde78058d600e157b3264f8e741498b19be24e7764b71b65ac586d36298f02';
+		$this->expectedWitnessHash = 'c02ee814b4166d58440f3805c823659c0aaa8a75ed22cee60bf7b9ec114dbbbaf9cdac6b12d25f2d1622030b43455e089a79a2e04b9ce507e9f9e77637ca1424';
 	}
 
 	public function testCalculateContentHash(): void {
@@ -38,8 +38,8 @@ class HasherTest extends TestCase {
 	}
 
 	public function testCalculateMetadataHash(): void {
-		$timestamp = '20211122234526';
-		$prevVH = '651ae0f59aff694d171c9875c676a021e8d9b1609de123923b19ce13076d749eda1d6d8f063fa0cfed8bcb95916459c9f09dd72df7d3f24aafdb3c1201511008';
+		$timestamp = '20211127035257';
+		$prevVH = '701059060ec2f5e2d2bbcae71b04586bb2774d029e00442ec1211c00a610ffd4e0a93b11b0fcf900e218b02929b8a00f932abf332080a33d1198ea1d95402ea7';
 		$metadataHash = $this->hs->calculateMetadataHash( $timestamp, $prevVH );
 		$this->assertEquals(
 			$this->expectedMetadataHash,
@@ -48,8 +48,8 @@ class HasherTest extends TestCase {
 	}
 
 	public function testCalculateSignatureHash(): void {
-		$previousSignature = '0x7dfbd462fe6806385ec2355ef8a55c280a8cee6492130e9b71b83211a3be47812374cbe1c2ca99684fdcd3e5bd3207b44e7d6be2eb0133ac026cf141efb637961b';
-		$previousPublicKey = '0x04f00d6e178562a62ec9e595da4294f640dca429fc98e7128b8e7ee83039912d64a924bea34e629b9b45990c65e92efc3d74533f870479d10ff895834fff4fa1e8';
+		$previousSignature = '0xe930ad52a31ed5b5e981866c1cf68bb09071f55047845c8ef5b81d8d13632710144d500120ce0785242c297c24a6a8927621a5d7f2827d28ee044f05497409401c';
+		$previousPublicKey = '0x041518581af65749b3ddc69889df3e5d229bc8ad79279a07ddeb368ade5e1592368c5ff3b69143d7a1e7cf64f7d0774a6724e6eaf138d318d07ddc30f6081ca89a';
 		$signatureHash = $this->hs->calculateSignatureHash( $previousSignature, $previousPublicKey );
 		$this->assertEquals(
 			$this->expectedSignatureHash,
@@ -58,10 +58,10 @@ class HasherTest extends TestCase {
 	}
 
 	public function testCalculateWitnessHash(): void {
-		$domain_manifest_verification_hash = 'e0d2acd5db990b5e154f494b0c4b18cf96420b852a55de785633a20baeb5d42815212c104ccdf25de021bb7d031f7145f64d46b77ae10f9afe19bcef2f43225c';
-		$merkle_root = '4e8192aa9adf6398e2ba83b7400a32e1fa075ce8f242d8a94f8621ab4300c003ef1c4d03793ddfb6db0f9c975dffb25d85bba699abe522d26e89e7453f2624e0';
+		$domain_manifest_verification_hash = '9df4198c20d31bb46f8ea97417346108b01ca13af20902e1755a1aad5bc3ba689f3731f653b4daa67ef657b96915fd7ac1035ab93938d9afde9c4c13cfd468c7';
+		$merkle_root = 'bbc665767bac03f0a16321555c40b28bd6a6da9bc16f736c5680414b266a910d4ae436a091326a8ca6b71d2628326e42191d67214b65b87acf096c176f126447';
 		$witness_network = 'goerli';
-		$witness_tx_hash = '0xd7d33a9ef2bd990880050c06271b20d94b528795c9eac3edc979410d5414ac02';
+		$witness_tx_hash = '0x473b0b7b9ad818b9af02c0ab73cd9b186b28b6208c13f7d07554ace0915ca88e';
 		$wh = $this->hs->calculateWitnessHash(
 			$domain_manifest_verification_hash,
 			$merkle_root,
@@ -82,7 +82,7 @@ class HasherTest extends TestCase {
 			$this->expectedSignatureHash,
 			''
 		);
-		$expectedVH = 'b33d0e6ef5d239252a426fc5098a87bb1b79abc4e4cfe6fdaccf72904b5ec8b7e1b2c7a0f54abbe05cb1f408aa746f8d3bff5a16b4ec39e7e9bda0bf8531617a';
+		$expectedVH = '418d8af3796e9b7c66c244465f6342ddf10f57a1172c30bb5ac3b519c09b0df53f01668dcd7d2ee86255bf96f477e57a0ec17d8b8a58630b0dfade370217338b';
 		$this->assertEquals(
 			$expectedVH,
 			$VH
@@ -90,13 +90,13 @@ class HasherTest extends TestCase {
 		// Test the next revision in the hash chain, which uses the previous
 		// chain's witness hash as an input.
 		$actualNextVH = $this->hs->calculateVerificationHash(
-			'f187785992eaeb9043f98c3d70b2c8cd856c9a0b81df9a2f1ddc859cc72839e98c9546fc87db4e4476459b149782cd7a7e7d50850550e81fee729a7d76ee7f1f',
-			'e546af53d7f3d5985127b821afb6d27bef658a8160199acfd6f709051072928aa02c87374fa8f9bf9b0c71f7a2627d512105cc9772305d8fcb54e3bdd61f4650',
-			'5ace0e9cfa3fda1ce8c634d892c3f978bcbab091079884604da7c36fd4ad34e6db87dc886c1de514585152e3e25ebe35a3ac28a09d0aeb44020bf34bba1a5bfa',
-			'd7a53836f1e772c3b027684cbeb4e6beffd94d5bc96ed5043bd4321d7df167958ccc3da3655f9d32c2538ad4ca6782e2a37240937d667dbf2adc2f8d84d85972'
+			'bbb362540fd4451ac309243b277c4c91fc572871aa322e0d09385f9c09871c15ed36424dc5a12d066695402bb7df6dfafc90af01aac8b58c58b0fcc6495379fa',
+			'9062387004712f32f73278b1804416710fef52732737e0807edeab928f4d614ececdb14e1e695f23d4fbe106578fa52588158d6faf5c54c8c569b69385ee84d9',
+			'cfc99c25bb799554b06d7dab8e2d602918a9991fac968bf2ac26290e1454f7f2d2e42c192d91bfce97e7fa430b23494ca0c183a46e29d2cc958f83c532e683e3',
+			'c02ee814b4166d58440f3805c823659c0aaa8a75ed22cee60bf7b9ec114dbbbaf9cdac6b12d25f2d1622030b43455e089a79a2e04b9ce507e9f9e77637ca1424'
 		);
 		$this->assertEquals(
-			'd16af8f3550048d9d40a587978e29d29372e6eaa9535d2de7b1d34bd2cb4b8217c65f7398ad992ab838dd18ac7b652305ffd931cf237db79a1d3f62b6aba9a74',
+			'25d75f33f11add368e0b99fdb3acbf7810cac0ed8604966dde9f3d17b402b4115843b5ecd3186b3692c563841d98e07e94dd26d80b295cb8aa1581d84cefeea2',
 			$actualNextVH
 		);
 	}

@@ -1,0 +1,159 @@
+<mediawiki xmlns="http://www.mediawiki.org/xml/export-0.11/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mediawiki.org/xml/export-0.11/ http://www.mediawiki.org/xml/export-0.11.xsd" version="0.11" xml:lang="en">
+  <siteinfo>
+    <sitename>Personal Knowledge Container</sitename>
+    <dbname>my_wiki</dbname>
+    <base>http://localhost:9352/index.php/Main_Page</base>
+    <generator>MediaWiki 1.37.0</generator>
+    <case>first-letter</case>
+    <namespaces>
+      <namespace key="-2" case="first-letter">Media</namespace>
+      <namespace key="-1" case="first-letter">Special</namespace>
+      <namespace key="0" case="first-letter" />
+      <namespace key="1" case="first-letter">Talk</namespace>
+      <namespace key="2" case="first-letter">User</namespace>
+      <namespace key="3" case="first-letter">User talk</namespace>
+      <namespace key="4" case="first-letter">Personal Knowledge Container</namespace>
+      <namespace key="5" case="first-letter">Personal Knowledge Container talk</namespace>
+      <namespace key="6" case="first-letter">File</namespace>
+      <namespace key="7" case="first-letter">File talk</namespace>
+      <namespace key="8" case="first-letter">MediaWiki</namespace>
+      <namespace key="9" case="first-letter">MediaWiki talk</namespace>
+      <namespace key="10" case="first-letter">Template</namespace>
+      <namespace key="11" case="first-letter">Template talk</namespace>
+      <namespace key="12" case="first-letter">Help</namespace>
+      <namespace key="13" case="first-letter">Help talk</namespace>
+      <namespace key="14" case="first-letter">Category</namespace>
+      <namespace key="15" case="first-letter">Category talk</namespace>
+      <namespace key="828" case="first-letter">Module</namespace>
+      <namespace key="829" case="first-letter">Module talk</namespace>
+      <namespace key="2300" case="first-letter">Gadget</namespace>
+      <namespace key="2301" case="first-letter">Gadget talk</namespace>
+      <namespace key="2302" case="case-sensitive">Gadget definition</namespace>
+      <namespace key="2303" case="case-sensitive">Gadget definition talk</namespace>
+      <namespace key="6942" case="first-letter">Data Accounting</namespace>
+      <namespace key="6943" case="first-letter">Data Accounting talk</namespace>
+    </namespaces>
+  </siteinfo>
+  <page>
+    <title>Pale Blue Dot</title>
+    <ns>0</ns>
+    <id>16</id>
+<data_accounting_chain_height>4</data_accounting_chain_height>    <revision>
+      <id>35</id>
+      <timestamp>2021-11-27T03:50:12Z</timestamp>
+      <contributor>
+        <username>0xa2026582b94feb9124231fbf7b052c39218954c2</username>
+        <id>1</id>
+      </contributor>
+      <comment>First Revision 'Hello World'</comment>
+      <origin>35</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="79" sha1="h8c2l1otw4812vtsjhhnhvoi6qit9w6" xml:space="preserve">Look again at that dot. That's here. That's home. That's us.
+&lt;br&gt;
+-- Carl Sagan</text>
+      <sha1>h8c2l1otw4812vtsjhhnhvoi6qit9w6</sha1>
+<verification>
+  <domain_id>95d7c6609a</domain_id>
+  <rev_id>35</rev_id>
+  <verification_hash>16bd45aea00fd5b131bda00742693ea883c2f41d3f6353dda6fd65c34c1dd8a6820051db42450b8f0b853d889444ab2c0ba2bddc7ac6a843d5fc7fcd2588b6b6</verification_hash>
+  <time_stamp>20211127035012</time_stamp>
+</verification>
+    </revision>
+    <revision>
+      <id>36</id>
+      <parentid>35</parentid>
+      <timestamp>2021-11-27T03:50:58Z</timestamp>
+      <contributor>
+        <username>0xa2026582b94feb9124231fbf7b052c39218954c2</username>
+        <id>1</id>
+      </contributor>
+      <comment>Second Revision 'Complete the quote'</comment>
+      <origin>36</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="728" sha1="sblv9ju98kbl3yjfzwph2snwzd70ym2" xml:space="preserve">Look again at that dot. That's here. That's home. That's us. On it everyone you love, everyone you know, everyone you ever heard of, every human being who ever was, lived out their lives. The aggregate of our joy and suffering, thousands of confident religions, ideologies, and economic doctrines, every hunter and forager, every hero and coward, every creator and destroyer of civilization, every king and peasant, every young couple in love, every mother and father, hopeful child, inventor and explorer, every teacher of morals, every corrupt politician, every "superstar," every "supreme leader," every saint and sinner in the history of our species lived there--on a mote of dust suspended in a sunbeam.
+
+&lt;br&gt;
+-- Carl Sagan</text>
+      <sha1>sblv9ju98kbl3yjfzwph2snwzd70ym2</sha1>
+<verification>
+  <domain_id>95d7c6609a</domain_id>
+  <rev_id>36</rev_id>
+  <verification_hash>701059060ec2f5e2d2bbcae71b04586bb2774d029e00442ec1211c00a610ffd4e0a93b11b0fcf900e218b02929b8a00f932abf332080a33d1198ea1d95402ea7</verification_hash>
+  <time_stamp>20211127035058</time_stamp>
+  <signature>0xe930ad52a31ed5b5e981866c1cf68bb09071f55047845c8ef5b81d8d13632710144d500120ce0785242c297c24a6a8927621a5d7f2827d28ee044f05497409401c</signature>
+  <public_key>0x041518581af65749b3ddc69889df3e5d229bc8ad79279a07ddeb368ade5e1592368c5ff3b69143d7a1e7cf64f7d0774a6724e6eaf138d318d07ddc30f6081ca89a</public_key>
+  <wallet_address>0xa2026582b94feb9124231fbf7b052c39218954c2</wallet_address>
+</verification>
+    </revision>
+    <revision>
+      <id>37</id>
+      <parentid>36</parentid>
+      <timestamp>2021-11-27T03:52:57Z</timestamp>
+      <contributor>
+        <username>0xa2026582b94feb9124231fbf7b052c39218954c2</username>
+        <id>1</id>
+      </contributor>
+      <comment>Page signed by wallet: 0xa2026582b94feb9124231fbf7b052c39218954c2</comment>
+      <origin>37</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="1106" sha1="gxb13lck6aru1fdemda4oy6muw624m7" xml:space="preserve">Look again at that dot. That's here. That's home. That's us. On it everyone you love, everyone you know, everyone you ever heard of, every human being who ever was, lived out their lives. The aggregate of our joy and suffering, thousands of confident religions, ideologies, and economic doctrines, every hunter and forager, every hero and coward, every creator and destroyer of civilization, every king and peasant, every young couple in love, every mother and father, hopeful child, inventor and explorer, every teacher of morals, every corrupt politician, every "superstar," every "supreme leader," every saint and sinner in the history of our species lived there--on a mote of dust suspended in a sunbeam.
+
+&lt;br&gt;
+-- Carl Sagan&lt;br&gt;&lt;br&gt;&lt;hr&gt;&lt;div class="toccolours mw-collapsible mw-collapsed"&gt;&lt;div style="font-weight:bold;line-height:1.6;"&gt;Data Accounting Signatures&lt;/div&gt;&lt;div class="mw-collapsible-content"&gt;[[User:0xa2026582b94feb9124231fbf7b052c39218954c2|0xa2026582b94feb9124231fbf7b052c39218954c2]] ([[User talk:0xa2026582b94feb9124231fbf7b052c39218954c2|talk]]) 03:52, 27 November 2021 (UTC) &lt;br&gt;&lt;/div&gt;</text>
+      <sha1>gxb13lck6aru1fdemda4oy6muw624m7</sha1>
+<verification>
+  <domain_id>95d7c6609a</domain_id>
+  <rev_id>37</rev_id>
+  <verification_hash>418d8af3796e9b7c66c244465f6342ddf10f57a1172c30bb5ac3b519c09b0df53f01668dcd7d2ee86255bf96f477e57a0ec17d8b8a58630b0dfade370217338b</verification_hash>
+  <time_stamp>20211127035257</time_stamp>
+  <witness_event_id>3</witness_event_id>
+  <signature>0x56940f640e0f21b681d1909dfe0e2dd6b7f9c0c1d1a80548d96fed73339688252a4f8b398be8d9a539bff73d0a6f1cb2fb35515d17a8b9384f57666a11c577dd1c</signature>
+  <public_key>0x041518581af65749b3ddc69889df3e5d229bc8ad79279a07ddeb368ade5e1592368c5ff3b69143d7a1e7cf64f7d0774a6724e6eaf138d318d07ddc30f6081ca89a</public_key>
+  <wallet_address>0xa2026582b94feb9124231fbf7b052c39218954c2</wallet_address>
+
+
+<witness>
+  <domain_id>95d7c6609a</domain_id>
+  <domain_manifest_title>Data Accounting:DomainManifest:9df4198c20d31bb46f8ea97417346108b01ca13af20902e1755a1aad5bc3ba689f3731f653b4daa67ef657b96915fd7ac1035ab93938d9afde9c4c13cfd468c7</domain_manifest_title>
+  <witness_hash>c02ee814b4166d58440f3805c823659c0aaa8a75ed22cee60bf7b9ec114dbbbaf9cdac6b12d25f2d1622030b43455e089a79a2e04b9ce507e9f9e77637ca1424</witness_hash>
+  <witness_event_verification_hash>54fb5fa9a01fb316c5f4d75886bb5830d227122c0d4e3c602d6379b4ba9601ba5ea7f398dbdddbb87d55e444349b3680275958272b2720931bcfe8103429519d</witness_event_verification_hash>
+  <witness_network>goerli</witness_network>
+  <smart_contract_address>0x45f59310ADD88E6d23ca58A0Fa7A55BEE6d2a611</smart_contract_address>
+  <domain_manifest_verification_hash>9df4198c20d31bb46f8ea97417346108b01ca13af20902e1755a1aad5bc3ba689f3731f653b4daa67ef657b96915fd7ac1035ab93938d9afde9c4c13cfd468c7</domain_manifest_verification_hash>
+  <merkle_root>bbc665767bac03f0a16321555c40b28bd6a6da9bc16f736c5680414b266a910d4ae436a091326a8ca6b71d2628326e42191d67214b65b87acf096c176f126447</merkle_root>
+  <witness_event_transaction_hash>0x473b0b7b9ad818b9af02c0ab73cd9b186b28b6208c13f7d07554ace0915ca88e</witness_event_transaction_hash>
+  <sender_account_address>0xa2026582b94feb9124231fbf7b052c39218954c2</sender_account_address>
+  <source>default</source>
+  <structured_merkle_proof>[{"witness_event_id":"3","depth":"3","left_leaf":"418d8af3796e9b7c66c244465f6342ddf10f57a1172c30bb5ac3b519c09b0df53f01668dcd7d2ee86255bf96f477e57a0ec17d8b8a58630b0dfade370217338b","right_leaf":"b809cfc7455ce5f43862de563e35df4b9e782a98336ba21139e4ed5dffeb506b23218b46a66172aa6172d599799ce3a12ad9d66562ec9a6a4b2be764e7ff9dcf","successor":"4549f3e0444a0af213e6615034c9d5961365111a8c2af74360721c8e98fee93e83c696306a15abdad744d311c4b1e5deeca1a3320c92cf2e6cf194f360fe71b0"},{"witness_event_id":"3","depth":"2","left_leaf":"4549f3e0444a0af213e6615034c9d5961365111a8c2af74360721c8e98fee93e83c696306a15abdad744d311c4b1e5deeca1a3320c92cf2e6cf194f360fe71b0","right_leaf":"359273901c788a9894c983222b2d07637ce103c1a7f847dec414cbcb26426972920dcbb2a723786c227a140e7178c182069057cd6a704effc89a47d0ca703431","successor":"7d38b729f250c8621d169a91bff929f7ed94196c66a2a545350d54f5e77ad8da9acfa025fa8e7e2af0a6f44158189093649672d674253b8f88719d422003a93a"},{"witness_event_id":"3","depth":"1","left_leaf":"2db71f964296c4c4356c1c5094085c7b109723f27bb59ad960f9c9d79a8f123e61f4f5834e3d8422c1725871d7f36cd37750099c275d909de1c08542b60b8ea5","right_leaf":"7d38b729f250c8621d169a91bff929f7ed94196c66a2a545350d54f5e77ad8da9acfa025fa8e7e2af0a6f44158189093649672d674253b8f88719d422003a93a","successor":"c4f40d82f3de6ce8b859bdb69e8727deccda56dcb42fff732d71632a5b501a26a0eeb323f0c2f742bb2cc9029011c331b47cda383466f126f5b89b7d29b1497b"},{"witness_event_id":"3","depth":"0","left_leaf":"c4f40d82f3de6ce8b859bdb69e8727deccda56dcb42fff732d71632a5b501a26a0eeb323f0c2f742bb2cc9029011c331b47cda383466f126f5b89b7d29b1497b","right_leaf":"da3fe2998cb59a4a8986f950596a4ffe977752d1abf5b5b3366a3c33b23934e8ed7c7b2df679fdc73aafcb8f6db4c43a80f9866ba663af2551e635446bcbe4c5","successor":"bbc665767bac03f0a16321555c40b28bd6a6da9bc16f736c5680414b266a910d4ae436a091326a8ca6b71d2628326e42191d67214b65b87acf096c176f126447"}]</structured_merkle_proof>
+</witness>
+
+</verification>    </revision>
+    <revision>
+      <id>41</id>
+      <parentid>37</parentid>
+      <timestamp>2021-11-27T03:54:03Z</timestamp>
+      <contributor>
+        <username>0xa2026582b94feb9124231fbf7b052c39218954c2</username>
+        <id>1</id>
+      </contributor>
+      <comment>Page signed by wallet: 0xa2026582b94feb9124231fbf7b052c39218954c2</comment>
+      <origin>41</origin>
+      <model>wikitext</model>
+      <format>text/x-wiki</format>
+      <text bytes="1299" sha1="gkczdkk44evjrbhdtp7w2ft3m34em2n" xml:space="preserve">Look again at that dot. That's here. That's home. That's us. On it everyone you love, everyone you know, everyone you ever heard of, every human being who ever was, lived out their lives. The aggregate of our joy and suffering, thousands of confident religions, ideologies, and economic doctrines, every hunter and forager, every hero and coward, every creator and destroyer of civilization, every king and peasant, every young couple in love, every mother and father, hopeful child, inventor and explorer, every teacher of morals, every corrupt politician, every "superstar," every "supreme leader," every saint and sinner in the history of our species lived there--on a mote of dust suspended in a sunbeam.
+
+&lt;br&gt;
+-- Carl Sagan&lt;br&gt;&lt;br&gt;&lt;hr&gt;&lt;div class="toccolours mw-collapsible mw-collapsed"&gt;&lt;div style="font-weight:bold;line-height:1.6;"&gt;Data Accounting Signatures&lt;/div&gt;&lt;div class="mw-collapsible-content"&gt;[[User:0xa2026582b94feb9124231fbf7b052c39218954c2|0xa2026582b94feb9124231fbf7b052c39218954c2]] ([[User talk:0xa2026582b94feb9124231fbf7b052c39218954c2|talk]]) 03:54, 27 November 2021 (UTC) &lt;br&gt;[[User:0xa2026582b94feb9124231fbf7b052c39218954c2|0xa2026582b94feb9124231fbf7b052c39218954c2]] ([[User talk:0xa2026582b94feb9124231fbf7b052c39218954c2|talk]]) 03:52, 27 November 2021 (UTC) &lt;br&gt;&lt;/div&gt;</text>
+      <sha1>gkczdkk44evjrbhdtp7w2ft3m34em2n</sha1>
+<verification>
+  <domain_id>95d7c6609a</domain_id>
+  <rev_id>41</rev_id>
+  <verification_hash>25d75f33f11add368e0b99fdb3acbf7810cac0ed8604966dde9f3d17b402b4115843b5ecd3186b3692c563841d98e07e94dd26d80b295cb8aa1581d84cefeea2</verification_hash>
+  <time_stamp>20211127035403</time_stamp>
+</verification>
+    </revision>
+  </page>
+</mediawiki>
