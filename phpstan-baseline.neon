@@ -6,16 +6,6 @@ parameters:
 			path: includes/SpecialVerifiedExport.php
 
 		-
-			message: "#^Call to static method newFatal\\(\\) on an unknown class DataAccounting\\\\Status\\.$#"
-			count: 4
-			path: includes/SpecialVerifiedImport.php
-
-		-
-			message: "#^Call to static method tooltipAndAccesskeyAttribs\\(\\) on an unknown class DataAccounting\\\\Linker\\.$#"
-			count: 1
-			path: includes/SpecialVerifiedImport.php
-
-		-
 			message: "#^Caught class DataAccounting\\\\Exception not found\\.$#"
 			count: 1
 			path: includes/SpecialVerifiedImport.php
@@ -31,33 +21,23 @@ parameters:
 			path: includes/VerifiedWikiImporter.php
 
 		-
-			message: "#^Class NaiveForeignTitleFactory constructor invoked with 0 parameters, 1 required\\.$#"
-			count: 1
-			path: includes/VerifiedWikiImporter.php
-
-		-
-			message: "#^Class NaiveImportTitleFactory constructor invoked with 0 parameters, 3 required\\.$#"
-			count: 3
-			path: includes/VerifiedWikiImporter.php
-
-		-
-			message: "#^Class NamespaceImportTitleFactory constructor invoked with 1 parameter, 3 required\\.$#"
-			count: 1
-			path: includes/VerifiedWikiImporter.php
-
-		-
-			message: "#^Class SubpageImportTitleFactory constructor invoked with 1 parameter, 3 required\\.$#"
-			count: 1
-			path: includes/VerifiedWikiImporter.php
-
-		-
-			message: "#^Instantiated class DataAccounting\\\\Exception not found\\.$#"
-			count: 1
-			path: includes/VerifiedWikiImporter.php
-
-		-
 			message: "#^Instantiated class DataAccounting\\\\MWException not found\\.$#"
 			count: 5
+			path: includes/VerifiedWikiImporter.php
+
+		-
+			message: "#^Instantiated class DataAccounting\\\\NamespaceImportTitleFactory not found\\.$#"
+			count: 1
+			path: includes/VerifiedWikiImporter.php
+
+		-
+			message: "#^Instantiated class DataAccounting\\\\SubpageImportTitleFactory not found\\.$#"
+			count: 1
+			path: includes/VerifiedWikiImporter.php
+
+		-
+			message: "#^Instantiated class DataAccounting\\\\NaiveForeignTitleFactory not found\\.$#"
+			count: 1
 			path: includes/VerifiedWikiImporter.php
 
 		-

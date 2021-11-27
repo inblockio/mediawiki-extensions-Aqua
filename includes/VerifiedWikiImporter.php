@@ -53,6 +53,8 @@ use RequestContext;
 use MediaWiki\MediaWikiServices;
 use WikiRevision;
 use Title;
+use DeferredUpdates;
+use SiteStatsUpdate;
 
 /**
  * This class is cloned from Mediawiki 1.37.0's WikiImporter. Almost the same
