@@ -151,7 +151,7 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 			'revision_verification_hash',
 			[ 'witness_event_id' => $witness_event_id ]
 		);
-		if ( count($verification_hashes) == 0 ) {
+		if ( count( $verification_hashes ) == 0 ) {
 			throw new HttpException( "witness_event_id not found in the witness_page table.", 404 );
 		}
 
