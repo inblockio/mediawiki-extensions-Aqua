@@ -27,6 +27,8 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 	use HandlerTestTrait;
 
 	private RequestData $requestData;
+	private PermissionManager $permissionManager;
+	private PermissionManager $permissionManagerMock;
 
 	public function setUp(): void {
 		$requestData = new RequestData( [
