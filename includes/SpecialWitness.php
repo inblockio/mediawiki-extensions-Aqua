@@ -133,7 +133,6 @@ class SpecialWitness extends SpecialPage {
 		$htmlForm->show();
 
 		$out = $this->getOutput();
-		$out->setPageTitle( 'Domain Manifest Generator' );
 	}
 
 	public function helperGenerateDomainManifestTable( $dbw, $out, $witness_event_id, $output ) {

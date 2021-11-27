@@ -18,5 +18,6 @@
 	"apihelp-query+example-example-2": "Query 2",
 	"contentaction-daact": "Sign 🔑",
 	"verifiedexport": "Verified Export",
-	"verifiedimport": "Verified Import"
+	"verifiedimport": "Verified Import",
+	"witness": "Domain Manifest Generator"
 }
