@@ -10,9 +10,9 @@ use DataAccounting\Hasher\HashingService;
 require_once __DIR__ . "/../../../includes/Util.php";
 
 /**
- * @covers \DataAccounting\Hasher
+ * @covers \DataAccounting\Hasher\HashingService
  */
-class HasherTest extends TestCase {
+class HashingServiceTest extends TestCase {
 	private HashingService $hs;
 	private string $expectedMetadataHash;
 	private string $content;
