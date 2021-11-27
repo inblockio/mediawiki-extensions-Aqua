@@ -103,15 +103,6 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 	 * @covers \DataAccounting\API\GetPageByRevIdHandler
 	 */
 	public function testGetPageByRevId(): void {
-		// Testing the case when the rev_id is not found.
-		$this->expectExceptionObject(
-			new HttpException( "rev_id not found in the database", 404 )
-		);
-		$response = $this->executeHandler(
-			new GetPageByRevIdHandler(),
-			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
-		);
-
 		// Testing the case when the rev_id is found.
 		$response = $this->executeHandler(
 			new VerifyPageHandler(),
@@ -134,22 +125,21 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			$this->assertArrayHasKey( $key, $data );
 		}
 		$this->assertSame( 1, $data['rev_id'] );
+
+		// Testing the case when the rev_id is not found.
+		$this->expectExceptionObject(
+			new HttpException( "rev_id not found in the database", 404 )
+		);
+		$response = $this->executeHandler(
+			new GetPageByRevIdHandler(),
+			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
+		);
 	}
 
 	/**
 	 * @covers \DataAccounting\API\GetPageLastRevHandler
 	 */
 	public function testGetPageLastRev(): void {
-		// Testing the case when the page is not found.
-		$this->expectExceptionObject(
-			new HttpException( "page_title not found in the database", 404 )
-		);
-
-		$response = $this->executeHandler(
-			new GetPageLastRevHandler(),
-			new RequestData( [ 'pathParams' => [ 'page_title' => 'IDONTEXIST IDONTEXIST' ] ] )
-		);
-
 		// Testing the case when the page is found.
 		$response = $this->executeHandler(
 			new GetPageLastRevHandler(),
@@ -170,21 +160,22 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		// TODO the rev_id shouldn't be a string.
 		$this->assertSame( '1', $data['rev_id'] );
 		$this->assertSame( 'UTPage', $data['page_title'] );
+
+		// Testing the case when the page is not found.
+		$this->expectExceptionObject(
+			new HttpException( "page_title not found in the database", 404 )
+		);
+
+		$response = $this->executeHandler(
+			new GetPageLastRevHandler(),
+			new RequestData( [ 'pathParams' => [ 'page_title' => 'IDONTEXIST IDONTEXIST' ] ] )
+		);
 	}
 
 	/**
 	 * @covers \DataAccounting\API\RequestHashHandler
 	 */
 	public function testRequestHash(): void {
-		// Testing the case when the rev_id is not found.
-		$this->expectExceptionObject(
-			new HttpException( "rev_id not found in the database", 404 )
-		);
-		$response = $this->executeHandler(
-			new RequestHashHandler(),
-			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
-		);
-
 		// Testing the case when the rev_id is found.
 		$response = $this->executeHandler(
 			new RequestHashHandler(),
@@ -197,6 +188,15 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		$this->assertStringStartsWith(
 			'I sign the following page verification_hash: [0x',
 			$data['value'],
+		);
+
+		// Testing the case when the rev_id is not found.
+		$this->expectExceptionObject(
+			new HttpException( "rev_id not found in the database", 404 )
+		);
+		$response = $this->executeHandler(
+			new RequestHashHandler(),
+			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
 		);
 	}
 
