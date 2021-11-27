@@ -11,6 +11,7 @@ use MediaWiki\Rest\HttpException;
 
 use DataAccounting\API\VerifyPageHandler;
 use DataAccounting\API\GetPageAllRevsHandler;
+use DataAccounting\API\GetPageByRevIdHandler;
 
 /**
  * @group Database
@@ -90,5 +91,20 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			'page_id' => '1',
 			'rev_id' => '1'
 		] ] );
+	}
+
+	/**
+	 * @covers \DataAccounting\API\GetPageAllRevsHandler
+	 */
+	public function testGetPageByRevIdHandler(): void {
+		// Testing the case when the rev_id is not found.
+		try {
+			$response = $this->executeHandler(
+				new GetPageByRevIdHandler(),
+				new RequestData( [ 'pathParams' => [ 'rev_id' => '0' ] ] )
+			);
+		} catch ( HttpException $ex ) {
+			$this->assertSame( 'rev_id not found in the database', $ex->getMessage() );
+		}
 	}
 }
