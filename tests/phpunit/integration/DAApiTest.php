@@ -4,12 +4,13 @@ declare( strict_types = 1 );
 
 namespace DataAccounting\Tests;
 
-use DataAccounting\API\VerifyPageHandler;
 use MediaWiki\Rest\RequestData;
 use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
 use MediaWikiIntegrationTestCase;
-
 use MediaWiki\Rest\HttpException;
+
+use DataAccounting\API\VerifyPageHandler;
+use DataAccounting\API\GetPageAllRevsHandler;
 
 /**
  * @group Database
@@ -17,17 +18,27 @@ use MediaWiki\Rest\HttpException;
 class DAApiTest extends MediaWikiIntegrationTestCase {
 	use HandlerTestTrait;
 
+	public function assertJsonContentType( $response ) {
+		// Assert that the response body type is JSON.
+		$this->assertSame( 'application/json', $response->getHeaderLine( 'Content-Type' ) );
+	}
+
+	public function getJsonBody( $response ): array {
+		return json_decode( $response->getBody()->getContents(), true );
+	}
+
 	/**
 	 * @covers \DataAccounting\API\VerifyPageHandler
 	 */
 	public function testVerifyPage(): void {
+		// Testing the case when the rev_id is found.
 		$response = $this->executeHandler(
 			new VerifyPageHandler(),
 			new RequestData( [ 'pathParams' => [ 'rev_id' => '1' ] ] )
 		);
 
-		$this->assertSame( 'application/json', $response->getHeaderLine( 'Content-Type' ) );
-		$data = json_decode( $response->getBody()->getContents(), true );
+		$this->assertJsonContentType( $response );
+		$data = $this->getJsonBody( $response );
 		$this->assertIsArray( $data, 'Body must be a JSON array' );
 		$keys = [
 			"rev_id",
@@ -43,7 +54,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			$this->assertArrayHasKey( $key, $data );
 		}
 
-		// Testing the case when the rev_id is not found
+		// Testing the case when the rev_id is not found.
 		try {
 			$response = $this->executeHandler(
 				new VerifyPageHandler(),
@@ -54,4 +65,30 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		}
 	}
 
+	/**
+	 * @covers \DataAccounting\API\GetPageAllRevsHandler
+	 */
+	public function testGetPageAllRevs(): void {
+		// Testing the case when the page doesn't exist.
+		$response = $this->executeHandler(
+			new GetPageAllRevsHandler(),
+			new RequestData( [ 'pathParams' => [ 'page_title' => 'IDONTEXIST IDONTEXIST' ] ] )
+		);
+		$this->assertJsonContentType( $response );
+		$data = $this->getJsonBody( $response );
+		$this->assertSame( $data, [] );
+
+		// Testing the case when the page exists.
+		$response = $this->executeHandler(
+			new GetPageAllRevsHandler(),
+			new RequestData( [ 'pathParams' => [ 'page_title' => 'UTPage' ] ] )
+		);
+		$this->assertJsonContentType( $response );
+		$data = $this->getJsonBody( $response );
+		$this->assertSame( $data, [ [
+			'page_title' => 'UTPage',
+			'page_id' => '1',
+			'rev_id' => '1'
+		] ] );
+	}
 }
