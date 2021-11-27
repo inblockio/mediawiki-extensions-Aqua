@@ -13,6 +13,7 @@ use DataAccounting\API\VerifyPageHandler;
 use DataAccounting\API\GetPageAllRevsHandler;
 use DataAccounting\API\GetPageByRevIdHandler;
 use DataAccounting\API\GetPageLastRevHandler;
+use DataAccounting\API\RequestHashHandler;
 
 /**
  * @group Database
@@ -136,7 +137,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 	 * @covers \DataAccounting\API\GetPageLastRevHandler
 	 */
 	public function testGetPageLastRev(): void {
-		// Testing the case when the rev_id is not found.
+		// Testing the case when the page is not found.
 		try {
 			$response = $this->executeHandler(
 				new GetPageLastRevHandler(),
@@ -146,7 +147,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			$this->assertSame( 'page_title not found in the database', $ex->getMessage() );
 		}
 
-		// Testing the case when the rev_id not found.
+		// Testing the case when the page is found.
 		$response = $this->executeHandler(
 			new GetPageLastRevHandler(),
 			new RequestData( [ 'pathParams' => [ 'page_title' => 'UTPage' ] ] )
@@ -166,5 +167,34 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		// TODO the rev_id shouldn't be a string.
 		$this->assertSame( '1', $data['rev_id'] );
 		$this->assertSame( 'UTPage', $data['page_title'] );
+	}
+
+	/**
+	 * @covers \DataAccounting\API\RequestHashHandler
+	 */
+	public function testRequestHash(): void {
+		// Testing the case when the rev_id is not found.
+		try {
+			$response = $this->executeHandler(
+				new RequestHashHandler(),
+				new RequestData( [ 'pathParams' => [ 'rev_id' => '0' ] ] )
+			);
+		} catch ( HttpException $ex ) {
+			$this->assertSame( 'rev_id not found in the database', $ex->getMessage() );
+		}
+
+		// Testing the case when the rev_id is found.
+		$response = $this->executeHandler(
+			new RequestHashHandler(),
+			new RequestData( [ 'pathParams' => [ 'rev_id' => '1' ] ] )
+		);
+		$this->assertJsonContentType( $response );
+		$data = $this->getJsonBody( $response );
+		$this->assertIsArray( $data, 'Body must be a JSON array' );
+		$this->assertArrayHasKey( 'value', $data );
+		$this->assertStringStartsWith(
+			'I sign the following page verification_hash: [0x',
+			$data['value'],
+		);
 	}
 }
