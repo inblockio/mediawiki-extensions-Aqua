@@ -151,6 +151,9 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 			'revision_verification_hash',
 			[ 'witness_event_id' => $witness_event_id ]
 		);
+		if ( count($verification_hashes) == 0 ) {
+			throw new HttpException( "witness_event_id not found in the witness_page table.", 404 );
+		}
 
 		// If witness ID exists, don't write witness_id, if it does not
 		// exist update with witness id as oldest witness event has biggest
@@ -176,6 +179,9 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 			[ 'domain_manifest_verification_hash', 'merkle_root', 'witness_network' ],
 			[ 'witness_event_id' => $witness_event_id ]
 		);
+		if ( !$row ) {
+			throw new HttpException( "witness_event_id not found in the witness_events table.", 404 );
+		}
 		$witness_hash = getHashSum(
 			$row->domain_manifest_verification_hash .
 			$row->merkle_root .
