@@ -17,7 +17,7 @@ function get_page_all_revs( string $page_title ): array {
 	$res = $dbr->select(
 		'revision_verification',
 		[ 'rev_id', 'page_title', 'page_id' ],
-		'page_title= \'' . $page_title . '\'',
+		[ 'page_title' => $page_title ],
 		__METHOD__,
 		[ 'ORDER BY' => 'rev_id' ]
 	);
