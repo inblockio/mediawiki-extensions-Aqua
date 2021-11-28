@@ -13,7 +13,6 @@ use Title;
 use Wikimedia\Message\MessageValue;
 use Wikimedia\ParamValidator\ParamValidator;
 use WikiPage;
-use WikitextContent;
 
 require_once __DIR__ . "/../ApiUtil.php";
 require_once __DIR__ . "/../Util.php";
@@ -77,11 +76,8 @@ function addReceiptToDomainManifest( $user, $witness_event_id, $db ) {
 
 	$pageText = $page->getContent()->getText();
 	// We create a new content using the old content, and append $text to it.
-	$newContent = new WikitextContent( $pageText . $text );
-	$page->doEditContent(
-		$newContent,
-		"Domain Manifest witnessed"
-	);
+	$newContent = $pageText . $text;
+	editPageContent( $page, $newContent, "Domain Manifest witnessed", $user );
 
 	// Rename from tentative title to final title.
 	$domainManifestVH = $row->domain_manifest_verification_hash;

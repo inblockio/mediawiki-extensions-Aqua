@@ -20,7 +20,6 @@ use Rht\Merkle\FixedSizeTree;
 use SpecialPage;
 use Title;
 use WikiPage;
-use WikitextContent;
 
 require 'vendor/autoload.php';
 
@@ -219,10 +218,12 @@ class SpecialWitness extends SpecialPage {
 		$page = new WikiPage( $title );
 		$merkleTreeHtmlText = '<br><pre>' . tree_pprint( false, $treeLayers ) . '</pre>';
 		$merkleTreeWikitext = tree_pprint( true, $treeLayers );
-		$pageContent = new WikitextContent( $output . '<br>' . $merkleTreeWikitext );
-		$page->doEditContent(
+		$pageContent = $output . '<br>' . $merkleTreeWikitext;
+		editPageContent(
+			$page,
 			$pageContent,
-			"Page created automatically by [[Special:Witness]]"
+			"Page created automatically by [[Special:Witness]]",
+			$this->getUser()
 		);
 
 		//Get the freshly-generated Domain Manifest verification hash.

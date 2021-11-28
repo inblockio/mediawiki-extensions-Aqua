@@ -2,6 +2,9 @@
 
 use MediaWiki\MediaWikiServices;
 
+// For editPageContent().
+use MediaWiki\Revision\SlotRecord;
+
 function getHashSum( $inputStr ) {
 	if ( $inputStr == '' ) {
 		return '';
@@ -56,4 +59,12 @@ function getDataAccountingConfig() {
 		$da_config = json_decode( $content, true );
 	}
 	return $da_config;
+}
+
+function editPageContent( $page, string $text, string $comment, $user ) {
+	$newContent = new WikitextContent( $text );
+	$signatureComment = CommentStoreComment::newUnsavedComment( $comment );
+	$updater = $page->newPageUpdater( $user );
+	$updater->setContent( SlotRecord::MAIN, $newContent );
+	$updater->saveRevision( $signatureComment );
 }

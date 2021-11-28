@@ -125,9 +125,6 @@
     </PossiblyInvalidPropertyFetch>
   </file>
   <file src="includes/API/WriteStoreSignedTxHandler.php">
-    <DeprecatedMethod occurrences="1">
-      <code>doEditContent</code>
-    </DeprecatedMethod>
     <InvalidArgument occurrences="1">
       <code>$this-&gt;user</code>
     </InvalidArgument>
@@ -187,9 +184,6 @@
     </UndefinedInterfaceMethod>
   </file>
   <file src="includes/API/WriteStoreWitnessTxHandler.php">
-    <DeprecatedMethod occurrences="1">
-      <code>doEditContent</code>
-    </DeprecatedMethod>
     <InvalidArgument occurrences="1">
       <code>$this-&gt;user</code>
     </InvalidArgument>
@@ -775,9 +769,6 @@
     </UnusedVariable>
   </file>
   <file src="includes/SpecialWitness.php">
-    <DeprecatedMethod occurrences="1">
-      <code>doEditContent</code>
-    </DeprecatedMethod>
     <MissingClosureParamType occurrences="1">
       <code>$data</code>
     </MissingClosureParamType>

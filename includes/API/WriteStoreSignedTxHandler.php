@@ -13,12 +13,11 @@ use Title;
 use Wikimedia\Message\MessageValue;
 use Wikimedia\ParamValidator\ParamValidator;
 use WikiPage;
-use WikitextContent;
 
 require_once __DIR__ . "/../ApiUtil.php";
 require_once __DIR__ . "/../Util.php";
 
-function injectSignatureToPage( $titleString, $walletString ) {
+function injectSignatureToPage( $titleString, $walletString, $user ) {
 	//Get the article object with $title
 	$title = Title::newFromText( $titleString, 0 );
 	$page = new WikiPage( $title );
@@ -50,12 +49,8 @@ function injectSignatureToPage( $titleString, $walletString ) {
 		);
 	}
 	// We create a new content using the old content, and append $text to it.
-	$newContent = new WikitextContent( $text );
-	$signatureComment = "Page signed by wallet: " . $walletString;
-	$page->doEditContent(
-		$newContent,
-		$signatureComment
-	);
+	$comment = "Page signed by wallet: " . $walletString;
+	editPageContent( $page, $text, $comment, $user );
 }
 
 class WriteStoreSignedTxHandler extends SimpleHandler {
@@ -136,7 +131,7 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 
 		# Inject signature to the wiki page.
 		# See https://github.com/inblockio/DataAccounting/issues/84
-		injectSignatureToPage( $title, $wallet_address );
+		injectSignatureToPage( $title, $wallet_address, $this->user );
 
 		return true;
 	}
