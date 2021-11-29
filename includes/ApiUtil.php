@@ -15,21 +15,15 @@ function get_page_all_revs( string $page_title ): array {
 	$dbr = $lb->getConnectionRef( DB_REPLICA );
 	$res = $dbr->select(
 		'revision_verification',
-		[ 'rev_id', 'page_title', 'page_id' ],
+		[ 'rev_id' ],
 		[ 'page_title' => $page_title ],
 		__METHOD__,
 		[ 'ORDER BY' => 'rev_id' ]
 	);
 
 	$output = [];
-	$count = 0;
 	foreach ( $res as $row ) {
-		$data = [];
-		$data['page_title'] = $row->page_title;
-		$data['page_id'] = $row->page_id;
-		$data['rev_id'] = $row->rev_id;
-		$output[$count] = $data;
-		$count++;
+		array_push( $output, $row->rev_id );
 	}
 	return $output;
 }

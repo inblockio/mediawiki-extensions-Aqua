@@ -82,12 +82,8 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		);
 		$this->assertJsonContentType( $response );
 		$data = $this->getJsonBody( $response );
-		$this->assertSame( [ [
-			'page_title' => 'UTPage',
-			'page_id' => '1',
-			// TODO why is this not an int?
-			'rev_id' => '1'
-		] ], $data );
+		// TODO why is this not an int?
+		$this->assertSame( [ '1' ], $data );
 
 		// Testing the case when the page doesn't exist.
 		$title = 'IDONTEXIST IDONTEXIST';
