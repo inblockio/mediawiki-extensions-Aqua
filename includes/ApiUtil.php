@@ -13,7 +13,6 @@ function get_page_all_revs( string $page_title ): array {
 	//Database Query
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 	$dbr = $lb->getConnectionRef( DB_REPLICA );
-	#INSERT LOOP AND PARSE INTO ARRAY TO GET ALL PAGES
 	$res = $dbr->select(
 		'revision_verification',
 		[ 'rev_id', 'page_title', 'page_id' ],
