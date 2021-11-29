@@ -75,15 +75,6 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 	 * @covers \DataAccounting\API\GetPageAllRevsHandler
 	 */
 	public function testGetPageAllRevs(): void {
-		// Testing the case when the page doesn't exist.
-		$response = $this->executeHandler(
-			new GetPageAllRevsHandler(),
-			new RequestData( [ 'pathParams' => [ 'page_title' => 'IDONTEXIST IDONTEXIST' ] ] )
-		);
-		$this->assertJsonContentType( $response );
-		$data = $this->getJsonBody( $response );
-		$this->assertSame( $data, [] );
-
 		// Testing the case when the page exists.
 		$response = $this->executeHandler(
 			new GetPageAllRevsHandler(),
@@ -97,6 +88,16 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			// TODO why is this not an int?
 			'rev_id' => '1'
 		] ], $data );
+
+		// Testing the case when the page doesn't exist.
+		$title = 'IDONTEXIST IDONTEXIST';
+		$this->expectExceptionObject(
+			new HttpException( "$title not found in the database", 404 )
+		);
+		$response = $this->executeHandler(
+			new GetPageAllRevsHandler(),
+			new RequestData( [ 'pathParams' => [ 'page_title' => $title ] ] )
+		);
 	}
 
 	/**
