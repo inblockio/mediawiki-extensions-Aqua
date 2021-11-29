@@ -29,6 +29,10 @@
 			"description": "Whether to inject signature back to the page after signing.",
 			"value": true
 		},
+		"DAAPIVersion": {
+			"description": "Data Accounting API version.",
+			"value": "0.1.0"
+		},
 		"ExampleEnableWelcome": {
 			"description": "Enable the Welcome features",
 			"value": true
@@ -158,6 +162,10 @@
 		}
 	},
 	"RestRoutes": [
+		{
+			"path": "/data_accounting/get_server_info",
+			"class": "DataAccounting\\API\\GetServerInfoHandler"
+		},
 		{
 			"path": "/data_accounting/v1/verify_page/{rev_id}",
 			"class": "DataAccounting\\API\\VerifyPageHandler"
