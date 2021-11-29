@@ -68,7 +68,7 @@
         console.log(pageTitle)
         if (window.ethereum) {
           function doSignProcess() {
-            fetch(server + '/rest.php/data_accounting/v1/get_page_last_rev/' + pageTitle)
+            fetch(server + '/rest.php/data_accounting/get_page_last_rev/' + pageTitle)
             .then((resp) => {
               if (!resp.ok) {
                 resp.text().then(parsed => alert(parsed))
@@ -109,7 +109,7 @@
                 wallet_address: window.ethereum.selectedAddress,
               }
               fetch(
-                server + '/rest.php/data_accounting/v1/write/store_signed_tx',
+                server + '/rest.php/data_accounting/write/store_signed_tx',
                 { method: 'POST',
                   cache: 'no-cache',
                   headers: {
@@ -132,7 +132,7 @@
 
             function next(revId) {
               console.log("Rev ID:", revId)
-              fetch(server + '/rest.php/data_accounting/v1/request_hash/' + revId, { method: 'GET' })
+              fetch(server + '/rest.php/data_accounting/request_hash/' + revId, { method: 'GET' })
               .then((resp) => {
                 if (!resp.ok) {
                   resp.text().then(parsed => alert(parsed))

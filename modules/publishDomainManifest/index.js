@@ -18,7 +18,7 @@
       transaction_hash: txhash
     }
     const cmd =
-      host + '/rest.php/data_accounting/v1/write/store_witness_tx';
+      host + '/rest.php/data_accounting/write/store_witness_tx';
     console.log(cmd);
     fetch(
       cmd,
@@ -53,7 +53,7 @@
               const witnessEventID = $(this).attr('id')
               const host = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port
               fetch(
-                host + '/rest.php/data_accounting/v1/get_witness_data/' + witnessEventID,
+                host + '/rest.php/data_accounting/get_witness_data/' + witnessEventID,
                 { method: 'GET' })
                 .then((resp) => {
                   if (!resp.ok) {

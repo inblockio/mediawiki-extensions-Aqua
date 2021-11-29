@@ -31,7 +31,7 @@
 		},
 		"DAAPIVersion": {
 			"description": "Data Accounting API version.",
-			"value": "0.1.0"
+			"value": "0.2.0"
 		},
 		"ExampleEnableWelcome": {
 			"description": "Enable the Welcome features",
@@ -167,36 +167,36 @@
 			"class": "DataAccounting\\API\\GetServerInfoHandler"
 		},
 		{
-			"path": "/data_accounting/v1/verify_page/{rev_id}",
+			"path": "/data_accounting/verify_page/{rev_id}",
 			"class": "DataAccounting\\API\\VerifyPageHandler"
 		},
 		{
-			"path": "/data_accounting/v1/get_page_by_rev_id/{rev_id}",
+			"path": "/data_accounting/get_page_by_rev_id/{rev_id}",
 			"class": "DataAccounting\\API\\GetPageByRevIdHandler"
 		},
 		{
-			"path": "/data_accounting/v1/get_page_all_revs/{page_title}",
+			"path": "/data_accounting/get_page_all_revs/{page_title}",
 			"class": "DataAccounting\\API\\GetPageAllRevsHandler"
 		},
 		{
-			"path": "/data_accounting/v1/get_page_last_rev/{page_title}",
+			"path": "/data_accounting/get_page_last_rev/{page_title}",
 			"class": "DataAccounting\\API\\GetPageLastRevHandler"
 		},
 		{
-			"path": "/data_accounting/v1/get_witness_data/{witness_event_id}",
+			"path": "/data_accounting/get_witness_data/{witness_event_id}",
 			"class": "DataAccounting\\API\\GetWitnessDataHandler"
 		},
 		{
-			"path": "/data_accounting/v1/request_merkle_proof/{witness_event_id}/{revision_verification_hash}",
+			"path": "/data_accounting/request_merkle_proof/{witness_event_id}/{revision_verification_hash}",
 			"class": "DataAccounting\\API\\RequestMerkleProofHandler"
 		},
 		{
-			"path": "/data_accounting/v1/request_hash/{rev_id}",
+			"path": "/data_accounting/request_hash/{rev_id}",
 			"class": "DataAccounting\\API\\RequestHashHandler"
 		},
 		{
 			"method": "POST",
-			"path": "/data_accounting/v1/write/store_signed_tx",
+			"path": "/data_accounting/write/store_signed_tx",
 			"class": "DataAccounting\\API\\WriteStoreSignedTxHandler",
 			"services": [
 				"PermissionManager"
@@ -204,7 +204,7 @@
 		},
 		{
 			"method": "POST",
-			"path": "/data_accounting/v1/write/store_witness_tx",
+			"path": "/data_accounting/write/store_witness_tx",
 			"class": "DataAccounting\\API\\WriteStoreWitnessTxHandler",
 			"services": [
 				"PermissionManager"
