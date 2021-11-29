@@ -20,6 +20,9 @@
   }
 
   // TODO: Maybe replace with Bootstrap
+  // We no longer use this function for now.
+  // We no longer show the SIGNED! text because the current theme we use,
+  // Tweeki, is not compatible with this solution.
 	function showConfirmation( response ) {
     let text = 'SIGNED!'
     if (!response.ok) {
@@ -115,7 +118,13 @@
                   body: JSON.stringify(payload)
                 }
               )
-              .then(showConfirmation)
+              .then((response) => {
+                if (!response.ok) {
+                  return
+                }
+                // Refresh the page after success.
+                setTimeout(location.reload, 250)
+              })
             }
 
             function next(revId) {
