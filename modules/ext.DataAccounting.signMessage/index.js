@@ -123,7 +123,10 @@
                   return
                 }
                 // Refresh the page after success.
-                setTimeout(location.reload, 1000)
+                setTimeout(
+                  () => {location.reload()},
+                  500
+                )
               })
             }
 
