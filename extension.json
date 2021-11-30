@@ -33,16 +33,6 @@
 			"description": "Data Accounting API version.",
 			"value": "0.2.0"
 		},
-		"ExampleWelcomeColorDays": {
-			"description": "Color for the Welcome message bar by week day",
-			"value": {
-				"monday": "orange",
-				"tuesday": "blue",
-				"wednesday": "green",
-				"thursday": "red",
-				"friday": "yellow"
-			}
-		},
 		"ExampleWelcomeColorDefault": {
 			"description": "Default color for the Welcome message",
 			"value": "#eee"

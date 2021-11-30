@@ -13,7 +13,6 @@ class SignMessageModule extends ResourceLoaderFileModule {
 		$conf = $this->getConfig();
 		return Xml::encodeJsCall( 'mw.config.set', [
 				[
-					'wgExampleWelcomeColorDays' => $conf->get( 'ExampleWelcomeColorDays' ),
 					'wgExampleWelcomeColorDefault' => $conf->get( 'ExampleWelcomeColorDefault' ),
 				] ] )
 			. parent::getScript( $context );

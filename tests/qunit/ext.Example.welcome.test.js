@@ -2,9 +2,6 @@ QUnit.module( 'ext.DataAccounting.signMessage', {
 	beforeEach: function () {
 		this.conf = mw.config.values;
 		mw.config.values = {
-			wgExampleWelcomeColorDays: {
-				tuesday: 'pink'
-			},
 			wgExampleWelcomeColorDefault: '#ccc'
 		};
 	},
