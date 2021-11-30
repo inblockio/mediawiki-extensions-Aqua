@@ -188,23 +188,6 @@
 	},
 	"ResourceModules": {
 		"ext.DataAccounting.signMessage": {
-			"class": "DataAccounting\\SignMessageModule",
-			"dependencies": [
-				"mediawiki.util",
-				"mediawiki.user",
-				"mediawiki.Title"
-			],
-			"messages": [
-				"monday",
-				"tuesday",
-				"wednesday",
-				"thursday",
-				"friday",
-				"saturday",
-				"sunday",
-				"example-welcome-title-loggedout",
-				"example-welcome-title-user"
-			],
 			"styles": [
 			],
 			"scripts": [
