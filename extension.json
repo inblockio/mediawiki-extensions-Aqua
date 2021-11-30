@@ -111,16 +111,6 @@
 			"defaultcontentmodel": "wikitext"
 		}
 	],
-	"QUnitTestModule": {
-		"localBasePath": "tests/qunit/",
-		"remoteExtPath": "examples/tests/qunit/",
-		"scripts": [
-			"ext.DataAccounting.signMessage.test.js"
-		],
-		"dependencies": [
-			"ext.DataAccounting.signMessage"
-		]
-	},
 	"Hooks": {
 		"BeforePageDisplay": "handleHooks",
 		"ParserFirstCallInit": "handleHooks",
