@@ -54,12 +54,9 @@ class Hooks implements
 	 */
 	public function onBeforePageDisplay( $out, $skin ): void {
 		if ( $this->permissionManager->userCan( 'read', $out->getUser(), $out->getTitle() ) ) {
-			global $wgExampleEnableWelcome;
-			if ( $wgExampleEnableWelcome ) {
-				// Load our module on all pages
-				$out->addModules( 'ext.DataAccounting.signMessage' );
-				$out->addModules( 'publishDomainManifest' );
-			}
+			// Load our module on all pages
+			$out->addModules( 'ext.DataAccounting.signMessage' );
+			$out->addModules( 'publishDomainManifest' );
 		}
 	}
 

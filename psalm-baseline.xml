@@ -481,9 +481,6 @@
     </UnusedVariable>
   </file>
   <file src="includes/Hooks.php">
-    <InvalidGlobal occurrences="1">
-      <code>global $wgExampleEnableWelcome;</code>
-    </InvalidGlobal>
     <MixedArgument occurrences="1">
       <code>$wgServer</code>
     </MixedArgument>

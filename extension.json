@@ -33,10 +33,6 @@
 			"description": "Data Accounting API version.",
 			"value": "0.2.0"
 		},
-		"ExampleEnableWelcome": {
-			"description": "Enable the Welcome features",
-			"value": true
-		},
 		"ExampleWelcomeColorDays": {
 			"description": "Color for the Welcome message bar by week day",
 			"value": {
