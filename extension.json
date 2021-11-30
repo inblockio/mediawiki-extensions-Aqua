@@ -33,10 +33,6 @@
 			"description": "Data Accounting API version.",
 			"value": "0.2.0"
 		},
-		"ExampleWelcomeColorDefault": {
-			"description": "Default color for the Welcome message",
-			"value": "#eee"
-		},
 		"ExampleMyWord": {
 			"description": "Value for the {{MYWORD}} magic word in wikitext.",
 			"value": "Awesome"

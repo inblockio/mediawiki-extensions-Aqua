@@ -10,12 +10,7 @@ class SignMessageModule extends ResourceLoaderFileModule {
 
 	/** @inheritDoc */
 	public function getScript( ResourceLoaderContext $context ) {
-		$conf = $this->getConfig();
-		return Xml::encodeJsCall( 'mw.config.set', [
-				[
-					'wgExampleWelcomeColorDefault' => $conf->get( 'ExampleWelcomeColorDefault' ),
-				] ] )
-			. parent::getScript( $context );
+		return parent::getScript( $context );
 	}
 
 	/** @return bool */
