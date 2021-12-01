@@ -7,7 +7,7 @@ use Exception;
 use MultiConfig;
 use MutableConfig;
 
-class DataAccounting extends MultiConfig implements MutableConfig {
+class DataAccountingConfig extends MultiConfig implements MutableConfig {
 	/**
 	 * @var Handler 
 	 */

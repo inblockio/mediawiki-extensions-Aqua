@@ -60,7 +60,7 @@ class Handler {
 		if ( !$this->databaseConfig ) {
 			$this->databaseConfig = $this->makeDatabaseConfig();
 		}
-		return new DataAccounting( [
+		return new DataAccountingConfig( [
 			&$this->databaseConfig,
 			new GlobalVarConfig( 'da' ),
 			new GlobalVarConfig( 'wg' )
@@ -82,7 +82,7 @@ class Handler {
 
 		$res = $conn->select( 'da_settings', '*', '', __METHOD__ );
 		foreach ( $res as $row ) {
-			$hash[ $row->das_name ] = FormatJson::decode( $row->das_value, true );
+			$hash[ $row->name ] = FormatJson::decode( $row->value, true );
 		}
 
 		return new HashConfig( $hash );
@@ -120,18 +120,18 @@ class Handler {
 		try {
 			$exists = $this->loadBalancer->getConnection( DB_REPLICA )->selectRow(
 				'da_settings',
-				'das_name',
-				[ 'das_name' => $name ],
+				'name',
+				[ 'name' => $name ],
 				__METHOD__
 			);
 			$res = $exists ? $this->loadBalancer->getConnection( DB_PRIMARY )->update(
 				'da_settings',
-				[ 'das_value' => $value ],
-				[ 'das_name' => $name ],
+				[ 'value' => $value ],
+				[ 'name' => $name ],
 				__METHOD__
 			) : $this->loadBalancer->getConnection( DB_PRIMARY )->insert(
 				'da_settings',
-				[ 'das_value' => $value, 'das_name' => $name ],
+				[ 'value' => $value, 'name' => $name ],
 				__METHOD__
 			);
 			if ( !$res ) {
