@@ -54,4 +54,10 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_merkle_tree (
     `successor` VARCHAR(128)
 );
 
+CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/da_settings (
+	`das_name` VARCHAR(255) NOT NULL,
+	`das_value` mediumblob,
+	PRIMARY KEY ( das_name )
+) /*$wgDBTableOptions*/;
+
 -- TODO create INDEX later for performance.

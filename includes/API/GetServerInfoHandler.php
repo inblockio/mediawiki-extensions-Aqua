@@ -8,7 +8,8 @@ use MediaWiki\Rest\SimpleHandler;
 class GetServerInfoHandler extends SimpleHandler {
 	/** @inheritDoc */
 	public function run(): array {
-		$apiVersion = MediaWikiServices::getInstance()->getMainConfig()->get( 'DAAPIVersion' );
+		$apiVersion = MediaWikiServices::getInstance()->getConfigFactory()
+			->makeConfig( 'da' )->get( 'DAAPIVersion' );
 		return [ 'api_version' => $apiVersion ];
 	}
 }

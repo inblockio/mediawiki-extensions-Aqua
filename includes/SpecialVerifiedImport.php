@@ -473,4 +473,11 @@ class SpecialVerifiedImport extends SpecialPage {
 	protected function getGroupName() {
 		return 'pagetools';
 	}
+
+	/**
+	 * @return Config
+	 */
+	public function getConfig() {
+		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
+	}
 }

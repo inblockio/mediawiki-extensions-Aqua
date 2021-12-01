@@ -92,7 +92,7 @@ class SpecialWitnessPublisher extends SpecialPage {
             </tr>
         EOD;
 
-		$DAWitnessNetwork = MediaWikiServices::getInstance()->getMainConfig()->get( 'DAWitnessNetwork' );
+		$DAWitnessNetwork = $this->getConfig()->get( 'DAWitnessNetwork' );
 		$witnessNetworkMap = [
 			'mainnet' => 'https://etherscan.io/tx/',
 			'ropsten' => 'https://ropsten.etherscan.io/tx/',
@@ -147,5 +147,12 @@ class SpecialWitnessPublisher extends SpecialPage {
 	/** @inheritDoc */
 	protected function getGroupName() {
 		return 'other';
+	}
+
+	/**
+	 * @return Config
+	 */
+	public function getConfig() {
+		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 	}
 }

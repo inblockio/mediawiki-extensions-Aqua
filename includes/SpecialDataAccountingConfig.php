@@ -19,6 +19,7 @@ namespace DataAccounting;
 use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
+use MutatableConfig;
 use PermissionsError;
 use SpecialPage;
 
@@ -61,24 +62,47 @@ class SpecialDataAccountingConfig extends SpecialPage {
 		$this->getOutput()->addWikiTextAsInterface( $out );
 		$this->getOutput()->setPageTitle( 'Data Accounting Configuration' );
 
-		$data_accounting_config = getDataAccountingConfig();
 		$formDescriptor = [
-			'smartcontractaddress' => [
+			'DASmartContractAddress' => [
 				'label' => 'Smart Contract Address:', // Label of the field
 				'type' => 'text', // Input type
-				'default' => $data_accounting_config['smartcontractaddress'],
+				'default' => $this->getConfig()->get( 'DASmartContractAddress' ),
 			],
-			'witnessnetwork' => [
+			'DAWitnessNetwork' => [
 				'label' => 'Witness Network:',
 				'type' => 'text', // Input type
-				'default' => $data_accounting_config['witnessnetwork'],
+				'default' => $this->getConfig()->get( 'DAWitnessNetwork' ),
 			],
 		];
 
 		$htmlForm = new HTMLForm( $formDescriptor, $this->getContext(), 'daForm' );
 		$htmlForm->setSubmitText( 'Save' );
-		$htmlForm->setSubmitCallback( [ $this, 'saveWitnessConfig' ] );
+		$htmlForm->setSubmitCallback( function( array $formData ) {
+			return $this->save( $formData );
+		} );
 		$htmlForm->show();
+	}
+
+	/**
+	 * @return MutatableConfig
+	 */
+	public function getConfig() {
+		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
+	}
+
+	/**
+	 * @param array $formData
+	 */
+	private function save( array $formData ) {
+		// TODO: validate user input!
+		foreach ( $formData as $name => $value ) {
+			try {
+				$this->getConfig()->set( $name, $value );
+			} catch( Exception $e ) {
+				// TODO: display errors "saving '$name' has error: {$e->getMessage()}"
+				continue;
+			}
+		}
 	}
 
 	public static function saveWitnessConfig( $formData ) {

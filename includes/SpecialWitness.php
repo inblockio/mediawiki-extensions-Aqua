@@ -333,4 +333,11 @@ class SpecialWitness extends SpecialPage {
 	protected function getGroupName() {
 		return 'other';
 	}
+
+	/**
+	 * @return Config
+	 */
+	public function getConfig() {
+		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
+	}
 }

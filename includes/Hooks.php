@@ -62,7 +62,8 @@ class Hooks implements
 
 	public function onOutputPageParserOutput( $out, $parserOutput ): void {
 		global $wgServer;
-		$apiVersion = MediaWikiServices::getInstance()->getMainConfig()->get( 'DAAPIVersion' );
+		$apiVersion = MediaWikiServices::getInstance()->getConfigFactory()
+			->makeConfig( 'da' )->get( 'DAAPIVersion' );
 		$out->addMeta( "data-accounting-mediawiki", $wgServer );
 		$out->addMeta( "data-accounting-api-version", $apiVersion );
 	}

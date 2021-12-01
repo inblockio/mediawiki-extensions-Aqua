@@ -12,6 +12,7 @@
 	"requires": {
 		"MediaWiki": ">= 1.35.0"
 	},
+	"config_prefix": "da",
 	"config": {
 		"DADomainID": {
 			"description": "The identifier for this PKC MediaWiki instance.",
@@ -37,6 +38,9 @@
 			"description": "Value for the {{MYWORD}} magic word in wikitext.",
 			"value": "Awesome"
 		}
+	},
+	"ConfigRegistry": {
+		"da": "\\DataAccounting\\Config\\Handler::ConfigFactoryCallback"
 	},
 	"MessagesDirs": {
 		"Example": [
@@ -204,7 +208,8 @@
 		}
 	},
 	"ServiceWiringFiles": [
-		"includes/ExportImport/ServiceWiring.php"
+		"includes/ExportImport/ServiceWiring.php",
+		"includes/Config/ServiceWiring.php"
 	],
 	"manifest_version": 2
 }

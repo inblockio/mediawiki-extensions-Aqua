@@ -10,7 +10,7 @@ use DataAccounting\VerifiedWikiImporterFactory;
 return [
 	'VerifiedWikiImporterFactory' => static function ( MediaWikiServices $services ): VerifiedWikiImporterFactory {
 		return new VerifiedWikiImporterFactory(
-			$services->getMainConfig(),
+			$services->getconfigFactory()->makeConfig( 'da' ),
 			$services->getHookContainer(),
 			$services->getContentLanguage(),
 			$services->getNamespaceInfo(),

@@ -25,7 +25,8 @@ function generateDomainId() {
 }
 
 function getDomainId(): string {
-	return MediaWikiServices::getInstance()->getMainConfig()->get( 'DADomainID' ) ?? 'UnspecifiedDomainId';
+	return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' )
+		->get( 'DADomainID' ) ?? 'UnspecifiedDomainId';
 }
 
 function setDataAccountingConfig( $data ) {

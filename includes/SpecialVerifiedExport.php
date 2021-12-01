@@ -2,6 +2,7 @@
 
 namespace DataAccounting;
 
+use Config;
 use HTMLForm;
 use HTMLTextAreaField;
 use MediaWiki\Logger\LoggerFactory;
@@ -539,5 +540,12 @@ class SpecialVerifiedExport extends SpecialPage {
 
 	protected function getGroupName() {
 		return 'pagetools';
+	}
+
+	/**
+	 * @return Config
+	 */
+	public function getConfig() {
+		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 	}
 }
