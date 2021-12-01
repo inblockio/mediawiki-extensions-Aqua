@@ -17,7 +17,7 @@ use WikiPage;
 require_once __DIR__ . "/../ApiUtil.php";
 require_once __DIR__ . "/../Util.php";
 
-function selectToArray( $db, $table, $col, $conds ) {
+function selectToArray( $db, string $table, string $col, array $conds ): array {
 	$out = [];
 	$res = $db->select(
 		$table,

@@ -7,7 +7,7 @@ namespace DataAccounting;
 use MediaWiki\MediaWikiServices;
 
 /**
- * @return array<int, array<string, mixed>>
+ * @return array<int, array<string>>
  */
 function get_page_all_revs( string $page_title ): array {
 	//Database Query

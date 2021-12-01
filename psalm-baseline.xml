@@ -964,38 +964,6 @@
       <code>SpecialWitnessPublisher</code>
     </PropertyNotSetInConstructor>
   </file>
-  <file src="includes/Util.php">
-    <MissingParamType occurrences="2">
-      <code>$data</code>
-      <code>$inputStr</code>
-    </MissingParamType>
-    <MissingReturnType occurrences="5">
-      <code>generateDomainId</code>
-      <code>getDomainId</code>
-      <code>getHashSum</code>
-    </MissingReturnType>
-    <MixedArgument occurrences="2">
-      <code>$domain_id</code>
-      <code>$inputStr</code>
-    </MixedArgument>
-    <MixedArrayAssignment occurrences="1">
-      <code>$da_config[$key]</code>
-    </MixedArrayAssignment>
-    <MixedArrayOffset occurrences="1">
-      <code>$da_config[$key]</code>
-    </MixedArrayOffset>
-    <MixedAssignment occurrences="9">
-      <code>$da_config</code>
-      <code>$da_config</code>
-      <code>$da_config</code>
-      <code>$da_config[$key]</code>
-      <code>$dataArray</code>
-      <code>$domain_id</code>
-      <code>$domain_id</code>
-      <code>$key</code>
-      <code>$value</code>
-    </MixedAssignment>
-  </file>
   <file src="includes/VerifiedWikiImporter.php">
     <DeprecatedMethod occurrences="9">
       <code>WikiPage::factory( $title )</code>

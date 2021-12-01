@@ -14,10 +14,13 @@ use Wikimedia\Message\MessageValue;
 use Wikimedia\ParamValidator\ParamValidator;
 use WikiPage;
 
+// Typing
+use User;
+
 require_once __DIR__ . "/../ApiUtil.php";
 require_once __DIR__ . "/../Util.php";
 
-function injectSignatureToPage( $titleString, $walletString, $user ) {
+function injectSignatureToPage( string $titleString, string $walletString, User $user ) {
 	//Get the article object with $title
 	$title = Title::newFromText( $titleString, 0 );
 	$page = new WikiPage( $title );
@@ -97,6 +100,7 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 		$rev_id = $body['rev_id'];
 		$signature = $body['signature'];
 		$public_key = $body['public_key'];
+		/** @var string */
 		$wallet_address = $body['wallet_address'];
 
 		// Generate signature_hash
@@ -116,6 +120,7 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 			throw new HttpException( "rev_id not found in the database", 404 );
 		}
 
+		/** @var string */
 		$title = $row->page_title;
 
 		// Insert signature detail to the page revision

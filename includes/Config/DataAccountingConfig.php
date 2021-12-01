@@ -9,7 +9,7 @@ use MutableConfig;
 
 class DataAccountingConfig extends MultiConfig implements MutableConfig {
 	/**
-	 * @var Handler 
+	 * @var Handler
 	 */
 	protected $handler = null;
 
@@ -27,10 +27,10 @@ class DataAccountingConfig extends MultiConfig implements MutableConfig {
 	 * @param string $name
 	 * @param mixed $value
 	 */
-	public function set( $name, $value ) {
+	public function set( $name, $value ): void {
 		$status = $this->handler->set( $name, $value );
 		if ( !$status->isOK() ) {
-			throw new Exception( $status->getMessage() );
+			throw new Exception( (string) $status->getMessage() );
 		}
 	}
 }
