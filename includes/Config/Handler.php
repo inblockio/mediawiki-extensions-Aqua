@@ -3,6 +3,7 @@
 namespace DataAccounting\Config;
 
 use Config;
+use Exception;
 use FormatJson;
 use GlobalVarConfig;
 use HashConfig;
@@ -19,11 +20,6 @@ class Handler {
 	/**
 	 * @var Config
 	 */
-	private $mainConfig = null;
-
-	/**
-	 * @var Config
-	 */
 	private $config = null;
 
 	/**
@@ -32,18 +28,16 @@ class Handler {
 	private $databaseConfig = null;
 
 	/**
-	 * @param Config $mainConfig
 	 * @param ILoadBalancer $loadBalancer
 	 */
-	public function __construct( Config $mainConfig, ILoadBalancer $loadBalancer ) {
-		$this->mainConfig = $mainConfig;
+	public function __construct( ILoadBalancer $loadBalancer ) {
 		$this->loadBalancer = $loadBalancer;
 	}
 
 	/**
 	 * @return Config
 	 */
-	public static function ConfigFactoryCallback(): Config {
+	public static function configFactoryCallback(): Config {
 		return MediaWikiServices::getInstance()->get( 'DataAccountingConfigHandler' )
 			->getConfig();
 	}
@@ -69,7 +63,7 @@ class Handler {
 		return new DataAccounting( [
 			&$this->databaseConfig,
 			new GlobalVarConfig( 'da' ),
-			$this->mainConfig
+			new GlobalVarConfig( 'wg' )
 		], $this );
 	}
 
@@ -88,7 +82,7 @@ class Handler {
 
 		$res = $conn->select( 'da_settings', '*', '', __METHOD__ );
 		foreach ( $res as $row ) {
-			$hash[$row->das_name] = FormatJson::decode( $row->das_value, true );
+			$hash[ $row->das_name ] = FormatJson::decode( $row->das_value, true );
 		}
 
 		return new HashConfig( $hash );
@@ -127,23 +121,23 @@ class Handler {
 			$exists = $this->loadBalancer->getConnection( DB_REPLICA )->selectRow(
 				'da_settings',
 				'das_name',
-				['das_name' => $name],
+				[ 'das_name' => $name ],
 				__METHOD__
 			);
 			$res = $exists ? $this->loadBalancer->getConnection( DB_MASTER )->update(
 				'da_settings',
-				['das_value' => $value],
-				['das_name' => $name],
+				[ 'das_value' => $value ],
+				[ 'das_name' => $name ],
 				__METHOD__
 			) : $this->loadBalancer->getConnection( DB_MASTER )->insert(
 				'da_settings',
-				['das_value' => $value, 'das_name' => $name],
+				[ 'das_value' => $value, 'das_name' => $name ],
 				__METHOD__
 			);
 			if ( !$res ) {
 				$status->fatal( 'Unknown Database error' );
 			}
-		} catch( Exception $e ) {
+		} catch ( Exception $e ) {
 			$status->fatal( $e->getMessage() );
 		}
 		return $status;

@@ -9,6 +9,11 @@ use MutableConfig;
 
 class DataAccounting extends MultiConfig implements MutableConfig {
 	/**
+	 * @var Handler 
+	 */
+	protected $handler = null;
+
+	/**
 	 * @param Config[] $configs
 	 * @param Handler $handler
 	 */

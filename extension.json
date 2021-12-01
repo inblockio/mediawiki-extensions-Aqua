@@ -40,7 +40,7 @@
 		}
 	},
 	"ConfigRegistry": {
-		"da": "\\DataAccounting\\Config\\Handler::ConfigFactoryCallback"
+		"da": "\\DataAccounting\\Config\\Handler::configFactoryCallback"
 	},
 	"MessagesDirs": {
 		"Example": [

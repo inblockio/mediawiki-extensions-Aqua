@@ -16,6 +16,7 @@
 
 namespace DataAccounting;
 
+use Exception;
 use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
@@ -98,7 +99,7 @@ class SpecialDataAccountingConfig extends SpecialPage {
 		foreach ( $formData as $name => $value ) {
 			try {
 				$this->getConfig()->set( $name, $value );
-			} catch( Exception $e ) {
+			} catch ( Exception $e ) {
 				// TODO: display errors "saving '$name' has error: {$e->getMessage()}"
 				continue;
 			}
