@@ -9,6 +9,11 @@
 >
     <projectFiles>
         <directory name="includes" />
+        <ignoreFiles>
+            <file name="includes/SpecialVerifiedExport.php" />
+            <file name="includes/SpecialVerifiedImport.php" />
+            <file name="includes/VerifiedWikiImporter.php" />
+        </ignoreFiles>
     </projectFiles>
 	<extraFiles>
 		<directory name="../../includes" />
