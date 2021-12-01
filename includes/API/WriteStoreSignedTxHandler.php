@@ -2,76 +2,59 @@
 
 namespace DataAccounting\API;
 
+use CommentStore;
+use DataAccounting\Content\SignatureContent;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\LocalizedHttpException;
 use MediaWiki\Rest\SimpleHandler;
 use MediaWiki\Rest\Validator\JsonBodyValidator;
+use MediaWiki\Storage\PageUpdaterFactory;
+use MediaWiki\Storage\RevisionStore;
+use MWException;
 use RequestContext;
 use Title;
+use User;
 use Wikimedia\Message\MessageValue;
 use Wikimedia\ParamValidator\ParamValidator;
-use WikiPage;
-
-// Typing
-use User;
+use Wikimedia\Rdbms\LoadBalancer;
 
 require_once __DIR__ . "/../ApiUtil.php";
 require_once __DIR__ . "/../Util.php";
-
-function injectSignatureToPage( string $titleString, string $walletString, User $user ) {
-	//Get the article object with $title
-	$title = Title::newFromText( $titleString, 0 );
-	$page = new WikiPage( $title );
-	$pageText = $page->getContent()->getText();
-
-	//Early exit if signature injection is disabled.
-	$doInject = MediaWikiServices::getInstance()->getConfigFactory()
-			->makeConfig( 'da' )->get( 'InjectSignature' );
-	if ( !$doInject ) {
-		return;
-	}
-
-	$anchorString = "<div style=\"font-weight:bold;line-height:1.6;\">Data Accounting Signatures</div><div class=\"mw-collapsible-content\">";
-	$anchorLocation = strpos( $pageText, $anchorString );
-	if ( $anchorLocation === false ) {
-		$text = $pageText . "<br><br><hr>";
-		$text .= "<div class=\"toccolours mw-collapsible mw-collapsed\">";
-		$text .= $anchorString;
-		//Adding visual signature
-		$text .= "~~~~ <br>";
-		$text .= "</div>";
-	} else {
-		//insert only signature
-		$newEntry = "~~~~ <br>";
-		$text = substr_replace(
-			$pageText,
-			$newEntry,
-			$anchorLocation + strlen( $anchorString ),
-			0
-		);
-	}
-	// We create a new content using the old content, and append $text to it.
-	$comment = "Page signed by wallet: " . $walletString;
-	editPageContent( $page, $text, $comment, $user );
-}
 
 class WriteStoreSignedTxHandler extends SimpleHandler {
 
 	/** @var PermissionManager */
 	private $permissionManager;
+	/** @var LoadBalancer */
+	private $lb;
+	/** @var WikiPageFactory */
+	private $wikiPageFactory;
+	/** @var PageUpdaterFactory */
+	private $pageUpdaterFactory;
+	/** @var RevisionStore */
+	private $revisionStore;
+	/** @var CommentStore */
+	private $commentStore;
 
 	/** @var User */
 	private $user;
-
 	/**
 	 * @param PermissionManager $permissionManager
 	 */
 	public function __construct(
-		PermissionManager $permissionManager
+		PermissionManager $permissionManager, LoadBalancer $loadBalancer,
+		WikiPageFactory $wikiPageFactory, PageUpdaterFactory $pageUpdaterFactory,
+		RevisionStore $revisionStore, CommentStore $commentStore
 	) {
 		$this->permissionManager = $permissionManager;
+		$this->lb = $loadBalancer;
+		$this->wikiPageFactory = $wikiPageFactory;
+		$this->pageUpdaterFactory = $pageUpdaterFactory;
+		$this->revisionStore = $revisionStore;
+		$this->commentStore = $commentStore;
 
 		// @todo Inject this, when there is a good way to do that
 		$this->user = RequestContext::getMain()->getUser();
@@ -107,7 +90,7 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 		$signature_hash = getHashSum( $signature . $public_key );
 
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
+		$dbw = $lb->getConnectionRef( DB_PRIMARY );
 
 		// Get title of the page via the revision_id
 		$row = $dbw->selectRow(
@@ -135,11 +118,38 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 			[ "rev_id" => $rev_id ],
 		);
 
-		# Inject signature to the wiki page.
-		# See https://github.com/inblockio/DataAccounting/issues/84
-		injectSignatureToPage( $title, $wallet_address, $this->user );
+		$this->storeSignature( $title, $wallet_address );
 
 		return true;
+	}
+
+	private function storeSignature( Title $title, $walletAddress ) {
+		$wikipage = $this->wikiPageFactory->newFromTitle( $title );
+		$updater = $this->pageUpdaterFactory->newPageUpdater( $wikipage, $this->user );
+		$lastRevision = $this->revisionStore->getRevisionByTitle( $title );
+		$data = [];
+		if ( $lastRevision->hasSlot( SignatureContent::SLOT_ROLE_SIGNATURE ) ) {
+			$content = $lastRevision->getContent( SignatureContent::SLOT_ROLE_SIGNATURE );
+			if ( $content->isValid() ) {
+				$data = json_decode( $content->getText(), 1 );
+			}
+		}
+		$data[] = [
+			'user' => $walletAddress,
+			'timestamp' => \MWTimestamp::now( TS_MW ),
+		];
+		$content = new SignatureContent( json_encode( $data ) );
+		$updater->setContent( SignatureContent::SLOT_ROLE_SIGNATURE, $content );
+		$newRevision = $updater->saveRevision(
+			$this->commentStore->createComment(
+				$this->lb->getConnection( DB_PRIMARY ), "Page signed by wallet: " . $walletAddress
+			),
+			EDIT_SUPPRESS_RC
+		);
+
+		if ( !$newRevision ) {
+			throw new MWException( 'Could not store signature data to page' );
+		}
 	}
 
 	/** @inheritDoc */

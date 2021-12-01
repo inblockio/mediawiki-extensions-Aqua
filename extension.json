@@ -118,7 +118,8 @@
 		},
 		"XmlDumpWriterOpenPage": "DataAccounting\\Hooks::onXmlDumpWriterOpenPage",
 		"XmlDumpWriterWriteRevision": "DataAccounting\\Hooks::onXmlDumpWriterWriteRevision",
-		"ImportHandlePageXMLTag": "DataAccounting\\Hooks::onImportHandlePageXMLTag"
+		"ImportHandlePageXMLTag": "DataAccounting\\Hooks::onImportHandlePageXMLTag",
+		"MediaWikiServices": "registerRevisionSlots"
 	},
 	"HookHandlers": {
 		"handleHooks": {
@@ -127,6 +128,9 @@
 		},
 		"handleHashWriterHooks": {
 			"class": "DataAccounting\\HashWriterHooks"
+		},
+		"registerRevisionSlots": {
+			"class": "DataAccounting\\Hook\\RegisterRevisionSlots"
 		}
 	},
 	"RestRoutes": [
@@ -167,7 +171,12 @@
 			"path": "/data_accounting/write/store_signed_tx",
 			"class": "DataAccounting\\API\\WriteStoreSignedTxHandler",
 			"services": [
-				"PermissionManager"
+				"PermissionManager",
+				"LoadBalancer",
+				"WikiPageFactory",
+				"PageUpdaterFactory",
+				"RevisionStore",
+				"CommentStore"
 			]
 		},
 		{
@@ -203,5 +212,8 @@
 		"includes/ExportImport/ServiceWiring.php",
 		"includes/Config/ServiceWiring.php"
 	],
+	"ContentHandlers": {
+		"signature": "DataAccounting\\ContentHandler\\SignatureHandler"
+	},
 	"manifest_version": 2
 }
