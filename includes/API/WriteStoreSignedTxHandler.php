@@ -41,7 +41,6 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 
 	/** @var User */
 	private $user;
-
 	/**
 	 * @param PermissionManager $permissionManager
 	 */
