@@ -176,7 +176,7 @@
 			"class": "DataAccounting\\API\\WriteStoreSignedTxHandler",
 			"services": [
 				"PermissionManager",
-				"LoadBalancer",
+				"DBLoadBalancer",
 				"WikiPageFactory",
 				"PageUpdaterFactory",
 				"RevisionStore",

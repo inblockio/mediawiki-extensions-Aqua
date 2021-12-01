@@ -24,42 +24,6 @@ use Wikimedia\Rdbms\LoadBalancer;
 require_once __DIR__ . "/../ApiUtil.php";
 require_once __DIR__ . "/../Util.php";
 
-/*function injectSignatureToPage( $titleString, $walletString, $user ) {
-	//Get the article object with $title
-	$title = Title::newFromText( $titleString, 0 );
-	$page = new WikiPage( $title );
-	$pageText = $page->getContent()->getText();
-
-	//Early exit if signature injection is disabled.
-	$doInject = MediaWikiServices::getInstance()->getMainConfig()->get( 'DAInjectSignature' );
-	if ( !$doInject ) {
-		return;
-	}
-
-	$anchorString = "";
-	$anchorLocation = strpos( $pageText, $anchorString );
-	if ( $anchorLocation === false ) {
-		$text = $pageText . "<br><br><hr>";
-		$text .= "<div >";
-		$text .= $anchorString;
-		//Adding visual signature
-		$text .= "~~~~ <br>";
-		$text .= "</div>";
-	} else {
-		//insert only signature
-		$newEntry = "~~~~ <br>";
-		$text = substr_replace(
-			$pageText,
-			$newEntry,
-			$anchorLocation + strlen( $anchorString ),
-			0
-		);
-	}
-	// We create a new content using the old content, and append $text to it.
-	$comment = "Page signed by wallet: " . $walletString;
-	editPageContent( $page, $text, $comment, $user );
-}*/
-
 class WriteStoreSignedTxHandler extends SimpleHandler {
 
 	/** @var PermissionManager */
@@ -152,7 +116,8 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 			[ "rev_id" => $rev_id ],
 		);
 
-		$this->storeSignature( $title, $wallet_address );
+		$titleObject = Title::newFromText( $title );
+		$this->storeSignature( $titleObject, $wallet_address );
 
 		return true;
 	}
