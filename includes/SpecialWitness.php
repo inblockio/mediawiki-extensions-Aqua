@@ -251,7 +251,7 @@ class SpecialWitness extends SpecialPage {
 			[ 'witness_event_id' => $witness_event_id ]
 		);
 		if ( !$row ) {
-			$config = MediaWikiServices::getInstance()->getMainConfig();
+			$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 			$DASmartContractAddress = $config->get( 'DASmartContractAddress' );
 			$DAWitnessNetwork = $config->get( 'DAWitnessNetwork' );
 			// If witness_events table doesn't have it, then insert.

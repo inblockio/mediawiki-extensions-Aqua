@@ -124,12 +124,12 @@ class Handler {
 				[ 'das_name' => $name ],
 				__METHOD__
 			);
-			$res = $exists ? $this->loadBalancer->getConnection( DB_MASTER )->update(
+			$res = $exists ? $this->loadBalancer->getConnection( DB_PRIMARY )->update(
 				'da_settings',
 				[ 'das_value' => $value ],
 				[ 'das_name' => $name ],
 				__METHOD__
-			) : $this->loadBalancer->getConnection( DB_MASTER )->insert(
+			) : $this->loadBalancer->getConnection( DB_PRIMARY )->insert(
 				'da_settings',
 				[ 'das_value' => $value, 'das_name' => $name ],
 				__METHOD__
