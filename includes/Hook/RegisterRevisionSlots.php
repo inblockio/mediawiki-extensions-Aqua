@@ -12,6 +12,9 @@ class RegisterRevisionSlots implements MediaWikiServicesHook {
 		$services->addServiceManipulator(
 			'SlotRoleRegistry',
 			function( SlotRoleRegistry $registry ) {
+				if ( $registry->isDefinedRole( SignatureContent::SLOT_ROLE_SIGNATURE ) ) {
+					return;
+				}
 				$registry->defineRoleWithModel(
 					SignatureContent::SLOT_ROLE_SIGNATURE,
 					SignatureContent::CONTENT_MODEL_SIGNATURE,

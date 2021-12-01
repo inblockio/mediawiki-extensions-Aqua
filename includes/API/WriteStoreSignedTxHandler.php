@@ -118,7 +118,8 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 			[ "rev_id" => $rev_id ],
 		);
 
-		$this->storeSignature( $title, $wallet_address );
+		$titleObject = Title::newFromText( $title );
+		$this->storeSignature( $titleObject, $wallet_address );
 
 		return true;
 	}
