@@ -7,6 +7,7 @@
 
 namespace DataAccounting;
 
+use DataAccounting\Content\SignatureContent;
 use FormatJson;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\OutputPageParserOutputHook;

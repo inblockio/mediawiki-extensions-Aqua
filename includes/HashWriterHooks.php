@@ -7,6 +7,7 @@
 
 namespace DataAccounting;
 
+use DataAccounting\Content\SignatureContent;
 use DatabaseUpdater;
 use MediaWiki\Hook\PageMoveCompleteHook;
 use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
@@ -15,7 +16,6 @@ use MediaWiki\Page\Hook\ArticleDeleteCompleteHook;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 use MediaWiki\Revision\Hook\RevisionRecordInsertedHook;
 use MediaWiki\Revision\RevisionRecord;
-use MediaWiki\Revision\SlotRecord;
 use MediaWiki\User\UserIdentity;
 use WikiPage;
 
@@ -42,6 +42,10 @@ class HashWriterHooks implements
 			'rev_id' => $revisionRecord->getID(),
 			'time_stamp' => $revisionRecord->getTimestamp(),
 		];
+
+		if ( $revisionRecord->hasSlot( SignatureContent::SLOT_ROLE_SIGNATURE ) ) {
+			return;
+		}
 
 		$dbw->insert( $table_name, $data, __METHOD__ );
 	}
