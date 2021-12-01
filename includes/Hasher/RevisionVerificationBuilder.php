@@ -5,7 +5,6 @@ declare( strict_types = 1 );
 namespace DataAccounting\Hasher;
 
 use MediaWiki\Revision\RevisionRecord;
-use MediaWiki\Revision\SlotRecord;
 
 require_once __DIR__ . "/../ApiUtil.php";
 require_once __DIR__ . "/../Util.php";
@@ -26,7 +25,10 @@ class RevisionVerificationBuilder {
 
 	public function buildVerificationData( RevisionRecord $rev ): array {
 		// CONTENT DATA HASH CALCULATOR
-		$pageContent = $rev->getContent( SlotRecord::MAIN )->serialize();
+		$pageContent = '';
+		foreach ( $rev->getSlots() as $slot ) {
+			$pageContent .= $rev->getContent( $slot )->serialize();
+		}
 		$contentHash = getHashSum( $pageContent );
 
 		// GET DATA FOR META DATA and SIGNATURE DATA
