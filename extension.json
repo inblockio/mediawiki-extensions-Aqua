@@ -14,7 +14,7 @@
 	},
 	"config_prefix": "da",
 	"config": {
-		"DADomainID": {
+		"DomainID": {
 			"description": "The identifier for this PKC MediaWiki instance.",
 			"value": "UnspecifiedDomainId"
 		},
