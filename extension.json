@@ -16,7 +16,7 @@
 	"config": {
 		"DADomainID": {
 			"description": "The identifier for this PKC MediaWiki instance.",
-			"value": null
+			"value": "UnspecifiedDomainId"
 		},
 		"DAWitnessNetwork": {
 			"description": "The Ethereum blockhain network used for witnessing.",
