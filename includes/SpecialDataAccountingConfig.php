@@ -69,10 +69,10 @@ class SpecialDataAccountingConfig extends SpecialPage {
 				'type' => 'text', // Input type
 				'default' => $this->getConfig()->get( 'DASmartContractAddress' ),
 			],
-			'DAWitnessNetwork' => [
+			'WitnessNetwork' => [
 				'label' => 'Witness Network:',
 				'type' => 'text', // Input type
-				'default' => $this->getConfig()->get( 'DAWitnessNetwork' ),
+				'default' => $this->getConfig()->get( 'WitnessNetwork' ),
 			],
 		];
 

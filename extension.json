@@ -18,7 +18,7 @@
 			"description": "The identifier for this PKC MediaWiki instance.",
 			"value": "UnspecifiedDomainId"
 		},
-		"DAWitnessNetwork": {
+		"WitnessNetwork": {
 			"description": "The Ethereum blockhain network used for witnessing.",
 			"value": "goerli"
 		},

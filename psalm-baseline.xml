@@ -830,7 +830,7 @@
     </MixedArrayAccess>
     <MixedAssignment occurrences="24">
       <code>$DASmartContractAddress</code>
-      <code>$DAWitnessNetwork</code>
+      <code>$WitnessNetwork</code>
       <code>$children</code>
       <code>$domainManifestVH</code>
       <code>$formatted_key</code>
@@ -929,10 +929,10 @@
       <code>DB_MASTER</code>
     </MixedArgument>
     <MixedArrayOffset occurrences="1">
-      <code>$witnessNetworkMap[$DAWitnessNetwork]</code>
+      <code>$witnessNetworkMap[$WitnessNetwork]</code>
     </MixedArrayOffset>
     <MixedAssignment occurrences="3">
-      <code>$DAWitnessNetwork</code>
+      <code>$WitnessNetwork</code>
       <code>$hrefWEVH</code>
       <code>$my_domain_id</code>
     </MixedAssignment>

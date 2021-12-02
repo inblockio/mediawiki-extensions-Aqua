@@ -92,7 +92,7 @@ class SpecialWitnessPublisher extends SpecialPage {
             </tr>
         EOD;
 
-		$DAWitnessNetwork = $this->getConfig()->get( 'DAWitnessNetwork' );
+		$WitnessNetwork = $this->getConfig()->get( 'WitnessNetwork' );
 		$witnessNetworkMap = [
 			'mainnet' => 'https://etherscan.io/tx/',
 			'ropsten' => 'https://ropsten.etherscan.io/tx/',
@@ -116,7 +116,7 @@ class SpecialWitnessPublisher extends SpecialPage {
 				} else {
 					$publishingStatus = '<td style="background-color:#B1C97F">' . hrefifyHash(
 							$row->witness_event_transaction_hash,
-							$witnessNetworkMap[$DAWitnessNetwork]
+							$witnessNetworkMap[$WitnessNetwork]
 						) . '</td>';
 				}
 			}

@@ -253,7 +253,7 @@ class SpecialWitness extends SpecialPage {
 		if ( !$row ) {
 			$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 			$DASmartContractAddress = $config->get( 'DASmartContractAddress' );
-			$DAWitnessNetwork = $config->get( 'DAWitnessNetwork' );
+			$WitnessNetwork = $config->get( 'WitnessNetwork' );
 			// If witness_events table doesn't have it, then insert.
 			$dbw->insert(
 				'witness_events',
@@ -267,7 +267,7 @@ class SpecialWitness extends SpecialPage {
 						$domain_manifest_verification_hash . $merkle_root
 					),
 					'smart_contract_address' => $DASmartContractAddress,
-					'witness_network' => $DAWitnessNetwork,
+					'witness_network' => $WitnessNetwork,
 				],
 				""
 			);
