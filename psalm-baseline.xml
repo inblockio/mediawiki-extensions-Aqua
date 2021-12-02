@@ -829,7 +829,7 @@
       <code>$verification_hashes[$i]</code>
     </MixedArrayAccess>
     <MixedAssignment occurrences="24">
-      <code>$DASmartContractAddress</code>
+      <code>$SmartContractAddress</code>
       <code>$WitnessNetwork</code>
       <code>$children</code>
       <code>$domainManifestVH</code>

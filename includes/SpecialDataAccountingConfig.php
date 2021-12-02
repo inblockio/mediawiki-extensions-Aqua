@@ -64,10 +64,10 @@ class SpecialDataAccountingConfig extends SpecialPage {
 		$this->getOutput()->setPageTitle( 'Data Accounting Configuration' );
 
 		$formDescriptor = [
-			'DASmartContractAddress' => [
+			'SmartContractAddress' => [
 				'label' => 'Smart Contract Address:', // Label of the field
 				'type' => 'text', // Input type
-				'default' => $this->getConfig()->get( 'DASmartContractAddress' ),
+				'default' => $this->getConfig()->get( 'SmartContractAddress' ),
 			],
 			'WitnessNetwork' => [
 				'label' => 'Witness Network:',
