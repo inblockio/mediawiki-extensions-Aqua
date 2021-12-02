@@ -25,7 +25,7 @@ function injectSignatureToPage( $titleString, $walletString, $user ) {
 
 	//Early exit if signature injection is disabled.
 	$doInject = MediaWikiServices::getInstance()->getConfigFactory()
-			->makeConfig( 'da' )->get( 'DAInjectSignature' );
+			->makeConfig( 'da' )->get( 'InjectSignature' );
 	if ( !$doInject ) {
 		return;
 	}

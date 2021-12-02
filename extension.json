@@ -26,7 +26,7 @@
 			"description": "The smart contract address used to publish for witnessing.",
 			"value": "0x45f59310ADD88E6d23ca58A0Fa7A55BEE6d2a611"
 		},
-		"DAInjectSignature": {
+		"InjectSignature": {
 			"description": "Whether to inject signature back to the page after signing.",
 			"value": true
 		}
