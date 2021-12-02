@@ -29,10 +29,6 @@
 		"DAInjectSignature": {
 			"description": "Whether to inject signature back to the page after signing.",
 			"value": true
-		},
-		"DAAPIVersion": {
-			"description": "Data Accounting API version.",
-			"value": "0.2.0"
 		}
 	},
 	"ConfigRegistry": {

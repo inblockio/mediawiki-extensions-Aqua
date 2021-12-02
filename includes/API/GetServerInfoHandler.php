@@ -5,11 +5,12 @@ namespace DataAccounting\API;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Rest\SimpleHandler;
 
+use DataAccounting\ServerInfo;
+
 class GetServerInfoHandler extends SimpleHandler {
 	/** @inheritDoc */
 	public function run(): array {
-		$apiVersion = MediaWikiServices::getInstance()->getConfigFactory()
-			->makeConfig( 'da' )->get( 'DAAPIVersion' );
+		$apiVersion = ServerInfo::DA_API_VERSION;
 		return [ 'api_version' => $apiVersion ];
 	}
 }
