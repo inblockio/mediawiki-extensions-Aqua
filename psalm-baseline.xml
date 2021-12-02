@@ -588,13 +588,6 @@
     <MixedArgument occurrences="1">
       <code>DB_MASTER</code>
     </MixedArgument>
-    <MixedArrayAccess occurrences="2">
-      <code>$data_accounting_config['smartcontractaddress']</code>
-      <code>$data_accounting_config['witnessnetwork']</code>
-    </MixedArrayAccess>
-    <MixedAssignment occurrences="1">
-      <code>$data_accounting_config</code>
-    </MixedAssignment>
     <MixedOperand occurrences="1">
       <code>getDomainId()</code>
     </MixedOperand>
@@ -978,10 +971,8 @@
     </MissingParamType>
     <MissingReturnType occurrences="5">
       <code>generateDomainId</code>
-      <code>getDataAccountingConfig</code>
       <code>getDomainId</code>
       <code>getHashSum</code>
-      <code>setDataAccountingConfig</code>
     </MissingReturnType>
     <MixedArgument occurrences="2">
       <code>$domain_id</code>
