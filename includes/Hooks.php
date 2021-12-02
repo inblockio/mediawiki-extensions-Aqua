@@ -11,7 +11,6 @@ use FormatJson;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\OutputPageParserOutputHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
-use MediaWiki\Hook\ParserGetVariableValueSwitchHook;
 use MediaWiki\Hook\SkinTemplateNavigationHook;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
@@ -33,7 +32,6 @@ require_once 'ApiUtil.php';
 class Hooks implements
 	BeforePageDisplayHook,
 	ParserFirstCallInitHook,
-	ParserGetVariableValueSwitchHook,
 	SkinTemplateNavigationHook,
 	OutputPageParserOutputHook
 {
@@ -66,23 +64,6 @@ class Hooks implements
 			->makeConfig( 'da' )->get( 'DAAPIVersion' );
 		$out->addMeta( "data-accounting-mediawiki", $wgServer );
 		$out->addMeta( "data-accounting-api-version", $apiVersion );
-	}
-
-	/**
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ParserGetVariableValueSwitch
-	 *
-	 * @param Parser $parser
-	 * @param array &$cache
-	 * @param string $magicWordId
-	 * @param string &$ret
-	 * @param PPFrame $frame
-	 */
-	public function onParserGetVariableValueSwitch( $parser, &$cache, $magicWordId, &$ret, $frame ) {
-		if ( $magicWordId === 'myword' ) {
-			// Return value and cache should match. Cache is used to save
-			// additional call when it is used multiple times on a page.
-			$ret = $cache['myword'] = wfEscapeWikiText( $GLOBALS['wgExampleMyWord'] );
-		}
 	}
 
 	/**

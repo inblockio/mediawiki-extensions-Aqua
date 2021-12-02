@@ -33,10 +33,6 @@
 		"DAAPIVersion": {
 			"description": "Data Accounting API version.",
 			"value": "0.2.0"
-		},
-		"ExampleMyWord": {
-			"description": "Value for the {{MYWORD}} magic word in wikitext.",
-			"value": "Awesome"
 		}
 	},
 	"ConfigRegistry": {
