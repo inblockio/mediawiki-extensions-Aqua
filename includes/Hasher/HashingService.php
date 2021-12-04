@@ -7,7 +7,7 @@ namespace DataAccounting\Hasher;
 require_once __DIR__ . "/../Util.php";
 
 class HashingService {
-	private string $domainId;
+	public string $domainId;
 
 	public function __construct(
 		string $domainId

@@ -63,7 +63,7 @@ class RevisionVerificationBuilder {
 		// TODO: return new RevisionVerification object. Or maybe write to the repo
 		// here, turning this into a "RevisionVerifier"?
 		return [
-			'domain_id' => getDomainId(), // TODO: inject global
+			'domain_id' => $this->hashingService->domainId,
 			// getPrefixedText() gets the page title, not page content.
 			// It includes the namespace.
 			'page_title' => $rev->getPage()->getPrefixedText(),
