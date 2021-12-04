@@ -18,6 +18,9 @@ use DataAccounting\API\RequestHashHandler;
 use DataAccounting\API\VerifyPageHandler;
 use DataAccounting\API\WriteStoreSignedTxHandler;
 
+use DataAccounting\ServerInfo;
+use DataAccounting\API\GetServerInfoHandler;
+
 /**
  * @group Database
  */
@@ -31,6 +34,21 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 
 	public function getJsonBody( $response ): array {
 		return json_decode( $response->getBody()->getContents(), true );
+	}
+
+	/**
+	 * @covers \DataAccounting\API\GetServerInfoHandler
+	 */
+	public function testGetServerInfo(): void {
+		$response = $this->executeHandler(
+			new GetServerInfoHandler(),
+			new RequestData()
+		);
+		$this->assertJsonContentType( $response );
+		$data = $this->getJsonBody( $response );
+		$this->assertIsArray( $data, 'Body must be a JSON array' );
+		$this->assertArrayHasKey( 'api_version', $data );
+		$this->assertSame( ServerInfo::DA_API_VERSION, $data['api_version'] );
 	}
 
 	/**
