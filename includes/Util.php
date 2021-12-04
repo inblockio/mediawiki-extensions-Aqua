@@ -26,15 +26,18 @@ function generateDomainId(): string {
 	return substr( $domain_id_full, 0, 10 );
 }
 
-function getDomainId(): string {
+function getDomainID(): string {
+	return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' )
+		->get( 'DomainID' );
+}
+
+function maybeGenerateDomainId(): void {
 	$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 	$domainID = (string)$config->get( 'DomainID' );
 	if ( $domainID === "UnspecifiedDomainId" ) {
 		// A default domain ID is still used, so we generate a new one
-		$domainID = generateDomainId();
-		$config->set( 'DomainID', $domainID );
+		$config->set( 'DomainID', generateDomainId() );
 	}
-	return $domainID;
 }
 
 function editPageContent( WikiPage $page, string $text, string $comment, User $user ): void {
