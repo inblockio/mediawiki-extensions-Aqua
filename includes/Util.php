@@ -15,7 +15,7 @@ function getHashSum( $inputStr ) {
 function generateRandomHash() {
 	// Returns a hash sum (calculated using getHashSum) of n characters.
 	$randomval = '';
-	for ( $i = 0; $i < 10; $i++ ) {
+	for ( $i = 0; $i < 128; $i++ ) {
 		$randomval .= chr( rand( 65, 90 ) );
 	}
 	return getHashSum( $randomval );
