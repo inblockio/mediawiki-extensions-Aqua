@@ -63,6 +63,14 @@ class SpecialDataAccountingConfig extends SpecialPage {
 		$this->getOutput()->addWikiTextAsInterface( $out );
 		$this->getOutput()->setPageTitle( 'Data Accounting Configuration' );
 
+		$witnessNetworks = [
+			'mainnet' => 'mainnet',
+			'ropsten' => 'ropsten',
+			'kovan' => 'kovan',
+			'rinkeby' => 'rinkeby',
+			'goerli' => 'goerli',
+		];
+
 		$formDescriptor = [
 			'SmartContractAddress' => [
 				'label' => 'Smart Contract Address:', // Label of the field
@@ -71,8 +79,9 @@ class SpecialDataAccountingConfig extends SpecialPage {
 			],
 			'WitnessNetwork' => [
 				'label' => 'Witness Network:',
-				'type' => 'text', // Input type
+				'type' => 'select', // Input type
 				'default' => $this->getConfig()->get( 'WitnessNetwork' ),
+				'options' => $witnessNetworks,
 			],
 		];
 
