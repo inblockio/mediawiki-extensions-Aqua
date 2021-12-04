@@ -12,16 +12,18 @@ function getHashSum( $inputStr ) {
 	return hash( "sha3-512", $inputStr, false );
 }
 
-function generateDomainId() {
-	//*todo* import public key via wizard instead of autogenerating random
-	//value
+function generateRandomHash() {
+	// Returns a hash sum (calculated using getHashSum) of n characters.
 	$randomval = '';
 	for ( $i = 0; $i < 10; $i++ ) {
 		$randomval .= chr( rand( 65, 90 ) );
 	}
-	$domain_id = getHashSum( $randomval );
-	//print $domain_id;
-	return substr( $domain_id, 0, 10 );
+	return getHashSum( $randomval );
+}
+
+function generateDomainId() {
+	$domain_id_full = generateRandomHash();
+	return substr( $domain_id_full, 0, 10 );
 }
 
 function getDomainId(): string {
