@@ -58,6 +58,11 @@
       var $daButton, color
 
       $daButton = $('#ca-daact a:first')
+      if ($daButton.length === 0) {
+        // Workaround for Tweeki theme because the #ca-daact is now tied
+        // directly to an <a>.
+        $daButton = $('#ca-daact')
+      }
       // TODO add hover text "Signs this revision with a private key. It allows adding a reason in the summary."
 
       $daButton.on('click', function (event) {
