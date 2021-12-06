@@ -32,16 +32,16 @@ require_once 'ApiUtil.php';
 //	}
 //}
 
-function shortenHash( $hash ) {
+function shortenHash2( $hash ) {
 	return substr( $hash, 0, 6 ) . "..." . substr( $hash, -6, 6 );
 }
 
 function hrefifyHashW( $hash ) {
-	return "<a href='" . $hash . "'>" . shortenHash( $hash ) . "</a>";
+	return "<a href='" . $hash . "'>" . shortenHash2( $hash ) . "</a>";
 }
 
 function wikilinkifyHash( $hash ) {
-	$shortened = shortenHash( $hash );
+	$shortened = shortenHash2( $hash );
 	return "[http://$hash $shortened]";
 }
 
