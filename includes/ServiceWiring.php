@@ -1,6 +1,7 @@
 <?php
 
 use DataAccounting\Config\Handler;
+use DataAccounting\HashLookup;
 use MediaWiki\MediaWikiServices;
 
 return [
@@ -8,5 +9,11 @@ return [
 		return new Handler(
 			$services->getDBLoadBalancer()
 		);
-	}
+	},
+	'DataAccountingHashLookup' => static function( MediaWikiServices $services ): HashLookup {
+		return new HashLookup(
+			$services->getDBLoadBalancer(),
+			$services->getRevisionStore()
+		);
+	},
 ];
