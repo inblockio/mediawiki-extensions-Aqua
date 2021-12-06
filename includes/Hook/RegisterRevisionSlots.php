@@ -16,7 +16,10 @@ class RegisterRevisionSlots implements MediaWikiServicesHook {
 			function( SlotRoleRegistry $registry ) {
 				$this->registerSignatureRole( $registry );
 				$this->registerTransclusionHashesRole( $registry );
+<<<<<<< HEAD
 				$this->registerFileVerificationRole( $registry );
+=======
+>>>>>>> 2e559fd... feat!: Keep hashmap of included resources
 			}
 		);
 	}
@@ -42,6 +45,7 @@ class RegisterRevisionSlots implements MediaWikiServicesHook {
 			[ 'display' => 'section' ]
 		);
 	}
+<<<<<<< HEAD
 
 	private function registerFileVerificationRole( SlotRoleRegistry $registry ) {
 		if ( $registry->isDefinedRole( FileVerificationContent::SLOT_ROLE_FILE_VERIFICATION ) ) {
@@ -53,4 +57,6 @@ class RegisterRevisionSlots implements MediaWikiServicesHook {
 			[ 'display' => 'section' ]
 		);
 	}
+=======
+>>>>>>> 2e559fd... feat!: Keep hashmap of included resources
 }
