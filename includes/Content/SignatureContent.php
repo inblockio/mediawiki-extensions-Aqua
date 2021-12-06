@@ -44,6 +44,9 @@ class SignatureContent extends JsonContent {
 	private function getSignatureContent( array $data ) {
 		$signatures = '';
 		foreach ( $data as $signature ) {
+			if ( !is_array( !$signatures ) ) {
+				continue;
+			}
 			$syntaxForPage =  $this->getSignatureLine( $signature );
 			if ( !$syntaxForPage ) {
 				$signatures .= 'Invalid signature';

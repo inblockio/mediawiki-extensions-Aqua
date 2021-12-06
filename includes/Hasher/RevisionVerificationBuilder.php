@@ -26,7 +26,7 @@ class RevisionVerificationBuilder {
 	public function buildVerificationData( RevisionRecord $rev ): array {
 		// CONTENT DATA HASH CALCULATOR
 		$pageContent = '';
-		foreach ( $rev->getSlots() as $slot ) {
+		foreach ( $rev->getSlots()->getSlotRoles() as $slot ) {
 			$pageContent .= $rev->getContent( $slot )->serialize();
 		}
 		$contentHash = getHashSum( $pageContent );

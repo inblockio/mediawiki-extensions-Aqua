@@ -119,7 +119,10 @@
 		"XmlDumpWriterOpenPage": "DataAccounting\\Hooks::onXmlDumpWriterOpenPage",
 		"XmlDumpWriterWriteRevision": "DataAccounting\\Hooks::onXmlDumpWriterWriteRevision",
 		"ImportHandlePageXMLTag": "DataAccounting\\Hooks::onImportHandlePageXMLTag",
-		"MediaWikiServices": "registerRevisionSlots"
+		"MediaWikiServices": [ "registerRevisionSlots", "overridePageUpdaterFactory" ],
+		"DASaveRevisionAddSlots": "addTransclusionHashes",
+		"MultiContentSave": "addTransclusionHashes",
+		"BeforeParserFetchTemplateRevisionRecord": "controlTranscludedContent"
 	},
 	"HookHandlers": {
 		"handleHooks": {
@@ -131,6 +134,17 @@
 		},
 		"registerRevisionSlots": {
 			"class": "DataAccounting\\Hook\\RegisterRevisionSlots"
+		},
+		"overridePageUpdaterFactory": {
+			"class": "DataAccounting\\Hook\\OverridePageUpdaterFactory"
+		},
+		"addTransclusionHashes": {
+			"class": "DataAccounting\\Hook\\AddTransclusionHashesOnSave",
+			"services": [ "TitleFactory" ]
+		},
+		"controlTranscludedContent": {
+			"class": "DataAccounting\\Hook\\ControlTranscludedContent",
+			"services": [ "DataAccountingHashLookup", "RevisionStore" ]
 		}
 	},
 	"RestRoutes": [
@@ -252,10 +266,11 @@
 	},
 	"ServiceWiringFiles": [
 		"includes/ExportImport/ServiceWiring.php",
-		"includes/Config/ServiceWiring.php"
+		"includes/ServiceWiring.php"
 	],
 	"ContentHandlers": {
-		"signature": "DataAccounting\\ContentHandler\\SignatureHandler"
+		"signature": "DataAccounting\\ContentHandler\\SignatureHandler",
+		"transclusion-hashes": "DataAccounting\\ContentHandler\\TransclusionHashesHandler"
 	},
 	"manifest_version": 2
 }
