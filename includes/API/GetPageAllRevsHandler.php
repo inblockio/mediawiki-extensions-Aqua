@@ -3,14 +3,14 @@
 namespace DataAccounting\API;
 
 use MediaWiki\Rest\HttpException;
-use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
+use Title;
 
 use function DataAccounting\get_page_all_revs as get_page_all_revs;
 
 require_once __DIR__ . "/../ApiUtil.php";
 
-class GetPageAllRevsHandler extends SimpleHandler {
+class GetPageAllRevsHandler extends ContextAuthorized {
 
 	/** @inheritDoc */
 	public function run( string $page_title ) {
@@ -23,11 +23,6 @@ class GetPageAllRevsHandler extends SimpleHandler {
 	}
 
 	/** @inheritDoc */
-	public function needsWriteAccess() {
-		return false;
-	}
-
-	/** @inheritDoc */
 	public function getParamSettings() {
 		return [
 			'page_title' => [
@@ -36,5 +31,10 @@ class GetPageAllRevsHandler extends SimpleHandler {
 				ParamValidator::PARAM_REQUIRED => true,
 			],
 		];
+	}
+
+	/** @inheritDoc */
+	protected function provideTitle( string $pageName ): ?Title {
+		return $this->titleFactory->newFromText( $pageName );
 	}
 }

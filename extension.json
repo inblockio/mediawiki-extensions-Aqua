@@ -144,7 +144,11 @@
 		},
 		{
 			"path": "/data_accounting/get_page_all_revs/{page_title}",
-			"class": "DataAccounting\\API\\GetPageAllRevsHandler"
+			"class": "DataAccounting\\API\\GetPageAllRevsHandler",
+			"services": [
+				"PermissionManager",
+				"TitleFactory"
+			]
 		},
 		{
 			"path": "/data_accounting/get_page_last_rev/{page_title}",
