@@ -174,7 +174,12 @@
 		},
 		{
 			"path": "/data_accounting/request_hash/{rev_id}",
-			"class": "DataAccounting\\API\\RequestHashHandler"
+			"class": "DataAccounting\\API\\RequestHashHandler",
+			"services": [
+				"PermissionManager",
+				"DBLoadBalancer",
+				"RevisionLookup"
+			]
 		},
 		{
 			"method": "POST",
