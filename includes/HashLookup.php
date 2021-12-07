@@ -2,6 +2,7 @@
 
 namespace DataAccounting;
 
+use File;
 use MediaWiki\Storage\RevisionRecord;
 use MediaWiki\Storage\RevisionStore;
 use Wikimedia\Rdbms\ILoadBalancer;
@@ -30,5 +31,28 @@ class HashLookup {
 		}
 
 		return $this->revisionStore->getRevisionById( $res->rev_id );
+	}
+
+	/**
+	 * @param string $hash
+	 * @param File $file
+	 * @return File|null
+	 */
+	public function getFileForHash( string $hash, File $file ): ?File {
+		$revision = $this->getRevisionForHash( $hash );
+		if ( !$revision ) {
+			return null;
+		}
+		if ( $revision->isCurrent() ) {
+			return $file;
+		}
+		$oldFiles = $file->getHistory();
+		foreach( $oldFiles as $oldFile ) {
+			if ( $oldFile->getTimestamp() === $revision->getTimestamp() ) {
+				return $oldFile;
+			}
+		}
+
+		return null;
 	}
 }

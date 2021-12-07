@@ -122,7 +122,8 @@
 		"MediaWikiServices": [ "registerRevisionSlots", "overridePageUpdaterFactory" ],
 		"DASaveRevisionAddSlots": "addTransclusionHashes",
 		"MultiContentSave": "addTransclusionHashes",
-		"BeforeParserFetchTemplateRevisionRecord": "controlTranscludedContent"
+		"BeforeParserFetchTemplateRevisionRecord": "controlTranscludedContent",
+		"BeforeParserFetchFileAndTitle": "controlTranscludedContent"
 	},
 	"HookHandlers": {
 		"handleHooks": {
@@ -144,7 +145,7 @@
 		},
 		"controlTranscludedContent": {
 			"class": "DataAccounting\\Hook\\ControlTranscludedContent",
-			"services": [ "DataAccountingHashLookup", "RevisionStore" ]
+			"services": [ "DataAccountingHashLookup", "RevisionStore", "RepoGroup" ]
 		}
 	},
 	"RestRoutes": [
