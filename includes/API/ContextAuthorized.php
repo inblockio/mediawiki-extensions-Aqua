@@ -78,7 +78,7 @@ abstract class ContextAuthorized extends SimpleHandler {
 				continue;
 			}
 			throw new HttpException(
-				"Permission denied for \"$permission\" on {$title->getFullText()}"
+				"Permission denied for '$permission' on '{$title->getFullText()}'"
 			);
 		}
 	}
