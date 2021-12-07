@@ -6,7 +6,6 @@ use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
 use LogicException;
-use PermissionsError;
 use RequestContext;
 
 abstract class ContextAuthorized extends SimpleHandler {
@@ -71,14 +70,16 @@ abstract class ContextAuthorized extends SimpleHandler {
 		// @phan-suppress-next-line PhanUndeclaredMethod
 		$title = $this->provideTitle( ...func_get_args() );
 		if ( !$title ) {
-			throw new HttpException( "No title provided for permission check", 404 );
+			throw new HttpException( "No title provided for permission check", 403 );
 		}
 		$user = RequestContext::getMain()->getUser();
 		foreach ( $this->getPermissions() as $permission ) {
 			if ( $this->permissionManager->userCan( $permission, $user, $title ) ) {
 				continue;
 			}
-			throw new PermissionsError( $permission );
+			throw new HttpException(
+				"Permission denied for \"$permission\" on {$title->getFullText()}"
+			);
 		}
 	}
 }
