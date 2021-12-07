@@ -2,38 +2,56 @@
 
 namespace DataAccounting\API;
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Rest\HttpException;
-use MediaWiki\Rest\SimpleHandler;
+use MediaWiki\Permissions\PermissionManager;
+use MediaWiki\Revision\RevisionLookup;
+use Title;
 use Wikimedia\ParamValidator\ParamValidator;
+use Wikimedia\Rdbms\LoadBalancer;
 
-class GetPageByRevIdHandler extends SimpleHandler {
+class GetPageByRevIdHandler extends ContextAuthorized {
+	/**
+	 * @var LoadBalancer 
+	 */
+	protected $loadBalancer;
+
+	/**
+	 * @var RevisionLookup
+	 */
+	protected $revisionLookup;
+
+	/**
+	 * @param PermissionManager $permissionManager
+	 * @param LoadBalancer $loadBalancer
+	 * @param RevisionLookup $revisionLookup
+	 */
+	public function __construct(
+		PermissionManager $permissionManager,
+		LoadBalancer $loadBalancer,
+		RevisionLookup $revisionLookup
+	) {
+		parent::__construct( $permissionManager );
+		$this->loadBalancer = $loadBalancer;
+		$this->revisionLookup = $revisionLookup;
+	}
 
 	/** @inheritDoc */
 	public function run( $rev_id ) {
-		#Expects Revision_ID as input and returns page_title and page_id
-		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr = $lb->getConnectionRef( DB_REPLICA );
-		$resRow = $dbr->selectRow(
+		$res = $this->loadBalancer->getConnectionRef( DB_REPLICA )->selectRow(
 			'revision_verification',
 			[ 'rev_id', 'page_title', 'page_id' ],
 			[ 'rev_id' => $rev_id ],
 			__METHOD__
 		);
 
-		if ( !$resRow ) {
+		if ( !$res ) {
 			throw new HttpException( "rev_id not found in the database", 404 );
 		}
 
 		return [
-			'page_title' => $resRow->page_title,
-			'page_id' => $resRow->page_id,
+			'page_title' => $res->page_title,
+			'page_id' => $res->page_id,
 		];
-	}
-
-	/** @inheritDoc */
-	public function needsWriteAccess() {
-		return false;
 	}
 
 	/** @inheritDoc */
@@ -45,5 +63,14 @@ class GetPageByRevIdHandler extends SimpleHandler {
 				ParamValidator::PARAM_REQUIRED => true,
 			],
 		];
+	}
+
+	/** @inheritDoc */
+	protected function provideTitle( int $revId ): ?Title {
+		$revisionRecord = $this->revisionLookup->getRevisionById( $revId );
+		if ( !$revisionRecord ) {
+			throw new HttpException( "invalid rev_id", 404 );
+		}
+		return $revisionRecord->getPageAsLinkTarget();
 	}
 }

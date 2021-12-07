@@ -2,41 +2,59 @@
 
 namespace DataAccounting\API;
 
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
-use MediaWiki\Rest\SimpleHandler;
+use Title;
+use TitleFactory;
 use Wikimedia\ParamValidator\ParamValidator;
+use Wikimedia\Rdbms\LoadBalancer;
 
-class GetPageLastRevHandler extends SimpleHandler {
+class GetPageLastRevHandler extends ContextAuthorized {
+
+	/**
+	 * @var LoadBalancer 
+	 */
+	protected $loadBalancer;
+
+	/**
+	 * @var TitleFactory
+	 */
+	protected $titleFactory;
+
+	/**
+	 * @param PermissionManager $permissionManager
+	 * @param LoadBalancer $loadBalancer
+	 * @param TitleFactory $titleFactory
+	 */
+	public function __construct(
+		PermissionManager $permissionManager,
+		LoadBalancer $loadBalancer,
+		TitleFactory $titleFactory
+	) {
+		parent::__construct( $permissionManager );
+		$this->loadBalancer = $loadBalancer;
+		$this->titleFactory = $titleFactory;
+	}
 
 	/** @inheritDoc */
 	public function run( $page_title ) {
-		#Expects Page Title and returns LAST verified revision
-		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr = $lb->getConnectionRef( DB_REPLICA );
-		// TODO use max(rev_id) instead
-		$row = $dbr->selectRow(
+		$res = $this->loadBalancer->getConnectionRef( DB_REPLICA )->selectRow(
 			'revision_verification',
 			[ 'rev_id', 'page_title', 'page_id', 'verification_hash' ],
 			[ 'page_title' => $page_title ],
 			__METHOD__,
 			[ 'ORDER BY' => 'rev_id DESC' ]
 		);
-		if ( !$row ) {
+		if ( !$res ) {
 			throw new HttpException( "page_title not found in the database", 404 );
 		}
 		$output = [
-			'page_title' => $row->page_title,
-			'page_id' => $row->page_id,
-			'rev_id' => $row->rev_id,
-			'verification_hash' => $row->verification_hash,
+			'page_title' => $res->page_title,
+			'page_id' => $res->page_id,
+			'rev_id' => $res->rev_id,
+			'verification_hash' => $res->verification_hash,
 		];
 		return $output;
-	}
-
-	/** @inheritDoc */
-	public function needsWriteAccess() {
-		return false;
 	}
 
 	/** @inheritDoc */
@@ -48,5 +66,10 @@ class GetPageLastRevHandler extends SimpleHandler {
 				ParamValidator::PARAM_REQUIRED => true,
 			],
 		];
+	}
+
+	/** @inheritDoc */
+	protected function provideTitle( string $pageName ): ?Title {
+		return $this->titleFactory->newFromText( $pageName );
 	}
 }

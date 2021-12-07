@@ -2,15 +2,34 @@
 
 namespace DataAccounting\API;
 
+use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use Wikimedia\ParamValidator\ParamValidator;
 use Title;
+use TitleFactory;
 
 use function DataAccounting\get_page_all_revs as get_page_all_revs;
 
 require_once __DIR__ . "/../ApiUtil.php";
 
 class GetPageAllRevsHandler extends ContextAuthorized {
+
+	/**
+	 * @var TitleFactory
+	 */
+	protected $titleFactory;
+
+	/**
+	 * @param PermissionManager $permissionManager
+	 * @param TitleFactory $titleFactory
+	 */
+	public function __construct(
+			PermissionManager $permissionManager,
+			TitleFactory $titleFactory
+		) {
+		parent::__construct( $permissionManager );
+		$this->titleFactory = $titleFactory;
+	}
 
 	/** @inheritDoc */
 	public function run( string $page_title ) {

@@ -2,14 +2,11 @@
 
 namespace DataAccounting\API;
 
-use HttpException;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
 use LogicException;
 use PermissionsError;
-use Title;
-use TitleFactory;
 use RequestContext;
 
 abstract class ContextAuthorized extends SimpleHandler {
@@ -20,20 +17,10 @@ abstract class ContextAuthorized extends SimpleHandler {
 	protected $permissionManager;
 
 	/**
-	 * @var TitleFactory
-	 */
-	protected $titleFactory;
-
-	/**
 	 * @param PermissionManager $permissionManager
-	 * @param TitleFactory $titleFactory
 	 */
-	public function __construct(
-		PermissionManager $permissionManager,
-		TitleFactory $titleFactory
-	) {
+	public function __construct( PermissionManager $permissionManager ) {
 		$this->permissionManager = $permissionManager;
-		$this->titleFactory = $titleFactory;
 	}
 
 	public function execute() {
@@ -80,14 +67,8 @@ abstract class ContextAuthorized extends SimpleHandler {
 		return [ 'read' ];
 	}
 
-	/**
-	 * @params mixed ...$params - undisclosed number of mixed params defined by
-	 * the rest routs
-	 * @return Title|null
-	 */
-	abstract protected function provideTitle(): ?Title;
-
 	protected function checkPermission() {
+		// @phan-suppress-next-line PhanUndeclaredMethod
 		$title = $this->provideTitle( ...func_get_args() );
 		if ( !$title ) {
 			throw new HttpException( "No title provided for permission check", 404 );

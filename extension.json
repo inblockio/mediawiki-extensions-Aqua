@@ -140,7 +140,12 @@
 		},
 		{
 			"path": "/data_accounting/get_page_by_rev_id/{rev_id}",
-			"class": "DataAccounting\\API\\GetPageByRevIdHandler"
+			"class": "DataAccounting\\API\\GetPageByRevIdHandler",
+			"services": [
+				"PermissionManager",
+				"DBLoadBalancer",
+				"RevisionLookup"
+			]
 		},
 		{
 			"path": "/data_accounting/get_page_all_revs/{page_title}",
@@ -152,7 +157,12 @@
 		},
 		{
 			"path": "/data_accounting/get_page_last_rev/{page_title}",
-			"class": "DataAccounting\\API\\GetPageLastRevHandler"
+			"class": "DataAccounting\\API\\GetPageLastRevHandler",
+			"services": [
+				"PermissionManager",
+				"DBLoadBalancer",
+				"TitleFactory"
+			]
 		},
 		{
 			"path": "/data_accounting/get_witness_data/{witness_event_id}",
