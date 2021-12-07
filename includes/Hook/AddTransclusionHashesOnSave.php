@@ -24,6 +24,11 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		$this->titleFactory = $titleFactory;
 	}
 
+	/**
+	 * // TODO: Issue: This will allow null edits and clear out hashes!
+	 *
+	 * @param PageUpdater $updater
+	 */
 	public function onDASaveRevisionAddSlots( PageUpdater $updater ) {
 		// This happens before saving of revision is initiated
 		// We create an empty content for the hashes and store reference to it
@@ -32,6 +37,14 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		$updater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $this->content );
 	}
 
+	/**
+	 * @param \MediaWiki\Revision\RenderedRevision $renderedRevision
+	 * @param \MediaWiki\User\UserIdentity $user
+	 * @param \CommentStoreComment $summary
+	 * @param int $flags
+	 * @param \Status $status
+	 * @return bool|void
+	 */
 	public function onMultiContentSave( $renderedRevision, $user, $summary, $flags, $status ) {
 		// At this point we are in the middle of saving, all content slots for this edit must already
 		// be inserted, and page was just parsed (but not saved yet)
