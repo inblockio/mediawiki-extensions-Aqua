@@ -2,6 +2,7 @@
 
 use DataAccounting\Config\Handler;
 use DataAccounting\HashLookup;
+use DataAccounting\TransclusionManager;
 use MediaWiki\MediaWikiServices;
 
 return [
@@ -16,4 +17,10 @@ return [
 			$services->getRevisionStore()
 		);
 	},
+	'DataAccountingTransclusionManager' => static function( MediaWikiServices $services ): TransclusionManager {
+		return new TransclusionManager(
+			$services->getTitleFactory(),
+			$services->get( 'DataAccountingHashLookup' )
+		);
+	}
 ];

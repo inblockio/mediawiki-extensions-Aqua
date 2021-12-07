@@ -145,7 +145,7 @@
 		},
 		"controlTranscludedContent": {
 			"class": "DataAccounting\\Hook\\ControlTranscludedContent",
-			"services": [ "DataAccountingHashLookup", "RevisionStore", "RepoGroup" ]
+			"services": [ "DataAccountingTransclusionManager", "RevisionStore", "RepoGroup" ]
 		}
 	},
 	"RestRoutes": [
