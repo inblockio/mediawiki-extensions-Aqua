@@ -38,6 +38,8 @@ class TransclusionHashExtractor {
 		$titles = [];
 		$this->parseImages( $titles );
 		$this->parseTemplates( $titles );
+		// This is not necessary since it does not change content,
+		// but we might need it in the future
 		$this->parseLinks( $titles );
 
 		$this->retrieveHashes( $titles );
