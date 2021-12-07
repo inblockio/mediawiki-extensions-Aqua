@@ -2,8 +2,7 @@
 
 namespace DataAccounting\Hook;
 
-use DataAccounting\Content\TransclusionHashes;
-use DataAccounting\HashLookup;
+use DataAccounting\TransclusionManager;
 use MediaWiki\Hook\BeforeParserFetchFileAndTitleHook;
 use MediaWiki\Hook\BeforeParserFetchTemplateRevisionRecordHook;
 use MediaWiki\Linker\LinkTarget;
@@ -15,20 +14,22 @@ use RepoGroup;
 use Title;
 
 class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionRecordHook, BeforeParserFetchFileAndTitleHook {
-	/** @var HashLookup */
-	private HashLookup $hashLookup;
+	/** @var TransclusionManager */
+	private TransclusionManager $transclusionManager;
 	/** @var RevisionStore */
 	private RevisionStore $revisionStore;
 	/** @var RepoGroup */
 	private RepoGroup $repoGroup;
 
 	/**
-	 * @param HashLookup $hashLookup
+	 * @param TransclusionManager $transclusionManager
 	 * @param RevisionStore $revisionStore
 	 * @param RepoGroup $repoGroup
 	 */
-	public function __construct( HashLookup $hashLookup, RevisionStore $revisionStore, RepoGroup $repoGroup ) {
-		$this->hashLookup = $hashLookup;
+	public function __construct(
+		TransclusionManager $transclusionManager, RevisionStore $revisionStore, RepoGroup $repoGroup
+	) {
+		$this->transclusionManager = $transclusionManager;
 		$this->revisionStore = $revisionStore;
 		$this->repoGroup = $repoGroup;
 	}
@@ -63,15 +64,15 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 			return true;
 		}
 
-		$hashes = $this->getHashesForRevision( $revision );
-		$hash = $this->getHashForTitle( $hashes, $nt );
+		$hashes = $this->transclusionManager->getTransclusionHashes( $revision );
+		$hash = $this->transclusionManager->getHashForTitle( $hashes, $nt );
 		if ( $hash === null ) {
 			// Image did not exist at the time of hashing, show broken link
 			$options['broken'] = true;
 			return true;
 		}
 
-		$oldFile = $this->hashLookup->getFileForHash( $hash, $file );
+		$oldFile = $this->transclusionManager->getFileForHash( $hash, $file );
 		if ( $oldFile->getSha1() === $file->getSha1() && $oldFile->getTimestamp() === $file->getTimestamp() ) {
 			// Showing latest
 			return true;
@@ -97,16 +98,16 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 		if ( !$revision ) {
 			return;
 		}
-		$hashes = $this->getHashesForRevision( $revision );
+		$hashes = $this->transclusionManager->getTransclusionHashes( $revision );
 		if ( empty( $hashes ) ) {
 			return;
 		}
-		$hash = $this->getHashForTitle( $hashes, $title );
+		$hash = $this->transclusionManager->getHashForTitle( $hashes, $title );
 		if ( $hash === null ) {
 			$skip = true;
 			return;
 		}
-		$revRecord = $this->hashLookup->getRevisionForHash( $hash );
+		$revRecord = $this->transclusionManager->getRevisionForHash( $hash );
 	}
 
 	/**
@@ -119,28 +120,5 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 			return $this->revisionStore->getRevisionByTitle( $title );
 		}
 		return $this->revisionStore->getRevisionById( $oldid );
-	}
-
-	private function getHashesForRevision( RevisionRecord $revision ) {
-		$content = $revision->getContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES );
-		if ( !$content instanceof TransclusionHashes ) {
-			return [];
-		}
-		return $content->getResourceHashes();
-	}
-
-	/**
-	 * @param array $hashes
-	 * @param LinkTarget|PageReference $title
-	 * @return string|null
-	 */
-	private function getHashForTitle( array $hashes, $title ): ?string {
-		foreach ( $hashes as $hashEntity ) {
-			if ( $title->getNamespace() === $hashEntity->ns && $title->getDBkey() === $hashEntity->dbkey ) {
-				return $hashEntity->hash;
-			}
-		}
-
-		return null;
 	}
 }
