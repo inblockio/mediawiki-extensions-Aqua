@@ -136,7 +136,12 @@
 		},
 		{
 			"path": "/data_accounting/verify_page/{rev_id}",
-			"class": "DataAccounting\\API\\VerifyPageHandler"
+			"class": "DataAccounting\\API\\VerifyPageHandler",
+			"services": [
+				"PermissionManager",
+				"DBLoadBalancer",
+				"RevisionLookup"
+			]
 		},
 		{
 			"path": "/data_accounting/get_page_by_rev_id/{rev_id}",
