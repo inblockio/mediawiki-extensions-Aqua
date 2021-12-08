@@ -243,10 +243,19 @@
 			"services": [
 				"PermissionManager"
 			]
+		},
+		{
+			"method": "POST",
+			"path": "/data_accounting/transclusion/update_hash/{page_title}/{resource}",
+			"class": "DataAccounting\\API\\TransclusionHashUpdater",
+			"services": [
+				"DataAccountingTransclusionManager", "TitleFactory", "RevisionStore"
+			]
 		}
 	],
 	"ResourceFileModulePaths": {
-		"localBasePath": "modules/"
+		"localBasePath": "modules/",
+		"remoteExtPath": "DataAccounting/modules/"
 	},
 	"ResourceModules": {
 		"ext.DataAccounting.signMessage": {
@@ -262,6 +271,11 @@
 			"scripts": [
 				"publishDomainManifest/index.js",
 				"publishDomainManifest/init.js"
+			]
+		},
+		"ext.dataAccounting.updateTransclusionHashes": {
+			"scripts": [
+				"ext.dataAccounting.updateTransclusionHashes.js"
 			]
 		}
 	},

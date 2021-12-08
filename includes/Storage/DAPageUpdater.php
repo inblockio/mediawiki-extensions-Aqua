@@ -26,6 +26,8 @@ use WikiPage;
 class DAPageUpdater extends PageUpdater {
 	/** @var HookContainer */
 	private $hookContainer;
+	/** @var bool */
+	private $shouldEmit = true;
 
 	/**
 	 * @inheritDoc
@@ -51,8 +53,24 @@ class DAPageUpdater extends PageUpdater {
 	public function saveRevision( CommentStoreComment $summary, int $flags = 0 )  {
 		// CUSTOM PART START
 		// We fire a hook to allow subscribers to add their own contents to slots
-		$this->hookContainer->run( 'DASaveRevisionAddSlots', [ $this ] );
+		if ( $this->shouldEmit ) {
+			$this->hookContainer->run( 'DASaveRevisionAddSlots', [ $this ] );
+		}
 		// CUSTOM PART END
 		return parent::saveRevision( $summary, $flags );
+	}
+
+	/**
+	 * Turn off all subscribers to save event
+	 */
+	public function subscribersOff() {
+		$this->shouldEmit = false;
+	}
+
+	/**
+	 * Turn on all subscribers to save event
+	 */
+	public function subscribersOn() {
+		$this->shouldEmit = true;
 	}
 }
