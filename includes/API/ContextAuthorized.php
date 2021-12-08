@@ -46,6 +46,7 @@ abstract class ContextAuthorized extends SimpleHandler {
 		$this->checkPermission( ...$params );
 
 		// @phan-suppress-next-line PhanUndeclaredMethod
+		// @phpstan-ignore-next-line
 		return $this->run( ...$params );
 	}
 
@@ -68,6 +69,7 @@ abstract class ContextAuthorized extends SimpleHandler {
 
 	protected function checkPermission() {
 		// @phan-suppress-next-line PhanUndeclaredMethod
+		// @phpstan-ignore-next-line
 		$title = $this->provideTitle( ...func_get_args() );
 		if ( !$title ) {
 			throw new HttpException( "No title provided for permission check", 403 );
