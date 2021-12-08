@@ -2,10 +2,8 @@
 
 namespace DataAccounting\ContentHandler;
 
-use Content;
 use DataAccounting\Content\TransclusionHashes;
 use JsonContentHandler;
-use MediaWiki\Content\Transform\PreSaveTransformParams;
 
 class TransclusionHashesHandler extends JsonContentHandler {
 	/**
@@ -55,10 +53,5 @@ class TransclusionHashesHandler extends JsonContentHandler {
 	 */
 	public function supportsDirectEditing() {
 		return false;
-	}
-
-	public function preSaveTransform( Content $content, PreSaveTransformParams $pstParams ): Content {
-		erroR_log( "PR: " . spl_object_id( $content ) );
-		return $content;
 	}
 }

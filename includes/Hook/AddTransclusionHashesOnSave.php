@@ -12,8 +12,8 @@ use MediaWiki\Storage\SlotRecord;
 use TitleFactory;
 
 class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisionAddSlotsHook {
-	/** @var TransclusionHashes */
-	private $content;
+	/** @var TransclusionHashes|null */
+	private $content = null;
 	/** @var TitleFactory */
 	private $titleFactory;
 
@@ -46,6 +46,9 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	 * @return bool|void
 	 */
 	public function onMultiContentSave( $renderedRevision, $user, $summary, $flags, $status ) {
+		if ( !$this->content ) {
+			return;
+		}
 		// At this point we are in the middle of saving, all content slots for this edit must already
 		// be inserted, and page was just parsed (but not saved yet)
 		$po = $renderedRevision->getSlotParserOutput( SlotRecord::MAIN );
