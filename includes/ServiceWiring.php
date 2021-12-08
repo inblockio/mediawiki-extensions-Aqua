@@ -20,7 +20,9 @@ return [
 	'DataAccountingTransclusionManager' => static function( MediaWikiServices $services ): TransclusionManager {
 		return new TransclusionManager(
 			$services->getTitleFactory(),
-			$services->get( 'DataAccountingHashLookup' )
+			$services->get( 'DataAccountingHashLookup' ),
+			$services->getPageUpdaterFactory(),
+			$services->getWikiPageFactory()
 		);
 	}
 ];
