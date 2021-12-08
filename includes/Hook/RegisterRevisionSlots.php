@@ -5,7 +5,10 @@ namespace DataAccounting\Hook;
 use DataAccounting\Content\FileVerificationContent;
 use DataAccounting\Content\SignatureContent;
 use DataAccounting\Content\TransclusionHashes;
+use DataAccounting\SlotRoleHandler\SignatureSlotHandler;
+use DataAccounting\SlotRoleHandler\TransclusionHashesSlotHandler;
 use MediaWiki\Hook\MediaWikiServicesHook;
+use MediaWiki\Revision\SlotRoleHandler;
 use MediaWiki\Revision\SlotRoleRegistry;
 
 class RegisterRevisionSlots implements MediaWikiServicesHook {
@@ -28,10 +31,11 @@ class RegisterRevisionSlots implements MediaWikiServicesHook {
 		if ( $registry->isDefinedRole( SignatureContent::SLOT_ROLE_SIGNATURE ) ) {
 			return;
 		}
-		$registry->defineRoleWithModel(
+		$registry->defineRole(
 			SignatureContent::SLOT_ROLE_SIGNATURE,
-			SignatureContent::CONTENT_MODEL_SIGNATURE,
-			[ 'display' => 'section' ]
+			static function ( $role ) {
+				return new SignatureSlotHandler( $role );
+			}
 		);
 	}
 
@@ -39,10 +43,11 @@ class RegisterRevisionSlots implements MediaWikiServicesHook {
 		if ( $registry->isDefinedRole( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES ) ) {
 			return;
 		}
-		$registry->defineRoleWithModel(
+		$registry->defineRole(
 			TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES,
-			TransclusionHashes::CONTENT_MODEL_TRANSCLUSION_HASHES,
-			[ 'display' => 'section' ]
+			static function ( $role ) {
+				return new TransclusionHashesSlotHandler( $role );
+			}
 		);
 	}
 <<<<<<< HEAD

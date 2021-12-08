@@ -110,6 +110,7 @@ class TransclusionManager {
 			return null;
 		}
 		return $content;
+
 	}
 
 	/**
