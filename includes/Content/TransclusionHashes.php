@@ -180,6 +180,7 @@ class TransclusionHashes extends JsonContent {
 		return json_encode( $toSerialize );
 	}
 
+
 	/**
 	 * @return array
 	 */
