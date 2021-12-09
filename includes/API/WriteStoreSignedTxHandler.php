@@ -20,6 +20,43 @@ use User;
 require_once __DIR__ . "/../ApiUtil.php";
 require_once __DIR__ . "/../Util.php";
 
+function injectSignatureToPage( string $titleString, string $walletString, User $user ) {
+	//Get the article object with $title
+	$title = Title::newFromText( $titleString, 0 );
+	$page = new WikiPage( $title );
+	$pageText = $page->getContent()->getText();
+
+	//Early exit if signature injection is disabled.
+	$doInject = MediaWikiServices::getInstance()->getConfigFactory()
+			->makeConfig( 'da' )->get( 'InjectSignature' );
+	if ( !$doInject ) {
+		return;
+	}
+
+	$anchorString = "<div style=\"font-weight:bold;line-height:1.6;\">Data Accounting Signatures</div><div class=\"mw-collapsible-content\">";
+	$anchorLocation = strpos( $pageText, $anchorString );
+	if ( $anchorLocation === false ) {
+		$text = $pageText . "<br><br><hr>";
+		$text .= "<div class=\"toccolours mw-collapsible mw-collapsed\">";
+		$text .= $anchorString;
+		//Adding visual signature
+		$text .= "~~~~ <br>";
+		$text .= "</div>";
+	} else {
+		//insert only signature
+		$newEntry = "~~~~ <br>";
+		$text = substr_replace(
+			$pageText,
+			$newEntry,
+			$anchorLocation + strlen( $anchorString ),
+			0
+		);
+	}
+	// We create a new content using the old content, and append $text to it.
+	$comment = "Page signed by wallet: " . $walletString;
+	editPageContent( $page, $text, $comment, $user );
+}
+
 class WriteStoreSignedTxHandler extends SimpleHandler {
 
 	/** @var PermissionManager */
@@ -100,7 +137,7 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 
 		# Inject signature to the wiki page.
 		# See https://github.com/inblockio/DataAccounting/issues/84
-		$this->injectSignatureToPage( $title, $wallet_address, $this->user );
+		injectSignatureToPage( $title, $wallet_address, $this->user );
 
 		return true;
 	}
@@ -143,47 +180,5 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 				ParamValidator::PARAM_REQUIRED => true,
 			],
 		] );
-	}
-
-	/**
-	 * @param string $titleString
-	 * @param string $walletString
-	 * @param User $user
-	 */
-	private function injectSignatureToPage( string $titleString, string $walletString, User $user ) {
-		//Get the article object with $title
-		$title = Title::newFromText( $titleString, 0 );
-		$page = new WikiPage( $title );
-		$pageText = $page->getContent()->getText();
-
-		//Early exit if signature injection is disabled.
-		$doInject = MediaWikiServices::getInstance()->getConfigFactory()
-				->makeConfig( 'da' )->get( 'InjectSignature' );
-		if ( !$doInject ) {
-			return;
-		}
-
-		$anchorString = "<div style=\"font-weight:bold;line-height:1.6;\">Data Accounting Signatures</div><div class=\"mw-collapsible-content\">";
-		$anchorLocation = strpos( $pageText, $anchorString );
-		if ( $anchorLocation === false ) {
-			$text = $pageText . "<br><br><hr>";
-			$text .= "<div class=\"toccolours mw-collapsible mw-collapsed\">";
-			$text .= $anchorString;
-			//Adding visual signature
-			$text .= "~~~~ <br>";
-			$text .= "</div>";
-		} else {
-			//insert only signature
-			$newEntry = "~~~~ <br>";
-			$text = substr_replace(
-				$pageText,
-				$newEntry,
-				$anchorLocation + strlen( $anchorString ),
-				0
-			);
-		}
-		// We create a new content using the old content, and append $text to it.
-		$comment = "Page signed by wallet: " . $walletString;
-		editPageContent( $page, $text, $comment, $user );
 	}
 }
