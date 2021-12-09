@@ -64,10 +64,13 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 			return true;
 		}
 
-		$hashes = $this->transclusionManager->getTransclusionHashes( $revision );
-		$hash = $this->transclusionManager->getHashForTitle( $hashes, $nt );
+		$hashContent = $this->transclusionManager->getTransclusionHashesContent( $revision );
+		if ( !$hashContent ) {
+			return true;
+		}
+		$hash = $hashContent->getHashForResource( $nt );
 		if ( !$hash ) {
-			// Image did not exist at the time of hashing, show broken link
+			// Image did not exist at the time of hashing, or not listed => show broken link
 			$options['broken'] = true;
 			return true;
 		}
@@ -98,11 +101,11 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 		if ( !$revision ) {
 			return;
 		}
-		$hashes = $this->transclusionManager->getTransclusionHashes( $revision );
-		if ( empty( $hashes ) ) {
+		$content = $this->transclusionManager->getTransclusionHashesContent( $revision );
+		if ( !$content ) {
 			return;
 		}
-		$hash = $this->transclusionManager->getHashForTitle( $hashes, $title );
+		$hash = $content->getHashForResource( $title );
 		if ( !$hash ) {
 			$skip = true;
 			return;

@@ -5,11 +5,10 @@ namespace DataAccounting;
 use CommentStoreComment;
 use DataAccounting\Content\TransclusionHashes;
 use File;
-use MediaWiki\Linker\LinkTarget;
-use MediaWiki\Page\PageReference;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\PageUpdaterFactory;
+use MediaWiki\Storage\RevisionStore;
 use MediaWiki\User\UserIdentity;
 use Title;
 use TitleFactory;
@@ -18,11 +17,14 @@ class TransclusionManager {
 	public const STATE_NEW_VERSION = 'new-version';
 	public const STATE_HASH_CHANGED = 'hash-changed';
 	public const STATE_UNCHANGED = 'unchanged';
+	public const STATE_INVALID = 'invalid';
 
 	/** @var TitleFactory */
 	private TitleFactory $titleFactory;
 	/** @var HashLookup */
 	private HashLookup $hashLookup;
+	/** @var RevisionStore */
+	private RevisionStore $revisionStore;
 	/** @var PageUpdaterFactory */
 	private PageUpdaterFactory $pageUpdaterFactory;
 	/** @var WikiPageFactory */
@@ -34,11 +36,12 @@ class TransclusionManager {
 	 * @param PageUpdaterFactory $pageUpdaterFactory
 	 */
 	public function __construct(
-		TitleFactory $titleFactory, HashLookup $hashLookup,
+		TitleFactory $titleFactory, HashLookup $hashLookup, RevisionStore $revisionStore,
 		PageUpdaterFactory $pageUpdaterFactory, WikiPageFactory $wikiPageFactory
 	) {
 		$this->titleFactory = $titleFactory;
 		$this->hashLookup = $hashLookup;
+		$this->revisionStore = $revisionStore;
 		$this->pageUpdaterFactory = $pageUpdaterFactory;
 		$this->wikiPageFactory = $wikiPageFactory;
 	}
@@ -53,25 +56,36 @@ class TransclusionManager {
 	 */
 	public function getTransclusionState( RevisionRecord $revision ): array {
 		$states = [];
-		$transclusions = $this->getTransclusionHashes( $revision );
+		$hashContent = $this->getTransclusionHashesContent( $revision );
+		if ( !$hashContent ) {
+			return [];
+		}
+		$transclusions = $hashContent->getResourceHashes();
 		foreach ( $transclusions as $transclusion ) {
 			$title = $this->titleFactory->makeTitle( $transclusion->ns, $transclusion->dbkey );
 			$latestHash = $this->hashLookup->getLatestHashForTitle( $title );
 			$state = [
 				'titleObject' => $title,
-				'hash' => $transclusion->hash,
 			];
-			if ( $latestHash !== $transclusion->hash ) {
+			if ( $latestHash !== $transclusion->hash_content ) {
 				$state['state'] = static::STATE_NEW_VERSION;
-				$state['newHash'] = $latestHash;
 			} else {
 				$state['state'] = static::STATE_UNCHANGED;
 			}
-			if ( $transclusion->hash !== null ) {
-				$hashExists = $this->hashLookup->getRevisionForHash( $transclusion->hash ) !== null;
+			if ( $transclusion->hash_content !== null ) {
+				$hashExists = $this->hashLookup->getRevisionForHash( $transclusion->hash_content ) !== null;
 				if ( !$hashExists ) {
 					$state['state'] = static::STATE_HASH_CHANGED;
-					$state['newHash'] = $this->hashLookup->getHashForRevision( $revision );
+				}
+				$resourceRevision = $this->revisionStore->getRevisionById(
+					$transclusion->revid, 0, $title
+				);
+				if ( !$resourceRevision ) {
+					$state['state'] = static::STATE_INVALID;
+				}
+				if ( $this->calculateRevisionResourceContentHash( $resourceRevision ) !== $transclusion->hash_content ) {
+					// TODO: Verification of another page should go to some separate implementation
+					$state['state'] = static::STATE_HASH_CHANGED;
 				}
 			}
 
@@ -83,29 +97,14 @@ class TransclusionManager {
 
 	/**
 	 * @param RevisionRecord $revision
-	 * @return array
+	 * @return TransclusionHashes|null if slot not set
 	 */
-	public function getTransclusionHashes( RevisionRecord $revision ): array {
+	public function getTransclusionHashesContent( RevisionRecord $revision ): ?TransclusionHashes {
 		$content = $revision->getContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES );
 		if ( !$content instanceof TransclusionHashes ) {
-			return [];
+			return null;
 		}
-		return $content->getResourceHashes();
-	}
-
-	/**
-	 * @param array $hashes
-	 * @param LinkTarget|PageReference $title
-	 * @return string|null|false if resource is not listed
-	 */
-	public function getHashForTitle( array $hashes, $title ): ?string {
-		foreach ( $hashes as $hashEntity ) {
-			if ( $title->getNamespace() === $hashEntity->ns && $title->getDBkey() === $hashEntity->dbkey ) {
-				return $hashEntity->hash;
-			}
-		}
-
-		return false;
+		return $content;
 	}
 
 	/**
@@ -132,10 +131,11 @@ class TransclusionManager {
 
 	/**
 	 * @param string $hash
+	 * @param string $type
 	 * @return RevisionRecord|null
 	 */
-	public function getRevisionForHash( string $hash ): ?RevisionRecord {
-		return $this->hashLookup->getRevisionForHash( $hash );
+	public function getRevisionForHash( string $hash, $type = HashLookup::HASH_TYPE_CONTENT ): ?RevisionRecord {
+		return $this->hashLookup->getRevisionForHash( $hash, $type );
 	}
 
 	/**
@@ -144,30 +144,39 @@ class TransclusionManager {
 	 * @return bool
 	 */
 	public function updateResource( RevisionRecord $revision, $resourcePage, UserIdentity $user ) {
-		$hashes = $this->getTransclusionHashes( $revision );
+		$hashContent = $this->getTransclusionHashesContent( $revision );
+		if ( !$hashContent instanceof TransclusionHashes || !$hashContent->isValid() ) {
+			return false;
+		}
 		$resourceTitle = $this->titleFactory->newFromText( $resourcePage );
 		if ( !( $resourceTitle instanceof Title ) ) {
 			return false;
 		}
-		$resourceHash = $this->getHashForTitle( $hashes, $resourceTitle );
+		$resourceHash = $hashContent->getHashForResource( $resourceTitle );
 		if ( $resourceHash === false ) {
 			return false;
 		}
 
-		$oldContent = $revision->getContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES );
-		if ( !$oldContent instanceof TransclusionHashes || !$oldContent->isValid() ) {
+		// Probably not strictly necessary to create a new content
+		$content = new TransclusionHashes( $hashContent->getText() );
+		$latestVerificationHash = $this->hashLookup->getLatestHashForTitle(
+			$resourceTitle, HashLookup::HASH_TYPE_VERIFICATION
+		);
+		if ( $latestVerificationHash === null ) {
 			return false;
 		}
-		$content = new TransclusionHashes( $oldContent->getText() );
-		$latestHash = $this->hashLookup->getLatestHashForTitle( $resourceTitle );
-		if ( $latestHash === null ) {
+		$latestContentHash = $this->hashLookup->getLatestHashForTitle(
+			$resourceTitle, HashLookup::HASH_TYPE_CONTENT
+		);
+		if ( $latestContentHash === null ) {
 			return false;
 		}
 		$wikipage = $this->wikiPageFactory->newFromTitle( $revision->getPage() );
 		if ( $wikipage === null ) {
 			return false;
 		}
-		$content->updateHashForResource( $resourceTitle, $latestHash );
+		$content->updateHashForResource( $resourceTitle, $latestVerificationHash, HashLookup::HASH_TYPE_VERIFICATION );
+		$content->updateHashForResource( $resourceTitle, $latestContentHash );
 		$pageUpdater = $this->pageUpdaterFactory->newPageUpdater( $wikipage, $user );
 		$pageUpdater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $content );
 
@@ -178,6 +187,20 @@ class TransclusionManager {
 			)
 		);
 		$pageUpdater->subscribersOn();
+
 		return $newRevision instanceof RevisionRecord;
+	}
+
+	/**
+	 * @param RevisionRecord $rev
+	 * @return string
+	 */
+	private function calculateRevisionResourceContentHash( RevisionRecord $rev ): string {
+		$pageContent = '';
+		foreach ( $rev->getSlots()->getSlotRoles() as $slot ) {
+			$pageContent .= $rev->getContent( $slot )->serialize();
+		}
+
+		return hash( "sha3-512", $pageContent, false );
 	}
 }

@@ -2,20 +2,26 @@
 
 namespace DataAccounting\Hook;
 
+use CommentStoreComment;
 use DataAccounting\Content\TransclusionHashes;
 use DataAccounting\Hasher\DbRevisionVerificationRepo;
 use DataAccounting\Util\TransclusionHashExtractor;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Storage\Hook\MultiContentSaveHook;
 use MediaWiki\Storage\PageUpdater;
 use MediaWiki\Storage\SlotRecord;
+use MediaWiki\User\UserIdentity;
+use Status;
 use TitleFactory;
+use WikiPage;
 
 class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisionAddSlotsHook {
 	/** @var TransclusionHashes|null */
-	private $content = null;
+	private ?TransclusionHashes $content = null;
+	private ?WikiPage $wikiPage = null;
 	/** @var TitleFactory */
-	private $titleFactory;
+	private TitleFactory $titleFactory;
 
 	/**
 	 * @param TitleFactory $titleFactory
@@ -29,20 +35,22 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	 *
 	 * @param PageUpdater $updater
 	 */
-	public function onDASaveRevisionAddSlots( PageUpdater $updater ) {
+	public function onDASaveRevisionAddSlots( PageUpdater $updater, WikiPage $wikiPage ) {
+		$this->wikiPage = $wikiPage;
 		// This happens before saving of revision is initiated
 		// We create an empty content for the hashes and store reference to it
 		$this->content = new TransclusionHashes( '[]' );
+
 		// We set it to the appropriate revision slot
 		$updater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $this->content );
 	}
 
 	/**
-	 * @param \MediaWiki\Revision\RenderedRevision $renderedRevision
-	 * @param \MediaWiki\User\UserIdentity $user
-	 * @param \CommentStoreComment $summary
+	 * @param RenderedRevision $renderedRevision
+	 * @param UserIdentity $user
+	 * @param CommentStoreComment $summary
 	 * @param int $flags
-	 * @param \Status $status
+	 * @param Status $status
 	 * @return bool|void
 	 */
 	public function onMultiContentSave( $renderedRevision, $user, $summary, $flags, $status ) {
