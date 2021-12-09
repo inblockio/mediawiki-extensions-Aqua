@@ -2,8 +2,10 @@
 
 namespace DataAccounting\ContentHandler;
 
+use Content;
 use DataAccounting\Content\TransclusionHashes;
 use JsonContentHandler;
+use MediaWiki\Content\Transform\PreSaveTransformParams;
 
 class TransclusionHashesHandler extends JsonContentHandler {
 	/**
@@ -53,5 +55,16 @@ class TransclusionHashesHandler extends JsonContentHandler {
 	 */
 	public function supportsDirectEditing() {
 		return false;
+	}
+
+	/**
+	 * @param Content $content
+	 * @param PreSaveTransformParams $pstParams
+	 * @return Content
+	 */
+	public function preSaveTransform( Content $content, PreSaveTransformParams $pstParams ): Content {
+		// This is critical, as it returns the same instance of the object on pre-transform
+		// By default this would create a new instance, which screws up the reference between objects on save
+		return $content;
 	}
 }
