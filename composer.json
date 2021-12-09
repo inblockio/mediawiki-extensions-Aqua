@@ -3,11 +3,6 @@
 	"type": "mediawiki-extension",
 	"description": "Implements the basic principles of data accounting with cryptographically signed revisions",
 	"license": "GPL-3.0-only",
-	"autoload": {
-		"psr-4": {
-			"DataAccounting\\": "includes"
-		}
-	},
 	"require": {
 		"composer/installers": "~1.0",
 		"rht/merkle-tree": "dev-master"
