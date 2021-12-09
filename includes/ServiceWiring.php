@@ -21,6 +21,7 @@ return [
 		return new TransclusionManager(
 			$services->getTitleFactory(),
 			$services->get( 'DataAccountingHashLookup' ),
+			$services->getRevisionStore(),
 			$services->getPageUpdaterFactory(),
 			$services->getWikiPageFactory()
 		);

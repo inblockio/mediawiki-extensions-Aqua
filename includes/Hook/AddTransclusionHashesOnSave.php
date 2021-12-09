@@ -60,6 +60,7 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		// This happens before saving of revision is initiated
 		// We create an empty content for the hashes and store reference to it
 		$this->content = new TransclusionHashes( '[]' );
+
 		// We set it to the appropriate revision slot
 		$updater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $this->content );
 	}
