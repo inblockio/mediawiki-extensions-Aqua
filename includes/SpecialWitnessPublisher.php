@@ -13,13 +13,13 @@ use SpecialPage;
 
 require_once 'Util.php';
 
-function shortenHash( $hash ) {
+function shortenWitnessHash( $hash ) {
 	return substr( $hash, 0, 6 ) . "..." . substr( $hash, -6, 6 );
 }
 
 // TODO this function is duplicated in SpecialWitness
 function hrefifyHash( $hash, $prefix = "" ) {
-	return "<a href='" . $prefix . $hash . "'>" . shortenHash( $hash ) . "</a>";
+	return "<a href='" . $prefix . $hash . "'>" . shortenWitnessHash( $hash ) . "</a>";
 }
 
 function shortenDomainManifestTitle( $dm ) {
@@ -27,7 +27,7 @@ function shortenDomainManifestTitle( $dm ) {
 	// 6942
 	$withoutNameSpace = str_replace( "Data Accounting:", "", $dm );
 	$hashOnly = str_replace( "DomainManifest:", "", $withoutNameSpace );
-	return "DomainManifest:" . shortenHash( $hashOnly );
+	return "DomainManifest:" . shortenWitnessHash( $hashOnly );
 }
 
 class SpecialWitnessPublisher extends SpecialPage {
