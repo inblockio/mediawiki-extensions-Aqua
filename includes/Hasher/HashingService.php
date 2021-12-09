@@ -7,35 +7,73 @@ namespace DataAccounting\Hasher;
 require_once __DIR__ . "/../Util.php";
 
 class HashingService {
+	/**
+	 * @var string
+	 */
 	public string $domainId;
 
+	/**
+	 * @param string $domainId
+	 */
 	public function __construct(
 		string $domainId
 	) {
 		$this->domainId = $domainId;
 	}
 
-	public function calculateMetadataHash( $timestamp, $previousVerificationHash = "" ): string {
+	/**
+	 * @param string $timestamp
+	 * @param string $previousVerificationHash
+	 * @return string
+	 */
+	public function calculateMetadataHash(
+			string $timestamp,
+			string $previousVerificationHash = ""
+		): string {
 		return getHashSum( $this->domainId . $timestamp . $previousVerificationHash );
 	}
 
-	public function calculateSignatureHash( $signature, $publicKey ): string {
+	/**
+	 * @param string $signature
+	 * @param string $publicKey
+	 * @return string
+	 */
+	public function calculateSignatureHash( string $signature, string $publicKey ): string {
 		return getHashSum( $signature . $publicKey );
 	}
 
-	public function calculateWitnessHash( $domain_manifest_verification_hash, $merkle_root, $witness_network, $witness_tx_hash ): string {
-		return getHashSum( $domain_manifest_verification_hash . $merkle_root . $witness_network . $witness_tx_hash );
+	/**
+	 * @param string $domain_manifest_verification_hash
+	 * @param string $merkle_root
+	 * @param string $witness_network
+	 * @param string $witness_tx_hash
+	 * @return string
+	 */
+	public function calculateWitnessHash(
+			string $domain_manifest_verification_hash,
+			string $merkle_root,
+			string $witness_network,
+			string $witness_tx_hash
+		): string {
+		return getHashSum(
+			$domain_manifest_verification_hash . $merkle_root . $witness_network . $witness_tx_hash
+		);
 	}
 
-	public function calculateVerificationHash( $contentHash, $metadataHash, $signature_hash, $witness_hash ): string {
+	/**
+	 * @param string $contentHash
+	 * @param string $metadataHash
+	 * @param string $signature_hash
+	 * @param string $witness_hash
+	 * @return string
+	 */
+	public function calculateVerificationHash(
+			string $contentHash,
+			string $metadataHash,
+			string $signature_hash,
+			string $witness_hash
+		): string {
 		return getHashSum( $contentHash . $metadataHash . $signature_hash . $witness_hash );
 	}
-
-	// TODO: maybe better to keep $domainId as parameter since the using service needs to have it injected anyway
-	// TODO: perhaps we can have a single function like below:
-
-//	public function hash( string ...$strings ): string {
-//		return getHashSum( implode( '', $strings ) );
-//	}
 
 }
