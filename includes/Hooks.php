@@ -25,7 +25,6 @@ use Skin;
 use SkinTemplate;
 use stdClass;
 use Title;
-use XMLReader;
 
 require_once 'ApiUtil.php';
 

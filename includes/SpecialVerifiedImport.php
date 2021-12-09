@@ -34,7 +34,6 @@ use MediaWiki\Permissions\PermissionManager;
 use PermissionsError;
 use SpecialPage;
 use Status;
-use Xml;
 
 /**
  * DataAccounting modifications:

@@ -4,22 +4,20 @@ declare( strict_types = 1 );
 
 namespace DataAccounting\Tests;
 
-use MediaWiki\Rest\RequestData;
-use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
-use MediaWikiIntegrationTestCase;
-use MediaWiki\Rest\HttpException;
-use MediaWiki\Rest\LocalizedHttpException;
-use MediaWiki\Permissions\PermissionManager;
-
 use DataAccounting\API\GetPageAllRevsHandler;
 use DataAccounting\API\GetPageByRevIdHandler;
 use DataAccounting\API\GetPageLastRevHandler;
+use DataAccounting\API\GetServerInfoHandler;
 use DataAccounting\API\RequestHashHandler;
 use DataAccounting\API\VerifyPageHandler;
 use DataAccounting\API\WriteStoreSignedTxHandler;
-
 use DataAccounting\ServerInfo;
-use DataAccounting\API\GetServerInfoHandler;
+use MediaWiki\Permissions\PermissionManager;
+use MediaWiki\Rest\HttpException;
+use MediaWiki\Rest\LocalizedHttpException;
+use MediaWiki\Rest\RequestData;
+use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
+use MediaWikiIntegrationTestCase;
 
 /**
  * @group Database

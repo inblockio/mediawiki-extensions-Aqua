@@ -2,10 +2,8 @@
 
 namespace DataAccounting\API;
 
-use MediaWiki\MediaWikiServices;
-use MediaWiki\Rest\SimpleHandler;
-
 use DataAccounting\ServerInfo;
+use MediaWiki\Rest\SimpleHandler;
 
 class GetServerInfoHandler extends SimpleHandler {
 	/** @inheritDoc */

@@ -26,35 +26,35 @@
 
 namespace DataAccounting;
 
+use Config;
+use DeferredUpdates;
+use ExternalUserNames;
+use ImportSource;
+use Language;
 use MediaWiki\Cache\CacheKeyHelper;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\HookContainer\HookRunner;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\PageIdentity;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\SlotRoleRegistry;
-
-// DA modification; For typing.
-use ImportSource;
-use Config;
-use Language;
+use NaiveImportTitleFactory;
+use NamespaceAwareForeignTitleFactory;
 use NamespaceInfo;
+use RequestContext;
+use SiteStatsUpdate;
+use Status;
+use Title;
 use TitleFactory;
 use UploadRevisionImporter;
-use XMLReader;
 use UploadSourceAdapter;
-use NaiveImportTitleFactory;
-use ExternalUserNames;
-use Status;
-use NamespaceAwareForeignTitleFactory;
-use RequestContext;
-use MediaWiki\MediaWikiServices;
 use WikiRevision;
-use Title;
-use DeferredUpdates;
-use SiteStatsUpdate;
+use XMLReader;
+
+// DA modification; For typing.
 
 /**
  * This class is cloned from Mediawiki 1.37.0's WikiImporter. Almost the same

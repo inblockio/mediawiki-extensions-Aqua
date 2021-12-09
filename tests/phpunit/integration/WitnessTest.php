@@ -4,19 +4,19 @@ declare( strict_types = 1 );
 
 namespace DataAccounting\Tests;
 
-use MediaWikiIntegrationTestCase;
-use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
-use MediaWiki\Rest\HttpException;
-use MediaWiki\Rest\LocalizedHttpException;
-use Wikimedia\Message\MessageValue;
-use MediaWiki\Rest\RequestData;
-use MediaWiki\Permissions\PermissionManager;
-use Title;
-
 use DataAccounting\API\GetWitnessDataHandler;
-use DataAccounting\API\RequestMerkleProofHandler; // untested
 use DataAccounting\API\WriteStoreWitnessTxHandler;
 use DataAccounting\SpecialWitness;
+use MediaWiki\Permissions\PermissionManager;
+use MediaWiki\Rest\HttpException;
+use MediaWiki\Rest\LocalizedHttpException;
+use MediaWiki\Rest\RequestData;
+use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
+use MediaWikiIntegrationTestCase;
+use Title;
+use Wikimedia\Message\MessageValue;
+
+ // untested
 
 /**
  * @covers \DataAccounting\API\WriteStoreWitnessTxHandler

@@ -4,8 +4,8 @@ declare( strict_types = 1 );
 
 namespace DataAccounting\Tests;
 
-use PHPUnit\Framework\TestCase;
 use DataAccounting\Hasher\HashingService;
+use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . "/../../../includes/Util.php";
 

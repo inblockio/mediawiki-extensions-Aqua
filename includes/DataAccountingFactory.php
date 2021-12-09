@@ -4,13 +4,11 @@ declare( strict_types = 1 );
 
 namespace DataAccounting;
 
-use MediaWiki\MediaWikiServices;
-use Wikimedia\Rdbms\ILoadBalancer;
-
+use DataAccounting\Hasher\DbRevisionVerificationRepo;
+use DataAccounting\Hasher\HashingService;
 use DataAccounting\Hasher\RevisionVerificationBuilder;
 use DataAccounting\Hasher\RevisionVerificationRepo;
-use DataAccounting\Hasher\HashingService;
-use DataAccounting\Hasher\DbRevisionVerificationRepo;
+use MediaWiki\MediaWikiServices;
 
 /**
  * Top level factory for services construction.

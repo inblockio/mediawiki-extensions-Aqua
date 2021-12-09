@@ -21,18 +21,17 @@
 
 namespace DataAccounting;
 
+use Config;
+use ImportSource;
+use Language;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\SlotRoleRegistry;
-
-use Config;
-use Language;
 use NamespaceInfo;
 use TitleFactory;
 use UploadRevisionImporter;
-use ImportSource;
 
 /**
  * Data Accounting modifications:

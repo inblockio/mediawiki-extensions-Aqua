@@ -1,8 +1,7 @@
 <?php
 
-use MediaWiki\MediaWikiServices;
-
 use DataAccounting\VerifiedWikiImporterFactory;
+use MediaWiki\MediaWikiServices;
 
 // This file is needed for verified importer.
 // If not needed anymore, delete ServiceWiringFiles in extension.json.
