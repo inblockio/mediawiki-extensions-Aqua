@@ -78,13 +78,18 @@ class TransclusionHashExtractor {
 			$entity = [
 				'dbkey' => $title->getDBkey(),
 				'ns' => $title->getNamespace(),
-				'hash' => null
+				'revid' => $title->getLatestRevID(),
+				'verification_hash' => null,
+				'hash_content' => null,
 			];
 			if ( $title->exists() ) {
 				$verificationData = $this->revisionVerficationRepo
 					->getRevisionVerificationData( $title->getLatestRevID() );
 				if ( !empty( $verificationData['verification_hash'] ) ) {
-					$entity['hash'] = $verificationData['verification_hash'];
+					$entity['verification_hash'] = $verificationData['verification_hash'];
+				}
+				if ( !empty( $verificationData['hash_content'] ) ) {
+					$entity['hash_content'] = $verificationData['hash_content'];
 				}
 			}
 
