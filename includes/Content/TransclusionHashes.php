@@ -40,7 +40,7 @@ class TransclusionHashes extends JsonContent {
 	 * @return bool
 	 */
 	public function updateHashForResource(
-		Title $resourceToUpdate, string $hash, $type = HashLookup::HASH_TYPE_CONTENT
+		Title $resourceToUpdate, string $hash, $type = HashLookup::HASH_TYPE_VERIFICATION
 	): bool {
 		if ( !$this->isValid() ) {
 			return false;
@@ -65,7 +65,7 @@ class TransclusionHashes extends JsonContent {
 	 * @param string $type
 	 * @return string|null if resource is not listed
 	 */
-	public function getHashForResource( $title, $type = HashLookup::HASH_TYPE_CONTENT ): ?string {
+	public function getHashForResource( $title, $type = HashLookup::HASH_TYPE_VERIFICATION ): ?string {
 		foreach ( $this->getResourceHashes() as $hashEntity ) {
 			if (
 				$title->getNamespace() === $hashEntity->ns && $title->getDBkey() === $hashEntity->dbkey ) {
