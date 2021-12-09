@@ -2,6 +2,7 @@
 
 namespace DataAccounting\Content;
 
+use DataAccounting\HashLookup;
 use DataAccounting\TransclusionManager;
 use Html;
 use JsonContent;

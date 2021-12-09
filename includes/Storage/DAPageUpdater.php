@@ -26,6 +26,8 @@ use WikiPage;
 class DAPageUpdater extends PageUpdater {
 	/** @var HookContainer */
 	private $hookContainer;
+	/** @var WikiPage */
+	private $wikiPage;
 	/** @var bool */
 	private $shouldEmit = true;
 
@@ -45,6 +47,7 @@ class DAPageUpdater extends PageUpdater {
 			$userGroupManager, $titleFormatter, $serviceOptions, $softwareTags
 		);
 		$this->hookContainer = $hookContainer;
+		$this->wikiPage = $wikiPage;
 	}
 
 	/**
@@ -54,7 +57,7 @@ class DAPageUpdater extends PageUpdater {
 		// CUSTOM PART START
 		// We fire a hook to allow subscribers to add their own contents to slots
 		if ( $this->shouldEmit ) {
-			$this->hookContainer->run( 'DASaveRevisionAddSlots', [ $this ] );
+			$this->hookContainer->run( 'DASaveRevisionAddSlots', [ $this, $this->wikiPage ] );
 		}
 		// CUSTOM PART END
 		return parent::saveRevision( $summary, $flags );
