@@ -2,7 +2,6 @@
 
 namespace DataAccounting;
 
-use File;
 use MediaWiki\Storage\RevisionRecord;
 use MediaWiki\Storage\RevisionStore;
 use Title;
@@ -29,7 +28,7 @@ class HashLookup {
 	 * @param string $type
 	 * @return string|null
 	 */
-	public function getLatestHashForTitle( Title $title, $type = self::HASH_TYPE_VERIFICATION ): ?string {
+	public function getLatestHashForTitle( Title $title, $type = self::HASH_TYPE_CONTENT ): ?string {
 		$res = $this->lb->getConnection( DB_REPLICA )->selectRow(
 			'revision_verification',
 			[ $type ],
@@ -49,13 +48,14 @@ class HashLookup {
 
 	/**
 	 * @param string $hash
+	 * @param string $type
 	 * @return RevisionRecord|null
 	 */
-	public function getRevisionForHash( string $hash ): ?RevisionRecord {
+	public function getRevisionForHash( string $hash, $type = self::HASH_TYPE_CONTENT ): ?RevisionRecord {
 		$res = $this->lb->getConnection( DB_REPLICA )->selectRow(
 			'revision_verification',
 			[ 'rev_id' ],
-			[ 'verification_hash' => $hash ],
+			[ $type => $hash ],
 			__METHOD__
 		);
 

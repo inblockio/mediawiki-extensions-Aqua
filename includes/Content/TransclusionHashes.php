@@ -2,10 +2,13 @@
 
 namespace DataAccounting\Content;
 
+use DataAccounting\HashLookup;
 use DataAccounting\TransclusionManager;
 use Html;
 use JsonContent;
+use MediaWiki\Linker\LinkTarget;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\PageReference;
 use Message;
 use ParserOptions;
 use ParserOutput;
@@ -33,18 +36,40 @@ class TransclusionHashes extends JsonContent {
 	/**
 	 * @param Title $resourceToUpdate
 	 * @param string $hash
+	 * @param string $type
 	 * @return bool
 	 */
-	public function updateHashForResource( Title $resourceToUpdate, $hash ): bool {
+	public function updateHashForResource(
+		Title $resourceToUpdate, string $hash, $type = HashLookup::HASH_TYPE_CONTENT
+	): bool {
 		if ( !$this->isValid() ) {
 			return false;
 		}
 		$data = $this->getData()->getValue();
 		foreach ( $data as $resource ) {
-			if ( $resource->dbkey === $resourceToUpdate->getDBkey() && $resource->ns = $resourceToUpdate->getNamespace() ) {
-				$resource->hash = $hash;
+			if (
+				$resource->dbkey === $resourceToUpdate->getDBkey() &&
+				$resource->ns = $resourceToUpdate->getNamespace()
+			) {
+				$resource->$type = $hash;
 				$this->mText = json_encode( $data );
 				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param LinkTarget|PageReference $title
+	 * @param string $type
+	 * @return string|null if resource is not listed
+	 */
+	public function getHashForResource( $title, $type = HashLookup::HASH_TYPE_CONTENT ): ?string {
+		foreach ( $this->getResourceHashes() as $hashEntity ) {
+			if (
+				$title->getNamespace() === $hashEntity->ns && $title->getDBkey() === $hashEntity->dbkey ) {
+				return $hashEntity->$type;
 			}
 		}
 
@@ -120,7 +145,7 @@ class TransclusionHashes extends JsonContent {
 			'td', [],
 			Message::newFromKey( "da-transclusion-hash-ui-state-{$changeState}" )->text()
 		);
-		if ( $changeState !== TransclusionManager::STATE_UNCHANGED ) {
+		if ( $changeState === TransclusionManager::STATE_NEW_VERSION ) {
 			$row .= Html::rawElement(
 				'td', [],
 				Html::element( 'a', [
