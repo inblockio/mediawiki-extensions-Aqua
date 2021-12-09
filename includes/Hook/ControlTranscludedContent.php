@@ -68,6 +68,7 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 		if ( !$hashContent ) {
 			return true;
 		}
+
 		$hash = $hashContent->getHashForResource( $nt );
 		if ( !$hash ) {
 			// Image did not exist at the time of hashing, or not listed => show broken link
@@ -76,6 +77,9 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 		}
 
 		$oldFile = $this->transclusionManager->getFileForHash( $hash, $file );
+		if ( !$oldFile ) {
+			return true;
+		}
 		if ( $oldFile->getSha1() === $file->getSha1() && $oldFile->getTimestamp() === $file->getTimestamp() ) {
 			// Showing latest
 			return true;
