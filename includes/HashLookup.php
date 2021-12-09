@@ -28,7 +28,7 @@ class HashLookup {
 	 * @param string $type
 	 * @return string|null
 	 */
-	public function getLatestHashForTitle( Title $title, $type = self::HASH_TYPE_CONTENT ): ?string {
+	public function getLatestHashForTitle( Title $title, $type = self::HASH_TYPE_VERIFICATION ): ?string {
 		$res = $this->lb->getConnection( DB_REPLICA )->selectRow(
 			'revision_verification',
 			[ $type ],
@@ -51,14 +51,13 @@ class HashLookup {
 	 * @param string $type
 	 * @return RevisionRecord|null
 	 */
-	public function getRevisionForHash( string $hash, $type = self::HASH_TYPE_CONTENT ): ?RevisionRecord {
+	public function getRevisionForHash( string $hash, $type = self::HASH_TYPE_VERIFICATION ): ?RevisionRecord {
 		$res = $this->lb->getConnection( DB_REPLICA )->selectRow(
 			'revision_verification',
 			[ 'rev_id' ],
 			[ $type => $hash ],
 			__METHOD__
 		);
-
 		if ( !$res ) {
 			return null;
 		}

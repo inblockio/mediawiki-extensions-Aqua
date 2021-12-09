@@ -67,13 +67,13 @@ class TransclusionManager {
 			$state = [
 				'titleObject' => $title,
 			];
-			if ( $latestHash !== $transclusion->hash_content ) {
+			if ( $latestHash !== $transclusion->{HashLookup::HASH_TYPE_VERIFICATION} ) {
 				$state['state'] = static::STATE_NEW_VERSION;
 			} else {
 				$state['state'] = static::STATE_UNCHANGED;
 			}
-			if ( $transclusion->hash_content !== null ) {
-				$hashExists = $this->hashLookup->getRevisionForHash( $transclusion->hash_content ) !== null;
+			if ( $transclusion->{HashLookup::HASH_TYPE_VERIFICATION} !== null ) {
+				$hashExists = $this->hashLookup->getRevisionForHash( $transclusion->{HashLookup::HASH_TYPE_VERIFICATION} ) !== null;
 				if ( !$hashExists ) {
 					$state['state'] = static::STATE_HASH_CHANGED;
 				}
@@ -82,10 +82,6 @@ class TransclusionManager {
 				);
 				if ( !$resourceRevision ) {
 					$state['state'] = static::STATE_INVALID;
-				}
-				if ( $this->calculateRevisionResourceContentHash( $resourceRevision ) !== $transclusion->hash_content ) {
-					// TODO: Verification of another page should go to some separate implementation
-					$state['state'] = static::STATE_HASH_CHANGED;
 				}
 			}
 
@@ -120,6 +116,7 @@ class TransclusionManager {
 		if ( $revision->isCurrent() ) {
 			return $file;
 		}
+
 		$oldFiles = $file->getHistory();
 		foreach( $oldFiles as $oldFile ) {
 			if ( $oldFile->getTimestamp() === $revision->getTimestamp() ) {
@@ -134,7 +131,7 @@ class TransclusionManager {
 	 * @param string $type
 	 * @return RevisionRecord|null
 	 */
-	public function getRevisionForHash( string $hash, $type = HashLookup::HASH_TYPE_CONTENT ): ?RevisionRecord {
+	public function getRevisionForHash( string $hash, $type = HashLookup::HASH_TYPE_VERIFICATION ): ?RevisionRecord {
 		return $this->hashLookup->getRevisionForHash( $hash, $type );
 	}
 
@@ -175,8 +172,8 @@ class TransclusionManager {
 		if ( $wikipage === null ) {
 			return false;
 		}
-		$content->updateHashForResource( $resourceTitle, $latestVerificationHash, HashLookup::HASH_TYPE_VERIFICATION );
-		$content->updateHashForResource( $resourceTitle, $latestContentHash );
+		$content->updateHashForResource( $resourceTitle, $latestVerificationHash );
+		$content->updateHashForResource( $resourceTitle, $latestContentHash, HashLookup::HASH_TYPE_CONTENT );
 		$pageUpdater = $this->pageUpdaterFactory->newPageUpdater( $wikipage, $user );
 		$pageUpdater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $content );
 
@@ -189,18 +186,5 @@ class TransclusionManager {
 		$pageUpdater->subscribersOn();
 
 		return $newRevision instanceof RevisionRecord;
-	}
-
-	/**
-	 * @param RevisionRecord $rev
-	 * @return string
-	 */
-	private function calculateRevisionResourceContentHash( RevisionRecord $rev ): string {
-		$pageContent = '';
-		foreach ( $rev->getSlots()->getSlotRoles() as $slot ) {
-			$pageContent .= $rev->getContent( $slot )->serialize();
-		}
-
-		return hash( "sha3-512", $pageContent, false );
 	}
 }
