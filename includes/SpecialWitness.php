@@ -254,7 +254,7 @@ class SpecialWitness extends SpecialPage {
 
 	public function helperMaybeInsertWitnessEvent(
 		DBConnRef $dbw,
-		string $domain_manifest_verification_hash,
+		string $domain_manifest_genesis_hash,
 		int $witness_event_id,
 		Title $title,
 		string $merkle_root
@@ -278,10 +278,10 @@ class SpecialWitness extends SpecialPage {
 					'witness_event_id' => $witness_event_id,
 					'domain_id' => getDomainId(),
 					'domain_manifest_title' => $title,
-					'domain_manifest_verification_hash' => $domain_manifest_verification_hash,
+					'domain_manifest_genesis_hash' => $domain_manifest_genesis_hash,
 					'merkle_root' => $merkle_root,
 					'witness_event_verification_hash' => getHashSum(
-						$domain_manifest_verification_hash . $merkle_root
+						$domain_manifest_genesis_hash . $merkle_root
 					),
 					'smart_contract_address' => $SmartContractAddress,
 					'witness_network' => $WitnessNetwork,
