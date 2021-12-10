@@ -23,6 +23,7 @@ class RevisionXmlBuilder {
 			'revision_verification',
 			[
 				'domain_id',
+				'genesis_hash',
 				'rev_id',
 				'verification_hash',
 				'time_stamp',
@@ -41,6 +42,7 @@ class RevisionXmlBuilder {
 
 		$output = [
 			'domain_id' => $row->domain_id,
+			'genesis_hash' => $row->genesis_hash,
 			'rev_id' => $revId,
 			'verification_hash' => $row->verification_hash,
 			'time_stamp' => $row->time_stamp,
@@ -78,8 +80,10 @@ class RevisionXmlBuilder {
 
 	private function convertArray2XMLString( $arr, $tag ) {
 		$xml = new SimpleXMLElement( $tag );
-		$flipped = array_flip( array_filter( $arr ) );
-		array_walk( $flipped, [ $xml, 'addChild' ] );
+		$filtered = array_filter( $arr );
+		foreach ( $filtered as $key => $value ) {
+			$xml->addChild( $key, (string)$value );
+		}
 		// We have to do these steps to ensure there are proper newlines in the XML
 		// string.
 		$dom = new DOMDocument();

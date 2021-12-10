@@ -60,10 +60,24 @@ class RevisionVerificationBuilder {
 			$witnessHash = '';
 		}
 
+		$verificationHash = $this->hashingService->calculateVerificationHash(
+			$contentHash,
+			$metadataHash,
+			$signatureHash,
+			$witnessHash
+		);
+
+		$genesisHash = $verificationData['genesis_hash'];
+		if ( empty( $genesisHash ) ) {
+			// If there is no genesis hash yet, we mint the genesis block.
+			$genesisHash = $verificationHash;
+		}
+
 		// TODO: return new RevisionVerification object. Or maybe write to the repo
 		// here, turning this into a "RevisionVerifier"?
 		return [
 			'domain_id' => $this->hashingService->domainId,
+			'genesis_hash' => $genesisHash,
 			// getPrefixedText() gets the page title, not page content.
 			// It includes the namespace.
 			'page_title' => $rev->getPage()->getPrefixedText(),
@@ -72,12 +86,7 @@ class RevisionVerificationBuilder {
 			'hash_content' => $contentHash,
 			'time_stamp' => $timestamp,
 			'hash_metadata' => $metadataHash,
-			'verification_hash' => $this->hashingService->calculateVerificationHash(
-				$contentHash,
-				$metadataHash,
-				$signatureHash,
-				$witnessHash
-			),
+			'verification_hash' => $verificationHash,
 			'signature' => '',
 			'public_key' => '',
 			'wallet_address' => '',
