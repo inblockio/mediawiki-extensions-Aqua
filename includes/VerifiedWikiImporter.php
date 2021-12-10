@@ -1374,6 +1374,7 @@ class VerifiedWikiImporter {
 		$verificationInfo = [];
 		$normalFields = [
 			'domain_id',
+			'genesis_hash',
 			'rev_id',
 			'verification_hash',
 			'time_stamp',
