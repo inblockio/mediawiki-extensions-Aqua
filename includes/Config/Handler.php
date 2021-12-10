@@ -15,17 +15,17 @@ class Handler {
 	/**
 	 * @var ILoadBalancer
 	 */
-	private $loadBalancer = null;
+	private ILoadBalancer $loadBalancer;
 
 	/**
-	 * @var Config
+	 * @var Config|null
 	 */
-	private $config = null;
+	private ?Config $config = null;
 
 	/**
-	 * @var HashConfig
+	 * @var HashConfig|null
 	 */
-	private $databaseConfig = null;
+	private ?HashConfig $databaseConfig = null;
 
 	/**
 	 * @param ILoadBalancer $loadBalancer

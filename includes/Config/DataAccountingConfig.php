@@ -11,7 +11,7 @@ class DataAccountingConfig extends MultiConfig implements MutableConfig {
 	/**
 	 * @var Handler
 	 */
-	protected $handler = null;
+	protected Handler $handler;
 
 	/**
 	 * @param Config[] $configs
