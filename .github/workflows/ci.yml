@@ -73,7 +73,6 @@ jobs:
           # Workaround because MySQL syntax is incompatible with SQLite
           fname=extensions/DataAccounting/sql/data_accounting.sql
           sed -i 's/AUTO_INCREMENT/AUTOINCREMENT/g' $fname
-          sed -i "s/ COMMENT '.*'//g" $fname
 
       - name: Composer update
         run: composer update
