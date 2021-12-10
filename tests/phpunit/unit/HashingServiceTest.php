@@ -58,12 +58,12 @@ class HashingServiceTest extends TestCase {
 	}
 
 	public function testCalculateWitnessHash(): void {
-		$domain_manifest_verification_hash = '9df4198c20d31bb46f8ea97417346108b01ca13af20902e1755a1aad5bc3ba689f3731f653b4daa67ef657b96915fd7ac1035ab93938d9afde9c4c13cfd468c7';
+		$domain_manifest_genesis_hash = '9df4198c20d31bb46f8ea97417346108b01ca13af20902e1755a1aad5bc3ba689f3731f653b4daa67ef657b96915fd7ac1035ab93938d9afde9c4c13cfd468c7';
 		$merkle_root = 'bbc665767bac03f0a16321555c40b28bd6a6da9bc16f736c5680414b266a910d4ae436a091326a8ca6b71d2628326e42191d67214b65b87acf096c176f126447';
 		$witness_network = 'goerli';
 		$witness_tx_hash = '0x473b0b7b9ad818b9af02c0ab73cd9b186b28b6208c13f7d07554ace0915ca88e';
 		$wh = $this->hs->calculateWitnessHash(
-			$domain_manifest_verification_hash,
+			$domain_manifest_genesis_hash,
 			$merkle_root,
 			$witness_network,
 			$witness_tx_hash

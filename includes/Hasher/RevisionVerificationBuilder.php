@@ -46,12 +46,12 @@ class RevisionVerificationBuilder {
 		// WITNESS DATA HASH CALCULATOR
 		$witnessData = getWitnessData( $verificationData['witness_event_id'] ); // TODO: inject new service
 		if ( !empty( $witnessData ) ) {
-			$domain_manifest_verification_hash = $witnessData['domain_manifest_verification_hash'];
+			$domain_manifest_genesis_hash = $witnessData['domain_manifest_genesis_hash'];
 			$merkle_root = $witnessData['merkle_root'];
 			$witness_network = $witnessData['witness_network'];
 			$witness_tx_hash = $witnessData['witness_event_transaction_hash'];
 			$witnessHash = $this->hashingService->calculateWitnessHash(
-				$domain_manifest_verification_hash,
+				$domain_manifest_genesis_hash,
 				$merkle_root,
 				$witness_network,
 				$witness_tx_hash

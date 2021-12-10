@@ -27,13 +27,13 @@ class HashingService {
 	}
 
 	public function calculateWitnessHash(
-			string $domain_manifest_verification_hash,
+			string $domain_manifest_genesis_hash,
 			string $merkle_root,
 			string $witness_network,
 			string $witness_tx_hash
 		): string {
 		return getHashSum(
-			$domain_manifest_verification_hash . $merkle_root . $witness_network . $witness_tx_hash
+			$domain_manifest_genesis_hash . $merkle_root . $witness_network . $witness_tx_hash
 		);
 	}
 
