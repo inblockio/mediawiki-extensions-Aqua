@@ -95,7 +95,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 
 		// Testing the case when the rev_id is not found.
 		$this->expectExceptionObject(
-			new HttpException( "invalid rev_id", 404 )
+			new HttpException( "Not found", 404 )
 		);
 
 		$response = $this->executeHandler(
@@ -181,7 +181,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 
 		// Testing the case when the rev_id is not found.
 		$this->expectExceptionObject(
-			new HttpException( "invalid rev_id", 404 )
+			new HttpException( "Not found", 404 )
 		);
 		$response = $this->executeHandler(
 			new GetPageByRevIdHandler( ...$services ),
@@ -273,7 +273,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 
 		// Testing the case when the rev_id is not found.
 		$this->expectExceptionObject(
-			new HttpException( "invalid rev_id", 404 )
+			new HttpException( "Not found", 404 )
 		);
 		$response = $this->executeHandler(
 			new RequestHashHandler( ...$services ),
@@ -306,10 +306,8 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 				$requestData
 			);
 		} catch ( HttpException $ex ) {
-			// unfortunately there is some encoding issue -> permission denied
-			// workes for the test now
-			$this->assertStringContainsString(
-				"Permission denied",
+			$this->assertSame(
+				"Not found",
 				$ex->getMessage()
 			);
 		}

@@ -69,7 +69,7 @@ class GetPageByRevIdHandler extends ContextAuthorized {
 	protected function provideTitle( int $revId ): ?Title {
 		$revisionRecord = $this->revisionLookup->getRevisionById( $revId );
 		if ( !$revisionRecord ) {
-			throw new HttpException( "invalid rev_id", 404 );
+			throw new HttpException( "Not found", 404 );
 		}
 		return $revisionRecord->getPageAsLinkTarget();
 	}

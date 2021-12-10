@@ -72,16 +72,14 @@ abstract class ContextAuthorized extends SimpleHandler {
 		// @phpstan-ignore-next-line
 		$title = $this->provideTitle( ...func_get_args() );
 		if ( !$title ) {
-			throw new HttpException( "No title provided for permission check", 403 );
+			throw new HttpException( "Not found", 404 );
 		}
 		$user = RequestContext::getMain()->getUser();
 		foreach ( $this->getPermissions() as $permission ) {
 			if ( $this->permissionManager->userCan( $permission, $user, $title ) ) {
 				continue;
 			}
-			throw new HttpException(
-				"Permission denied for '$permission' on '{$title->getFullText()}'"
-			);
+			throw new HttpException( "Not found" );
 		}
 	}
 }
