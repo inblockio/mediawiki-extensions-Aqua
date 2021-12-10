@@ -36,7 +36,7 @@ class GetPageAllRevsHandler extends ContextAuthorized {
 		# Expects Page Title and return all of its verified revision ids.
 		$output = get_page_all_revs( $page_title );
 		if ( count( $output ) == 0 ) {
-			throw new HttpException( "$page_title not found in the database", 404 );
+			throw new HttpException( "Not found", 404 );
 		}
 		return $output;
 	}

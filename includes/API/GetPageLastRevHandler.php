@@ -46,7 +46,7 @@ class GetPageLastRevHandler extends ContextAuthorized {
 			[ 'ORDER BY' => 'rev_id DESC' ]
 		);
 		if ( !$res ) {
-			throw new HttpException( "page_title not found in the database", 404 );
+			throw new HttpException( "Not found", 404 );
 		}
 		$output = [
 			'page_title' => $res->page_title,

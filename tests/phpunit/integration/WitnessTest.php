@@ -76,7 +76,7 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 
 	public function testWitnessDataBeforeGenerate(): void {
 		$this->expectExceptionObject(
-			new HttpException( "witness_event_id not found in the witness_events table of the database.", 404 )
+			new HttpException( "Not found", 404 )
 		);
 		$this->executeHandler(
 			new GetWitnessDataHandler(),

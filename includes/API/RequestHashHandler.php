@@ -46,7 +46,7 @@ class RequestHashHandler extends ContextAuthorized {
 		);
 
 		if ( !$res ) {
-			throw new HttpException( "rev_id not found in the database", 404 );
+			throw new HttpException( "Not found", 404 );
 		}
 		return 'I sign the following page verification_hash: [0x' . $res->verification_hash . ']';
 	}

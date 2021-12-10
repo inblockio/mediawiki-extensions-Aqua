@@ -136,7 +136,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		// Testing the case when the page doesn't exist.
 		$title = 'IDONTEXIST IDONTEXIST';
 		$this->expectExceptionObject(
-			new HttpException( "$title not found in the database", 404 )
+			new HttpException( "Not found", 404 )
 		);
 		$response = $this->executeHandler(
 			new GetPageAllRevsHandler( ...$services ),
@@ -230,7 +230,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 
 		// Testing the case when the page is not found.
 		$this->expectExceptionObject(
-			new HttpException( "page_title not found in the database", 404 )
+			new HttpException( "Not found", 404 )
 		);
 
 		$response = $this->executeHandler(

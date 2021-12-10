@@ -59,7 +59,7 @@ class VerifyPageHandler extends ContextAuthorized {
 		);
 
 		if ( !$res ) {
-			throw new HttpException( "rev_id not found in the database", 404 );
+			throw new HttpException( "Not found", 404 );
 		}
 
 		$output = [
