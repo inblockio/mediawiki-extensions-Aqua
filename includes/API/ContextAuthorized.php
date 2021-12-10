@@ -79,7 +79,7 @@ abstract class ContextAuthorized extends SimpleHandler {
 			if ( $this->permissionManager->userCan( $permission, $user, $title ) ) {
 				continue;
 			}
-			throw new HttpException( "Not found" );
+			throw new HttpException( "Not found", 404 );
 		}
 	}
 }
