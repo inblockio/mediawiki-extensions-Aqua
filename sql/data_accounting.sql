@@ -8,48 +8,74 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/revision_verification (
 	`domain_id` VARCHAR(128),
 	`genesis_hash` VARCHAR(128), -- Global unique identifier for Mobile Permissioned Content Blockchain (MPCB), represented as a MediaWiki page.
 	`page_title` VARCHAR(255),
-	`page_id` INT COMMENT 'from page table',
-	`rev_id` INT UNIQUE COMMENT 'from revision table',
-	`hash_content` VARCHAR(128) DEFAULT '' COMMENT 'Hashing the page content of the current version',
-    `time_stamp` VARCHAR(128) COMMENT 'write the timestamp of the revision in to the DB',
-	`hash_metadata` VARCHAR(128) DEFAULT '' COMMENT 'Hashing all values of related revision_id tuble entry in revision table',
-	`verification_hash` VARCHAR(128) COMMENT 'Combined metadata and content hash',
-    `signature_hash` VARCHAR(128) DEFAULT '' COMMENT 'Hash of signature data (signature + public_key)',
+    -- from page table
+	`page_id` INT,
+    -- from revision table
+	`rev_id` INT UNIQUE,
+    -- Hashing the page content of the current version
+	`hash_content` VARCHAR(128) DEFAULT '',
+    -- write the timestamp of the revision in to the DB
+    `time_stamp` VARCHAR(128),
+    -- Hashing all values of related revision_id tuble entry in revision table
+	`hash_metadata` VARCHAR(128) DEFAULT '',
+    -- Combined metadata and content hash
+	`verification_hash` VARCHAR(128),
+    -- Hash of signature data (signature + public_key)
+    `signature_hash` VARCHAR(128) DEFAULT '',
 	`signature` VARCHAR(256) DEFAULT '',
 	`public_key` VARCHAR(256) DEFAULT '',
 	`wallet_address` VARCHAR(128) DEFAULT '',
-	`witness_event_id` INT(32) COMMENT 'Shows if revision was witnessed, an Index for witness_events table',
-	`source` VARCHAR(128) COMMENT 'possible values are "imported", "default"'
+    -- Shows if revision was witnessed, an Index for witness_events table
+	`witness_event_id` INT(32),
+    -- possible values are "imported", "default"
+	`source` VARCHAR(128)
 );
 
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_events (
         `witness_event_id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
-        `domain_manifest_title` VARCHAR(255) COMMENT 'from revision_verification',
-        `witness_hash` VARCHAR(128) COMMENT 'Hashes together domain_manifest_verification hash + merkle_root + witness_network + smart contract address',
-        `domain_manifest_genesis_hash` VARCHAR(128) COMMENT 'from revision_verification table',
-        `merkle_root` VARCHAR(128) COMMENT 'Merkle Root Hash',
-        `witness_event_verification_hash` VARCHAR(128) COMMENT 'XOR of domain_manifest_genesis_hash and merkle_root - populated when witness event is triggered',
-        `witness_network` VARCHAR(128) DEFAULT 'PLEASE SET THE VARIABLE IN THE SPECIALPAGE:WITNESS' COMMENT 'populated by SpecialPage:Witness configuration input fields',
-        `smart_contract_address` VARCHAR(128) DEFAULT 'PLEASE SET THE VARIABLE IN THE SPECIALPAGE:WITNESS' COMMENT 'populated by SpecialPage:Witness configuration input fields',
+        -- to make page_title unique
+        `domain_id` VARCHAR(128),
+        -- from revision_verification
+        `domain_manifest_title` VARCHAR(255),
+        -- Hashes together domain_manifest_genesis_hash + merkle_root + witness_network + smart contract address
+        `witness_hash` VARCHAR(128),
+        -- from revision_verification table
+        `domain_manifest_genesis_hash` VARCHAR(128),
+        -- Merkle Root Hash
+        `merkle_root` VARCHAR(128),
+        -- XOR of domain_manifest_genesis_hash and merkle_root - populated when witness event is triggered
+        `witness_event_verification_hash` VARCHAR(128),
+        -- populated by SpecialPage:Witness configuration input fields
+        `witness_network` VARCHAR(128) DEFAULT 'PLEASE SET THE VARIABLE IN THE SPECIALPAGE:WITNESS',
+        -- populated by SpecialPage:Witness configuration input fields
+        `smart_contract_address` VARCHAR(128) DEFAULT 'PLEASE SET THE VARIABLE IN THE SPECIALPAGE:WITNESS',
         `witness_event_transaction_hash` VARCHAR(128) DEFAULT 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE',
-        `sender_account_address` VARCHAR(128) DEFAULT 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE' COMMENT 'is populated after witness_event has been executed via RESTAPI',
-        `source` VARCHAR(128) Comment 'possible values are "imported", "default"'
+        -- is populated after witness_event has been executed via RESTAPI
+        `sender_account_address` VARCHAR(128) DEFAULT 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE',
+        -- possible values are "imported", "default"
+        `source` VARCHAR(128)
     );
 
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_page (
- `id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
- `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
- `domain_id` VARCHAR(128) COMMENT 'to make page_title unique',
- `page_title` VARCHAR(255) COMMENT 'from revision_verification',
- `rev_id` VARCHAR(128) COMMENT 'from revision_verification',
- `revision_verification_hash` VARCHAR(128) COMMENT 'Input values for merkle tree'
- );
+    `id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    -- ID of the related Witness_Event
+    `witness_event_id` INT(32),
+    -- to make page_title unique
+    `domain_id` VARCHAR(128),
+    -- from revision_verification
+    `page_title` VARCHAR(255),
+    -- from revision_verification
+    `rev_id` VARCHAR(128),
+    -- Input values for merkle tree
+    `revision_verification_hash` VARCHAR(128)
+);
 
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_merkle_tree (
     `INDEX` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    `witness_event_id` INT(32) COMMENT 'ID of the related Witness_Event',
-    `depth` VARCHAR(64) COMMENT 'the depth of the node',
+    -- ID of the related Witness_Event
+    `witness_event_id` INT(32),
+    -- the depth of the node
+    `depth` VARCHAR(64),
     `left_leaf` VARCHAR(128),
     `right_leaf` VARCHAR(128),
     `successor` VARCHAR(128)
