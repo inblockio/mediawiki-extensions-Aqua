@@ -102,7 +102,7 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 			"witness_event_verification_hash",
 			"witness_network",
 			"smart_contract_address",
-			"domain_manifest_verification_hash",
+			"domain_manifest_genesis_hash",
 			"merkle_root",
 			"witness_event_transaction_hash",
 			"sender_account_address",

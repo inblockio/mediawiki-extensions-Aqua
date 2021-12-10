@@ -244,7 +244,7 @@ class SpecialWitness extends SpecialPage {
 		return [ $title, $domainManifestVH, $merkleTreeHtmlText ];
 	}
 
-	public function helperMaybeInsertWitnessEvent( $dbw, $domain_manifest_verification_hash, $witness_event_id, $title, $merkle_root ) {
+	public function helperMaybeInsertWitnessEvent( $dbw, $domain_manifest_genesis_hash, $witness_event_id, $title, $merkle_root ) {
 		// Check if $witness_event_id is already present in the witness_events
 		// table. If not, do insert.
 
@@ -264,10 +264,10 @@ class SpecialWitness extends SpecialPage {
 					'witness_event_id' => $witness_event_id,
 					'domain_id' => getDomainId(),
 					'domain_manifest_title' => $title,
-					'domain_manifest_verification_hash' => $domain_manifest_verification_hash,
+					'domain_manifest_genesis_hash' => $domain_manifest_genesis_hash,
 					'merkle_root' => $merkle_root,
 					'witness_event_verification_hash' => getHashSum(
-						$domain_manifest_verification_hash . $merkle_root
+						$domain_manifest_genesis_hash . $merkle_root
 					),
 					'smart_contract_address' => $SmartContractAddress,
 					'witness_network' => $WitnessNetwork,
