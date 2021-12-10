@@ -80,7 +80,6 @@ class RevisionVerificationBuilder {
 			"has_previous_signature" => !empty( $signatureHash ),
 			"has_previous_witness" => !empty( $witnessHash )
 		];
-
 		// TODO: return new RevisionVerification object. Or maybe write to the repo
 		// here, turning this into a "RevisionVerifier"?
 		return [
