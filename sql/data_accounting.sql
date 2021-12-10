@@ -6,6 +6,7 @@
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/revision_verification (
 	`revision_verification_id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	`domain_id` VARCHAR(128),
+	`genesis_hash` VARCHAR(128), -- Global unique identifier for Mobile Permissioned Content Blockchain (MPCB), represented as a MediaWiki page.
 	`page_title` VARCHAR(255),
 	`page_id` INT COMMENT 'from page table',
 	`rev_id` INT UNIQUE COMMENT 'from revision table',
