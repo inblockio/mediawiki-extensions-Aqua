@@ -41,7 +41,6 @@ class DbRevisionVerificationRepo implements RevisionVerificationRepo {
 		// TODO: return new RevisionVerification object
 		return [
 			'verification_hash' => $row->verification_hash,
-			'hash_content' => $row->hash_content,
 			'signature' => $row->signature,
 			'public_key' => $row->public_key,
 			'wallet_address' => $row->wallet_address,
