@@ -73,6 +73,12 @@ class RevisionVerificationBuilder {
 			$genesisHash = $verificationHash;
 		}
 
+		$verificationContext = [
+			"has_transclusion" => false,
+			"has_signature" => !empty($signatureHash),
+			"has_witness"=> !empty($witnessHash)
+		];
+
 		// TODO: return new RevisionVerification object. Or maybe write to the repo
 		// here, turning this into a "RevisionVerifier"?
 		return [
@@ -83,10 +89,12 @@ class RevisionVerificationBuilder {
 			'page_title' => $rev->getPage()->getPrefixedText(),
 			'page_id' => $rev->getPage()->getId(),
 			'rev_id' => $rev->getID(),
+			'verification_context' => json_encode( $verificationContext ),
 			'content_hash' => $contentHash,
 			'time_stamp' => $timestamp,
 			'metadata_hash' => $metadataHash,
 			'verification_hash' => $verificationHash,
+			'previous_verification_hash' => $previousVerificationHash,
 			'signature' => '',
 			'public_key' => '',
 			'wallet_address' => '',

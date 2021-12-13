@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/revision_verification (
 	`page_id` INT,
     -- from revision table
 	`rev_id` INT UNIQUE,
+    -- provides context for the verification of this revision
+	`verification_context` JSON,
     -- Hashing the page content of the current version
 	`content_hash` VARCHAR(128) DEFAULT '',
     -- write the timestamp of the revision in to the DB
