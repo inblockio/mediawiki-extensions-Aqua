@@ -7,24 +7,14 @@ namespace DataAccounting\Hasher;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 class DbRevisionVerificationRepo implements RevisionVerificationRepo {
-	/**
-	 * @var ILoadBalancer 
-	 */
 	private ILoadBalancer $loadBalancer;
 
-	/**
-	 * @param ILoadBalancer $loadBalancer
-	 */
 	public function __construct(
 		ILoadBalancer $loadBalancer
 	) {
 		$this->loadBalancer = $loadBalancer;
 	}
 
-	/**
-	 * @param int $revId
-	 * @return array
-	 */
 	public function getRevisionVerificationData( int $revId ): array {
 		$dbr = $this->loadBalancer->getConnection( DB_PRIMARY );
 
