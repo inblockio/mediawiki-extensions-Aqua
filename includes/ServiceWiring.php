@@ -1,8 +1,10 @@
 <?php
 
 use DataAccounting\Config\Handler;
-use DataAccounting\HashLookup;
 use DataAccounting\TransclusionManager;
+use DataAccounting\Verification\VerificationEngine;
+use DataAccounting\Verification\VerificationEntityFactory;
+use DataAccounting\Verification\VerificationLookup;
 use MediaWiki\MediaWikiServices;
 
 return [
@@ -11,19 +13,19 @@ return [
 			$services->getDBLoadBalancer()
 		);
 	},
-	'DataAccountingHashLookup' => static function( MediaWikiServices $services ): HashLookup {
-		return new HashLookup(
-			$services->getDBLoadBalancer(),
-			$services->getRevisionStore()
-		);
-	},
 	'DataAccountingTransclusionManager' => static function( MediaWikiServices $services ): TransclusionManager {
 		return new TransclusionManager(
 			$services->getTitleFactory(),
-			$services->get( 'DataAccountingHashLookup' ),
+			$services->get( 'DataAccountingVerificationEngine' ),
 			$services->getRevisionStore(),
 			$services->getPageUpdaterFactory(),
 			$services->getWikiPageFactory()
 		);
+	},
+	'DataAccountingVerificationEngine' => static function( MediaWikiServices $services ): VerificationEngine {
+		$entityFactory = new VerificationEntityFactory( $services->getTitleFactory(), $services->getRevisionStore() );
+		$lookup = new VerificationLookup( $services->getDBLoadBalancer(), $services->getRevisionStore(), $entityFactory );
+
+		return new VerificationEngine( $lookup );
 	}
 ];
