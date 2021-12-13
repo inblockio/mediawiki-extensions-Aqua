@@ -18,8 +18,11 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/revision_verification (
     `time_stamp` VARCHAR(128),
     -- Hashing all values of related revision_id tuble entry in revision table
 	`hash_metadata` VARCHAR(128) DEFAULT '',
-    -- Combined metadata and content hash
+    -- Combined metadata, content hash, optional signature_hash and witness_hash
 	`verification_hash` VARCHAR(128),
+    -- Previous verification hash of the previous revious, if the current
+    -- revision is a genesis, it will remain empty.
+	`previous_verification_hash` VARCHAR(128) DEFAULT '',
     -- Hash of signature data (signature + public_key)
     `signature_hash` VARCHAR(128) DEFAULT '',
 	`signature` VARCHAR(256) DEFAULT '',
