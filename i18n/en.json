@@ -21,7 +21,7 @@
 	"verifiedimport": "Verified Import",
 	"witness": "Domain Manifest Generator",
 	"da-transclusion-hash-ui-state-unchanged": "Up to date",
-	"da-transclusion-hash-ui-state-hash-changed": "Hash does not match",
+	"da-transclusion-hash-ui-state-invalid": "Invalid hash or verification data missing",
 	"da-transclusion-hash-ui-state-new-version": "New version of the resource available",
 	"da-transclusion-hash-ui-update-version": "Update to latest version",
 	"da-transclusion-hash-ui-visit-latest": "This section is not available on old revisions, visit '''latest revision''' to access it"

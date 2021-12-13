@@ -2,7 +2,6 @@
 
 namespace DataAccounting\Content;
 
-use DataAccounting\HashLookup;
 use DataAccounting\TransclusionManager;
 use Html;
 use JsonContent;
@@ -12,16 +11,23 @@ use MediaWiki\Page\PageReference;
 use Message;
 use ParserOptions;
 use ParserOutput;
+use stdClass;
 use Title;
 
 class TransclusionHashes extends JsonContent {
 	public const CONTENT_MODEL_TRANSCLUSION_HASHES = 'transclusion-hashes';
 	public const SLOT_ROLE_TRANSCLUSION_HASHES = 'transclusion-hashes';
 
-	public function __construct( $text, $modelId = self::CONTENT_MODEL_TRANSCLUSION_HASHES ) {
-		parent::__construct( $text, $modelId );
+	/**
+	 * @param string $text
+	 */
+	public function __construct( $text ) {
+		parent::__construct( $text, static::CONTENT_MODEL_TRANSCLUSION_HASHES );
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function isValid() {
 		return $this->getText() === '' || parent::isValid();
 	}
@@ -36,11 +42,11 @@ class TransclusionHashes extends JsonContent {
 	/**
 	 * @param Title $resourceToUpdate
 	 * @param string $hash
-	 * @param string $type
+	 * @param string $type Hash type
 	 * @return bool
 	 */
 	public function updateHashForResource(
-		Title $resourceToUpdate, string $hash, $type = HashLookup::HASH_TYPE_VERIFICATION
+		Title $resourceToUpdate, string $hash, $type
 	): bool {
 		if ( !$this->isValid() ) {
 			return false;
@@ -61,15 +67,14 @@ class TransclusionHashes extends JsonContent {
 	}
 
 	/**
-	 * @param LinkTarget|PageReference $title
-	 * @param string $type
-	 * @return string|null if resource is not listed
+	 * @param LinkTarget|PageReference|Title $title
+	 * @return stdClass|false if not listed
 	 */
-	public function getHashForResource( $title, $type = HashLookup::HASH_TYPE_VERIFICATION ): ?string {
+	public function getTransclusionDetails( $title ) {
 		foreach ( $this->getResourceHashes() as $hashEntity ) {
 			if (
 				$title->getNamespace() === $hashEntity->ns && $title->getDBkey() === $hashEntity->dbkey ) {
-				return $hashEntity->$type;
+				return $hashEntity;
 			}
 		}
 
