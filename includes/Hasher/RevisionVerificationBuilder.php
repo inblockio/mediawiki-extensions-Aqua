@@ -83,7 +83,7 @@ class RevisionVerificationBuilder {
 			'page_title' => $rev->getPage()->getPrefixedText(),
 			'page_id' => $rev->getPage()->getId(),
 			'rev_id' => $rev->getID(),
-			'hash_content' => $contentHash,
+			'content_hash' => $contentHash,
 			'time_stamp' => $timestamp,
 			'hash_metadata' => $metadataHash,
 			'verification_hash' => $verificationHash,

@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/revision_verification (
     -- from revision table
 	`rev_id` INT UNIQUE,
     -- Hashing the page content of the current version
-	`hash_content` VARCHAR(128) DEFAULT '',
+	`content_hash` VARCHAR(128) DEFAULT '',
     -- write the timestamp of the revision in to the DB
     `time_stamp` VARCHAR(128),
     -- Hashing all values of related revision_id tuble entry in revision table
