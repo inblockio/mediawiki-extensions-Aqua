@@ -109,6 +109,24 @@ class HashWriterHooks implements
 	 * @param DatabaseUpdater $updater
 	 */
 	public function onLoadExtensionSchemaUpdates( $updater ) {
-		$updater->addExtensionTable( 'data_accounting', dirname( __DIR__ ) . '/sql/data_accounting.sql' );
+		$base = dirname( __DIR__ );
+
+		$updater->addExtensionTable(
+			'revision_verification',  "$base/sql/data_accounting.sql"
+		);
+		$updater->addExtensionTable(
+			'witness_events',  "$base/sql/data_accounting.sql"
+		);
+		$updater->addExtensionTable(
+			'witness_page',  "$base/sql/data_accounting.sql"
+		);
+		$updater->addExtensionTable(
+			'witness_merkle_tree',  "$base/sql/data_accounting.sql"
+		);
+		$updater->addExtensionTable(
+			'da_settings',  "$base/sql/data_accounting.sql"
+		);
+
+		// TODO: Register patches
 	}
 }
