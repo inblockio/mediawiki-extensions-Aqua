@@ -31,21 +31,6 @@
       <code>run</code>
     </MissingReturnType>
   </file>
-  <file src="includes/API/GetPageByRevIdHandler.php">
-    <MissingParamType occurrences="1">
-      <code>$rev_id</code>
-    </MissingParamType>
-    <MissingReturnType occurrences="1">
-      <code>run</code>
-    </MissingReturnType>
-    <MixedArgument occurrences="1">
-      <code>DB_REPLICA</code>
-    </MixedArgument>
-    <PossiblyInvalidPropertyFetch occurrences="2">
-      <code>$resRow-&gt;page_id</code>
-      <code>$resRow-&gt;page_title</code>
-    </PossiblyInvalidPropertyFetch>
-  </file>
   <file src="includes/API/GetPageLastRevHandler.php">
     <MissingParamType occurrences="1">
       <code>$page_title</code>
