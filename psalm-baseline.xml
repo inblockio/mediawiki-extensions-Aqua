@@ -31,21 +31,6 @@
       <code>run</code>
     </MissingReturnType>
   </file>
-  <file src="includes/API/GetPageByRevIdHandler.php">
-    <MissingParamType occurrences="1">
-      <code>$rev_id</code>
-    </MissingParamType>
-    <MissingReturnType occurrences="1">
-      <code>run</code>
-    </MissingReturnType>
-    <MixedArgument occurrences="1">
-      <code>DB_REPLICA</code>
-    </MixedArgument>
-    <PossiblyInvalidPropertyFetch occurrences="2">
-      <code>$resRow-&gt;page_id</code>
-      <code>$resRow-&gt;page_title</code>
-    </PossiblyInvalidPropertyFetch>
-  </file>
   <file src="includes/API/GetPageLastRevHandler.php">
     <MissingParamType occurrences="1">
       <code>$page_title</code>
@@ -235,8 +220,8 @@
     <MixedOperand occurrences="13">
       <code>$pageText</code>
       <code>$row-&gt;domain_id</code>
-      <code>$row-&gt;domain_manifest_verification_hash</code>
-      <code>$row-&gt;domain_manifest_verification_hash</code>
+      <code>$row-&gt;domain_manifest_genesis_hash</code>
+      <code>$row-&gt;domain_manifest_genesis_hash</code>
       <code>$row-&gt;merkle_root</code>
       <code>$row-&gt;sender_account_address</code>
       <code>$row-&gt;smart_contract_address</code>
@@ -250,7 +235,7 @@
     <MixedPropertyFetch occurrences="10">
       <code>$row-&gt;domain_id</code>
       <code>$row-&gt;domain_manifest_title</code>
-      <code>$row-&gt;domain_manifest_verification_hash</code>
+      <code>$row-&gt;domain_manifest_genesis_hash</code>
       <code>$row-&gt;merkle_root</code>
       <code>$row-&gt;sender_account_address</code>
       <code>$row-&gt;smart_contract_address</code>
@@ -260,7 +245,7 @@
       <code>$row-&gt;{$col}</code>
     </MixedPropertyFetch>
     <PossiblyInvalidPropertyFetch occurrences="4">
-      <code>$row-&gt;domain_manifest_verification_hash</code>
+      <code>$row-&gt;domain_manifest_genesis_hash</code>
       <code>$row-&gt;merkle_root</code>
       <code>$row-&gt;witness_event_id</code>
       <code>$row-&gt;witness_network</code>
@@ -351,7 +336,7 @@
       <code>$row-&gt;depth</code>
       <code>$row-&gt;domain_id</code>
       <code>$row-&gt;domain_manifest_title</code>
-      <code>$row-&gt;domain_manifest_verification_hash</code>
+      <code>$row-&gt;domain_manifest_genesis_hash</code>
       <code>$row-&gt;left_leaf</code>
       <code>$row-&gt;merkle_root</code>
       <code>$row-&gt;page_id</code>
@@ -388,7 +373,7 @@
       <code>$contentHash</code>
       <code>$dbr</code>
       <code>$domainId</code>
-      <code>$domain_manifest_verification_hash</code>
+      <code>$domain_manifest_genesis_hash</code>
       <code>$merkle_root</code>
       <code>$metadataHash</code>
       <code>$previousVerificationHash</code>
@@ -429,7 +414,7 @@
     <MixedAssignment occurrences="17">
       <code>$contentHash</code>
       <code>$domainId</code>
-      <code>$domain_manifest_verification_hash</code>
+      <code>$domain_manifest_genesis_hash</code>
       <code>$merkle_root</code>
       <code>$metadataHash</code>
       <code>$new_title</code>
@@ -451,7 +436,7 @@
     <MixedOperand occurrences="9">
       <code>$contentHash</code>
       <code>$domainId</code>
-      <code>$domain_manifest_verification_hash</code>
+      <code>$domain_manifest_genesis_hash</code>
       <code>$previousVerificationHash</code>
       <code>$signature</code>
       <code>$signature_hash</code>
@@ -769,7 +754,7 @@
       <code>$dbw</code>
       <code>$depth</code>
       <code>$do_wikitext</code>
-      <code>$domain_manifest_verification_hash</code>
+      <code>$domain_manifest_genesis_hash</code>
       <code>$formData</code>
       <code>$hash</code>
       <code>$hash</code>
@@ -866,7 +851,7 @@
     </MixedMethodCall>
     <MixedOperand occurrences="19">
       <code>$depth</code>
-      <code>$domain_manifest_verification_hash</code>
+      <code>$domain_manifest_genesis_hash</code>
       <code>$formatted_key</code>
       <code>$hash</code>
       <code>$key</code>

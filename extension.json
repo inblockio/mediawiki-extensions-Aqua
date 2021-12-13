@@ -155,19 +155,29 @@
 		},
 		{
 			"path": "/data_accounting/verify_page/{rev_id}",
-			"class": "DataAccounting\\API\\VerifyPageHandler"
-		},
-		{
-			"path": "/data_accounting/get_page_by_rev_id/{rev_id}",
-			"class": "DataAccounting\\API\\GetPageByRevIdHandler"
+			"class": "DataAccounting\\API\\VerifyPageHandler",
+			"services": [
+				"PermissionManager",
+				"DBLoadBalancer",
+				"RevisionLookup"
+			]
 		},
 		{
 			"path": "/data_accounting/get_page_all_revs/{page_title}",
-			"class": "DataAccounting\\API\\GetPageAllRevsHandler"
+			"class": "DataAccounting\\API\\GetPageAllRevsHandler",
+			"services": [
+				"PermissionManager",
+				"TitleFactory"
+			]
 		},
 		{
 			"path": "/data_accounting/get_page_last_rev/{page_title}",
-			"class": "DataAccounting\\API\\GetPageLastRevHandler"
+			"class": "DataAccounting\\API\\GetPageLastRevHandler",
+			"services": [
+				"PermissionManager",
+				"DBLoadBalancer",
+				"TitleFactory"
+			]
 		},
 		{
 			"path": "/data_accounting/get_witness_data/{witness_event_id}",
@@ -179,7 +189,39 @@
 		},
 		{
 			"path": "/data_accounting/request_hash/{rev_id}",
-			"class": "DataAccounting\\API\\RequestHashHandler"
+			"class": "DataAccounting\\API\\RequestHashHandler",
+			"services": [
+				"PermissionManager",
+				"DBLoadBalancer",
+				"RevisionLookup"
+			]
+		},
+		{
+			"path": "/data_accounting/get_revision/{verification_hash}",
+			"class": "DataAccounting\\API\\GetRevisionHandler",
+			"services": [
+				"PermissionManager",
+				"DBLoadBalancer",
+				"RevisionLookup"
+			]
+		},
+		{
+			"path": "/data_accounting/get_hash_chain_info/{id_type}/{id}",
+			"class": "DataAccounting\\API\\GetHashChainInfoHandler",
+			"services": [
+				"PermissionManager",
+				"TitleFactory",
+				"DBLoadBalancer"
+			]
+		},
+		{
+			"path": "/data_accounting/get_revision_hashes/{verification_hash}",
+			"class": "DataAccounting\\API\\GetRevisionHashesHandler",
+			"services": [
+				"PermissionManager",
+				"DBLoadBalancer",
+				"RevisionLookup"
+			]
 		},
 		{
 			"method": "POST",

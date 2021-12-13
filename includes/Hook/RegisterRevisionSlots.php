@@ -4,8 +4,6 @@ namespace DataAccounting\Hook;
 
 use DataAccounting\Content\SignatureContent;
 use DataAccounting\Content\TransclusionHashes;
-use DataAccounting\SlotRoleHandler\SignatureSlotHandler;
-use DataAccounting\SlotRoleHandler\TransclusionHashesSlotHandler;
 use MediaWiki\Hook\MediaWikiServicesHook;
 use MediaWiki\Revision\SlotRoleRegistry;
 

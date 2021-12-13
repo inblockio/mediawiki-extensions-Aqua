@@ -37,7 +37,7 @@ function addReceiptToDomainManifest( $user, $witness_event_id, $db ) {
 		[
 			"domain_id",
 			"domain_manifest_title",
-			"domain_manifest_verification_hash",
+			"domain_manifest_genesis_hash",
 			"merkle_root",
 			"witness_event_verification_hash",
 			"witness_network",
@@ -65,7 +65,7 @@ function addReceiptToDomainManifest( $user, $witness_event_id, $db ) {
 	$text .= "* Witness Event: " . $witness_event_id . "\n";
 	$text .= "* Domain ID: " . $row->domain_id . "\n";
 	// We don't include witness hash.
-	$text .= "* Page Domain Manifest verification Hash: " . $row->domain_manifest_verification_hash . "\n";
+	$text .= "* Page Domain Manifest verification Hash: " . $row->domain_manifest_genesis_hash . "\n";
 	$text .= "* Merkle Root: " . $row->merkle_root . "\n";
 	$text .= "* Witness Event Verification Hash: " . $row->witness_event_verification_hash . "\n";
 	$text .= "* Witness Network: " . $row->witness_network . "\n";
@@ -80,7 +80,7 @@ function addReceiptToDomainManifest( $user, $witness_event_id, $db ) {
 	editPageContent( $page, $newContent, "Domain Manifest witnessed", $user );
 
 	// Rename from tentative title to final title.
-	$domainManifestVH = $row->domain_manifest_verification_hash;
+	$domainManifestVH = $row->domain_manifest_genesis_hash;
 	$finalTitle = Title::newFromText( "DomainManifest:$domainManifestVH", 6942 );
 	$mp = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage( $tentativeTitle, $finalTitle );
 	$reason = "Changed from tentative title to final title";
@@ -172,14 +172,14 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 		// Generate the witness_hash
 		$row = $dbw->selectRow(
 			'witness_events',
-			[ 'domain_manifest_verification_hash', 'merkle_root', 'witness_network' ],
+			[ 'domain_manifest_genesis_hash', 'merkle_root', 'witness_network' ],
 			[ 'witness_event_id' => $witness_event_id ]
 		);
 		if ( !$row ) {
 			throw new HttpException( "witness_event_id not found in the witness_events table.", 404 );
 		}
 		$witness_hash = getHashSum(
-			$row->domain_manifest_verification_hash .
+			$row->domain_manifest_genesis_hash .
 			$row->merkle_root .
 			$row->witness_network .
 			$transaction_hash
@@ -203,7 +203,7 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 			[
 				'witness_event_id' => $witness_event_id,
 			],
-			[ "verification_hash" => $row->domain_manifest_verification_hash ]
+			[ "verification_hash" => $row->domain_manifest_genesis_hash ]
 		);
 
 		// Add receipt to the domain manifest

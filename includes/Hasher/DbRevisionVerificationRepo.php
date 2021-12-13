@@ -20,7 +20,7 @@ class DbRevisionVerificationRepo implements RevisionVerificationRepo {
 
 		$row = $dbr->selectRow(
 			'revision_verification',
-			[ 'rev_id', 'verification_hash', 'hash_content', 'signature', 'public_key', 'wallet_address', 'witness_event_id' ],
+			[ 'verification_hash', 'signature', 'public_key', 'wallet_address', 'witness_event_id', 'genesis_hash' ],
 			[ 'rev_id' => $revId ],
 			__METHOD__
 		);
@@ -34,6 +34,7 @@ class DbRevisionVerificationRepo implements RevisionVerificationRepo {
 				'public_key' => "",
 				'wallet_address' => "",
 				'witness_event_id' => null,
+				'genesis_hash' => "",
 			];
 		}
 
@@ -44,7 +45,8 @@ class DbRevisionVerificationRepo implements RevisionVerificationRepo {
 			'signature' => $row->signature,
 			'public_key' => $row->public_key,
 			'wallet_address' => $row->wallet_address,
-			'witness_event_id' => $row->witness_event_id
+			'witness_event_id' => $row->witness_event_id,
+			'genesis_hash' => $row->genesis_hash
 		];
 	}
 

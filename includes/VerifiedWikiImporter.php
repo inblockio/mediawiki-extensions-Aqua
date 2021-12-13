@@ -1374,6 +1374,7 @@ class VerifiedWikiImporter {
 		$verificationInfo = [];
 		$normalFields = [
 			'domain_id',
+			'genesis_hash',
 			'rev_id',
 			'verification_hash',
 			'time_stamp',
@@ -1523,7 +1524,7 @@ class VerifiedWikiImporter {
 			"witness_event_verification_hash",
 			"witness_network",
 			"smart_contract_address",
-			"domain_manifest_verification_hash",
+			"domain_manifest_genesis_hash",
 			"merkle_root",
 			"structured_merkle_proof",
 			"witness_event_transaction_hash",

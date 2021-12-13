@@ -12,7 +12,6 @@ use MediaWiki\Rest\LocalizedHttpException;
 use MediaWiki\Permissions\PermissionManager;
 
 use DataAccounting\API\GetPageAllRevsHandler;
-use DataAccounting\API\GetPageByRevIdHandler;
 use DataAccounting\API\GetPageLastRevHandler;
 use DataAccounting\API\RequestHashHandler;
 use DataAccounting\API\VerifyPageHandler;
@@ -56,9 +55,24 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 	 */
 	public function testVerifyPage(): void {
 		// Testing the case when the rev_id is found.
+		$services = [
+			$this->getServiceContainer()->getPermissionManager(),
+			$this->getServiceContainer()->getDBLoadBalancer(),
+			$this->getServiceContainer()->getRevisionLookup(),
+		];
+		$requestData = new RequestData( [ 'pathParams' => [ 'rev_id' => 1 ] ] );
+		// Should be denied permission unless the user is authorized.
+		$this->expectContextPermissionDenied(
+			new VerifyPageHandler( ...$services ),
+			$requestData
+		);
+		// Let's authorize the user. Because this API endpoint requires 'read'
+		// permission for the title that is related to given rev_id.
+		$services[0] = $this->createMock( PermissionManager::class );
+		$services[0]->method( 'userCan' )->willReturn( true );
 		$response = $this->executeHandler(
-			new VerifyPageHandler(),
-			new RequestData( [ 'pathParams' => [ 'rev_id' => 1 ] ] )
+			new VerifyPageHandler( ...$services ),
+			$requestData
 		);
 
 		$this->assertJsonContentType( $response );
@@ -80,11 +94,11 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 
 		// Testing the case when the rev_id is not found.
 		$this->expectExceptionObject(
-			new HttpException( "rev_id not found in the database", 404 )
+			new HttpException( "Not found", 404 )
 		);
 
 		$response = $this->executeHandler(
-			new VerifyPageHandler(),
+			new VerifyPageHandler( ...$services ),
 			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
 		);
 	}
@@ -94,9 +108,24 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 	 */
 	public function testGetPageAllRevs(): void {
 		// Testing the case when the page exists.
+		$services = [
+			$this->getServiceContainer()->getPermissionManager(),
+			$this->getServiceContainer()->getTitleFactory(),
+		];
+		$requestData = new RequestData( [
+			'pathParams' => [ 'page_title' => 'UTPage' ]
+		] );
+		$this->expectContextPermissionDenied(
+			new GetPageAllRevsHandler( ...$services ),
+			$requestData
+		);
+		// Let's authorize the user. Because this API endpoint requires 'read'
+		// permission for the title that is related to given rev_id.
+		$services[0] = $this->createMock( PermissionManager::class );
+		$services[0]->method( 'userCan' )->willReturn( true );
 		$response = $this->executeHandler(
-			new GetPageAllRevsHandler(),
-			new RequestData( [ 'pathParams' => [ 'page_title' => 'UTPage' ] ] )
+			new GetPageAllRevsHandler( ...$services ),
+			$requestData
 		);
 		$this->assertJsonContentType( $response );
 		$data = $this->getJsonBody( $response );
@@ -106,48 +135,11 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		// Testing the case when the page doesn't exist.
 		$title = 'IDONTEXIST IDONTEXIST';
 		$this->expectExceptionObject(
-			new HttpException( "$title not found in the database", 404 )
+			new HttpException( "Not found", 404 )
 		);
 		$response = $this->executeHandler(
-			new GetPageAllRevsHandler(),
+			new GetPageAllRevsHandler( ...$services ),
 			new RequestData( [ 'pathParams' => [ 'page_title' => $title ] ] )
-		);
-	}
-
-	/**
-	 * @covers \DataAccounting\API\GetPageByRevIdHandler
-	 */
-	public function testGetPageByRevId(): void {
-		// Testing the case when the rev_id is found.
-		$response = $this->executeHandler(
-			new VerifyPageHandler(),
-			new RequestData( [ 'pathParams' => [ 'rev_id' => 1 ] ] )
-		);
-		$this->assertJsonContentType( $response );
-		$data = $this->getJsonBody( $response );
-		$this->assertIsArray( $data, 'Body must be a JSON array' );
-		$keys = [
-			'rev_id',
-			'domain_id',
-			'verification_hash',
-			'time_stamp',
-			'signature',
-			'public_key',
-			'wallet_address',
-			'witness_event_id',
-		];
-		foreach ( $keys as $key ) {
-			$this->assertArrayHasKey( $key, $data );
-		}
-		$this->assertSame( 1, $data['rev_id'] );
-
-		// Testing the case when the rev_id is not found.
-		$this->expectExceptionObject(
-			new HttpException( "rev_id not found in the database", 404 )
-		);
-		$response = $this->executeHandler(
-			new GetPageByRevIdHandler(),
-			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
 		);
 	}
 
@@ -156,9 +148,23 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 	 */
 	public function testGetPageLastRev(): void {
 		// Testing the case when the page is found.
+		$services = [
+			$this->getServiceContainer()->getPermissionManager(),
+			$this->getServiceContainer()->getDBLoadBalancer(),
+			$this->getServiceContainer()->getTitleFactory(),
+		];
+		$requestData = new RequestData( [ 'pathParams' => [ 'page_title' => 'UTPage' ] ] );
+		$this->expectContextPermissionDenied(
+			new GetPageLastRevHandler( ...$services ),
+			$requestData
+		);
+		// Let's authorize the user. Because this API endpoint requires 'read'
+		// permission for the title that is related to given rev_id.
+		$services[0] = $this->createMock( PermissionManager::class );
+		$services[0]->method( 'userCan' )->willReturn( true );
 		$response = $this->executeHandler(
-			new GetPageLastRevHandler(),
-			new RequestData( [ 'pathParams' => [ 'page_title' => 'UTPage' ] ] )
+			new GetPageLastRevHandler( ...$services ),
+			$requestData
 		);
 		$this->assertJsonContentType( $response );
 		$data = $this->getJsonBody( $response );
@@ -178,11 +184,11 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 
 		// Testing the case when the page is not found.
 		$this->expectExceptionObject(
-			new HttpException( "page_title not found in the database", 404 )
+			new HttpException( "Not found", 404 )
 		);
 
 		$response = $this->executeHandler(
-			new GetPageLastRevHandler(),
+			new GetPageLastRevHandler( ...$services ),
 			new RequestData( [ 'pathParams' => [ 'page_title' => 'IDONTEXIST IDONTEXIST' ] ] )
 		);
 	}
@@ -192,9 +198,23 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 	 */
 	public function testRequestHash(): void {
 		// Testing the case when the rev_id is found.
+		$services = [
+			$this->getServiceContainer()->getPermissionManager(),
+			$this->getServiceContainer()->getDBLoadBalancer(),
+			$this->getServiceContainer()->getRevisionLookup(),
+		];
+		$requestData = new RequestData( [ 'pathParams' => [ 'rev_id' => 1 ] ] );
+		$this->expectContextPermissionDenied(
+			new RequestHashHandler( ...$services ),
+			$requestData
+		);
+		// Let's authorize the user. Because this API endpoint requires 'read'
+		// permission for the title that is related to given rev_id.
+		$services[0] = $this->createMock( PermissionManager::class );
+		$services[0]->method( 'userCan' )->willReturn( true );
 		$response = $this->executeHandler(
-			new RequestHashHandler(),
-			new RequestData( [ 'pathParams' => [ 'rev_id' => 1 ] ] )
+			new RequestHashHandler( ...$services ),
+			$requestData
 		);
 		$this->assertJsonContentType( $response );
 		$data = $this->getJsonBody( $response );
@@ -207,10 +227,10 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 
 		// Testing the case when the rev_id is not found.
 		$this->expectExceptionObject(
-			new HttpException( "rev_id not found in the database", 404 )
+			new HttpException( "Not found", 404 )
 		);
 		$response = $this->executeHandler(
-			new RequestHashHandler(),
+			new RequestHashHandler( ...$services ),
 			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
 		);
 	}
@@ -229,6 +249,20 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			$this->assertSame(
 				'You are not allowed to use the REST API',
 				$ex->getMessageValue()->getParams()[0]->getValue()
+			);
+		}
+	}
+
+	public function expectContextPermissionDenied( $handler, RequestData $requestData ) {
+		try {
+			$response = $this->executeHandler(
+				$handler,
+				$requestData
+			);
+		} catch ( HttpException $ex ) {
+			$this->assertSame(
+				"Not found",
+				$ex->getMessage()
 			);
 		}
 	}

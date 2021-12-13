@@ -48,12 +48,12 @@ class RevisionVerificationBuilder {
 		// WITNESS DATA HASH CALCULATOR
 		$witnessData = getWitnessData( $verificationData['witness_event_id'] ); // TODO: inject new service
 		if ( !empty( $witnessData ) ) {
-			$domain_manifest_verification_hash = $witnessData['domain_manifest_verification_hash'];
+			$domain_manifest_genesis_hash = $witnessData['domain_manifest_genesis_hash'];
 			$merkle_root = $witnessData['merkle_root'];
 			$witness_network = $witnessData['witness_network'];
 			$witness_tx_hash = $witnessData['witness_event_transaction_hash'];
 			$witnessHash = $this->hashingService->calculateWitnessHash(
-				$domain_manifest_verification_hash,
+				$domain_manifest_genesis_hash,
 				$merkle_root,
 				$witness_network,
 				$witness_tx_hash
@@ -62,24 +62,41 @@ class RevisionVerificationBuilder {
 			$witnessHash = '';
 		}
 
+		$verificationHash = $this->hashingService->calculateVerificationHash(
+			$contentHash,
+			$metadataHash,
+			$signatureHash,
+			$witnessHash
+		);
+
+		$genesisHash = $verificationData['genesis_hash'];
+		if ( empty( $genesisHash ) ) {
+			// If there is no genesis hash yet, we mint the genesis block.
+			$genesisHash = $verificationHash;
+		}
+
+		$verificationContext = [
+			"has_transclusion" => false,
+			"has_signature" => !empty($signatureHash),
+			"has_witness"=> !empty($witnessHash)
+		];
+
 		// TODO: return new RevisionVerification object. Or maybe write to the repo
 		// here, turning this into a "RevisionVerifier"?
 		return [
 			'domain_id' => $this->hashingService->domainId,
+			'genesis_hash' => $genesisHash,
 			// getPrefixedText() gets the page title, not page content.
 			// It includes the namespace.
 			'page_title' => $rev->getPage()->getPrefixedText(),
 			'page_id' => $rev->getPage()->getId(),
 			'rev_id' => $rev->getID(),
-			'hash_content' => $contentHash,
+			'verification_context' => json_encode( $verificationContext ),
+			'content_hash' => $contentHash,
 			'time_stamp' => $timestamp,
-			'hash_metadata' => $metadataHash,
-			'verification_hash' => $this->hashingService->calculateVerificationHash(
-				$contentHash,
-				$metadataHash,
-				$signatureHash,
-				$witnessHash
-			),
+			'metadata_hash' => $metadataHash,
+			'verification_hash' => $verificationHash,
+			'previous_verification_hash' => $previousVerificationHash,
 			'signature' => '',
 			'public_key' => '',
 			'wallet_address' => '',

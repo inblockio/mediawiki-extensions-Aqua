@@ -32,6 +32,11 @@ class RequestMerkleProofHandler extends SimpleHandler {
 	}
 
 	/** @inheritDoc */
+	public function needsReadAccess() {
+		return false;
+	}
+
+	/** @inheritDoc */
 	public function getParamSettings() {
 		return [
 			'witness_event_id' => [

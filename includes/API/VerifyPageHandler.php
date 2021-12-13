@@ -2,12 +2,39 @@
 
 namespace DataAccounting\API;
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Rest\HttpException;
-use MediaWiki\Rest\SimpleHandler;
+use MediaWiki\Permissions\PermissionManager;
+use MediaWiki\Revision\RevisionLookup;
+use Title;
 use Wikimedia\ParamValidator\ParamValidator;
+use Wikimedia\Rdbms\LoadBalancer;
 
-class VerifyPageHandler extends SimpleHandler {
+class VerifyPageHandler extends ContextAuthorized {
+
+	/**
+	 * @var LoadBalancer 
+	 */
+	protected $loadBalancer;
+
+	/**
+	 * @var RevisionLookup
+	 */
+	protected $revisionLookup;
+
+	/**
+	 * @param PermissionManager $permissionManager
+	 * @param LoadBalancer $loadBalancer
+	 * @param RevisionLookup $revisionLookup
+	 */
+	public function __construct(
+		PermissionManager $permissionManager,
+		LoadBalancer $loadBalancer,
+		RevisionLookup $revisionLookup
+	) {
+		parent::__construct( $permissionManager );
+		$this->loadBalancer = $loadBalancer;
+		$this->revisionLookup = $revisionLookup;
+	}
 
 	/** @inheritDoc */
 	public function run( $rev_id ) {
@@ -15,9 +42,7 @@ class VerifyPageHandler extends SimpleHandler {
 		# signature(optional), public_key(optional), wallet_address(optional),
 		# witness_id(optional)
 
-		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbr = $lb->getConnectionRef( DB_REPLICA );
-		$row = $dbr->selectRow(
+		$res = $this->loadBalancer->getConnectionRef( DB_REPLICA )->selectRow(
 			'revision_verification',
 			[
 				'rev_id',
@@ -33,26 +58,21 @@ class VerifyPageHandler extends SimpleHandler {
 			__METHOD__
 		);
 
-		if ( !$row ) {
-			throw new HttpException( "rev_id not found in the database", 404 );
+		if ( !$res ) {
+			throw new HttpException( "Not found", 404 );
 		}
 
 		$output = [
 			'rev_id' => $rev_id,
-			'domain_id' => $row->domain_id,
-			'verification_hash' => $row->verification_hash,
-			'time_stamp' => $row->time_stamp,
-			'signature' => $row->signature,
-			'public_key' => $row->public_key,
-			'wallet_address' => $row->wallet_address,
-			'witness_event_id' => $row->witness_event_id,
+			'domain_id' => $res->domain_id,
+			'verification_hash' => $res->verification_hash,
+			'time_stamp' => $res->time_stamp,
+			'signature' => $res->signature,
+			'public_key' => $res->public_key,
+			'wallet_address' => $res->wallet_address,
+			'witness_event_id' => $res->witness_event_id,
 		];
 		return $output;
-	}
-
-	/** @inheritDoc */
-	public function needsWriteAccess() {
-		return false;
 	}
 
 	/** @inheritDoc */
@@ -64,5 +84,14 @@ class VerifyPageHandler extends SimpleHandler {
 				ParamValidator::PARAM_REQUIRED => true,
 			],
 		];
+	}
+
+	/** @inheritDoc */
+	protected function provideTitle( int $revId ): ?Title {
+		$revisionRecord = $this->revisionLookup->getRevisionById( $revId );
+		if ( !$revisionRecord ) {
+			throw new HttpException( "Not found", 404 );
+		}
+		return $revisionRecord->getPageAsLinkTarget();
 	}
 }
