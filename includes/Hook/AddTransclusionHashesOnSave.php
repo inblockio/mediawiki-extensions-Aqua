@@ -6,6 +6,7 @@ use CommentStoreComment;
 use DataAccounting\Content\TransclusionHashes;
 use DataAccounting\Hasher\DbRevisionVerificationRepo;
 use DataAccounting\Util\TransclusionHashExtractor;
+use DataAccounting\Verification\VerificationEngine;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Storage\Hook\MultiContentSaveHook;
@@ -19,15 +20,19 @@ use WikiPage;
 class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisionAddSlotsHook {
 	/** @var TransclusionHashes|null */
 	private ?TransclusionHashes $content = null;
+	/** @var WikiPage|null */
 	private ?WikiPage $wikiPage = null;
 	/** @var TitleFactory */
 	private TitleFactory $titleFactory;
+	/** @var VerificationEngine */
+	private VerificationEngine $verificationEngine;
 
 	/**
 	 * @param TitleFactory $titleFactory
 	 */
-	public function __construct( TitleFactory $titleFactory ) {
+	public function __construct( TitleFactory $titleFactory, VerificationEngine $verificationEngine ) {
 		$this->titleFactory = $titleFactory;
+		$this->verificationEngine = $verificationEngine;
 	}
 
 	/**
@@ -64,12 +69,7 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		// At this point we are in the middle of saving, all content slots for this edit must already
 		// be inserted, and page was just parsed (but not saved yet)
 		$po = $renderedRevision->getSlotParserOutput( SlotRecord::MAIN );
-
-		// TODO: this must be a service! Also, DataAccountingFactory should be a service
-		$verificationRepo = new DbRevisionVerificationRepo(
-			MediaWikiServices::getInstance()->getDBLoadBalancer()
-		);
-		$extractor = new TransclusionHashExtractor( $po, $this->titleFactory, $verificationRepo );
+		$extractor = new TransclusionHashExtractor( $po, $this->titleFactory, $this->verificationEngine );
 		$hashmap = $extractor->getHashmap();
 		// Now, with access to the PO of the main slot, we can extract included pages/files
 		// and add the to the hashes slot, using the content which we previously added to the revision
