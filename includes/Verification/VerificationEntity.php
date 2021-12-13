@@ -82,7 +82,7 @@ class VerificationEntity implements JsonSerializable {
 	 * @return string|null
 	 */
 	public function getHash(
-		$type = VerificationEntity::HASH_TYPE_VERIFICATION, $default = null
+		$type = self::HASH_TYPE_VERIFICATION, $default = null
 	): ?string {
 		if ( isset( $this->hashes[$type] ) && !empty( $this->hashes[$type] ) ) {
 			return $this->hashes[$type];
@@ -129,7 +129,7 @@ class VerificationEntity implements JsonSerializable {
 	/**
 	 * @return array
 	 */
-	function jsonSerialize() {
+	public function jsonSerialize() {
 		return [];
 	}
 }
