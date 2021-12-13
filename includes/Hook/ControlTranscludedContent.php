@@ -3,6 +3,7 @@
 namespace DataAccounting\Hook;
 
 use DataAccounting\TransclusionManager;
+use DataAccounting\Verification\VerificationEntity;
 use MediaWiki\Hook\BeforeParserFetchFileAndTitleHook;
 use MediaWiki\Hook\BeforeParserFetchTemplateRevisionRecordHook;
 use MediaWiki\Linker\LinkTarget;
@@ -69,14 +70,14 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 			return true;
 		}
 
-		$hash = $hashContent->getHashForResource( $nt );
-		if ( !$hash ) {
+		$transclusionInfo = $hashContent->getTransclusionDetails( $nt );
+		if ( $transclusionInfo === false || $transclusionInfo->{VerificationEntity::HASH_TYPE_CONTENT} === null ) {
 			// Image did not exist at the time of hashing, or not listed => show broken link
 			$options['broken'] = true;
 			return true;
 		}
 
-		$oldFile = $this->transclusionManager->getFileForHash( $hash, $file );
+		$oldFile = $this->transclusionManager->getFileForResource( $transclusionInfo, $file );
 		if ( !$oldFile ) {
 			return true;
 		}
@@ -95,6 +96,13 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 		return true;
 	}
 
+	/**
+	 * @param LinkTarget|null $contextTitle
+	 * @param LinkTarget $title
+	 * @param bool $skip
+	 * @param RevisionRecord|null $revRecord
+	 * @return bool|void
+	 */
 	public function onBeforeParserFetchTemplateRevisionRecord(
 		?LinkTarget $contextTitle, LinkTarget $title, bool &$skip, ?RevisionRecord &$revRecord
 	) {
@@ -109,12 +117,13 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 		if ( !$content ) {
 			return;
 		}
-		$hash = $content->getHashForResource( $title );
-		if ( !$hash ) {
+		$transclusionInfo = $content->getTransclusionDetails( $title );
+		if ( !$transclusionInfo ) {
 			$skip = true;
 			return;
 		}
-		$revRecord = $this->transclusionManager->getRevisionForHash( $hash );
+		// If this returns null, resource will not be transcluded
+		$revRecord = $this->transclusionManager->getRevisionForResource( $transclusionInfo );
 	}
 
 	/**

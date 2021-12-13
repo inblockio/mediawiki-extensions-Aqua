@@ -3,6 +3,9 @@
 namespace DataAccounting\Util;
 
 use DataAccounting\Hasher\RevisionVerificationRepo;
+use DataAccounting\Verification\VerificationEngine;
+use DataAccounting\Verification\VerificationLookup;
+use MWException;
 use ParserOutput;
 use Title;
 use TitleFactory;
@@ -13,16 +16,16 @@ class TransclusionHashExtractor {
 	/** @var TitleFactory */
 	private $titleFactory;
 	/** @var RevisionVerificationRepo */
-	private $revisionVerficationRepo;
+	private $verifcationEngine;
 	/** @var array|null */
 	private $hashMap = null;
 
 	public function __construct(
-		ParserOutput $po, TitleFactory $titleFactory, RevisionVerificationRepo $verificationRepo
+		ParserOutput $po, TitleFactory $titleFactory, VerificationEngine $verificationEngine
 	) {
 		$this->parserOutput = $po;
 		$this->titleFactory = $titleFactory;
-		$this->revisionVerficationRepo = $verificationRepo;
+		$this->verifcationEngine = $verificationEngine;
 	}
 
 	public function getHashmap(): array {
@@ -75,25 +78,30 @@ class TransclusionHashExtractor {
 		 * @var Title $title
 		 */
 		foreach ( $titles as $dbKey => $title ) {
-			$entity = [
+			$transclusion = [
 				'dbkey' => $title->getDBkey(),
 				'ns' => $title->getNamespace(),
 				'revid' => $title->getLatestRevID(),
-				'verification_hash' => null,
-				'hash_content' => null,
+				VerificationEntity::HASH_TYPE_GENESIS => null,
+				VerificationEntity::HASH_TYPE_VERIFICATION => null,
+				VerificationEntity::HASH_TYPE_CONTENT => null,
 			];
 			if ( $title->exists() ) {
-				$verificationData = $this->revisionVerficationRepo
-					->getRevisionVerificationData( $title->getLatestRevID() );
-				if ( !empty( $verificationData['verification_hash'] ) ) {
-					$entity['verification_hash'] = $verificationData['verification_hash'];
+				$entity = $this->verifcationEngine->getLookup()
+					->getVerificationEntityFromRevId( $title->getLatestRevID() );
+				if ( !$entity ) {
+					// this is just for sanity, should never even happen
+					throw new MWException( 'Failed to retrieve entity for revid ' . $title->getLatestRevID() );
 				}
-				if ( !empty( $verificationData['hash_content'] ) ) {
-					$entity['hash_content'] = $verificationData['hash_content'];
-				}
+				$transclusion[VerificationEntity::HASH_TYPE_GENESIS] =
+					$entity->getHash( VerificationEntity::HASH_TYPE_GENESIS );
+				$transclusion[VerificationEntity::HASH_TYPE_VERIFICATION] =
+					$entity->getHash( VerificationEntity::HASH_TYPE_VERIFICATION );
+				$transclusion[VerificationEntity::HASH_TYPE_CONTENT] =
+					$entity->getHash( VerificationEntity::HASH_TYPE_CONTENT );
 			}
 
-			$this->hashMap[] = $entity;
+			$this->hashMap[] = $transclusion;
 		}
 	}
 }
