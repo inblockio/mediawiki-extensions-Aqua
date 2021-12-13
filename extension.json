@@ -178,6 +178,15 @@
 			]
 		},
 		{
+			"path": "/data_accounting/get_revision/{verification_hash}",
+			"class": "DataAccounting\\API\\GetRevisionHandler",
+			"services": [
+				"PermissionManager",
+				"DBLoadBalancer",
+				"RevisionLookup"
+			]
+		},
+		{
 			"method": "POST",
 			"path": "/data_accounting/write/store_signed_tx",
 			"class": "DataAccounting\\API\\WriteStoreSignedTxHandler",
