@@ -130,7 +130,7 @@ class TransclusionManager {
 		}
 
 		$oldFiles = $file->getHistory();
-		foreach( $oldFiles as $oldFile ) {
+		foreach ( $oldFiles as $oldFile ) {
 			if ( $oldFile->getTimestamp() === $entity->getRevision()->getTimestamp() ) {
 				return $oldFile;
 			}

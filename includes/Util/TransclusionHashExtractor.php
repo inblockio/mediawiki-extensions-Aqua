@@ -5,6 +5,7 @@ namespace DataAccounting\Util;
 use DataAccounting\Hasher\RevisionVerificationRepo;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\VerificationLookup;
+use DataAccounting\Verification\VerificationEntity;
 use MWException;
 use ParserOutput;
 use Title;

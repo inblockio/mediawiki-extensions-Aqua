@@ -2,7 +2,6 @@
 
 namespace DataAccounting\Verification;
 
-
 use DateTime;
 use MediaWiki\Storage\RevisionRecord;
 use MediaWiki\Storage\RevisionStore;
@@ -48,7 +47,7 @@ class VerificationEntityFactory {
 
 		return new VerificationEntity(
 			$title, $revision, $hashes, $time, $row->signature,
-			$row->public_key, $row->wallet_address, $row->witness_event_id
+			$row->public_key, $row->wallet_address, (int)$row->witness_event_id
 		);
 	}
 
