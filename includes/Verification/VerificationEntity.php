@@ -9,7 +9,7 @@ use Title;
 
 class VerificationEntity implements JsonSerializable {
 	public const HASH_TYPE_VERIFICATION = 'verification_hash';
-	public const HASH_TYPE_CONTENT = 'hash_content';
+	public const HASH_TYPE_CONTENT = 'content_hash';
 	public const HASH_TYPE_GENESIS = 'genesis_hash';
 	public const HASH_TYPE_METADATA = 'hash_metadata';
 	public const HASH_TYPE_SIGNATURE = 'signature_hash';
@@ -22,6 +22,8 @@ class VerificationEntity implements JsonSerializable {
 	private $hashes;
 	/** @var DateTime */
 	private $time;
+	/** @var array */
+	private $verficationContext;
 	/** @var string */
 	private $signature;
 	/** @var string */
@@ -42,13 +44,14 @@ class VerificationEntity implements JsonSerializable {
 	 * @param string $witnessEventId
 	 */
 	public function __construct(
-		Title $title, RevisionRecord $revision, array $hashes, DateTime $time,
+		Title $title, RevisionRecord $revision, array $hashes, DateTime $time, array $verificationContext,
 		string $signature, string $publicKey, string $walletAddress, string $witnessEventId
 	) {
 		$this->title = $title;
 		$this->revision = $revision;
 		$this->hashes = $hashes;
 		$this->time = $time;
+		$this->verficationContext = $verificationContext;
 		$this->signature = $signature;
 		$this->publicKey = $publicKey;
 		$this->walletAddress = $walletAddress;
@@ -96,6 +99,13 @@ class VerificationEntity implements JsonSerializable {
 	 */
 	public function getTime(): DateTime {
 		return $this->time;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getVerificationContext(): array {
+		return $this->verficationContext;
 	}
 
 	/**

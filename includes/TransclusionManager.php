@@ -152,6 +152,9 @@ class TransclusionManager {
 	 * @return VerificationEntity|null
 	 */
 	private function getVerificationEntityForResource( $resourceDetails ): ?VerificationEntity {
+		if ( $resourceDetails->{VerificationEntity::HASH_TYPE_GENESIS} === null ) {
+			return null;
+		}
 		return $this->verificationEngine->getLookup()->getVerificationEntityFromQuery( [
 			'rev_id' => $resourceDetails->revid,
 			VerificationEntity::HASH_TYPE_GENESIS => $resourceDetails->{VerificationEntity::HASH_TYPE_GENESIS},

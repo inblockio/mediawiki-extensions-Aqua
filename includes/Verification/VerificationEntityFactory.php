@@ -44,9 +44,11 @@ class VerificationEntityFactory {
 		if ( !( $time instanceof DateTime ) ) {
 			return null;
 		}
+		$verificationContext = ( $row->verification_context === '' ) ?
+			[] : json_decode( $row->verification_context, 1 );
 
 		return new VerificationEntity(
-			$title, $revision, $hashes, $time, $row->signature,
+			$title, $revision, $hashes, $time, $verificationContext, $row->signature,
 			$row->public_key, $row->wallet_address, (int)$row->witness_event_id
 		);
 	}

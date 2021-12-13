@@ -122,8 +122,11 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 			$skip = true;
 			return;
 		}
-		// If this returns null, resource will not be transcluded
+
 		$revRecord = $this->transclusionManager->getRevisionForResource( $transclusionInfo );
+		if ( $revRecord === null ) {
+			$skip = true;
+		}
 	}
 
 	/**
