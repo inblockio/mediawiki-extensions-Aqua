@@ -55,7 +55,7 @@ class TransclusionHashes extends JsonContent {
 		foreach ( $data as $resource ) {
 			if (
 				$resource->dbkey === $resourceToUpdate->getDBkey() &&
-				$resource->ns = $resourceToUpdate->getNamespace()
+				$resource->ns === $resourceToUpdate->getNamespace()
 			) {
 				$resource->$type = $hash;
 				$this->mText = json_encode( $data );
@@ -93,7 +93,7 @@ class TransclusionHashes extends JsonContent {
 	) {
 		if ( $title->getLatestRevID() !== $revId ) {
 			$output->setText(
-				Message::newFromKey("da-transclusion-hash-ui-visit-latest" )->parseAsBlock()
+				Message::newFromKey( "da-transclusion-hash-ui-visit-latest" )->parseAsBlock()
 			);
 			return;
 		}
@@ -107,7 +107,7 @@ class TransclusionHashes extends JsonContent {
 		);
 		$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
 		$revision = $revisionStore->getRevisionById( $revId );
-		if ( $revision === null ){
+		if ( $revision === null ) {
 			return;
 		}
 		$states = $transclusionManager->getTransclusionState( $revision );
@@ -166,7 +166,6 @@ class TransclusionHashes extends JsonContent {
 		return $row;
 	}
 
-
 	/**
 	 * @return array
 	 */
@@ -177,6 +176,6 @@ class TransclusionHashes extends JsonContent {
 		if ( !$this->getData()->isGood() ) {
 			return [];
 		}
-		return (array) $this->getData()->getValue();
+		return (array)$this->getData()->getValue();
 	}
 }
