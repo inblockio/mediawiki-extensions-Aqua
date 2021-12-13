@@ -85,7 +85,7 @@ class RevisionVerificationBuilder {
 			'rev_id' => $rev->getID(),
 			'content_hash' => $contentHash,
 			'time_stamp' => $timestamp,
-			'hash_metadata' => $metadataHash,
+			'metadata_hash' => $metadataHash,
 			'verification_hash' => $verificationHash,
 			'signature' => '',
 			'public_key' => '',
