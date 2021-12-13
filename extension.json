@@ -187,6 +187,15 @@
 			]
 		},
 		{
+			"path": "/data_accounting/get_hash_chain_info/{id_type}/{id}",
+			"class": "DataAccounting\\API\\GetHashChainInfoHandler",
+			"services": [
+				"PermissionManager",
+				"TitleFactory",
+				"DBLoadBalancer"
+			]
+		},
+		{
 			"method": "POST",
 			"path": "/data_accounting/write/store_signed_tx",
 			"class": "DataAccounting\\API\\WriteStoreSignedTxHandler",
