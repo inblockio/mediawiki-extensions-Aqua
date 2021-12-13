@@ -12,7 +12,6 @@ use MediaWiki\Rest\LocalizedHttpException;
 use MediaWiki\Permissions\PermissionManager;
 
 use DataAccounting\API\GetPageAllRevsHandler;
-use DataAccounting\API\GetPageByRevIdHandler;
 use DataAccounting\API\GetPageLastRevHandler;
 use DataAccounting\API\RequestHashHandler;
 use DataAccounting\API\VerifyPageHandler;
@@ -141,51 +140,6 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		$response = $this->executeHandler(
 			new GetPageAllRevsHandler( ...$services ),
 			new RequestData( [ 'pathParams' => [ 'page_title' => $title ] ] )
-		);
-	}
-
-	/**
-	 * @covers \DataAccounting\API\GetPageByRevIdHandler
-	 */
-	public function testGetPageByRevId(): void {
-		// Testing the case when the rev_id is found.
-		$services = [
-			$this->getServiceContainer()->getPermissionManager(),
-			$this->getServiceContainer()->getDBLoadBalancer(),
-			$this->getServiceContainer()->getRevisionLookup(),
-		];
-		$requestData = new RequestData( [ 'pathParams' => [ 'rev_id' => 1 ] ] );
-		$this->expectContextPermissionDenied(
-			new GetPageByRevIdHandler( ...$services ),
-			$requestData
-		);
-		// Let's authorize the user. Because this API endpoint requires 'read'
-		// permission for the title that is related to given rev_id.
-		$services[0] = $this->createMock( PermissionManager::class );
-		$services[0]->method( 'userCan' )->willReturn( true );
-		$response = $this->executeHandler(
-			new GetPageByRevIdHandler( ...$services ),
-			$requestData
-		);
-		$this->assertJsonContentType( $response );
-		$data = $this->getJsonBody( $response );
-		$this->assertIsArray( $data, 'Body must be a JSON array' );
-		$keys = [
-			'page_title',
-			'page_id'
-		];
-		foreach ( $keys as $key ) {
-			$this->assertArrayHasKey( $key, $data );
-		}
-		$this->assertSame( 1, (int)$data['page_id'] );
-
-		// Testing the case when the rev_id is not found.
-		$this->expectExceptionObject(
-			new HttpException( "Not found", 404 )
-		);
-		$response = $this->executeHandler(
-			new GetPageByRevIdHandler( ...$services ),
-			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
 		);
 	}
 
