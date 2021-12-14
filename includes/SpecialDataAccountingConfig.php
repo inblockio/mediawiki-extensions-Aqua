@@ -20,7 +20,7 @@ use Exception;
 use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
-use MutatableConfig;
+use MutableConfig;
 use PermissionsError;
 use SpecialPage;
 
@@ -29,10 +29,7 @@ require_once 'ApiUtil.php';
 
 class SpecialDataAccountingConfig extends SpecialPage {
 
-	/**
-	 * @var PermissionManager
-	 */
-	private $permManager;
+	private PermissionManager $permManager;
 
 	public function __construct() {
 		parent::__construct( 'DataAccountingConfig' );
@@ -46,7 +43,7 @@ class SpecialDataAccountingConfig extends SpecialPage {
 	 *
 	 * @throws PermissionsError
 	 */
-	public function execute( $par = null ) {
+	public function execute( $par ) {
 		$this->setHeaders();
 
 		$user = $this->getUser();
@@ -88,30 +85,42 @@ class SpecialDataAccountingConfig extends SpecialPage {
 		$htmlForm = new HTMLForm( $formDescriptor, $this->getContext(), 'daForm' );
 		$htmlForm->setSubmitText( 'Save' );
 		$htmlForm->setSubmitCallback( function( array $formData ) {
-			return $this->save( $formData );
+			$res = $this->save( $formData );
+			if ( $res === true ) {
+				// else the form would disappear
+				return false;
+			}
+			return $res;
 		} );
 		$htmlForm->show();
 	}
 
-	/**
-	 * @return MutatableConfig
-	 */
-	public function getConfig() {
+	public function getConfig(): MutableConfig {
 		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 	}
 
 	/**
+	 * @see: HTMLForm::trySubmit
 	 * @param array $formData
+	 * @return bool|string|array|Status
+	 *     - Bool true or a good Status object indicates success,
+	 *     - Bool false indicates no submission was attempted,
+	 *     - Anything else indicates failure. The value may be a fatal Status
+	 *       object, an HTML string, or an array of arrays (message keys and
+	 *       params) or strings (message keys)
 	 */
 	private function save( array $formData ) {
+		$errors = [];
 		// TODO: validate user input!
 		foreach ( $formData as $name => $value ) {
 			try {
 				$this->getConfig()->set( $name, $value );
 			} catch ( Exception $e ) {
 				// TODO: display errors "saving '$name' has error: {$e->getMessage()}"
+				$errors[] = $e->getMessage();
 				continue;
 			}
 		}
+		return empty( $errors ) ? true : $errors;
 	}
 }

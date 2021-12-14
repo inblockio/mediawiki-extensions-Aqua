@@ -12,6 +12,7 @@ namespace DataAccounting;
 
 use Exception;
 
+use Config;
 use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
@@ -19,7 +20,9 @@ use PermissionsError;
 use Rht\Merkle\FixedSizeTree;
 use SpecialPage;
 use Title;
+use OutputPage;
 use WikiPage;
+use Wikimedia\Rdbms\DBConnRef;
 
 require 'vendor/autoload.php';
 
@@ -93,10 +96,7 @@ function storeMerkleTree( $dbw, $witness_event_id, $treeLayers, $depth = 0 ) {
 
 class SpecialWitness extends SpecialPage {
 
-	/**
-	 * @var PermissionManager
-	 */
-	private $permManager;
+	private PermissionManager $permManager;
 
 	/**
 	 * Initialize the special page.
@@ -114,7 +114,7 @@ class SpecialWitness extends SpecialPage {
 	/**
 	 * Shows the page to the user.
 	 *
-	 * @param string $sub The subpage string argument (if any).
+	 * @param string|null $sub The subpage string argument (if any).
 	 *
 	 * @throws PermissionsError
 	 */
@@ -130,11 +130,14 @@ class SpecialWitness extends SpecialPage {
 		$htmlForm->setSubmitText( 'Generate Domain Manifest' );
 		$htmlForm->setSubmitCallback( [ $this, 'generateDomainManifest' ] );
 		$htmlForm->show();
-
-		$out = $this->getOutput();
 	}
 
-	public function helperGenerateDomainManifestTable( $dbw, $out, $witness_event_id, $output ) {
+	public function helperGenerateDomainManifestTable(
+		DBConnRef $dbw,
+		OutputPage $out,
+		int $witness_event_id,
+		string $output
+	): array {
 		// For the table
 		$output .= <<<EOD
 
@@ -201,7 +204,7 @@ class SpecialWitness extends SpecialPage {
 		return [ true, $verification_hashes, $output ];
 	}
 
-	public function helperGenerateDomainManifestMerkleTree( $verification_hashes ) {
+	public function helperGenerateDomainManifestMerkleTree( array $verification_hashes ): array {
 		$hasher = function ( $data ) {
 			return hash( 'sha3-512', $data, false );
 		};
@@ -214,7 +217,12 @@ class SpecialWitness extends SpecialPage {
 		return $treeLayers;
 	}
 
-	public function helperMakeNewDomainManifestpage( $dbw, $witness_event_id, $treeLayers, $output ) {
+	public function helperMakeNewDomainManifestpage(
+		DBConnRef $dbw,
+		int $witness_event_id,
+		array $treeLayers,
+		string $output
+	): array {
 		//Generate the Domain Manifest as a new page
 		//6942 is custom namespace. See namespace definition in extension.json.
 		$title = Title::newFromText( "DomainManifest $witness_event_id", 6942 );
@@ -244,7 +252,13 @@ class SpecialWitness extends SpecialPage {
 		return [ $title, $domainManifestVH, $merkleTreeHtmlText ];
 	}
 
-	public function helperMaybeInsertWitnessEvent( $dbw, $domain_manifest_verification_hash, $witness_event_id, $title, $merkle_root ) {
+	public function helperMaybeInsertWitnessEvent(
+		DBConnRef $dbw,
+		string $domain_manifest_verification_hash,
+		int $witness_event_id,
+		Title $title,
+		array $merkle_root
+	) {
 		// Check if $witness_event_id is already present in the witness_events
 		// table. If not, do insert.
 
@@ -277,7 +291,17 @@ class SpecialWitness extends SpecialPage {
 		}
 	}
 
-	public function generateDomainManifest( $formData ) {
+	/**
+	 * @see: HTMLForm::trySubmit
+	 * @param array $formData
+	 * @return bool|string|array|Status
+	 *     - Bool true or a good Status object indicates success,
+	 *     - Bool false indicates no submission was attempted,
+	 *     - Anything else indicates failure. The value may be a fatal Status
+	 *       object, an HTML string, or an array of arrays (message keys and
+	 *       params) or strings (message keys)
+	 */
+	public function generateDomainManifest( array $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
 
@@ -332,15 +356,11 @@ class SpecialWitness extends SpecialPage {
 		return true;
 	}
 
-	/** @inheritDoc */
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'other';
 	}
 
-	/**
-	 * @return Config
-	 */
-	public function getConfig() {
+	public function getConfig(): Config {
 		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 	}
 }

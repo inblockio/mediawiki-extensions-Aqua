@@ -21,7 +21,9 @@ use Wikimedia\Rdbms\ILoadBalancer;
  * - Disable conditional display of options for now.
  */
 class SpecialVerifiedExport extends SpecialPage {
-	protected $doExport, $pageLinkDepth, $templates;
+	protected bool $doExport;
+	protected int $pageLinkDepth;
+	protected bool $templates;
 
 	private ILoadBalancer $loadBalancer;
 
@@ -30,6 +32,9 @@ class SpecialVerifiedExport extends SpecialPage {
 		$this->loadBalancer = $loadBalancer ?? MediaWikiServices::getInstance()->getDBLoadBalancer();
 	}
 
+	/**
+	 * @param string|null $par
+	 */
 	public function execute( $par ) {
 		$this->setHeaders();
 		$this->outputHeader();
@@ -39,7 +44,7 @@ class SpecialVerifiedExport extends SpecialPage {
 		$request = $this->getRequest();
 		$this->templates = $request->getCheck( 'templates' );
 		$this->pageLinkDepth = $this->validateLinkDepth(
-			$request->getIntOrNull( 'pagelink-depth' )
+			$request->getInt( 'pagelink-depth', -1 )
 		);
 		$nsindex = '';
 		$exportall = false;
@@ -302,7 +307,7 @@ class SpecialVerifiedExport extends SpecialPage {
 	/**
 	 * @return bool
 	 */
-	protected function userCanOverrideExportDepth() {
+	protected function userCanOverrideExportDepth(): bool {
 		return $this->getAuthority()->isAllowed( 'override-export-depth' );
 	}
 
@@ -310,12 +315,17 @@ class SpecialVerifiedExport extends SpecialPage {
 	 * Do the actual page exporting
 	 *
 	 * @param string $page User input on what page(s) to export
-	 * @param int $history One of the WikiExporter history export constants
+	 * @param array $history One of the WikiExporter history export constants
 	 * @param bool $list_authors Whether to add distinct author list (when
 	 *   not returning full history)
 	 * @param bool $exportall Whether to export everything
 	 */
-	protected function doExport( $page, $history, $list_authors, $exportall ) {
+	protected function doExport(
+		string $page,
+		array $history,
+		bool $list_authors,
+		bool $exportall
+	) {
 		// If we are grabbing everything, enable full history and ignore the rest
 		if ( $exportall ) {
 			$history = WikiExporter::FULL;
@@ -388,7 +398,7 @@ class SpecialVerifiedExport extends SpecialPage {
 	 * @param Title $title
 	 * @return string[]
 	 */
-	protected function getPagesFromCategory( $title ) {
+	protected function getPagesFromCategory( Title $title ): array {
 		$maxPages = $this->getConfig()->get( 'ExportPagelistLimit' );
 
 		$name = $title->getDBkey();
@@ -415,7 +425,7 @@ class SpecialVerifiedExport extends SpecialPage {
 	 * @param int $nsindex
 	 * @return string[]
 	 */
-	protected function getPagesFromNamespace( $nsindex ) {
+	protected function getPagesFromNamespace( int $nsindex ): array {
 		$maxPages = $this->getConfig()->get( 'ExportPagelistLimit' );
 
 		$dbr = $this->loadBalancer->getConnectionRef( ILoadBalancer::DB_REPLICA );
@@ -442,7 +452,7 @@ class SpecialVerifiedExport extends SpecialPage {
 	 * @param array $pageSet Associative array indexed by titles for output
 	 * @return array Associative array index by titles
 	 */
-	protected function getTemplates( $inputPages, $pageSet ) {
+	protected function getTemplates( array $inputPages, array $pageSet ): array {
 		return $this->getLinks( $inputPages, $pageSet,
 			'templatelinks',
 			[ 'namespace' => 'tl_namespace', 'title' => 'tl_title' ],
@@ -452,10 +462,8 @@ class SpecialVerifiedExport extends SpecialPage {
 
 	/**
 	 * Validate link depth setting, if available.
-	 * @param int $depth
-	 * @return int
 	 */
-	protected function validateLinkDepth( $depth ) {
+	protected function validateLinkDepth( int $depth ): int {
 		if ( $depth < 0 ) {
 			return 0;
 		}
@@ -478,12 +486,8 @@ class SpecialVerifiedExport extends SpecialPage {
 
 	/**
 	 * Expand a list of pages to include pages linked to from that page.
-	 * @param array $inputPages
-	 * @param array $pageSet
-	 * @param int $depth
-	 * @return array
 	 */
-	protected function getPageLinks( $inputPages, $pageSet, $depth ) {
+	protected function getPageLinks( array $inputPages, array $pageSet, int $depth ): array {
 		for ( ; $depth > 0; --$depth ) {
 			$pageSet = $this->getLinks(
 				$inputPages, $pageSet, 'pagelinks',
@@ -498,14 +502,14 @@ class SpecialVerifiedExport extends SpecialPage {
 
 	/**
 	 * Expand a list of pages to include items used in those pages.
-	 * @param array $inputPages Array of page titles
-	 * @param array $pageSet
-	 * @param string $table
-	 * @param array $fields Array of field names
-	 * @param array $join
-	 * @return array
 	 */
-	protected function getLinks( $inputPages, $pageSet, $table, $fields, $join ) {
+	protected function getLinks(
+		array $inputPages,
+		array $pageSet,
+		string $table,
+		array $fields,
+		array $join
+	): array {
 		$dbr = $this->loadBalancer->getConnectionRef( ILoadBalancer::DB_REPLICA );
 
 		foreach ( $inputPages as $page ) {
@@ -538,14 +542,11 @@ class SpecialVerifiedExport extends SpecialPage {
 		return $pageSet;
 	}
 
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'pagetools';
 	}
 
-	/**
-	 * @return Config
-	 */
-	public function getConfig() {
+	public function getConfig(): Config {
 		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 	}
 }

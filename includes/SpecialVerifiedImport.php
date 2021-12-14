@@ -26,6 +26,7 @@
 
 namespace DataAccounting;
 
+use Config;
 use HTMLForm;
 use ImportReporter;
 use ImportStreamSource;
@@ -34,7 +35,6 @@ use MediaWiki\Permissions\PermissionManager;
 use PermissionsError;
 use SpecialPage;
 use Status;
-use Xml;
 
 /**
  * DataAccounting modifications:
@@ -50,14 +50,11 @@ use Xml;
  * @ingroup SpecialPage
  */
 class SpecialVerifiedImport extends SpecialPage {
-	/** @var array */
-	private $importSources;
+	private array $importSources = [];
 
-	/** @var PermissionManager */
-	private $permManager;
+	private PermissionManager $permManager;
 
-	/** @var VerifiedWikiImporterFactory */
-	private $wikiImporterFactory;
+	private VerifiedWikiImporterFactory $wikiImporterFactory;
 
 	/**
 	 * @param PermissionManager $permManager
@@ -74,7 +71,7 @@ class SpecialVerifiedImport extends SpecialPage {
 		$this->wikiImporterFactory = $wikiImporterFactory;
 	}
 
-	public function doesWrites() {
+	public function doesWrites(): bool {
 		return true;
 	}
 
@@ -279,7 +276,7 @@ class SpecialVerifiedImport extends SpecialPage {
 		}
 	}
 
-	private function getMappingFormPart( $sourceName ) {
+	private function getMappingFormPart( string $sourceName ) {
 		$defaultNamespace = $this->getConfig()->get( 'ImportTargetNamespace' );
 		return [
 			'mapping' => [
@@ -470,14 +467,11 @@ class SpecialVerifiedImport extends SpecialPage {
 		}
 	}
 
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'pagetools';
 	}
 
-	/**
-	 * @return Config
-	 */
-	public function getConfig() {
+	public function getConfig(): Config {
 		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 	}
 }

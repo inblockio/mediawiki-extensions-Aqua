@@ -6,6 +6,7 @@
 
 namespace DataAccounting;
 
+use Config;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
 use PermissionsError;
@@ -32,10 +33,7 @@ function shortenDomainManifestTitle( $dm ) {
 
 class SpecialWitnessPublisher extends SpecialPage {
 
-	/**
-	 * @var PermissionManager
-	 */
-	private $permManager;
+	private PermissionManager $permManager;
 
 	/**
 	 * Initialize the special page.
@@ -51,7 +49,7 @@ class SpecialWitnessPublisher extends SpecialPage {
 	/**
 	 * Shows the page to the user.
 	 *
-	 * @param string $sub The subpage string argument (if any).
+	 * @param string|null $sub The subpage string argument (if any).
 	 *
 	 * @throws PermissionsError
 	 */
@@ -145,14 +143,11 @@ class SpecialWitnessPublisher extends SpecialPage {
 	}
 
 	/** @inheritDoc */
-	protected function getGroupName() {
+	protected function getGroupName(): string {
 		return 'other';
 	}
 
-	/**
-	 * @return Config
-	 */
-	public function getConfig() {
+	public function getConfig(): Config {
 		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 	}
 }
