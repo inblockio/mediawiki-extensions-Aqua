@@ -326,6 +326,7 @@ class SpecialVerifiedExport extends SpecialPage {
 		bool $list_authors,
 		bool $exportall
 	) {
+		$pages = [];
 		// If we are grabbing everything, enable full history and ignore the rest
 		if ( $exportall ) {
 			$history = WikiExporter::FULL;
