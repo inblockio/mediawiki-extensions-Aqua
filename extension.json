@@ -120,7 +120,7 @@
 		"XmlDumpWriterOpenPage": "DataAccounting\\Hooks::onXmlDumpWriterOpenPage",
 		"XmlDumpWriterWriteRevision": "DataAccounting\\Hooks::onXmlDumpWriterWriteRevision",
 		"ImportHandlePageXMLTag": "DataAccounting\\Hooks::onImportHandlePageXMLTag",
-		"MediaWikiServices": [ "registerRevisionSlots", "overridePageUpdaterFactory" ],
+		"MediaWikiServices": [ "registerRevisionSlots", "overrideService" ],
 		"DASaveRevisionAddSlots": "addTransclusionHashes",
 		"MultiContentSave": "addTransclusionHashes",
 		"BeforeParserFetchTemplateRevisionRecord": "controlTranscludedContent",
@@ -137,8 +137,8 @@
 		"registerRevisionSlots": {
 			"class": "DataAccounting\\Hook\\RegisterRevisionSlots"
 		},
-		"overridePageUpdaterFactory": {
-			"class": "DataAccounting\\Hook\\OverridePageUpdaterFactory"
+		"overrideService": {
+			"class": "DataAccounting\\Hook\\OverrideServices"
 		},
 		"addTransclusionHashes": {
 			"class": "DataAccounting\\Hook\\AddTransclusionHashesOnSave",
@@ -286,7 +286,8 @@
 	],
 	"ContentHandlers": {
 		"signature": "DataAccounting\\ContentHandler\\SignatureHandler",
-		"transclusion-hashes": "DataAccounting\\ContentHandler\\TransclusionHashesHandler"
+		"transclusion-hashes": "DataAccounting\\ContentHandler\\TransclusionHashesHandler",
+		"file-verification": "DataAccounting\\ContentHandler\\FileVerificationHandler"
 	},
 	"manifest_version": 2
 }

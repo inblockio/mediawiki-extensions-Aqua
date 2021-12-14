@@ -3,8 +3,8 @@
 namespace DataAccounting\Hook;
 
 use CommentStoreComment;
+use DataAccounting\Content\FileVerificationContent;
 use DataAccounting\Content\TransclusionHashes;
-use DataAccounting\Hasher\DbRevisionVerificationRepo;
 use DataAccounting\Util\TransclusionHashExtractor;
 use DataAccounting\Verification\VerificationEngine;
 use MediaWiki\MediaWikiServices;
@@ -46,10 +46,20 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 			return;
 		}
 		$this->wikiPage = $wikiPage;
+		if ( $wikiPage->getTitle()->getNamespace() === NS_FILE ) {
+			$repoGroup = MediaWikiServices::getInstance()->getRepoGroup();
+			$file = $repoGroup->findFile( $wikiPage->getTitle() );
+			if ( $file && $file->isLocal() ) {
+				$content = FileVerificationContent::newFromFile( $file );
+				if ( $content ) {
+					//$updater->setContent( FileVerificationContent::SLOT_ROLE_FILE_VERIFICATION, $content );
+				}
+			}
+		}
+
 		// This happens before saving of revision is initiated
 		// We create an empty content for the hashes and store reference to it
 		$this->content = new TransclusionHashes( '[]' );
-
 		// We set it to the appropriate revision slot
 		$updater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $this->content );
 	}

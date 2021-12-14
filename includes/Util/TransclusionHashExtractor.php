@@ -4,7 +4,6 @@ namespace DataAccounting\Util;
 
 use DataAccounting\Hasher\RevisionVerificationRepo;
 use DataAccounting\Verification\VerificationEngine;
-use DataAccounting\Verification\VerificationLookup;
 use DataAccounting\Verification\VerificationEntity;
 use MWException;
 use ParserOutput;
@@ -73,6 +72,11 @@ class TransclusionHashExtractor {
 		}
 	}
 
+	/**
+	 * TODO: Move this to TransclusionManager
+	 * @param array $titles
+	 * @throws MWException
+	 */
 	private function retrieveHashes( array $titles ) {
 		/**
 		 * @var string $dbKey
@@ -83,9 +87,9 @@ class TransclusionHashExtractor {
 				'dbkey' => $title->getDBkey(),
 				'ns' => $title->getNamespace(),
 				'revid' => $title->getLatestRevID(),
-				VerificationEntity::HASH_TYPE_GENESIS => null,
-				VerificationEntity::HASH_TYPE_VERIFICATION => null,
-				VerificationEntity::HASH_TYPE_CONTENT => null,
+				VerificationEntity::GENESIS_HASH => null,
+				VerificationEntity::VERIFICATION_HASH => null,
+				VerificationEntity::CONTENT_HASH => null,
 			];
 			if ( $title->exists() ) {
 				$entity = $this->verifcationEngine->getLookup()
@@ -94,12 +98,12 @@ class TransclusionHashExtractor {
 					// this is just for sanity, should never even happen
 					throw new MWException( 'Failed to retrieve entity for revid ' . $title->getLatestRevID() );
 				}
-				$transclusion[VerificationEntity::HASH_TYPE_GENESIS] =
-					$entity->getHash( VerificationEntity::HASH_TYPE_GENESIS );
-				$transclusion[VerificationEntity::HASH_TYPE_VERIFICATION] =
-					$entity->getHash( VerificationEntity::HASH_TYPE_VERIFICATION );
-				$transclusion[VerificationEntity::HASH_TYPE_CONTENT] =
-					$entity->getHash( VerificationEntity::HASH_TYPE_CONTENT );
+				$transclusion[VerificationEntity::GENESIS_HASH] =
+					$entity->getHash( VerificationEntity::GENESIS_HASH );
+				$transclusion[VerificationEntity::VERIFICATION_HASH] =
+					$entity->getHash( VerificationEntity::VERIFICATION_HASH );
+				$transclusion[VerificationEntity::CONTENT_HASH] =
+					$entity->getHash( VerificationEntity::CONTENT_HASH );
 			}
 
 			$this->hashMap[] = $transclusion;

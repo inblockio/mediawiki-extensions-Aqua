@@ -40,24 +40,27 @@ class TransclusionHashes extends JsonContent {
 	}
 
 	/**
-	 * @param Title $resourceToUpdate
-	 * @param string $hash
-	 * @param string $type Hash type
+	 * @param Title $resourceTitle
+	 * @param array $newData
 	 * @return bool
 	 */
-	public function updateHashForResource(
-		Title $resourceToUpdate, string $hash, $type
-	): bool {
+	public function updateResource( Title $resourceTitle, $newData = [] ) {
 		if ( !$this->isValid() ) {
 			return false;
 		}
+		// Cannot change these...
+		unset( $newData['dbkey'] );
+		unset( $newData['ns'] );
+
 		$data = $this->getData()->getValue();
 		foreach ( $data as $resource ) {
 			if (
-				$resource->dbkey === $resourceToUpdate->getDBkey() &&
-				$resource->ns === $resourceToUpdate->getNamespace()
+				$resource->dbkey === $resourceTitle->getDBkey() &&
+				$resource->ns === $resourceTitle->getNamespace()
 			) {
-				$resource->$type = $hash;
+				foreach ( $newData as $key => $value ) {
+					$resource->$key = $value;
+				}
 				$this->mText = json_encode( $data );
 				return true;
 			}

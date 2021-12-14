@@ -14,6 +14,7 @@ use MediaWiki\Storage\RevisionStore;
 use MediaWiki\User\UserIdentity;
 use Title;
 use TitleFactory;
+use const http\Client\Curl\VERSIONS;
 
 class TransclusionManager {
 	public const STATE_NEW_VERSION = 'new-version';
@@ -69,7 +70,7 @@ class TransclusionManager {
 				'state' => static::STATE_INVALID,
 			];
 			$latestEntity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
-			if ( $transclusion->{VerificationEntity::HASH_TYPE_VERIFICATION} === null ) {
+			if ( $transclusion->{VerificationEntity::VERIFICATION_HASH} === null ) {
 				// Title didnt exist at time of transclusion...
 				if ( $latestEntity ) {
 					//... but now exists
@@ -81,19 +82,16 @@ class TransclusionManager {
 			} else {
 				$recordedEntity = $this->verificationEngine->getLookup()->getVerificationEntityFromQuery( [
 					'rev_id' => $transclusion->revid,
-					VerificationEntity::HASH_TYPE_GENESIS => $transclusion->{VerificationEntity::HASH_TYPE_GENESIS},
-					VerificationEntity::HASH_TYPE_CONTENT => $transclusion->{VerificationEntity::HASH_TYPE_CONTENT},
+					VerificationEntity::GENESIS_HASH => $transclusion->{VerificationEntity::GENESIS_HASH},
+					VerificationEntity::CONTENT_HASH => $transclusion->{VerificationEntity::CONTENT_HASH},
 				] );
 				if ( $recordedEntity === null || $latestEntity === null ) {
 					// Entity no longer exists in DB => something weird happening
 					$state['state'] = static::STATE_INVALID;
-				} elseif (
-					$recordedEntity->getHash( VerificationEntity::HASH_TYPE_CONTENT ) ===
-					$latestEntity->getHash( VerificationEntity::HASH_TYPE_CONTENT )
-				) {
-					$states['state'] = static::STATE_UNCHANGED;
 				} elseif ( $recordedEntity->getRevision()->getId() < $latestEntity->getRevision()->getId() ) {
-					$states['state'] = static::STATE_NEW_VERSION;
+					$state['state'] = static::STATE_NEW_VERSION;
+				} else {
+					$state['state'] = static::STATE_UNCHANGED;
 				}
 			}
 
@@ -152,13 +150,13 @@ class TransclusionManager {
 	 * @return VerificationEntity|null
 	 */
 	private function getVerificationEntityForResource( $resourceDetails ): ?VerificationEntity {
-		if ( $resourceDetails->{VerificationEntity::HASH_TYPE_GENESIS} === null ) {
+		if ( $resourceDetails->{VerificationEntity::GENESIS_HASH} === null ) {
 			return null;
 		}
 		return $this->verificationEngine->getLookup()->getVerificationEntityFromQuery( [
 			'rev_id' => $resourceDetails->revid,
-			VerificationEntity::HASH_TYPE_GENESIS => $resourceDetails->{VerificationEntity::HASH_TYPE_GENESIS},
-			VerificationEntity::HASH_TYPE_CONTENT => $resourceDetails->{VerificationEntity::HASH_TYPE_CONTENT},
+			VerificationEntity::GENESIS_HASH => $resourceDetails->{VerificationEntity::GENESIS_HASH},
+			VerificationEntity::CONTENT_HASH => $resourceDetails->{VerificationEntity::CONTENT_HASH},
 		] );
 	}
 
@@ -195,16 +193,17 @@ class TransclusionManager {
 		if ( $wikipage === null ) {
 			return false;
 		}
-		$content->updateHashForResource(
-			$resourceTitle,
-			$entity->getHash( VerificationEntity::HASH_TYPE_VERIFICATION ),
-			VerificationEntity::HASH_TYPE_VERIFICATION
-		);
-		$content->updateHashForResource(
-			$resourceTitle,
-			$entity->getHash( VerificationEntity::HASH_TYPE_CONTENT ),
-			VerificationEntity::HASH_TYPE_CONTENT
-		);
+
+		$data = [
+			'revid' => $resourceTitle->getLatestRevID(),
+			VerificationEntity::GENESIS_HASH => $entity->getHash( VerificationEntity::GENESIS_HASH ),
+			VerificationEntity::VERIFICATION_HASH => $entity->getHash( VerificationEntity::VERIFICATION_HASH ),
+			VerificationEntity::CONTENT_HASH => $entity->getHash( VerificationEntity::CONTENT_HASH )
+		];
+		$updateRes = $content->updateResource( $resourceTitle, $data );
+		if ( !$updateRes ) {
+			return false;
+		}
 		$pageUpdater = $this->pageUpdaterFactory->newPageUpdater( $wikipage, $user );
 		$pageUpdater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $content );
 
