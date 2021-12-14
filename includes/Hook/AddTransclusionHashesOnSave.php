@@ -48,7 +48,7 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 			if ( $file && $file->isLocal() ) {
 				$content = FileVerificationContent::newFromFile( $file );
 				if ( $content ) {
-					//$updater->setContent( FileVerificationContent::SLOT_ROLE_FILE_VERIFICATION, $content );
+					$updater->setContent( FileVerificationContent::SLOT_ROLE_FILE_VERIFICATION, $content );
 				}
 			}
 		}
