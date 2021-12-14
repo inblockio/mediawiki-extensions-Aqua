@@ -257,7 +257,7 @@ class SpecialWitness extends SpecialPage {
 		string $domain_manifest_verification_hash,
 		int $witness_event_id,
 		Title $title,
-		array $merkle_root
+		string $merkle_root
 	) {
 		// Check if $witness_event_id is already present in the witness_events
 		// table. If not, do insert.
