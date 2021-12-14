@@ -1,6 +1,6 @@
 <?php
 
-namespace DataAccounting\Storage;
+namespace DataAccounting\Override\Storage;
 
 use JobQueueGroup;
 use Language;
