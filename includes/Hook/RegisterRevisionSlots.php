@@ -5,8 +5,6 @@ namespace DataAccounting\Hook;
 use DataAccounting\Content\FileVerificationContent;
 use DataAccounting\Content\SignatureContent;
 use DataAccounting\Content\TransclusionHashes;
-use DataAccounting\SlotRoleHandler\SignatureSlotHandler;
-use DataAccounting\SlotRoleHandler\TransclusionHashesSlotHandler;
 use MediaWiki\Hook\MediaWikiServicesHook;
 use MediaWiki\Revision\SlotRoleRegistry;
 
@@ -18,10 +16,7 @@ class RegisterRevisionSlots implements MediaWikiServicesHook {
 			function( SlotRoleRegistry $registry ) {
 				$this->registerSignatureRole( $registry );
 				$this->registerTransclusionHashesRole( $registry );
-<<<<<<< HEAD
 				$this->registerFileVerificationRole( $registry );
-=======
->>>>>>> 2e559fd... feat!: Keep hashmap of included resources
 			}
 		);
 	}
@@ -47,7 +42,6 @@ class RegisterRevisionSlots implements MediaWikiServicesHook {
 			[ 'display' => 'section' ]
 		);
 	}
-<<<<<<< HEAD
 
 	private function registerFileVerificationRole( SlotRoleRegistry $registry ) {
 		if ( $registry->isDefinedRole( FileVerificationContent::SLOT_ROLE_FILE_VERIFICATION ) ) {
@@ -59,6 +53,4 @@ class RegisterRevisionSlots implements MediaWikiServicesHook {
 			[ 'display' => 'section' ]
 		);
 	}
-=======
->>>>>>> 2e559fd... feat!: Keep hashmap of included resources
 }
