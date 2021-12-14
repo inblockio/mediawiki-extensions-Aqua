@@ -36,7 +36,7 @@ class VerificationLookup {
 	 * @return VerificationEntity|null
 	 */
 	public function verificationEntityFromHash( string $hash ): ?VerificationEntity {
-		return $this->getVerificationEntityFromQuery( [ VerificationEntity::HASH_TYPE_VERIFICATION => $hash ] );
+		return $this->getVerificationEntityFromQuery( [ VerificationEntity::VERIFICATION_HASH => $hash ] );
 	}
 
 	/**
@@ -65,7 +65,8 @@ class VerificationLookup {
 			static::TABLE,
 			[ '*' ],
 			$query,
-			__METHOD__
+			__METHOD__,
+			[ 'ORDER BY' => [ 'rev_id DESC' ] ],
 		);
 
 		if ( !$res ) {

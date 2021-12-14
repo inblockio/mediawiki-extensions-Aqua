@@ -1,6 +1,6 @@
 <?php
 
-namespace DataAccounting\Storage;
+namespace DataAccounting\Override\Storage;
 
 use CommentStoreComment;
 use MediaWiki\Config\ServiceOptions;
