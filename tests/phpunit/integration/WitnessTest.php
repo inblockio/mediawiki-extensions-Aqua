@@ -88,7 +88,7 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 		$sp = new SpecialWitness( $this->permissionManagerMock );
 		$sp->getOutput()->setTitle( Title::newFromText( 'Witness' ) );
 		// Test that generating domain manifest works.
-		$sp->generateDomainManifest( "" );
+		$sp->generateDomainManifest( [] );
 
 		// Test for getWitnessData.
 		$data = $this->executeHandlerAndGetBodyData(
