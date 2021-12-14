@@ -14,6 +14,7 @@ use MediaWiki\Storage\RevisionStore;
 use MediaWiki\User\UserIdentity;
 use Title;
 use TitleFactory;
+use const http\Client\Curl\VERSIONS;
 
 class TransclusionManager {
 	public const STATE_NEW_VERSION = 'new-version';
