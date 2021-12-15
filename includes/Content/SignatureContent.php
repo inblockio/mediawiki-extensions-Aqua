@@ -18,6 +18,7 @@ class SignatureContent extends JsonContent {
 
 	public function __construct( $text ) {
 		parent::__construct( $text, static::CONTENT_MODEL_SIGNATURE );
+
 		$this->userFactory = MediaWikiServices::getInstance()->getUserFactory();
 	}
 

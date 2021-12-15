@@ -26,6 +26,7 @@ class GetRevisionHandler extends ContextAuthorized {
 	) {
 		parent::__construct( $permissionManager );
 		$this->verificationEngine = $verificationEngine;
+
 	}
 
 	/** @inheritDoc */

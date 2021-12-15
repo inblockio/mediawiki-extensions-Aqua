@@ -12,7 +12,6 @@ use Wikimedia\Rdbms\LoadBalancer;
 require_once __DIR__ . "/../ApiUtil.php";
 
 class GetRevisionHashesHandler extends ContextAuthorized {
-
 	/**
 	 * @var LoadBalancer
 	 */
