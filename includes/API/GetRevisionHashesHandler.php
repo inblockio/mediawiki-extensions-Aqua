@@ -8,7 +8,6 @@ use MediaWiki\Revision\RevisionLookup;
 use Title;
 use Wikimedia\ParamValidator\ParamValidator;
 use Wikimedia\Rdbms\LoadBalancer;
-use MediaWiki\Revision\SlotRecord;
 
 require_once __DIR__ . "/../ApiUtil.php";
 

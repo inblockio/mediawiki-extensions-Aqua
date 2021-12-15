@@ -8,6 +8,7 @@ use MediaWiki\MediaWikiServices;
 
 /**
  * @return array<int, array<string>>
+ * @deprecated Use VerificationEngine
  */
 function get_page_all_revs( string $page_title ): array {
 	//Database Query
@@ -28,10 +29,23 @@ function get_page_all_revs( string $page_title ): array {
 	return $output;
 }
 
+/**
+ * @param string $page_title
+ * @return int
+ * @deprecated Use VerificationEngine
+ */
 function getPageChainHeight( string $page_title ): int {
 	return count( get_page_all_revs( $page_title ) );
 }
 
+/**
+ * @param string $witness_event_id
+ * @param string $revision_verification_hash
+ * @param null $depth
+ * @return array
+ *
+ * @deprecated Use VerificationEngine
+ */
 function requestMerkleProof( $witness_event_id, $revision_verification_hash, $depth = null ) {
 	//IF query returns a left or right leaf empty, it means the successor string will be identifical the next layer up. In this case it is required to read the depth and start the query with a depth parameter -1 to go to the next layer. This is repeated until the left or right leaf is present and the successor hash different.
 
@@ -94,6 +108,11 @@ function requestMerkleProof( $witness_event_id, $revision_verification_hash, $de
 	return $final_output;
 }
 
+/**
+ * @param $witness_event_id
+ * @return array|string
+ * @deprecated Use VerificationEngine
+ */
 function getWitnessData( $witness_event_id ) {
 	if ( $witness_event_id === null ) {
 		return '';
@@ -141,6 +160,11 @@ function getWitnessData( $witness_event_id ) {
 	return $output;
 }
 
+/**
+ * @param \IDatabase $db
+ * @return null
+ * @deprecated Use VerificationEngine
+ */
 function getMaxWitnessEventId( $db ) {
 	$row = $db->selectRow(
 		'witness_events',

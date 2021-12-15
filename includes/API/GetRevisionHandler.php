@@ -2,110 +2,74 @@
 
 namespace DataAccounting\API;
 
+use DataAccounting\Verification\GenericDatabaseEntity;
+use DataAccounting\Verification\VerificationEngine;
+use DataAccounting\Verification\VerificationEntity;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Permissions\PermissionManager;
-use MediaWiki\Revision\RevisionLookup;
+use MediaWiki\Storage\RevisionRecord;
 use Title;
 use Wikimedia\ParamValidator\ParamValidator;
-use Wikimedia\Rdbms\LoadBalancer;
-use MediaWiki\Revision\SlotRecord;
-use function DataAccounting\getWitnessData;
-use function DataAccounting\requestMerkleProof;
-
-require_once __DIR__ . "/../ApiUtil.php";
 
 class GetRevisionHandler extends ContextAuthorized {
-
-	/**
-	 * @var LoadBalancer
-	 */
-	protected $loadBalancer;
-
-	/**
-	 * @var RevisionLookup
-	 */
-	protected $revisionLookup;
+	/** @var VerificationEngine */
+	private VerificationEngine $verificationEngine;
+	/** @var VerificationEntity|null */
+	private ?VerificationEntity $verificationEntity = null;
 
 	/**
 	 * @param PermissionManager $permissionManager
-	 * @param LoadBalancer $loadBalancer
-	 * @param RevisionLookup $revisionLookup
+	 * @param VerificationEngine $verificationEngine
 	 */
 	public function __construct(
-		PermissionManager $permissionManager,
-		LoadBalancer $loadBalancer,
-		RevisionLookup $revisionLookup
+		PermissionManager $permissionManager, VerificationEngine $verificationEngine
 	) {
 		parent::__construct( $permissionManager );
-		$this->loadBalancer = $loadBalancer;
-		$this->revisionLookup = $revisionLookup;
+		$this->verificationEngine = $verificationEngine;
 	}
 
 	/** @inheritDoc */
 	public function run( $verification_hash ) {
-		$res = $this->loadBalancer->getConnectionRef( DB_REPLICA )->selectRow(
-			'revision_verification',
-			[
-				'verification_context',
-				// content
-				'rev_id',
-				'content_hash',
-				// metadata
-				'domain_id',
-				'time_stamp',
-				'previous_verification_hash',
-				'metadata_hash',
-				// signature
-				'signature',
-				'public_key',
-				'wallet_address',
-				'signature_hash',
-				'witness_event_id'
-			],
-			[ 'verification_hash' => $verification_hash ],
-			__METHOD__
-		);
-
-		if ( !$res ) {
-			throw new HttpException( "Not found", 404 );
-		}
-		$revisionRecord = $this->revisionLookup->getRevisionById( $res->rev_id );
+		$this->assertVerificationEntity( $verification_hash );
 
 		$contentOutput = [
-			'rev_id' => $res->rev_id,
-			'content' => $revisionRecord->getContent( SlotRecord::MAIN )->serialize(),
-			'content_hash' => $res->content_hash,
+			'rev_id' => $this->verificationEntity->getRevision()->getId(),
+			'content' => $this->prepareContent( $this->verificationEntity->getRevision() ),
+			'content_hash' => $this->verificationEntity->getHash( VerificationEntity::CONTENT_HASH ),
 		];
 
 		$metadataOutput = [
-			'domain_id' => $res->domain_id,
-			'time_stamp' => $res->time_stamp,
-			'previous_verification_hash' => $res->previous_verification_hash,
-			'metadata_hash' => $res->metadata_hash,
+			'domain_id' => $this->verificationEntity->getDomainId(),
+			'time_stamp' => $this->verificationEntity->getTime()->format( 'YmdHis' ),
+			'previous_verification_hash' => $this->verificationEntity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ),
+			'metadata_hash' => $this->verificationEntity->getHash( VerificationEntity::METADATA_HASH ),
 		];
 
 		$signatureOutput = [
-			'signature' => $res->signature,
-			'public_key' => $res->public_key,
-			'wallet_address' => $res->wallet_address,
-			'signature_hash' => $res->signature_hash,
+			'signature' => $this->verificationEntity->getSignature(),
+			'public_key' => $this->verificationEntity->getPublicKey(),
+			'wallet_address' => $this->verificationEntity->getWalletAddress(),
+			'signature_hash' => $this->verificationEntity->getHash( VerificationEntity::SIGNATURE_HASH ),
 		];
 
 		$witnessOutput = null;
-		if ( $res->witness_event_id !== null ) {
-			// TODO harden these 2 steps.
-			$witnessOutput = getWitnessData( $res->witness_event_id );
-			$witnessOutput['structured_merkle_proof'] = requestMerkleProof( $res->witness_event_id, $verification_hash );
+		if ( $this->verificationEntity->getWitnessEventId() ) {
+			$witnessEntity = $this->verificationEngine->getWitnessEntity( $this->verificationEntity );
+			if ( $witnessEntity instanceof GenericDatabaseEntity ) {
+				$witnessOutput = $witnessEntity->jsonSerialize();
+				$witnessOutput['structured_merkle_proof'] =
+					$this->verificationEngine->requestMerkleProof( $this->verificationEntity );
+			}
+
 		}
 
-		$output = [
-			'verification_context' => $res->verification_context,
+		return [
+			'verification_context' => $this->verificationEntity->getVerificationContext(),
 			'content' => $contentOutput,
 			'metadata' => $metadataOutput,
 			'signature' => $signatureOutput,
 			'witness' => $witnessOutput,
 		];
-		return $output;
 	}
 
 	/** @inheritDoc */
@@ -121,22 +85,41 @@ class GetRevisionHandler extends ContextAuthorized {
 
 	/** @inheritDoc */
 	protected function provideTitle( string $verification_hash ): ?Title {
-		// TODO need discussion on a way to speed up provideTitle without this
-		// extra DB lookup.
-		$res = $this->loadBalancer->getConnectionRef( DB_REPLICA )->selectRow(
-			'revision_verification',
-			'rev_id',
-			[ 'verification_hash' => $verification_hash ],
-		);
-		if ( !$res ) {
-			throw new HttpException( "Not found", 404 );
-		}
-		$revId = $res->rev_id;
+		$this->assertVerificationEntity( $verification_hash );
+		return $this->verificationEntity->getTitle();
+	}
 
-		$revisionRecord = $this->revisionLookup->getRevisionById( $revId );
-		if ( !$revisionRecord ) {
+	/**
+	 * Collect and compile content of all slots
+	 *
+	 * @param RevisionRecord $revision
+	 * @return array
+	 */
+	private function prepareContent( RevisionRecord $revision ) {
+		$slots = $revision->getSlotRoles();
+		$merged = [];
+		foreach ( $slots as $role ) {
+			$slot = $revision->getSlot( $role );
+			if ( !$slot->getContent() ) {
+				continue;
+			}
+			$merged[$role] = $slot->getContent()->serialize();
+		}
+
+		return $merged;
+	}
+
+	/**
+	 * Ensure VerificationEntity is set
+	 * @param string $verificationHash
+	 * @throws HttpException
+	 */
+	private function assertVerificationEntity( string $verificationHash ) {
+		$this->verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromHash(
+			$verificationHash
+		);
+		if ( !( $this->verificationEntity instanceof VerificationEntity ) ) {
 			throw new HttpException( "Not found", 404 );
 		}
-		return $revisionRecord->getPageAsLinkTarget();
 	}
 }

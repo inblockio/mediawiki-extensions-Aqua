@@ -201,8 +201,7 @@
 			"class": "DataAccounting\\API\\GetRevisionHandler",
 			"services": [
 				"PermissionManager",
-				"DBLoadBalancer",
-				"RevisionLookup"
+				"DataAccountingVerificationEngine"
 			]
 		},
 		{
