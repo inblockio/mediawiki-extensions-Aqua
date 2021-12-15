@@ -6,11 +6,8 @@ use DataAccounting\Content\SignatureContent;
 use JsonContentHandler;
 
 class SignatureHandler extends JsonContentHandler {
-	/**
-	 * @param string $modelId
-	 */
-	public function __construct( $modelId = SignatureContent::CONTENT_MODEL_SIGNATURE ) {
-		parent::__construct( $modelId );
+	public function __construct() {
+		parent::__construct( SignatureContent::CONTENT_MODEL_SIGNATURE );
 	}
 
 	/**

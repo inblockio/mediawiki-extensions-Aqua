@@ -11,7 +11,7 @@ use RequestContext;
 abstract class ContextAuthorized extends SimpleHandler {
 
 	/**
-	 * @var PermissionManager 
+	 * @var PermissionManager
 	 */
 	protected $permissionManager;
 
@@ -67,7 +67,7 @@ abstract class ContextAuthorized extends SimpleHandler {
 		return [ 'read' ];
 	}
 
-	protected function checkPermission() {
+	protected function checkPermission( /* args */ ) {
 		// @phan-suppress-next-line PhanUndeclaredMethod
 		// @phpstan-ignore-next-line
 		$title = $this->provideTitle( ...func_get_args() );

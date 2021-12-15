@@ -8,11 +8,8 @@ use JsonContentHandler;
 use MediaWiki\Content\Transform\PreSaveTransformParams;
 
 class TransclusionHashesHandler extends JsonContentHandler {
-	/**
-	 * @param string $modelId
-	 */
-	public function __construct( $modelId = TransclusionHashes::CONTENT_MODEL_TRANSCLUSION_HASHES ) {
-		parent::__construct( $modelId );
+	public function __construct() {
+		parent::__construct( TransclusionHashes::CONTENT_MODEL_TRANSCLUSION_HASHES );
 	}
 
 	/**
