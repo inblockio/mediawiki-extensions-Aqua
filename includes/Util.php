@@ -5,6 +5,11 @@ use MediaWiki\MediaWikiServices;
 // For editPageContent().
 use MediaWiki\Revision\SlotRecord;
 
+/**
+ * @param string $inputStr
+ * @return string
+ * @deprecated Use VerificationEngine
+ */
 function getHashSum( $inputStr ): string {
 	if ( $inputStr == '' ) {
 		return '';
@@ -26,6 +31,10 @@ function generateDomainId(): string {
 	return substr( $domain_id_full, 0, 10 );
 }
 
+/**
+ * @return string
+ * @deprecated Use VerificationEngine
+ */
 function getDomainId(): string {
 	$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 	$domainID = (string)$config->get( 'DomainID' );
@@ -37,6 +46,14 @@ function getDomainId(): string {
 	return $domainID;
 }
 
+/**
+ * @param WikiPage $page
+ * @param string $text
+ * @param string $comment
+ * @param User $user
+ * @throws MWException
+ * @deprecated Use another slot to store this data
+ */
 function editPageContent( WikiPage $page, string $text, string $comment, User $user ): void {
 	$newContent = new WikitextContent( $text );
 	$signatureComment = CommentStoreComment::newUnsavedComment( $comment );

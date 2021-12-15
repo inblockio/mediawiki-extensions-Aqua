@@ -12,11 +12,12 @@ use Title;
 class SignatureContent extends JsonContent {
 	public const CONTENT_MODEL_SIGNATURE = 'signature';
 	public const SLOT_ROLE_SIGNATURE = 'signature-slot';
+
 	/** @var \MediaWiki\User\UserFactory  */
 	private $userFactory;
 
-	public function __construct( $text, $modelId = self::CONTENT_MODEL_SIGNATURE ) {
-		parent::__construct( $text, $modelId );
+	public function __construct( $text ) {
+		parent::__construct( $text, static::CONTENT_MODEL_SIGNATURE );
 		$this->userFactory = MediaWikiServices::getInstance()->getUserFactory();
 	}
 

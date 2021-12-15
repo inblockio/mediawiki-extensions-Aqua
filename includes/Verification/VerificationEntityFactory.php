@@ -21,8 +21,8 @@ class VerificationEntityFactory {
 
 	private $hashTypes = [
 		VerificationEntity::VERIFICATION_HASH, VerificationEntity::CONTENT_HASH,
-		VerificationEntity::GENESIS_HASH, VerificationEntity::HASH_TYPE_METADATA,
-		VerificationEntity::HASH_TYPE_SIGNATURE
+		VerificationEntity::GENESIS_HASH, VerificationEntity::METADATA_HASH,
+		VerificationEntity::SIGNATURE_HASH, VerificationEntity::PREVIOUS_VERIFICATION_HASH
 	];
 
 	/**
@@ -48,7 +48,7 @@ class VerificationEntityFactory {
 		if ( !( $revision instanceof RevisionRecord ) ) {
 			return null;
 		}
-		$hashes = $this->extractHashes( $row );
+		$hashes = $this->extractHashesFromRow( $row );
 		$time = DateTime::createFromFormat( 'YmdHis', $row->time_stamp );
 		if ( !( $time instanceof DateTime ) ) {
 			return null;
@@ -58,7 +58,7 @@ class VerificationEntityFactory {
 
 		return new VerificationEntity(
 			$title, $revision, $row->domain_id, $hashes, $time, $verificationContext, $row->signature,
-			$row->public_key, $row->wallet_address, (int)$row->witness_event_id
+			$row->public_key, $row->wallet_address, (int)$row->witness_event_id, $row->source
 		);
 	}
 
@@ -66,7 +66,7 @@ class VerificationEntityFactory {
 	 * @param stdClass $row
 	 * @return array
 	 */
-	private function extractHashes( stdClass $row ) {
+	private function extractHashesFromRow( stdClass $row ) {
 		$hashes = [];
 		foreach ( $this->hashTypes as $hashType ) {
 			$hashes[$hashType] = $row->$hashType ?? '';
