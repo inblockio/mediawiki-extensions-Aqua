@@ -14,12 +14,12 @@ use FormlessAction;
 class DAAction extends FormlessAction {
 
 	/** @inheritDoc */
-	public function getName() {
+	public function getName(): string {
 		return 'daact';
 	}
 
 	/** @inheritDoc */
-	protected function getDescription() {
+	protected function getDescription(): string {
 		// Disable subtitle under page heading
 		return '';
 	}
@@ -38,9 +38,13 @@ class DAAction extends FormlessAction {
 		);
 	}
 
-	// Indicates whether this action may perform database writes.
-	// See https://doc.wikimedia.org/mediawiki-core/master/php/classAction.html
-	public function doesWrites() {
+	/**
+	 * Indicates whether this action may perform database writes.
+	 * See https://doc.wikimedia.org/mediawiki-core/master/php/classAction.html
+	 *
+	 * @return bool
+	 */
+	public function doesWrites(): bool {
 		return true;
 	}
 }
