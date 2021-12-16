@@ -36,33 +36,10 @@ class VerificationEngine {
 
 	/**
 	 * @param string|Title $title
-	 * @return array
-	 */
-	public function getAllRevisionIds( $title ): array {
-		if ( $title instanceof Title ) {
-			$title = $title->getPrefixedDBkey();
-		}
-		$res = $this->lb->getConnection( DB_REPLICA )->select(
-			'revision_verification',
-			[ 'rev_id' ],
-			[ 'page_title' => $title ],
-			__METHOD__,
-			[ 'ORDER BY' => 'rev_id' ]
-		);
-
-		$output = [];
-		foreach ( $res as $row ) {
-			$output[] = (int)$row->rev_id;
-		}
-		return $output;
-	}
-
-	/**
-	 * @param string|Title $title
 	 * @return int
 	 */
 	public function getPageChainHeight( $title ): int {
-		return count( $this->getAllRevisionIds( $title ) );
+		return count( $this->getLookup()->getAllRevisionIds( $title ) );
 	}
 
 	/**

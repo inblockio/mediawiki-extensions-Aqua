@@ -2,43 +2,23 @@
 
 namespace DataAccounting\API;
 
-use MediaWiki\Permissions\PermissionManager;
+use DataAccounting\Verification\VerificationEntity;
 use MediaWiki\Rest\HttpException;
 use Wikimedia\ParamValidator\ParamValidator;
-use Title;
-use TitleFactory;
 
-use function DataAccounting\get_page_all_revs as get_page_all_revs;
-
-require_once __DIR__ . "/../ApiUtil.php";
-
-class GetPageAllRevsHandler extends ContextAuthorized {
-
-	/**
-	 * @var TitleFactory
-	 */
-	protected $titleFactory;
-
-	/**
-	 * @param PermissionManager $permissionManager
-	 * @param TitleFactory $titleFactory
-	 */
-	public function __construct(
-			PermissionManager $permissionManager,
-			TitleFactory $titleFactory
-		) {
-		parent::__construct( $permissionManager );
-		$this->titleFactory = $titleFactory;
-	}
+class GetPageAllRevsHandler extends AuthorizedEntityHandler {
 
 	/** @inheritDoc */
-	public function run( string $page_title ) {
-		# Expects Page Title and return all of its verified revision ids.
-		$output = get_page_all_revs( $page_title );
-		if ( count( $output ) == 0 ) {
-			throw new HttpException( "Not found", 404 );
+	public function run() {
+		$ids = $this->verificationEngine->getLookup()->getAllRevisionIds(
+			$this->verificationEntity->getTitle()
+		);
+
+		if ( count( $ids ) === 0 ) {
+			throw new HttpException( 'Not found', 404 );
 		}
-		return $output;
+
+		return $ids;
 	}
 
 	/** @inheritDoc */
@@ -52,8 +32,17 @@ class GetPageAllRevsHandler extends ContextAuthorized {
 		];
 	}
 
-	/** @inheritDoc */
-	protected function provideTitle( string $pageName ): ?Title {
-		return $this->titleFactory->newFromText( $pageName );
+	/**
+	 * @param string $idType
+	 * @param string $id
+	 * @return VerificationEntity|null
+	 */
+	protected function getEntity( string $pageTitle ): ?VerificationEntity {
+		// TODO: DB data should hold Db key, not prefixed text (spaces replaced with _)
+		// Once that is done, remove next line
+		$pageTitle = str_replace( '_', ' ', $pageTitle );
+		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
+			'page_title' => $pageTitle
+		] );
 	}
 }

@@ -80,7 +80,7 @@ class TransclusionManager {
 					$state['state'] = static::STATE_UNCHANGED;
 				}
 			} else {
-				$recordedEntity = $this->verificationEngine->getLookup()->getVerificationEntityFromQuery( [
+				$recordedEntity = $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
 					'rev_id' => $transclusion->revid,
 					VerificationEntity::GENESIS_HASH => $transclusion->{VerificationEntity::GENESIS_HASH},
 					VerificationEntity::CONTENT_HASH => $transclusion->{VerificationEntity::CONTENT_HASH},
@@ -153,7 +153,7 @@ class TransclusionManager {
 		if ( $resourceDetails->{VerificationEntity::GENESIS_HASH} === null ) {
 			return null;
 		}
-		return $this->verificationEngine->getLookup()->getVerificationEntityFromQuery( [
+		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
 			'rev_id' => $resourceDetails->revid,
 			VerificationEntity::GENESIS_HASH => $resourceDetails->{VerificationEntity::GENESIS_HASH},
 			VerificationEntity::CONTENT_HASH => $resourceDetails->{VerificationEntity::CONTENT_HASH},

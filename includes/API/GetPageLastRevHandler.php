@@ -2,59 +2,20 @@
 
 namespace DataAccounting\API;
 
-use MediaWiki\Permissions\PermissionManager;
-use MediaWiki\Rest\HttpException;
-use Title;
-use TitleFactory;
+use DataAccounting\Verification\VerificationEntity;
 use Wikimedia\ParamValidator\ParamValidator;
-use Wikimedia\Rdbms\LoadBalancer;
 
-class GetPageLastRevHandler extends ContextAuthorized {
-
-	/**
-	 * @var LoadBalancer 
-	 */
-	protected $loadBalancer;
-
-	/**
-	 * @var TitleFactory
-	 */
-	protected $titleFactory;
-
-	/**
-	 * @param PermissionManager $permissionManager
-	 * @param LoadBalancer $loadBalancer
-	 * @param TitleFactory $titleFactory
-	 */
-	public function __construct(
-		PermissionManager $permissionManager,
-		LoadBalancer $loadBalancer,
-		TitleFactory $titleFactory
-	) {
-		parent::__construct( $permissionManager );
-		$this->loadBalancer = $loadBalancer;
-		$this->titleFactory = $titleFactory;
-	}
+class GetPageLastRevHandler extends AuthorizedEntityHandler {
 
 	/** @inheritDoc */
 	public function run( $page_title ) {
-		$res = $this->loadBalancer->getConnectionRef( DB_REPLICA )->selectRow(
-			'revision_verification',
-			[ 'rev_id', 'page_title', 'page_id', 'verification_hash' ],
-			[ 'page_title' => $page_title ],
-			__METHOD__,
-			[ 'ORDER BY' => 'rev_id DESC' ]
-		);
-		if ( !$res ) {
-			throw new HttpException( "Not found", 404 );
-		}
-		$output = [
-			'page_title' => $res->page_title,
-			'page_id' => $res->page_id,
-			'rev_id' => $res->rev_id,
-			'verification_hash' => $res->verification_hash,
+		return [
+			'page_title' => $this->verificationEntity->getTitle()->getPrefixedDBkey(),
+			'page_id' => $this->verificationEntity->getTitle()->getArticleID(),
+			'rev_id' => $this->verificationEntity->getRevision()->getId(),
+			VerificationEntity::VERIFICATION_HASH =>
+				$this->verificationEntity->getHash( VerificationEntity::VERIFICATION_HASH ),
 		];
-		return $output;
 	}
 
 	/** @inheritDoc */
@@ -68,8 +29,17 @@ class GetPageLastRevHandler extends ContextAuthorized {
 		];
 	}
 
-	/** @inheritDoc */
-	protected function provideTitle( string $pageName ): ?Title {
-		return $this->titleFactory->newFromText( $pageName );
+	/**
+	 * @param string $idType
+	 * @param string $id
+	 * @return VerificationEntity|null
+	 */
+	protected function getEntity( string $pageTitle ): ?VerificationEntity {
+		// TODO: DB data should hold Db key, not prefixed text (spaces replaced with _)
+		// Once that is done, remove next line
+		$pageTitle = str_replace( '_', ' ', $pageTitle );
+		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
+			'page_title' => $pageTitle
+		] );
 	}
 }

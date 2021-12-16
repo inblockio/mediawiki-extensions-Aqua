@@ -2,76 +2,18 @@
 
 namespace DataAccounting\API;
 
-use MediaWiki\Permissions\PermissionManager;
-use MediaWiki\Rest\HttpException;
+use DataAccounting\Verification\VerificationEntity;
 use Wikimedia\ParamValidator\ParamValidator;
-use Title;
-use TitleFactory;
-use Wikimedia\Rdbms\LoadBalancer;
 
-require_once __DIR__ . "/../ApiUtil.php";
-require_once __DIR__ . "/../Util.php";
-
-class GetHashChainInfoHandler extends ContextAuthorized {
-
-	/**
-	 * @var LoadBalancer
-	 */
-	protected $loadBalancer;
-
-	/**
-	 * @var TitleFactory
-	 */
-	protected $titleFactory;
-
-	/**
-	 * @param PermissionManager $permissionManager
-	 * @param TitleFactory $titleFactory
-	 */
-	public function __construct(
-			PermissionManager $permissionManager,
-			TitleFactory $titleFactory,
-			LoadBalancer $loadBalancer
-		) {
-		parent::__construct( $permissionManager );
-		$this->loadBalancer = $loadBalancer;
-		$this->titleFactory = $titleFactory;
-	}
+class GetHashChainInfoHandler extends AuthorizedEntityHandler {
 
 	/** @inheritDoc */
 	public function run( string $id_type, string $id ) {
-		// Genesis hash
-		$dbr = $this->loadBalancer->getConnectionRef( DB_REPLICA );
-		if ( $id_type === 'title' ) {
-			$res = $dbr->selectRow(
-				'revision_verification',
-				'genesis_hash',
-				[ 'page_title' => $id ],
-			);
-			if ( !$res ) {
-				throw new HttpException( "Not found", 404 );
-			}
-			$genesisHash = $res->genesis_hash;
-		} else {
-			$genesisHash = $id;
-		}
-
-		// Latest verification hash
-		$resVH = $dbr->selectRow(
-			'revision_verification',
-			'verification_hash',
-			[ 'genesis_hash' => $genesisHash ],
-			__METHOD__,
-			[ 'ORDER BY' => 'rev_id DESC' ]
-		);
-		if ( !$resVH ) {
-			throw new HttpException( "Not found", 404 );
-		}
-
+		$entity = $this->getEntity( $id_type, $id );
 		return [
-			'genesis_hash' => $genesisHash,
-			'domain_id' => getDomainID(),
-			'latest_verification_hash' => $resVH->verification_hash
+			VerificationEntity::GENESIS_HASH => $entity->getHash( VerificationEntity::GENESIS_HASH ),
+			VerificationEntity::DOMAIN_ID => $entity->getDomainId(),
+			'latest_verification_hash' => $entity->getHash( VerificationEntity::VERIFICATION_HASH ),
 		];
 	}
 
@@ -91,24 +33,22 @@ class GetHashChainInfoHandler extends ContextAuthorized {
 		];
 	}
 
-	private function getPageNameFromGenesisHash( string $genesisHash ) {
-		$res = $this->loadBalancer->getConnectionRef( DB_REPLICA )->selectRow(
-			'revision_verification',
-			'page_title',
-			[ 'genesis_hash' => $genesisHash ],
-		);
-		if ( !$res ) {
-			throw new HttpException( "Not found", 404 );
-		}
-		return $res->page_title;
-	}
+	/**
+	 * @param string $idType
+	 * @param string $id
+	 * @return VerificationEntity|null
+	 */
+	protected function getEntity( string $idType, string $id ): ?VerificationEntity {
 
-	/** @inheritDoc */
-	protected function provideTitle( string $id_type, string $id ): ?Title {
-		if ( $id_type === 'title' ) {
-			return $this->titleFactory->newFromText( $id );
+		$conds = [];
+		if ( $idType === 'title' ) {
+			// TODO: DB data should hold Db key, not prefixed text (spaces replaced with _)
+			// Once that is done, remove next line
+			$id = str_replace( '_', ' ', $id );
+			$conds['page_title'] = $id;
+		} else {
+			$conds[VerificationEntity::GENESIS_HASH] = $id;
 		}
-		$pageName = $this->getPageNameFromGenesisHash( $id );
-		return $this->titleFactory->newFromText( $pageName );
+		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( $conds );
 	}
 }
