@@ -9,7 +9,6 @@ namespace DataAccounting;
 
 use DatabaseUpdater;
 use MediaWiki\Hook\PageMoveCompleteHook;
-use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\Hook\ArticleDeleteCompleteHook;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
@@ -26,8 +25,7 @@ class HashWriterHooks implements
 	RevisionFromEditCompleteHook,
 	RevisionRecordInsertedHook,
 	ArticleDeleteCompleteHook,
-	PageMoveCompleteHook,
-	LoadExtensionSchemaUpdatesHook
+	PageMoveCompleteHook
 {
 
 	// This function updates the dataset wit the correct revision ID, especially important during import.
@@ -95,16 +93,5 @@ class HashWriterHooks implements
 				'page_id' => $pageid ],
 			__METHOD__
 		);
-	}
-
-	/**
-	 * Register our database schema.
-	 *
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/LoadExtensionSchemaUpdates
-	 *
-	 * @param DatabaseUpdater $updater
-	 */
-	public function onLoadExtensionSchemaUpdates( $updater ) {
-		$updater->addExtensionTable( 'data_accounting', dirname( __DIR__ ) . '/sql/data_accounting.sql' );
 	}
 }

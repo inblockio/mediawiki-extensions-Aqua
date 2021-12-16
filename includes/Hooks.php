@@ -12,6 +12,7 @@ use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\OutputPageParserOutputHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\Hook\SkinTemplateNavigationHook;
+use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionRecord;
@@ -26,14 +27,17 @@ use SkinTemplate;
 use stdClass;
 use Title;
 use XMLReader;
+use DatabaseUpdater;
 
 require_once 'ApiUtil.php';
+require_once 'Util.php';
 
 class Hooks implements
 	BeforePageDisplayHook,
 	ParserFirstCallInitHook,
 	SkinTemplateNavigationHook,
-	OutputPageParserOutputHook
+	OutputPageParserOutputHook,
+	LoadExtensionSchemaUpdatesHook
 {
 
 	private PermissionManager $permissionManager;
@@ -219,5 +223,17 @@ class Hooks implements
 
 		// This prevents continuing down the else-if statements in WikiImporter, which would reach `$tag != '#text'`
 		return false;
+	}
+
+	/**
+	 * - Register our database schema.
+	 * - Initialize domain ID.
+	 *
+	 * @param DatabaseUpdater $updater DatabaseUpdater subclass
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/LoadExtensionSchemaUpdates
+	 */
+	public function onLoadExtensionSchemaUpdates( $updater ) {
+		$updater->addExtensionTable( 'data_accounting', dirname( __DIR__ ) . '/sql/data_accounting.sql' );
+		maybeGenerateDomainId();
 	}
 }
