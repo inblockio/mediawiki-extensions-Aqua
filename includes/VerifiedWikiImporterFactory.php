@@ -45,48 +45,26 @@ use ImportSource;
  * @since 1.37
  */
 class VerifiedWikiImporterFactory {
-	/** @var Config */
-	private $config;
+	private Config $config;
 
-	/** @var HookContainer */
-	private $hookContainer;
+	private HookContainer $hookContainer;
 
-	/** @var Language */
-	private $contentLanguage;
+	private Language $contentLanguage;
 
-	/** @var NamespaceInfo */
-	private $namespaceInfo;
+	private NamespaceInfo $namespaceInfo;
 
-	/** @var TitleFactory */
-	private $titleFactory;
+	private TitleFactory $titleFactory;
 
-	/** @var WikiPageFactory */
-	private $wikiPageFactory;
+	private WikiPageFactory $wikiPageFactory;
 
-	/** @var UploadRevisionImporter */
-	private $uploadRevisionImporter;
+	private UploadRevisionImporter $uploadRevisionImporter;
 
-	/** @var PermissionManager */
-	private $permissionManager;
+	private PermissionManager $permissionManager;
 
-	/** @var IContentHandlerFactory */
-	private $contentHandlerFactory;
+	private IContentHandlerFactory $contentHandlerFactory;
 
-	/** @var SlotRoleRegistry */
-	private $slotRoleRegistry;
+	private SlotRoleRegistry $slotRoleRegistry;
 
-	/**
-	 * @param Config $config
-	 * @param HookContainer $hookContainer
-	 * @param Language $contentLanguage
-	 * @param NamespaceInfo $namespaceInfo
-	 * @param TitleFactory $titleFactory
-	 * @param WikiPageFactory $wikiPageFactory
-	 * @param UploadRevisionImporter $uploadRevisionImporter
-	 * @param PermissionManager $permissionManager
-	 * @param IContentHandlerFactory $contentHandlerFactory
-	 * @param SlotRoleRegistry $slotRoleRegistry
-	 */
 	public function __construct(
 		Config $config,
 		HookContainer $hookContainer,
@@ -111,11 +89,6 @@ class VerifiedWikiImporterFactory {
 		$this->slotRoleRegistry = $slotRoleRegistry;
 	}
 
-	/**
-	 * @param ImportSource $source
-	 *
-	 * @return VerifiedWikiImporter
-	 */
 	public function getWikiImporter( ImportSource $source ): VerifiedWikiImporter {
 		return new VerifiedWikiImporter(
 			$source,
