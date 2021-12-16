@@ -18,8 +18,8 @@ class VerificationEntityFactory {
 	private $titleFactory;
 	/** @var RevisionStore */
 	private $revisionStore;
-
-	private $hashTypes = [
+	/** @var array */
+	private array $hashTypes = [
 		VerificationEntity::VERIFICATION_HASH, VerificationEntity::CONTENT_HASH,
 		VerificationEntity::GENESIS_HASH, VerificationEntity::METADATA_HASH,
 		VerificationEntity::SIGNATURE_HASH, VerificationEntity::PREVIOUS_VERIFICATION_HASH
@@ -60,6 +60,14 @@ class VerificationEntityFactory {
 			$title, $revision, $row->domain_id, $hashes, $time, $verificationContext, $row->signature,
 			$row->public_key, $row->wallet_address, (int)$row->witness_event_id, $row->source
 		);
+	}
+
+	/**
+	 * @param string $type
+	 * @return bool
+	 */
+	public function isValidHashType( string $type ): bool {
+		return in_array( $type, $this->hashTypes );
 	}
 
 	/**

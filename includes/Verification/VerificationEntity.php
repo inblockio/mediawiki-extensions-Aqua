@@ -15,6 +15,8 @@ class VerificationEntity implements JsonSerializable {
 	public const SIGNATURE_HASH = 'signature_hash';
 	public const PREVIOUS_VERIFICATION_HASH = 'previous_verification_hash';
 
+	public const DOMAIN_ID = 'domain_id';
+
 	/** @var Title */
 	private $title;
 	/** @var RevisionRecord */

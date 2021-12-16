@@ -2,24 +2,32 @@
 
 namespace DataAccounting\API;
 
+use DataAccounting\Verification\VerificationEngine;
+use DataAccounting\Verification\VerificationEntity;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
 use LogicException;
 use RequestContext;
+use Title;
 
-abstract class ContextAuthorized extends SimpleHandler {
-
-	/**
-	 * @var PermissionManager
-	 */
+abstract class AuthorizedEntityHandler extends SimpleHandler {
+	/** @var PermissionManager  */
 	protected $permissionManager;
+	/** @var VerificationEngine */
+	protected $verificationEngine;
+	/** @var VerificationEntity|null */
+	protected $verificationEntity = null;
 
 	/**
 	 * @param PermissionManager $permissionManager
+	 * @param VerificationEngine $verificationEngine
 	 */
-	public function __construct( PermissionManager $permissionManager ) {
+	public function __construct(
+		PermissionManager $permissionManager, VerificationEngine $verificationEngine
+	) {
 		$this->permissionManager = $permissionManager;
+		$this->verificationEngine = $verificationEngine;
 	}
 
 	public function execute() {
@@ -43,10 +51,9 @@ abstract class ContextAuthorized extends SimpleHandler {
 			);
 		}
 
-		$this->checkPermission( ...$params );
+		$this->assertEntitySet( ...$params );
+		$this->checkPermission();
 
-		// @phan-suppress-next-line PhanUndeclaredMethod
-		// @phpstan-ignore-next-line
 		return $this->run( ...$params );
 	}
 
@@ -67,10 +74,17 @@ abstract class ContextAuthorized extends SimpleHandler {
 		return [ 'read' ];
 	}
 
-	protected function checkPermission( /* args */ ) {
+	/**
+	 * @return Title|null
+	 */
+	protected function provideTitle(): ?Title {
+		return $this->verificationEntity->getTitle();
+	}
+
+	protected function checkPermission() {
 		// @phan-suppress-next-line PhanUndeclaredMethod
 		// @phpstan-ignore-next-line
-		$title = $this->provideTitle( ...func_get_args() );
+		$title = $this->provideTitle();
 		if ( !$title ) {
 			throw new HttpException( "Not found", 404 );
 		}
@@ -79,6 +93,15 @@ abstract class ContextAuthorized extends SimpleHandler {
 			if ( $this->permissionManager->userCan( $permission, $user, $title ) ) {
 				continue;
 			}
+			throw new HttpException( "Permission denied", 401 );
+		}
+	}
+
+	private function assertEntitySet( /* args */ ) {
+		// @phan-suppress-next-line PhanUndeclaredMethod
+		// @phpstan-ignore-next-line
+		$this->verificationEntity = $this->getEntity( ...func_get_args() );
+		if ( $this->verificationEntity === null ) {
 			throw new HttpException( "Not found", 404 );
 		}
 	}

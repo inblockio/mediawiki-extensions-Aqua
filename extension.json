@@ -159,8 +159,7 @@
 			"class": "DataAccounting\\API\\VerifyPageHandler",
 			"services": [
 				"PermissionManager",
-				"DBLoadBalancer",
-				"RevisionLookup"
+				"DataAccountingVerificationEngine"
 			]
 		},
 		{
@@ -168,7 +167,7 @@
 			"class": "DataAccounting\\API\\GetPageAllRevsHandler",
 			"services": [
 				"PermissionManager",
-				"TitleFactory"
+				"DataAccountingVerificationEngine"
 			]
 		},
 		{
@@ -176,8 +175,7 @@
 			"class": "DataAccounting\\API\\GetPageLastRevHandler",
 			"services": [
 				"PermissionManager",
-				"DBLoadBalancer",
-				"TitleFactory"
+				"DataAccountingVerificationEngine"
 			]
 		},
 		{
@@ -186,15 +184,17 @@
 		},
 		{
 			"path": "/data_accounting/request_merkle_proof/{witness_event_id}/{revision_verification_hash}",
-			"class": "DataAccounting\\API\\RequestMerkleProofHandler"
+			"class": "DataAccounting\\API\\RequestMerkleProofHandler",
+			"services": [
+				"DataAccountingVerificationEngine"
+			]
 		},
 		{
 			"path": "/data_accounting/request_hash/{rev_id}",
 			"class": "DataAccounting\\API\\RequestHashHandler",
 			"services": [
 				"PermissionManager",
-				"DBLoadBalancer",
-				"RevisionLookup"
+				"DataAccountingVerificationEngine"
 			]
 		},
 		{
@@ -210,8 +210,7 @@
 			"class": "DataAccounting\\API\\GetHashChainInfoHandler",
 			"services": [
 				"PermissionManager",
-				"TitleFactory",
-				"DBLoadBalancer"
+				"DataAccountingVerificationEngine"
 			]
 		},
 		{
@@ -219,8 +218,7 @@
 			"class": "DataAccounting\\API\\GetRevisionHashesHandler",
 			"services": [
 				"PermissionManager",
-				"DBLoadBalancer",
-				"RevisionLookup"
+				"DataAccountingVerificationEngine"
 			]
 		},
 		{
