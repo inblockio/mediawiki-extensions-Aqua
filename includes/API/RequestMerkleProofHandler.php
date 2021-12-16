@@ -2,13 +2,22 @@
 
 namespace DataAccounting\API;
 
+use DataAccounting\Verification\VerificationEngine;
+use DataAccounting\Verification\VerificationEntity;
+use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
-use function DataAccounting\requestMerkleProof;
-
-require_once __DIR__ . "/../ApiUtil.php";
 
 class RequestMerkleProofHandler extends SimpleHandler {
+	/** @var VerificationEngine */
+	private $verificationEngine;
+
+	/**
+	 * @param VerificationEngine $verificationEngine
+	 */
+	public function __construct( VerificationEngine $verificationEngine ) {
+		$this->verificationEngine = $verificationEngine;
+	}
 
 	/** @inheritDoc */
 	public function run( $witness_event_id, $revision_verification_hash ) {
@@ -21,9 +30,14 @@ class RequestMerkleProofHandler extends SimpleHandler {
 
 		$params = $this->getValidatedParams();
 		$depth = $params['depth'];
-
-		$output = requestMerkleProof( $witness_event_id, $revision_verification_hash, $depth );
-		return $output;
+		$entity = $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
+			VerificationEntity::VERIFICATION_HASH => $revision_verification_hash,
+			'witness_event_id' => $witness_event_id
+		] );
+		if ( !$entity ) {
+			throw new HttpException( "Not found", 404 );
+		}
+		return $this->verificationEngine->requestMerkleProof( $entity, $depth );
 	}
 
 	/** @inheritDoc */

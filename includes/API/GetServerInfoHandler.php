@@ -2,7 +2,6 @@
 
 namespace DataAccounting\API;
 
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Rest\SimpleHandler;
 
 use DataAccounting\ServerInfo;

@@ -2,6 +2,7 @@
 
 namespace DataAccounting\Verification;
 
+use Exception;
 use MediaWiki\Storage\RevisionStore;
 use Title;
 use Wikimedia\Rdbms\ILoadBalancer;
@@ -36,15 +37,15 @@ class VerificationLookup {
 	 * @return VerificationEntity|null
 	 */
 	public function verificationEntityFromHash( string $hash ): ?VerificationEntity {
-		return $this->getVerificationEntityFromQuery( [ VerificationEntity::VERIFICATION_HASH => $hash ] );
+		return $this->verificationEntityFromQuery( [ VerificationEntity::VERIFICATION_HASH => $hash ] );
 	}
 
 	/**
 	 * @param int $revId
 	 * @return VerificationEntity|null
 	 */
-	public function getVerificationEntityFromRevId( int $revId ): ?VerificationEntity {
-		return $this->getVerificationEntityFromQuery( [ 'rev_id' => $revId ] );
+	public function verificationEntityFromRevId( int $revId ): ?VerificationEntity {
+		return $this->verificationEntityFromQuery( [ 'rev_id' => $revId ] );
 	}
 
 	/**
@@ -57,10 +58,19 @@ class VerificationLookup {
 		if ( !$title->exists() ) {
 			return null;
 		}
-		return $this->getVerificationEntityFromQuery( [ 'page_title' => $title->getPrefixedDBkey() ] );
+		// TODO: Replace with getPrefixedDBkey, once database enties use it
+		return $this->verificationEntityFromQuery( [ 'page_title' => $title->getPrefixedText() ] );
 	}
 
-	public function getVerificationEntityFromQuery( array $query ) {
+	/**
+	 * Get VerificationEntity based on a custom query
+	 * Caller must ensure query resolves to a single entity,
+	 * otherwise the latest of the set will be retrieved
+	 *
+	 * @param array $query
+	 * @return VerificationEntity|null
+	 */
+	public function verificationEntityFromQuery( array $query ): ?VerificationEntity {
 		$res = $this->lb->getConnection( DB_REPLICA )->selectRow(
 			static::TABLE,
 			[ '*' ],
@@ -74,5 +84,69 @@ class VerificationLookup {
 		}
 
 		return $this->verificationEntityFactory->newFromDbRow( $res );
+	}
+
+	/**
+	 * @param string|Title $title
+	 * @return array
+	 */
+	public function getAllRevisionIds( $title ): array {
+		if ( $title instanceof Title ) {
+			// TODO: Replace with getPrefixedDBkey, once database enties use it
+			$title = $title->getPrefixedText();
+		}
+		$res = $this->lb->getConnection( DB_REPLICA )->select(
+			'revision_verification',
+			[ 'rev_id' ],
+			[ 'page_title' => $title ],
+			__METHOD__,
+			[ 'ORDER BY' => 'rev_id' ]
+		);
+
+		$output = [];
+		foreach ( $res as $row ) {
+			$output[] = (int)$row->rev_id;
+		}
+		return $output;
+	}
+
+	/**
+	 * Get all hashes that are same or newer than given entity
+	 *
+	 * @param VerificationEntity $verificationEntity
+	 * @param string $type
+	 * @return array
+	 * @throws Exception
+	 */
+	public function newerHashesForEntity( VerificationEntity $verificationEntity, string $type ) {
+		$this->assertVerificationHashValid( $type );
+		$res = $this->lb->getConnection( DB_REPLICA )->select(
+			static::TABLE,
+			[ $type ],
+			[
+				'rev_id >= ' . $verificationEntity->getRevision()->getId(),
+				VerificationEntity::GENESIS_HASH =>
+					$verificationEntity->getHash( VerificationEntity::GENESIS_HASH ),
+			],
+			__METHOD__,
+			[ 'ORDER BY' => 'rev_id' ]
+		);
+
+		$hashes = [];
+		foreach ( $res as $row ) {
+			$hashes[] = $row->$type;
+		}
+
+		return $hashes;
+	}
+
+	/**
+	 * @param string $type
+	 * @throws Exception
+	 */
+	private function assertVerificationHashValid( string $type ) {
+		if ( !$this->verificationEntityFactory->isValidHashType( $type ) ) {
+			throw new Exception( "Hash type \"$type\" is not valid" );
+		}
 	}
 }

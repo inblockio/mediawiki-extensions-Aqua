@@ -3,35 +3,14 @@
 namespace DataAccounting\API;
 
 use DataAccounting\Verification\GenericDatabaseEntity;
-use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\VerificationEntity;
-use MediaWiki\Rest\HttpException;
-use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Storage\RevisionRecord;
-use Title;
 use Wikimedia\ParamValidator\ParamValidator;
 
-class GetRevisionHandler extends ContextAuthorized {
-	/** @var VerificationEngine */
-	private VerificationEngine $verificationEngine;
-	/** @var VerificationEntity|null */
-	private ?VerificationEntity $verificationEntity = null;
-
-	/**
-	 * @param PermissionManager $permissionManager
-	 * @param VerificationEngine $verificationEngine
-	 */
-	public function __construct(
-		PermissionManager $permissionManager, VerificationEngine $verificationEngine
-	) {
-		parent::__construct( $permissionManager );
-		$this->verificationEngine = $verificationEngine;
-	}
+class GetRevisionHandler extends AuthorizedEntityHandler {
 
 	/** @inheritDoc */
-	public function run( $verification_hash ) {
-		$this->assertVerificationEntity( $verification_hash );
-
+	public function run() {
 		$contentOutput = [
 			'rev_id' => $this->verificationEntity->getRevision()->getId(),
 			'content' => $this->prepareContent( $this->verificationEntity->getRevision() ),
@@ -83,10 +62,12 @@ class GetRevisionHandler extends ContextAuthorized {
 		];
 	}
 
-	/** @inheritDoc */
-	protected function provideTitle( string $verification_hash ): ?Title {
-		$this->assertVerificationEntity( $verification_hash );
-		return $this->verificationEntity->getTitle();
+	/**
+	 * @param string $verificationHash
+	 * @return VerificationEntity|null
+	 */
+	protected function getEntity( string $verificationHash ): ?VerificationEntity {
+		return $this->verificationEngine->getLookup()->verificationEntityFromHash( $verificationHash );
 	}
 
 	/**
@@ -107,19 +88,5 @@ class GetRevisionHandler extends ContextAuthorized {
 		}
 
 		return $merged;
-	}
-
-	/**
-	 * Ensure VerificationEntity is set
-	 * @param string $verificationHash
-	 * @throws HttpException
-	 */
-	private function assertVerificationEntity( string $verificationHash ) {
-		$this->verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromHash(
-			$verificationHash
-		);
-		if ( !( $this->verificationEntity instanceof VerificationEntity ) ) {
-			throw new HttpException( "Not found", 404 );
-		}
 	}
 }

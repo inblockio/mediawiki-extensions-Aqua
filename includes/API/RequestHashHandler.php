@@ -2,53 +2,14 @@
 
 namespace DataAccounting\API;
 
-use MediaWiki\Rest\HttpException;
-use MediaWiki\Permissions\PermissionManager;
-use MediaWiki\Revision\RevisionLookup;
-use Title;
+use DataAccounting\Verification\VerificationEntity;
 use Wikimedia\ParamValidator\ParamValidator;
-use Wikimedia\Rdbms\LoadBalancer;
 
-class RequestHashHandler extends ContextAuthorized {
-
-	/**
-	 * @var LoadBalancer 
-	 */
-	protected $loadBalancer;
-
-	/**
-	 * @var RevisionLookup
-	 */
-	protected $revisionLookup;
-
-	/**
-	 * @param PermissionManager $permissionManager
-	 * @param LoadBalancer $loadBalancer
-	 * @param RevisionLookup $revisionLookup
-	 */
-	public function __construct(
-		PermissionManager $permissionManager,
-		LoadBalancer $loadBalancer,
-		RevisionLookup $revisionLookup
-	) {
-		parent::__construct( $permissionManager );
-		$this->loadBalancer = $loadBalancer;
-		$this->revisionLookup = $revisionLookup;
-	}
-
+class RequestHashHandler extends AuthorizedEntityHandler {
 	/** @inheritDoc */
-	public function run( $rev_id ) {
-		$res = $this->loadBalancer->getConnectionRef( DB_REPLICA )->selectRow(
-			'revision_verification',
-			[ 'rev_id', 'verification_hash' ],
-			[ 'rev_id' => $rev_id ],
-			__METHOD__
-		);
-
-		if ( !$res ) {
-			throw new HttpException( "Not found", 404 );
-		}
-		return 'I sign the following page verification_hash: [0x' . $res->verification_hash . ']';
+	public function run() {
+		$hash = $this->verificationEntity->getHash( VerificationEntity::VERIFICATION_HASH );
+		return 'I sign the following page verification_hash: [0x' . $hash . ']';
 	}
 
 	/** @inheritDoc */
@@ -62,12 +23,12 @@ class RequestHashHandler extends ContextAuthorized {
 		];
 	}
 
-	/** @inheritDoc */
-	protected function provideTitle( int $revId ): ?Title {
-		$revisionRecord = $this->revisionLookup->getRevisionById( $revId );
-		if ( !$revisionRecord ) {
-			throw new HttpException( "Not found", 404 );
-		}
-		return $revisionRecord->getPageAsLinkTarget();
+	/**
+	 * @param string $idType
+	 * @param string $id
+	 * @return VerificationEntity|null
+	 */
+	protected function getEntity( string $revId ): ?VerificationEntity {
+		return $this->verificationEngine->getLookup()->verificationEntityFromRevId( (int)$revId );
 	}
 }
