@@ -93,8 +93,12 @@ class GetRevisionHandler extends ContextAuthorized {
 
 		$witnessOutput = null;
 		if ( $res->witness_event_id !== null ) {
+			// TODO harden these 2 steps.
 			$witnessOutput = getWitnessData( $res->witness_event_id );
-			$witnessOutput['structured_merkle_proof'] = requestMerkleProof( $res->witness_event_id, $verification_hash );
+
+			if ( !empty( $witnessOutput ) ) {
+				$witnessOutput['structured_merkle_proof'] = requestMerkleProof( $res->witness_event_id, $verification_hash );
+			}
 		}
 
 		$output = [

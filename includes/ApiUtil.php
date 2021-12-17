@@ -96,7 +96,7 @@ function requestMerkleProof( $witness_event_id, $revision_verification_hash, $de
 
 function getWitnessData( $witness_event_id ) {
 	if ( $witness_event_id === null ) {
-		return '';
+		return null;
 	}
 
 	$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
@@ -122,7 +122,7 @@ function getWitnessData( $witness_event_id ) {
 	);
 
 	if ( !$row ) {
-		return '';
+		return null;
 	}
 
 	$output = [
