@@ -93,11 +93,18 @@ class GetRevisionHandler extends ContextAuthorized {
 
 		$witnessOutput = null;
 		if ( $res->witness_event_id !== null ) {
-			// TODO harden these 2 steps.
-			$witnessOutput = getWitnessData( $res->witness_event_id );
+			try {
+				$witnessOutput = getWitnessData( $res->witness_event_id );
+			} catch ( \Exception $e ) {
+				throw new HttpException( "Witness data error: " . $e->getMessage(), 500 );
+			}
 
 			if ( !empty( $witnessOutput ) ) {
-				$witnessOutput['structured_merkle_proof'] = requestMerkleProof( $res->witness_event_id, $verification_hash );
+				try {
+					$witnessOutput['structured_merkle_proof'] = requestMerkleProof( $res->witness_event_id, $verification_hash );
+				} catch ( \Exception $e ) {
+					throw new HttpException( "Witness merkle proof error: " . $e->getMessage(), 500 );
+				}
 			}
 		}
 
