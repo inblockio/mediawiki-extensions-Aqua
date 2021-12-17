@@ -29,6 +29,9 @@ return [
 		/** @var DataAccountingConfig $config */
 		$config = $services->getConfigFactory()->makeConfig( 'da' );
 
-		return new VerificationEngine( $lookup, $services->getDBLoadBalancer(), $config );
+		return new VerificationEngine(
+			$lookup, $services->getDBLoadBalancer(), $config,
+			$services->getWikiPageFactory(), $services->getRevisionStore(), $services->getPageUpdaterFactory()
+		);
 	}
 ];

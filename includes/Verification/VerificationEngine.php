@@ -3,7 +3,16 @@
 namespace DataAccounting\Verification;
 
 use DataAccounting\Config\DataAccountingConfig;
+use DataAccounting\Content\SignatureContent;
+use MediaWiki\Page\WikiPageFactory;
+use MediaWiki\Rest\HttpException;
+use MediaWiki\Storage\PageUpdater;
+use MediaWiki\Storage\PageUpdaterFactory;
+use MediaWiki\Storage\RevisionRecord;
+use MediaWiki\Storage\RevisionStore;
+use MWException;
 use Title;
+use User;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 class VerificationEngine {
@@ -13,18 +22,35 @@ class VerificationEngine {
 	private $lb;
 	/** @var DataAccountingConfig */
 	private $config;
+	/** @var WikiPageFactory */
+	private $wikiPageFactory;
+	/** @var RevisionStore */
+	private $revisionStore;
+	/** @var PageUpdaterFactory */
+	private $pageUpdaterFactory;
 
 	/**
 	 * @param VerificationLookup $verificationLookup
 	 * @param ILoadBalancer $lb
 	 * @param DataAccountingConfig $config
+	 * @param WikiPageFactory $wikiPageFactory
+	 * @param RevisionStore $revisionStore
+	 * @param PageUpdaterFactory $pageUpdaterFactory
 	 */
 	public function __construct(
-		VerificationLookup $verificationLookup, ILoadBalancer $lb, DataAccountingConfig $config
+		VerificationLookup $verificationLookup,
+		ILoadBalancer $lb,
+		DataAccountingConfig $config,
+		WikiPageFactory $wikiPageFactory,
+		RevisionStore $revisionStore,
+		PageUpdaterFactory $pageUpdaterFactory
 	) {
 		$this->verificationLookup = $verificationLookup;
 		$this->lb = $lb;
 		$this->config = $config;
+		$this->wikiPageFactory = $wikiPageFactory;
+		$this->pageUpdaterFactory = $pageUpdaterFactory;
+		$this->revisionStore = $revisionStore;
 	}
 
 	/**
@@ -182,6 +208,73 @@ class VerificationEngine {
 			$this->config->set( 'DomainID', $domainID );
 		}
 		return $domainID;
+	}
+
+	/**
+	 * @param RevisionRecord $revision
+	 * @param User $user
+	 * @param string $walletAddress
+	 * @param string $signature
+	 * @param string $publicKey
+	 * @return bool
+	 * @throws HttpException
+	 * @throws MWException
+	 */
+	public function signRevision(
+		RevisionRecord $revision, User $user, $walletAddress, $signature, $publicKey
+	) {
+		$signatureHash = $this->getHashSum( $signature . $publicKey );
+
+		// TODO: Should it even be possible to sign old revision (not current)?
+		$entity = $this->getLookup()->verificationEntityFromRevId( $revision->getId() );
+		if ( $entity === null ) {
+			throw new MWException( "Revision not found", 404 );
+		}
+
+		$updateRes = $this->verificationLookup->updateEntity( $entity, [
+			'signature' => $signature,
+			'public_key' => $publicKey,
+			'wallet_address' => $walletAddress,
+			'signature_hash' => $signatureHash
+		] );
+
+		if ( !$updateRes ) {
+			return false;
+		}
+
+		return $this->storeSignature( $entity, $user, $walletAddress );
+	}
+
+	/**
+	 * @param VerificationEntity $entity
+	 * @param User $user
+	 * @param string $walletAddress
+	 * @return bool
+	 * @throws MWException
+	 */
+	private function storeSignature( VerificationEntity $entity, User $user, $walletAddress ) {
+		$wikipage = $this->wikiPageFactory->newFromTitle( $entity->getTitle() );
+		$updater = $this->pageUpdaterFactory->newPageUpdater( $wikipage, $user );
+		$lastRevision = $this->revisionStore->getRevisionByTitle( $entity->getTitle() );
+		$data = [];
+		if ( $lastRevision->hasSlot( SignatureContent::SLOT_ROLE_SIGNATURE ) ) {
+			$content = $lastRevision->getContent( SignatureContent::SLOT_ROLE_SIGNATURE );
+			if ( $content->isValid() ) {
+				$data = json_decode( $content->getText(), 1 );
+			}
+		}
+		$data[] = [
+			'user' => $walletAddress,
+			'timestamp' => \MWTimestamp::now( TS_MW ),
+		];
+		$content = new SignatureContent( json_encode( $data ) );
+		$updater->setContent( SignatureContent::SLOT_ROLE_SIGNATURE, $content );
+		$newRevision = $updater->saveRevision(
+			\CommentStoreComment::newUnsavedComment( "Page signed by wallet: $walletAddress" ),
+			EDIT_SUPPRESS_RC
+		);
+
+		return $newRevision instanceof \MediaWiki\Revision\RevisionRecord;
 	}
 
 	/**

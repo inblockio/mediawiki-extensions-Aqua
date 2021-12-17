@@ -2,61 +2,42 @@
 
 namespace DataAccounting\API;
 
-use CommentStore;
-use DataAccounting\Content\SignatureContent;
-use MediaWiki\MediaWikiServices;
-use MediaWiki\Page\WikiPageFactory;
+use DataAccounting\Verification\VerificationEngine;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\LocalizedHttpException;
 use MediaWiki\Rest\SimpleHandler;
 use MediaWiki\Rest\Validator\JsonBodyValidator;
-use MediaWiki\Storage\PageUpdaterFactory;
 use MediaWiki\Storage\RevisionStore;
-use MWException;
 use RequestContext;
-use Title;
 use User;
 use Wikimedia\Message\MessageValue;
 use Wikimedia\ParamValidator\ParamValidator;
-use Wikimedia\Rdbms\LoadBalancer;
-
-require_once __DIR__ . "/../ApiUtil.php";
-require_once __DIR__ . "/../Util.php";
 
 class WriteStoreSignedTxHandler extends SimpleHandler {
 
 	/** @var PermissionManager */
 	private $permissionManager;
-	/** @var LoadBalancer */
-	private $lb;
-	/** @var WikiPageFactory */
-	private $wikiPageFactory;
-	/** @var PageUpdaterFactory */
-	private $pageUpdaterFactory;
 	/** @var RevisionStore */
 	private $revisionStore;
-	/** @var CommentStore */
-	private $commentStore;
-
+	/** @var VerificationEngine */
+	private $verificationEngine;
 	/** @var User */
 	private $user;
 
 	/**
 	 * @param PermissionManager $permissionManager
+	 * @param VerificationEngine $verificationEngine
+	 * @param RevisionStore $revisionStore
 	 */
 	public function __construct(
-		PermissionManager $permissionManager, LoadBalancer $loadBalancer,
-		WikiPageFactory $wikiPageFactory, PageUpdaterFactory $pageUpdaterFactory,
-		RevisionStore $revisionStore, CommentStore $commentStore
+		PermissionManager $permissionManager,
+		VerificationEngine $verificationEngine,
+		RevisionStore $revisionStore
 	) {
 		$this->permissionManager = $permissionManager;
-		$this->lb = $loadBalancer;
-		$this->wikiPageFactory = $wikiPageFactory;
-		$this->pageUpdaterFactory = $pageUpdaterFactory;
 		$this->revisionStore = $revisionStore;
-		$this->commentStore = $commentStore;
-
+		$this->verificationEngine = $verificationEngine;
 		// @todo Inject this, when there is a good way to do that
 		$this->user = RequestContext::getMain()->getUser();
 	}
@@ -87,70 +68,20 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 		/** @var string */
 		$wallet_address = $body['wallet_address'];
 
-		// Generate signature_hash
-		$signature_hash = getHashSum( $signature . $public_key );
-
-		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_PRIMARY );
-
-		// Get title of the page via the revision_id
-		$row = $dbw->selectRow(
-			'revision_verification',
-			[ 'page_title' ],
-			[ 'rev_id' => $rev_id ],
-			__METHOD__
-		);
-		if ( !$row ) {
-			throw new HttpException( "rev_id not found in the database", 404 );
+		$revision = $this->revisionStore->getRevisionById( $rev_id );
+		if ( $revision === null ) {
+			throw new HttpException( "Revision not found", 404 );
 		}
 
-		/** @var string */
-		$title = $row->page_title;
-
-		// Insert signature detail to the page revision
-		$dbw->update(
-			'revision_verification',
-			[
-				'signature' => $signature,
-				'public_key' => $public_key,
-				'wallet_address' => $wallet_address,
-				'signature_hash' => $signature_hash,
-			],
-			[ "rev_id" => $rev_id ],
-		);
-
-		$titleObject = Title::newFromText( $title );
-		$this->storeSignature( $titleObject, $wallet_address );
-
-		return true;
-	}
-
-	private function storeSignature( Title $title, $walletAddress ) {
-		$wikipage = $this->wikiPageFactory->newFromTitle( $title );
-		$updater = $this->pageUpdaterFactory->newPageUpdater( $wikipage, $this->user );
-		$lastRevision = $this->revisionStore->getRevisionByTitle( $title );
-		$data = [];
-		if ( $lastRevision->hasSlot( SignatureContent::SLOT_ROLE_SIGNATURE ) ) {
-			$content = $lastRevision->getContent( SignatureContent::SLOT_ROLE_SIGNATURE );
-			if ( $content->isValid() ) {
-				$data = json_decode( $content->getText(), 1 );
-			}
+		try {
+			$res = $this->verificationEngine->signRevision(
+				$revision, $this->user, $wallet_address, $signature, $public_key
+			);
+		} catch ( \Exception $ex ) {
+			throw new HttpException( $ex->getMessage(), $ex->getCode() );
 		}
-		$data[] = [
-			'user' => $walletAddress,
-			'timestamp' => \MWTimestamp::now( TS_MW ),
-		];
-		$content = new SignatureContent( json_encode( $data ) );
-		$updater->setContent( SignatureContent::SLOT_ROLE_SIGNATURE, $content );
-		$newRevision = $updater->saveRevision(
-			$this->commentStore->createComment(
-				$this->lb->getConnection( DB_PRIMARY ), "Page signed by wallet: " . $walletAddress
-			),
-			EDIT_SUPPRESS_RC
-		);
-
-		if ( !$newRevision ) {
-			throw new MWException( 'Could not store signature data to page' );
+		if ( !$res ) {
+			throw new HttpException( "Could not sign the revision", 500 );
 		}
 	}
 
