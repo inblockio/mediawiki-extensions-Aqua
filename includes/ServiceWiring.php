@@ -25,7 +25,11 @@ return [
 	'DataAccountingVerificationEngine' => static function( MediaWikiServices $services ): VerificationEngine {
 		$entityFactory = new VerificationEntityFactory( $services->getTitleFactory(), $services->getRevisionStore() );
 		$lookup = new VerificationLookup( $services->getDBLoadBalancer(), $services->getRevisionStore(), $entityFactory );
+		$config = $services->getConfigFactory()->makeConfig( 'da' );
 
-		return new VerificationEngine( $lookup );
+		return new VerificationEngine(
+			$lookup, $services->getDBLoadBalancer(), $config,
+			$services->getWikiPageFactory(), $services->getRevisionStore(), $services->getPageUpdaterFactory()
+		);
 	}
 ];
