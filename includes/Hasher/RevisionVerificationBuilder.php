@@ -75,8 +75,8 @@ class RevisionVerificationBuilder {
 
 		$verificationContext = [
 			"has_transclusion" => false,
-			"has_signature" => !empty( $signatureHash ),
-			"has_witness" => !empty( $witnessHash )
+			"has_previous_signature" => !empty( $signatureHash ),
+			"has_previous_witness" => !empty( $witnessHash )
 		];
 
 		// TODO: return new RevisionVerification object. Or maybe write to the repo
