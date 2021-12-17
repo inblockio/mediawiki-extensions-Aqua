@@ -98,7 +98,7 @@ class GetRevisionHandler extends ContextAuthorized {
 		}
 
 		$output = [
-			'verification_context' => $res->verification_context,
+			'verification_context' => json_decode( $res->verification_context ),
 			'content' => $contentOutput,
 			'metadata' => $metadataOutput,
 			'signature' => $signatureOutput,
