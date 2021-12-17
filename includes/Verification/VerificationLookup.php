@@ -149,4 +149,18 @@ class VerificationLookup {
 			throw new Exception( "Hash type \"$type\" is not valid" );
 		}
 	}
+
+	/**
+	 * @param VerificationEntity $entity
+	 * @param array $data
+	 * @return bool
+	 */
+	public function updateEntity( VerificationEntity $entity, array $data ): bool {
+		return $this->lb->getConnection( DB_PRIMARY )->update(
+			static::TABLE,
+			$data,
+			[ 'rev_id' => $entity->getRevision()->getId() ],
+			__METHOD__
+		);
+	}
 }
