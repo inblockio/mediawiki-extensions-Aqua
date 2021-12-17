@@ -39,7 +39,6 @@ class GetRevisionHandler extends AuthorizedEntityHandler {
 				$witnessOutput['structured_merkle_proof'] =
 					$this->verificationEngine->requestMerkleProof( $this->verificationEntity );
 			}
-
 		}
 
 		return [
