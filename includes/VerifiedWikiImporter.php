@@ -1527,6 +1527,8 @@ class VerifiedWikiImporter {
 		$witnessInfo = [];
 		$normalFields = [
 			"domain_id",
+			"domain_manifest_title",
+			"witness_hash",
 			"witness_event_verification_hash",
 			"witness_network",
 			"smart_contract_address",
