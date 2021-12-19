@@ -303,7 +303,7 @@ class SpecialWitness extends SpecialPage {
 	 */
 	public function generateDomainManifest( array $formData ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
+		$dbw = $lb->getConnectionRef( DB_PRIMARY );
 
 		$old_max_witness_event_id = getMaxWitnessEventId( $dbw );
 		// Set to 0 if null.

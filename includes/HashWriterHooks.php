@@ -34,7 +34,7 @@ class HashWriterHooks implements
 	// https://github.com/inblockio/DataAccounting/commit/324cd13fadb1daed281c2df454268a7b1ba30fcd
 	public function onRevisionRecordInserted( $revisionRecord ) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
+		$dbw = $lb->getConnectionRef( DB_PRIMARY );
 		$table_name = 'revision_verification';
 		$data = [
 			'page_title' => $revisionRecord->getPageAsLinkTarget(),
@@ -75,7 +75,7 @@ class HashWriterHooks implements
 		$content, $logEntry, $archivedRevisionCount
 	) {
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
+		$dbw = $lb->getConnectionRef( DB_PRIMARY );
 		$dbw->delete( 'revision_verification', [ 'page_id' => $id ], __METHOD__ );
 	}
 
@@ -86,7 +86,7 @@ class HashWriterHooks implements
 		$new_title = $new->getPrefixedText();
 		echo json_encode( [ $old_title, $new_title ] );
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
+		$dbw = $lb->getConnectionRef( DB_PRIMARY );
 		$dbw->update(
 			'revision_verification',
 			[ 'page_title' => $new_title ],

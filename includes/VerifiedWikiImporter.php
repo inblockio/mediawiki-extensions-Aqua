@@ -1409,7 +1409,7 @@ class VerifiedWikiImporter {
 	private static function processVerification( ?array $verificationInfo, string $title ) {
 		$table = 'revision_verification';
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
+		$dbw = $lb->getConnectionRef( DB_PRIMARY );
 
 		if ( $verificationInfo !== null ) {
 			$verificationInfo['page_title'] = $title;

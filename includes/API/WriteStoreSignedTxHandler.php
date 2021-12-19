@@ -108,7 +108,7 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 		$signature_hash = getHashSum( $signature . $public_key );
 
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
+		$dbw = $lb->getConnectionRef( DB_PRIMARY );
 
 		// Get title of the page via the revision_id
 		$row = $dbw->selectRow(

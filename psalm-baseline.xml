@@ -128,7 +128,7 @@
       <code>$pageText</code>
       <code>$pageText</code>
       <code>$titleString</code>
-      <code>DB_MASTER</code>
+      <code>DB_PRIMARY</code>
     </MixedArgument>
     <MixedArrayAccess occurrences="4">
       <code>$body['public_key']</code>
@@ -191,7 +191,7 @@
     </MissingReturnType>
     <MixedArgument occurrences="2">
       <code>$user</code>
-      <code>DB_MASTER</code>
+      <code>DB_PRIMARY</code>
     </MixedArgument>
     <MixedArrayAccess occurrences="3">
       <code>$body['account_address']</code>
@@ -396,10 +396,10 @@
       <code>makeEmptyIfNonce</code>
     </MissingReturnType>
     <MixedArgument occurrences="4">
-      <code>DB_MASTER</code>
-      <code>DB_MASTER</code>
-      <code>DB_MASTER</code>
-      <code>DB_MASTER</code>
+      <code>DB_PRIMARY</code>
+      <code>DB_PRIMARY</code>
+      <code>DB_PRIMARY</code>
+      <code>DB_PRIMARY</code>
     </MixedArgument>
     <MixedArrayAccess occurrences="8">
       <code>$verificationData['public_key']</code>
@@ -571,7 +571,7 @@
       <code>saveWitnessConfig</code>
     </MissingReturnType>
     <MixedArgument occurrences="1">
-      <code>DB_MASTER</code>
+      <code>DB_PRIMARY</code>
     </MixedArgument>
     <MixedOperand occurrences="1">
       <code>getDomainId()</code>
@@ -802,7 +802,7 @@
       <code>$verification_hashes</code>
       <code>$verification_hashes</code>
       <code>$verification_hashes[$i]</code>
-      <code>DB_MASTER</code>
+      <code>DB_PRIMARY</code>
     </MixedArgument>
     <MixedArrayAccess occurrences="7">
       <code>$domainManifestVH</code>
@@ -911,7 +911,7 @@
       <code>$dm</code>
       <code>$hash</code>
       <code>$hash</code>
-      <code>DB_MASTER</code>
+      <code>DB_PRIMARY</code>
     </MixedArgument>
     <MixedArrayOffset occurrences="1">
       <code>$witnessNetworkMap[$WitnessNetwork]</code>
@@ -1095,7 +1095,7 @@
       <code>$verificationInfo</code>
       <code>$witnessInfo</code>
       <code>$witnessInfo['structured_merkle_proof']</code>
-      <code>DB_MASTER</code>
+      <code>DB_PRIMARY</code>
       <code>wfTempDir()</code>
     </MixedArgument>
     <MixedArrayAccess occurrences="10">

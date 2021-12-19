@@ -152,7 +152,7 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 		$witnessNetwork = $body['witness_network'];
 
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
+		$dbw = $lb->getConnectionRef( DB_PRIMARY );
 
 		$table = 'witness_events';
 

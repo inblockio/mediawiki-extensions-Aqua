@@ -64,7 +64,7 @@ class SpecialWitnessPublisher extends SpecialPage {
 		$this->getOutput()->setPageTitle( 'Domain Manifest Publisher' );
 
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_MASTER );
+		$dbw = $lb->getConnectionRef( DB_PRIMARY );
 
 		$res = $dbw->select(
 			'witness_events',
