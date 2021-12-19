@@ -184,6 +184,9 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 					[ 'verification_hash' => $vh ]
 				);
 			} else {
+				// TODO the mapping between the witness event id and the
+				// witness network can be cached so we don't need unnecessary
+				// DB ops.
 				$previousWitnessNetwork = getWitnessNetwork( $dbw, $row->witness_event_id );
 				if ( $previousWitnessNetwork !== 'mainnet' && $witnessNetwork === 'mainnet' ) {
 					// TODO refactor. this is exactly the same as the code when
