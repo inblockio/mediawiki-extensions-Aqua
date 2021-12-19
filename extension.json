@@ -1,5 +1,6 @@
 {
 	"name": "DataAccounting",
+	"version": "v1.1.0-alpha",
 	"author": [
 		"Tim Bansemer",
 		"Isaac Patka",
