@@ -33,6 +33,8 @@ function injectSignatureToPage( string $titleString, string $walletString, User 
 		return;
 	}
 
+	$timestamp = gmdate("Y-m-d H:i:s");
+	$signature = "Signed by [[$walletString]] $timestamp UTC";
 	$anchorString = "<div style=\"font-weight:bold;line-height:1.6;\">Data Accounting Signatures</div><div class=\"mw-collapsible-content\">";
 	$anchorLocation = strpos( $pageText, $anchorString );
 	if ( $anchorLocation === false ) {
@@ -40,11 +42,11 @@ function injectSignatureToPage( string $titleString, string $walletString, User 
 		$text .= "<div class=\"toccolours mw-collapsible mw-collapsed\">";
 		$text .= $anchorString;
 		//Adding visual signature
-		$text .= "~~~~ <br>";
+		$text .= $signature . "<br>";
 		$text .= "</div>";
 	} else {
 		//insert only signature
-		$newEntry = "~~~~ <br>";
+		$newEntry = $signature . "<br>";
 		$text = substr_replace(
 			$pageText,
 			$newEntry,
@@ -53,8 +55,7 @@ function injectSignatureToPage( string $titleString, string $walletString, User 
 		);
 	}
 	// We create a new content using the old content, and append $text to it.
-	$comment = "Page signed by wallet: " . $walletString;
-	editPageContent( $page, $text, $comment, $user );
+	editPageContent( $page, $text, $signature, $user );
 }
 
 class WriteStoreSignedTxHandler extends SimpleHandler {
