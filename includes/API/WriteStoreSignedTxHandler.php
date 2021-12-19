@@ -33,7 +33,7 @@ function injectSignatureToPage( string $titleString, string $walletString, User 
 		return;
 	}
 
-	$timestamp = gmdate("Y-m-d H:i:s");
+	$timestamp = gmdate( "Y-m-d H:i:s" );
 	$signature = "Signed by [[$walletString]] $timestamp UTC";
 	$anchorString = "<div style=\"font-weight:bold;line-height:1.6;\">Data Accounting Signatures</div><div class=\"mw-collapsible-content\">";
 	$anchorLocation = strpos( $pageText, $anchorString );
