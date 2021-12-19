@@ -151,9 +151,11 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 			throw new HttpException( "witness_event_id not found in the witness_page table.", 404 );
 		}
 
-		// If witness ID exists, don't write witness_id, if it does not
-		// exist update with witness id as oldest witness event has biggest
-		// value (proof of existence)
+		// Witness ID update rules:
+		// - Newer mainnet witness takes precedence over existing testnet witness.
+		// - If witness ID exists, don't write the witness_id. If it doesn't
+		//   exist, insert the witness_id. This is because the oldest witness has
+		//   the biggest value. This proves that the revision has existed earlier.
 		foreach ( $verification_hashes as $vh ) {
 			$row = $dbw->selectRow(
 				'revision_verification',
