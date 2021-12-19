@@ -26,11 +26,16 @@ class RevisionXmlBuilder {
 				'genesis_hash',
 				'rev_id',
 				'verification_hash',
+				'previous_verification_hash',
 				'time_stamp',
 				'witness_event_id',
 				'signature',
 				'public_key',
-				'wallet_address'
+				'wallet_address',
+				'verification_context',
+				'content_hash',
+				'metadata_hash',
+				'signature_hash'
 			],
 			[ 'rev_id' => $revId ],
 			__METHOD__
@@ -45,11 +50,16 @@ class RevisionXmlBuilder {
 			'genesis_hash' => $row->genesis_hash,
 			'rev_id' => $revId,
 			'verification_hash' => $row->verification_hash,
+			'previous_verification_hash' => $row->previous_verification_hash,
 			'time_stamp' => $row->time_stamp,
 			'witness_event_id' => $row->witness_event_id,
 			'signature' => $row->signature,
 			'public_key' => $row->public_key,
 			'wallet_address' => $row->wallet_address,
+			'verification_context' => $row->verification_context,
+			'content_hash' => $row->content_hash,
+			'metadata_hash' => $row->metadata_hash,
+			'signature_hash' => $row->signature_hash,
 		];
 
 		// Convert the $output array to XML string

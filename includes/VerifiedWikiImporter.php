@@ -1377,10 +1377,16 @@ class VerifiedWikiImporter {
 			'genesis_hash',
 			'rev_id',
 			'verification_hash',
+			'previous_verification_hash',
 			'time_stamp',
 			'signature',
 			'public_key',
-			'wallet_address' ];
+			'wallet_address',
+			'verification_context',
+			'content_hash',
+			'metadata_hash',
+			'signature_hash'
+		];
 		while ( $this->getReader()->read() ) {
 			if ( $this->getReader()->nodeType == XMLReader::END_ELEMENT &&
 				$this->getReader()->localName == 'verification' ) {
