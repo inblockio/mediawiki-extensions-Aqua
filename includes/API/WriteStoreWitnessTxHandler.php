@@ -96,6 +96,20 @@ function addReceiptToDomainManifest( $user, $witness_event_id, $db ) {
 	);
 }
 
+function getWitnessNetwork( $db, $witness_event_id ): string {
+	$res = $db->selectRow(
+		'witness_events',
+		[ 'witness_network' ],
+		[ 'witness_event_id' => $witness_event_id ]
+	);
+	if ( !$res ) {
+		// If something bad happens. We mark is as corrupted and expect it to
+		// be replaced by the new witness event.
+		return "corrupted";
+	}
+	return $res->witness_network;
+}
+
 class WriteStoreWitnessTxHandler extends SimpleHandler {
 
 	/** @var PermissionManager */
@@ -135,6 +149,7 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 		$witness_event_id = $body['witness_event_id'];
 		$account_address = $body['account_address'];
 		$transaction_hash = $body['transaction_hash'];
+		$witnessNetwork = $body['witness_network'];
 
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
 		$dbw = $lb->getConnectionRef( DB_MASTER );
@@ -168,6 +183,18 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 					[ 'witness_event_id' => $witness_event_id ],
 					[ 'verification_hash' => $vh ]
 				);
+			} else {
+				$previousWitnessNetwork = getWitnessNetwork( $dbw, $row->witness_event_id );
+				if ( $previousWitnessNetwork !== 'mainnet' && $witnessNetwork === 'mainnet' ) {
+					// TODO refactor. this is exactly the same as the code when
+					// the witness_event_id is null (see previous if block
+					// right above).
+					$dbw->update(
+						'revision_verification',
+						[ 'witness_event_id' => $witness_event_id ],
+						[ 'verification_hash' => $vh ]
+					);
+				}
 			}
 		}
 
@@ -242,6 +269,11 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 				ParamValidator::PARAM_REQUIRED => true,
 			],
 			'transaction_hash' => [
+				self::PARAM_SOURCE => 'body',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'witness_network' => [
 				self::PARAM_SOURCE => 'body',
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => true,

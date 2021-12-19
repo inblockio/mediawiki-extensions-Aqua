@@ -38,6 +38,7 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 			'witness_event_id' => 1,
 			'account_address' => '0xa2026582b94feb9124231fbf7b052c39218954c2',
 			'transaction_hash' => '0x473b0b7b9ad818b9af02c0ab73cd9b186b28b6208c13f7d07554ace0915ca88e',
+			'witness_network' => "goerli",
 		] ) ] );
 		$this->requestData = $requestData;
 		$this->permissionManager = $this->getServiceContainer()->getPermissionManager();

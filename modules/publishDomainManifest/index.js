@@ -10,12 +10,13 @@
     'kovan': '0x42',
   }
 
-  function storeWitnessTx(txhash, host, witnessEventID, ownAddress) {
+  function storeWitnessTx(txhash, host, witnessEventID, ownAddress, witnessNetwork) {
     console.log({txhash: txhash});
     const payload = {
       witness_event_id: witnessEventID,
       account_address: ownAddress,
-      transaction_hash: txhash
+      transaction_hash: txhash,
+      witness_network: witnessNetwork
     }
     const cmd =
       host + '/rest.php/data_accounting/write/store_witness_tx';
@@ -93,7 +94,7 @@
                       method: 'eth_sendTransaction',
                       params: params,
                     })
-                    .then(txhash => storeWitnessTx(txhash, host, witnessEventID, ownAddress))
+                    .then(txhash => storeWitnessTx(txhash, host, witnessEventID, ownAddress, parsed.witness_network))
                   })
                 })
                 .catch(error => {
