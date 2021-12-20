@@ -14,7 +14,6 @@ use MediaWiki\Storage\RevisionStore;
 use MediaWiki\User\UserIdentity;
 use Title;
 use TitleFactory;
-use const http\Client\Curl\VERSIONS;
 
 class TransclusionManager {
 	public const STATE_NEW_VERSION = 'new-version';
@@ -123,17 +122,8 @@ class TransclusionManager {
 		if ( !$entity ) {
 			return null;
 		}
-		if ( $entity->getRevision()->isCurrent() ) {
-			return $file;
-		}
 
-		$oldFiles = $file->getHistory();
-		foreach ( $oldFiles as $oldFile ) {
-			if ( $oldFile->getTimestamp() === $entity->getRevision()->getTimestamp() ) {
-				return $oldFile;
-			}
-		}
-		return null;
+		return $this->verificationEngine->getFileForVerificationEntity( $entity, $file );
 	}
 
 	/**

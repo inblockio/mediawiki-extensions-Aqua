@@ -4,9 +4,10 @@ namespace DataAccounting\Verification;
 
 use DataAccounting\Config\DataAccountingConfig;
 use DataAccounting\Content\SignatureContent;
+use File;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Rest\HttpException;
-use MediaWiki\Storage\PageUpdater;
 use MediaWiki\Storage\PageUpdaterFactory;
 use MediaWiki\Storage\RevisionRecord;
 use MediaWiki\Storage\RevisionStore;
@@ -243,6 +244,38 @@ class VerificationEngine {
 		}
 
 		return $this->storeSignature( $entity, $user, $walletAddress );
+	}
+
+	/**
+	 * @param VerificationEntity $entity
+	 * @param File|null $baseFile
+	 * @return File|null
+	 */
+	public function getFileForVerificationEntity( VerificationEntity $entity, ?File $baseFile = null ): ?File {
+		if ( $entity->getTitle()->getNamespace() !== NS_FILE ) {
+			return null;
+		}
+		if ( !$baseFile ) {
+			$repoGroup = MediaWikiServices::getInstance()->getRepoGroup();
+			$file = $repoGroup->findFile( $entity->getTitle() );
+		} else {
+			$file = $baseFile;
+		}
+
+		if ( !$file ) {
+			return null;
+		}
+
+		if ( $entity->getRevision()->isCurrent() ) {
+			return $file;
+		}
+		$oldFiles = $file->getHistory();
+		foreach ( $oldFiles as $oldFile ) {
+			if ( $oldFile->getTimestamp() === $entity->getRevision()->getTimestamp() ) {
+				return $oldFile;
+			}
+		}
+		return null;
 	}
 
 	/**
