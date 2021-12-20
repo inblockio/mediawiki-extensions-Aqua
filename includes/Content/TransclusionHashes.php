@@ -169,6 +169,10 @@ class TransclusionHashes extends JsonContent {
 		return $row;
 	}
 
+	/**
+	 * @param string|null $format
+	 * @return false|string
+	 */
 	public function serialize( $format = null ) {
 		// We dont want to / need to expose dbkey and ns to API
 		$toSerialize = array_map( static function( $hashEntity ) {
