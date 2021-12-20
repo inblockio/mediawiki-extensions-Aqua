@@ -55,13 +55,18 @@
 		"Witness": {
 			"class": "DataAccounting\\SpecialWitness",
 			"services": [
-				"PermissionManager"
+				"PermissionManager",
+				"DBLoadBalancer",
+				"TitleFactory",
+				"DataAccountingVerificationEngine"
 			]
 		},
 		"WitnessPublisher": {
 			"class": "DataAccounting\\SpecialWitnessPublisher",
 			"services": [
-				"PermissionManager"
+				"PermissionManager",
+				"DBLoadBalancer",
+				"DataAccountingVerificationEngine"
 			]
 		},
 		"DataAccountingConfig": {

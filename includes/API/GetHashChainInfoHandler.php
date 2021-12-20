@@ -39,7 +39,6 @@ class GetHashChainInfoHandler extends AuthorizedEntityHandler {
 	 * @return VerificationEntity|null
 	 */
 	protected function getEntity( string $idType, string $id ): ?VerificationEntity {
-
 		$conds = [];
 		if ( $idType === 'title' ) {
 			// TODO: DB data should hold Db key, not prefixed text (spaces replaced with _)

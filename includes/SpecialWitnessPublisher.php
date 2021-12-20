@@ -7,43 +7,33 @@
 namespace DataAccounting;
 
 use Config;
+use DataAccounting\Verification\VerificationEngine;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
 use PermissionsError;
 use SpecialPage;
-
-require_once 'Util.php';
-
-function shortenHash( $hash ) {
-	return substr( $hash, 0, 6 ) . "..." . substr( $hash, -6, 6 );
-}
-
-// TODO this function is duplicated in SpecialWitness
-function hrefifyHash( $hash, $prefix = "" ) {
-	return "<a href='" . $prefix . $hash . "'>" . shortenHash( $hash ) . "</a>";
-}
-
-function shortenDomainManifestTitle( $dm ) {
-	// TODO we are hardcoding the name space here. Fix!
-	// 6942
-	$withoutNameSpace = str_replace( "Data Accounting:", "", $dm );
-	$hashOnly = str_replace( "DomainManifest:", "", $withoutNameSpace );
-	return "DomainManifest:" . shortenHash( $hashOnly );
-}
+use Wikimedia\Rdbms\LoadBalancer;
 
 class SpecialWitnessPublisher extends SpecialPage {
 
 	private PermissionManager $permManager;
 
+	private LoadBalancer $lb;
+
+	private VerificationEngine $verificationEngine;
+
 	/**
 	 * Initialize the special page.
 	 */
-	public function __construct() {
+	public function __construct( PermissionManager $permManager, LoadBalancer $lb,
+		VerificationEngine $verificationEngine ) {
 		// A special page should at least have a name.
 		// We do this by calling the parent class (the SpecialPage class)
 		// constructor method with the name as first and only parameter.
 		parent::__construct( 'WitnessPublisher' );
-		$this->permManager = MediaWikiServices::getInstance()->getPermissionManager();
+		$this->permManager = $permManager;
+		$this->lb = $lb;
+		$this->verificationEngine = $verificationEngine;
 	}
 
 	/**
@@ -63,8 +53,7 @@ class SpecialWitnessPublisher extends SpecialPage {
 
 		$this->getOutput()->setPageTitle( 'Domain Manifest Publisher' );
 
-		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_PRIMARY );
+		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
 
 		$res = $dbw->select(
 			'witness_events',
@@ -100,19 +89,18 @@ class SpecialWitnessPublisher extends SpecialPage {
 		];
 
 		foreach ( $res as $row ) {
-			$hrefWEVH = hrefifyHash( $row->witness_event_verification_hash );
+			$hrefWEVH = $this->hrefifyHash( $row->witness_event_verification_hash );
 			// Color taken from https://www.schemecolor.com/warm-autumn-2.php
 			// #B33030 is Chinese Orange
 			// #B1C97F is Sage
 
-			$my_domain_id = getDomainId();
-			if ( $my_domain_id != $row->domain_id ) {
+			if ( $this->verificationEngine->getDomainId() != $row->domain_id ) {
 				$publishingStatus = '<td style="background-color:#DDDDDD">Imported</td>';
 			} else {
 				if ( $row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE' ) {
 					$publishingStatus = '<td style="background-color:#F27049"><button type="button" class="publish-domain-manifest" id="' . $row->witness_event_id . '">Publish!</button></td>';
 				} else {
-					$publishingStatus = '<td style="background-color:#B1C97F">' . hrefifyHash(
+					$publishingStatus = '<td style="background-color:#B1C97F">' . $this->hrefifyHash(
 							$row->witness_event_transaction_hash,
 							$witnessNetworkMap[$WitnessNetwork]
 						) . '</td>';
@@ -122,7 +110,7 @@ class SpecialWitnessPublisher extends SpecialPage {
 			if ( $row->domain_manifest_title === null ) {
 				$linkedDomainManifest = 'N/A';
 			} else {
-				$linkedDomainManifest = '<a href=\'/index.php/' . $row->domain_manifest_title . '\'>' . shortenDomainManifestTitle(
+				$linkedDomainManifest = '<a href=\'/index.php/' . $row->domain_manifest_title . '\'>' . $this->shortenDomainManifestTitle(
 						$row->domain_manifest_title
 					) . '</a>';
 			}
@@ -149,5 +137,22 @@ class SpecialWitnessPublisher extends SpecialPage {
 
 	public function getConfig(): Config {
 		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
+	}
+
+	private function shortenHash( string $hash ): string {
+		return substr( $hash, 0, 6 ) . "..." . substr( $hash, -6, 6 );
+	}
+
+	private function hrefifyHash( string $hash, string $prefix = "" ): string {
+		// TODO this function is duplicated in SpecialWitness
+		return "<a href='" . $prefix . $hash . "'>" . $this->shortenHash( $hash ) . "</a>";
+	}
+
+	private function shortenDomainManifestTitle( string $dm ): string {
+		// TODO we are hardcoding the name space here. Fix!
+		// 6942
+		$withoutNameSpace = str_replace( "Data Accounting:", "", $dm );
+		$hashOnly = str_replace( "DomainManifest:", "", $withoutNameSpace );
+		return "DomainManifest:" . $this->shortenHash( $hashOnly );
 	}
 }
