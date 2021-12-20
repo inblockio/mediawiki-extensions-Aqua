@@ -53,7 +53,7 @@ class DAPageUpdater extends PageUpdater {
 	/**
 	 * @inheritDoc
 	 */
-	public function saveRevision( CommentStoreComment $summary, int $flags = 0 )  {
+	public function saveRevision( CommentStoreComment $summary, int $flags = 0 ) {
 		// CUSTOM PART START
 		// We fire a hook to allow subscribers to add their own contents to slots
 		if ( $this->shouldEmit ) {

@@ -6,13 +6,14 @@ namespace DataAccounting\Tests;
 
 use PHPUnit\Framework\TestCase;
 use DataAccounting\Hasher\HashingService;
-
-require_once __DIR__ . "/../../../includes/Util.php";
+use DataAccounting\Verification\VerificationEngine;
+use MediaWiki\MediaWikiServices;
 
 /**
  * @covers \DataAccounting\Hasher\HashingService
  */
 class HashingServiceTest extends TestCase {
+	private VerificationEngine $verificationEngine;
 	private HashingService $hs;
 	private string $expectedMetadataHash;
 	private string $content;
@@ -23,6 +24,9 @@ class HashingServiceTest extends TestCase {
 	public function setUp(): void {
 		$domainID = '95d7c6609a';
 		$this->hs = new HashingService( $domainID );
+		$this->verificationEngine = MediaWikiServices::getInstance()->getService(
+			'DataAccountingVerificationEngine'
+		);
 		$this->expectedMetadataHash = '4cc996ffbc5237e15fd4e2fc67795fb7fa9563805ae04071ef20ace02535be2fb336f8de4cb3bebfc7afdefa0420d3ba8085d5a6f891464908bf3a08d57bfb77';
 		$this->content = "Look again at that dot. That's here. That's home. That's us. On it everyone you love, everyone you know, everyone you ever heard of, every human being who ever was, lived out their lives. The aggregate of our joy and suffering, thousands of confident religions, ideologies, and economic doctrines, every hunter and forager, every hero and coward, every creator and destroyer of civilization, every king and peasant, every young couple in love, every mother and father, hopeful child, inventor and explorer, every teacher of morals, every corrupt politician, every \"superstar,\" every \"supreme leader,\" every saint and sinner in the history of our species lived there--on a mote of dust suspended in a sunbeam.\n\n<br>\n-- Carl Sagan<br><br><hr><div class=\"toccolours mw-collapsible mw-collapsed\"><div style=\"font-weight:bold;line-height:1.6;\">Data Accounting Signatures</div><div class=\"mw-collapsible-content\">[[User:0xa2026582b94feb9124231fbf7b052c39218954c2|0xa2026582b94feb9124231fbf7b052c39218954c2]] ([[User talk:0xa2026582b94feb9124231fbf7b052c39218954c2|talk]]) 03:52, 27 November 2021 (UTC) <br></div>";
 		$this->expectedContentHash = '83bc065434d5efc36876ee3b4b09ad03fbbf9d6c209a8066f2f6257f0841b2617f91dc73eae770e7b19545c257fc79a39bfb7ccac915ac588f892a4298f85397';
@@ -33,7 +37,7 @@ class HashingServiceTest extends TestCase {
 	public function testCalculateContentHash(): void {
 		$this->assertEquals(
 			$this->expectedContentHash,
-			getHashSum( $this->content )
+			$this->verificationEngine->getHashSum( $this->content )
 		);
 	}
 
