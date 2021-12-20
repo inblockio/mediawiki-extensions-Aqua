@@ -39,6 +39,8 @@ use MediaWiki\Revision\SlotRoleRegistry;
 // DA modification; For typing.
 use ImportSource;
 use Config;
+use Content;
+use ContentHandler;
 use Language;
 use NamespaceInfo;
 use TitleFactory;
@@ -54,6 +56,7 @@ use RequestContext;
 use MediaWiki\MediaWikiServices;
 use WikiRevision;
 use Title;
+use ForeignTitle;
 use DeferredUpdates;
 use SiteStatsUpdate;
 
