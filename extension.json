@@ -202,7 +202,8 @@
 			"class": "DataAccounting\\API\\GetRevisionHandler",
 			"services": [
 				"PermissionManager",
-				"DataAccountingVerificationEngine"
+				"DataAccountingVerificationEngine",
+				"DataAccountingTransferEntityFactory"
 			]
 		},
 		{
@@ -210,7 +211,9 @@
 			"class": "DataAccounting\\API\\GetHashChainInfoHandler",
 			"services": [
 				"PermissionManager",
-				"DataAccountingVerificationEngine"
+				"DataAccountingVerificationEngine",
+				"ContentLanguage",
+				"NamespaceInfo"
 			]
 		},
 		{
@@ -275,7 +278,6 @@
 		}
 	},
 	"ServiceWiringFiles": [
-		"includes/ExportImport/ServiceWiring.php",
 		"includes/ServiceWiring.php"
 	],
 	"ContentHandlers": {
