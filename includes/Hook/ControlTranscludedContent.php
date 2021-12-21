@@ -55,7 +55,7 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 		}
 
 		$file = $this->repoGroup->findFile( $nt );
-		if ( $file && !$file->isLocal() ) {
+		if ( !$file || !$file->isLocal() ) {
 			// Foreign file => cannot handle
 			return true;
 		}

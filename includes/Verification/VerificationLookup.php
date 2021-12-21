@@ -163,4 +163,26 @@ class VerificationLookup {
 			__METHOD__
 		);
 	}
+
+	/**
+	 * @return array
+	 */
+	public function getAllEntities(): array {
+		$res = $this->lb->getConnection( DB_REPLICA )->select(
+			static::TABLE,
+			[ '*' ],
+			[],
+			__METHOD__
+		);
+
+		$entities = [];
+		foreach ( $res as $row ) {
+			$entity = $this->verificationEntityFactory->newFromDbRow( $row );
+			if ( $entity instanceof VerificationEntity ) {
+				$entities[] = $entity;
+			}
+		}
+
+		return $entities;
+	}
 }

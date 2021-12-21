@@ -5,15 +5,46 @@ namespace DataAccounting\Transfer;
 use DataAccounting\Verification\GenericDatabaseEntity;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\VerificationEntity;
+use TitleFactory;
 
 class TransferEntityFactory {
+	/** @var VerificationEngine */
 	private $verificationEngine;
+	/** @var TitleFactory */
+	private $titleFactory;
 
 	/**
 	 * @param VerificationEngine $engine
 	 */
-	public function __construct( VerificationEngine $engine ) {
+	public function __construct( VerificationEngine $engine, TitleFactory $titleFactory ) {
 		$this->verificationEngine = $engine;
+		$this->titleFactory = $titleFactory;
+	}
+
+	/**
+	 * @param array $data
+	 * @return TransferContext|null
+	 */
+	public function newTransferContext( array $data ): ?TransferContext {
+		if (
+			isset( $data['site_info'] ) && is_array( $data['site_info'] ) &&
+			isset( $data['title'] ) && isset( $data['namespace'] )
+		) {
+			$title = $this->titleFactory->makeTitle( $data['namespace'], $data['title'] );
+			if ( !( $title instanceof \Title ) ) {
+				return null;
+			}
+			return new TransferContext(
+				$data[VerificationEntity::GENESIS_HASH],
+				$data[VerificationEntity::DOMAIN_ID],
+				$data['latest_verification_hash'] ?? '',
+				$data['site_info'],
+				$title,
+				$data['chain_height'] ?? 0
+			);
+		}
+
+		return null;
 	}
 
 	/**

@@ -29,6 +29,7 @@ class GetHashChainInfoHandler extends AuthorizedEntityHandler {
 	/** @inheritDoc */
 	public function run( string $id_type, string $id ) {
 		$entity = $this->getEntity( $id_type, $id );
+
 		return [
 			VerificationEntity::GENESIS_HASH => $entity->getHash( VerificationEntity::GENESIS_HASH ),
 			VerificationEntity::DOMAIN_ID => $entity->getDomainId(),

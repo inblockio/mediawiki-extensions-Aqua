@@ -2,6 +2,7 @@
 
 use DataAccounting\Config\Handler;
 use DataAccounting\TransclusionManager;
+use DataAccounting\Transfer\Importer;
 use DataAccounting\Transfer\TransferEntityFactory;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\VerificationEntityFactory;
@@ -50,6 +51,12 @@ return [
 	},
 	'DataAccountingTransferEntityFactory' => static function( MediaWikiServices $services ): TransferEntityFactory {
 		return new TransferEntityFactory(
+			$services->getService( 'DataAccountingVerificationEngine' ),
+			$services->getTitleFactory()
+		);
+	},
+	'DataAccountingImporter' => static function( MediaWikiServices $services ): Importer {
+		return new Importer(
 			$services->getService( 'DataAccountingVerificationEngine' )
 		);
 	}
