@@ -19,9 +19,6 @@ use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\User\UserIdentity;
 use WikiPage;
 
-require_once 'Util.php';
-require_once 'ApiUtil.php';
-
 class HashWriterHooks implements
 	RevisionFromEditCompleteHook,
 	RevisionRecordInsertedHook,
