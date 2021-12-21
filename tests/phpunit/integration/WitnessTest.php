@@ -12,11 +12,14 @@ use Wikimedia\Message\MessageValue;
 use MediaWiki\Rest\RequestData;
 use MediaWiki\Permissions\PermissionManager;
 use Title;
+use TitleFactory;
+use Wikimedia\Rdbms\LoadBalancer;
 
 use DataAccounting\API\GetWitnessDataHandler;
 use DataAccounting\API\RequestMerkleProofHandler; // untested
 use DataAccounting\API\WriteStoreWitnessTxHandler;
 use DataAccounting\SpecialWitness;
+use DataAccounting\Verification\VerificationEngine;
 
 /**
  * @covers \DataAccounting\API\WriteStoreWitnessTxHandler
@@ -29,6 +32,9 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 	private RequestData $requestData;
 	private PermissionManager $permissionManager;
 	private PermissionManager $permissionManagerMock;
+	private LoadBalancer $lb;
+	private TitleFactory $titleFactory;
+	private VerificationEngine $verificationEngine;
 
 	public function setUp(): void {
 		$requestData = new RequestData( [
@@ -42,6 +48,12 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 		] ) ] );
 		$this->requestData = $requestData;
 		$this->permissionManager = $this->getServiceContainer()->getPermissionManager();
+		$this->lb = $this->getServiceContainer()->getDBLoadBalancer();
+		$this->titleFactory = $this->getServiceContainer()->getTitleFactory();
+		$this->verificationEngine = $this->getServiceContainer()->getService(
+			'DataAccountingVerificationEngine'
+		);
+		
 		// Mock permission manager that allows any access.
 		$pmMock = $this->createMock( PermissionManager::class );
 		$pmMock->method( 'userHasRight' )->willReturn( true );
@@ -86,7 +98,12 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 	}
 
 	public function testWitness(): void {
-		$sp = new SpecialWitness( $this->permissionManagerMock );
+		$sp = new SpecialWitness(
+			$this->permissionManagerMock,
+			$this->lb,
+			$this->titleFactory,
+			$this->verificationEngine
+		);
 		$sp->getOutput()->setTitle( Title::newFromText( 'Witness' ) );
 		// Test that generating domain manifest works.
 		$sp->generateDomainManifest( [] );
