@@ -54,7 +54,7 @@ class TransferEntityFactory {
 
 		if ( $entity->getRevision()->getPage()->getNamespace() === NS_FILE ) {
 			$file = $this->verificationEngine->getFileForVerificationEntity( $entity );
-			if ( $file instanceof \File) {
+			if ( $file instanceof \File ) {
 				$content = file_get_contents( $file->getLocalRefPath() );
 				if ( is_string( $content ) ) {
 					$contentOutput['file'] = base64_encode( $content );

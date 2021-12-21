@@ -7,7 +7,7 @@
 
 namespace DataAccounting;
 
-use DataAccounting\Content\SignatureContent;
+use DataAccounting\Verification\VerificationEngine;
 use FormatJson;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\OutputPageParserOutputHook;
@@ -16,6 +16,8 @@ use MediaWiki\Hook\SkinTemplateNavigationHook;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Hook\ImportHandlePageXMLTagHook;
+use MediaWiki\Hook\XmlDumpWriterOpenPageHook;
 use MovePage;
 use MWException;
 use OutputPage;
@@ -25,22 +27,27 @@ use RequestContext;
 use Skin;
 use SkinTemplate;
 use stdClass;
-use Title;
-use XMLReader;
-
-require_once 'ApiUtil.php';
+use TitleFactory;
+use WikiImporter;
 
 class Hooks implements
 	BeforePageDisplayHook,
 	ParserFirstCallInitHook,
 	SkinTemplateNavigationHook,
-	OutputPageParserOutputHook
+	OutputPageParserOutputHook,
+	ImportHandlePageXMLTagHook,
+	XmlDumpWriterOpenPageHook
 {
 
 	private PermissionManager $permissionManager;
+	private TitleFactory $titleFactory;
+	private VerificationEngine $verificationEngine;
 
-	public function __construct( PermissionManager $permissionManager ) {
+	public function __construct( PermissionManager $permissionManager, TitleFactory $titleFactory,
+		VerificationEngine $verificationEngine ) {
 		$this->permissionManager = $permissionManager;
+		$this->titleFactory = $titleFactory;
+		$this->verificationEngine = $verificationEngine;
 	}
 
 	/**
@@ -170,12 +177,24 @@ class Hooks implements
 			. '</pre>';
 	}
 
-	public static function onXmlDumpWriterOpenPage( \XmlDumpWriter $dumpWriter, string &$output, stdClass $page, \Title $title ): void {
+	/**
+	 * This hook is called at the end of XmlDumpWriter::openPage, to allow
+	 * extra metadata to be added.
+	 *
+	 * @since 1.35
+	 *
+	 * @param XmlDumpWriter $obj
+	 * @param string &$out Output string
+	 * @param stdClass $row Database row for the page
+	 * @param Title $title Title of the page
+	 * @return bool|void True or no return value to continue or false to abort
+	 */
+	public function onXmlDumpWriterOpenPage( $obj, &$out, $row, $title ) {
 		// This method is for verified exporter.
-		$output .= \Xml::element(
+		$out .= \Xml::element(
 			'data_accounting_chain_height',
 			[],
-			(string)getPageChainHeight( $title->getText() )
+			$this->verificationEngine->getPageChainHeight( $title->getText() )
 		);
 	}
 
@@ -188,27 +207,37 @@ class Hooks implements
 		$output .= $xmlBuilder->getPageMetadataByRevId( $revision->getId() );
 	}
 
-	public static function onImportHandlePageXMLTag( $importer, array &$pageInfo ): bool {
+	/**
+	 * This hook is called when parsing an XML tag in a page.
+	 *
+	 * @since 1.35
+	 *
+	 * @param WikiImporter $reader
+	 * @param array &$pageInfo Array of information
+	 * @return bool|void True or no return value to continue, or false to stop further
+	 *   processing of the tag
+	 */
+	public function onImportHandlePageXMLTag( $reader, &$pageInfo ) {
 		// This method is for verified importer.
-		if ( $importer->getReader()->localName !== 'data_accounting_chain_height' ) {
+		if ( $reader->getReader()->localName !== 'data_accounting_chain_height' ) {
 			return true;
 		}
 
-		$own_chain_height = getPageChainHeight( $pageInfo['title'] );
+		$own_chain_height = $this->verificationEngine->getPageChainHeight( $pageInfo['title'] );
 
 		if ( $own_chain_height == 0 ) {
 			return false;
 		}
 
-		$imported_chain_height = $importer->nodeContents();
+		$imported_chain_height = $reader->nodeContents();
 		if ( $own_chain_height <= $imported_chain_height ) {
 			// Move and rename own page
 			// Rename the page that is about to be imported
 			$now = date( 'Y-m-d-H-i-s', time() );
 			$newTitle = $pageInfo['title'] . "_ChainHeight_{$own_chain_height}_$now";
 
-			$ot = Title::newFromText( $pageInfo['title'] );
-			$nt = Title::newFromText( $newTitle );
+			$ot = $this->titleFactory->newFromText( $pageInfo['title'] );
+			$nt = $this->titleFactory->newFromText( $newTitle );
 			$mp = new MovePage( $ot, $nt );
 
 			$mp->moveIfAllowed(

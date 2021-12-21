@@ -16,6 +16,7 @@
 
 namespace DataAccounting;
 
+use DataAccounting\Verification\VerificationEngine;
 use Exception;
 use HTMLForm;
 use MediaWiki\MediaWikiServices;
@@ -24,16 +25,17 @@ use MutableConfig;
 use PermissionsError;
 use SpecialPage;
 
-require_once 'Util.php';
-require_once 'ApiUtil.php';
-
 class SpecialDataAccountingConfig extends SpecialPage {
 
 	private PermissionManager $permManager;
 
-	public function __construct() {
+	private VerificationEngine $verificationEngine;
+
+	public function __construct( PermissionManager $permManager,
+		VerificationEngine $verificationEngine ) {
 		parent::__construct( 'DataAccountingConfig' );
-		$this->permManager = MediaWikiServices::getInstance()->getPermissionManager();
+		$this->permManager = $permManager;
+		$this->verificationEngine = $verificationEngine;
 	}
 
 	/**
@@ -54,7 +56,7 @@ class SpecialDataAccountingConfig extends SpecialPage {
 		$out = "<i>This page gives you all configuration options for the Media Wikia - Data Accounting Extension Version 1.1</i><hr>";
 
 		$out .= "<br>Project Page with GitHub and Roadmap: https://aqua.inblock.io/index.php/Main_Page<br>";
-		$out .= "<br>Your Domain ID is: <b>" . getDomainId() . "</b><br><h1> Module 4: Witness Configuration </h1>";
+		$out .= "<br>Your Domain ID is: <b>" . $this->verificationEngine->getDomainId() . "</b><br><h1> Module 4: Witness Configuration </h1>";
 		$out .= "<i>Configure witness network for witness events to be published and against which witness network (which Blockchain) your historic witness events are checked. </i><hr>";
 
 		$this->getOutput()->addWikiTextAsInterface( $out );

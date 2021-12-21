@@ -72,7 +72,8 @@
 		"DataAccountingConfig": {
 			"class": "DataAccounting\\SpecialDataAccountingConfig",
 			"services": [
-				"PermissionManager"
+				"PermissionManager",
+				"DataAccountingVerificationEngine"
 			]
 		},
 		"VerifiedImport": {
@@ -122,9 +123,9 @@
 		"LoadExtensionSchemaUpdates": {
 			"handler": "handleHashWriterHooks"
 		},
-		"XmlDumpWriterOpenPage": "DataAccounting\\Hooks::onXmlDumpWriterOpenPage",
+		"XmlDumpWriterOpenPage": "handleHooks",
 		"XmlDumpWriterWriteRevision": "DataAccounting\\Hooks::onXmlDumpWriterWriteRevision",
-		"ImportHandlePageXMLTag": "DataAccounting\\Hooks::onImportHandlePageXMLTag",
+		"ImportHandlePageXMLTag": "handleHooks",
 		"MediaWikiServices": [ "registerRevisionSlots", "overrideService" ],
 		"DASaveRevisionAddSlots": "addTransclusionHashes",
 		"MultiContentSave": "addTransclusionHashes",
@@ -134,7 +135,11 @@
 	"HookHandlers": {
 		"handleHooks": {
 			"class": "DataAccounting\\Hooks",
-			"services": [ "PermissionManager" ]
+			"services": [
+				"PermissionManager",
+				"TitleFactory",
+				"DataAccountingVerificationEngine"
+			]
 		},
 		"handleHashWriterHooks": {
 			"class": "DataAccounting\\HashWriterHooks"
