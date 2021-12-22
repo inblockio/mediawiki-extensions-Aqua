@@ -11,7 +11,7 @@ use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Storage\PageUpdaterFactory;
 use MediaWiki\Revision\RevisionRecord;
-use MediaWiki\Storage\RevisionStore;
+use MediaWiki\Revision\RevisionStore;
 use MWException;
 use Title;
 use User;

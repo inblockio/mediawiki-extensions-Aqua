@@ -4,9 +4,8 @@ namespace DataAccounting\Verification;
 
 use DataAccounting\Verification\Entity\VerificationEntity;
 use Exception;
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
-use MediaWiki\Storage\RevisionStore;
+use MediaWiki\Revision\RevisionStore;
 use Title;
 use Wikimedia\Rdbms\ILoadBalancer;
 

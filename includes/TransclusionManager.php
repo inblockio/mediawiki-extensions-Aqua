@@ -10,7 +10,7 @@ use File;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\PageUpdaterFactory;
-use MediaWiki\Storage\RevisionStore;
+use MediaWiki\Revision\RevisionStore;
 use MediaWiki\User\UserIdentity;
 use Title;
 use TitleFactory;

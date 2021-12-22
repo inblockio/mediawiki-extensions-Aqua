@@ -2,13 +2,11 @@
 
 namespace DataAccounting\Verification;
 
-use DataAccounting\Verification\Entity\GenericDatabaseEntity;
 use DataAccounting\Verification\Entity\MerkleTreeEntity;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\Entity\WitnessEventEntity;
 use DataAccounting\Verification\Entity\WitnessPageEntity;
 use Wikimedia\Rdbms\ILoadBalancer;
-use function DataAccounting\API\selectToArray;
 
 class WitnessLookup {
 	/** @var ILoadBalancer */
