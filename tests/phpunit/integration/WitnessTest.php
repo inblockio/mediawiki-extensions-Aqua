@@ -20,6 +20,7 @@ use DataAccounting\API\RequestMerkleProofHandler; // untested
 use DataAccounting\API\WriteStoreWitnessTxHandler;
 use DataAccounting\SpecialWitness;
 use DataAccounting\Verification\VerificationEngine;
+use DataAccounting\Verification\WitnessingEngine;
 
 /**
  * @covers \DataAccounting\API\WriteStoreWitnessTxHandler
@@ -35,6 +36,7 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 	private LoadBalancer $lb;
 	private TitleFactory $titleFactory;
 	private VerificationEngine $verificationEngine;
+	private WitnessingEngine $witnessingEngine;
 
 	public function setUp(): void {
 		$requestData = new RequestData( [
@@ -52,6 +54,9 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 		$this->titleFactory = $this->getServiceContainer()->getTitleFactory();
 		$this->verificationEngine = $this->getServiceContainer()->getService(
 			'DataAccountingVerificationEngine'
+		);
+		$this->witnessingEngine = $this->getServiceContainer()->getService(
+			'DataAccountingWitnessingEngine'
 		);
 		
 		// Mock permission manager that allows any access.
@@ -71,7 +76,11 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 			)
 		);
 		$this->executeHandler(
-			new WriteStoreWitnessTxHandler( $this->permissionManager ),
+			new WriteStoreWitnessTxHandler(
+				$this->permissionManager,
+				$this->verificationEngine,
+				$this->witnessingEngine
+			),
 			$this->requestData
 		);
 	}
@@ -82,7 +91,11 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 			new HttpException( "witness_event_id not found in the witness_page table.", 404 )
 		);
 		$this->executeHandler(
-			new WriteStoreWitnessTxHandler( $this->permissionManagerMock ),
+			new WriteStoreWitnessTxHandler(
+				$this->permissionManagerMock,
+				$this->verificationEngine,
+				$this->witnessingEngine
+			),
 			$this->requestData
 		);
 	}
@@ -142,7 +155,11 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 
 		// Publish!
 		$data = $this->executeHandlerAndGetBodyData(
-			new WriteStoreWitnessTxHandler( $this->permissionManagerMock ),
+			new WriteStoreWitnessTxHandler(
+				$this->permissionManagerMock,
+				$this->verificationEngine,
+				$this->witnessingEngine
+			),
 			$this->requestData
 		);
 		$this->assertSame( [ "value" => true ], $data );
