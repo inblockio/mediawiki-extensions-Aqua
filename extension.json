@@ -120,9 +120,7 @@
 		"RevisionRecordInserted": "handleHashWriterHooks",
 		"ArticleDeleteComplete": "handleHashWriterHooks",
 		"PageMoveComplete": "handleHashWriterHooks",
-		"LoadExtensionSchemaUpdates": {
-			"handler": "handleHashWriterHooks"
-		},
+		"LoadExtensionSchemaUpdates": "update",
 		"XmlDumpWriterOpenPage": "handleHooks",
 		"XmlDumpWriterWriteRevision": "DataAccounting\\Hooks::onXmlDumpWriterWriteRevision",
 		"ImportHandlePageXMLTag": "handleHooks",
@@ -160,6 +158,9 @@
 		"controlTranscludedContent": {
 			"class": "DataAccounting\\Hook\\ControlTranscludedContent",
 			"services": [ "DataAccountingTransclusionManager", "RevisionStore", "RepoGroup" ]
+		},
+		"update": {
+			"class": "DataAccounting\\Hook\\Update"
 		}
 	},
 	"RestRoutes": [

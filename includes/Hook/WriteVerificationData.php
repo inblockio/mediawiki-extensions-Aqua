@@ -10,10 +10,7 @@ namespace DataAccounting\Hook;
 use DataAccounting\Content\SignatureContent;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
-use DatabaseUpdater;
 use MediaWiki\Hook\PageMoveCompleteHook;
-use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\Hook\ArticleDeleteCompleteHook;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 use MediaWiki\Revision\Hook\RevisionRecordInsertedHook;
@@ -25,8 +22,7 @@ class WriteVerificationData implements
 	RevisionFromEditCompleteHook,
 	RevisionRecordInsertedHook,
 	ArticleDeleteCompleteHook,
-	PageMoveCompleteHook,
-	LoadExtensionSchemaUpdatesHook
+	PageMoveCompleteHook
 {
 	/** @var VerificationEngine */
 	private $verificationEngine;
@@ -91,34 +87,5 @@ class WriteVerificationData implements
 				] );
 			}
 		}
-	}
-
-	/**
-	 * Register our database schema.
-	 *
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/LoadExtensionSchemaUpdates
-	 *
-	 * @param DatabaseUpdater $updater
-	 */
-	public function onLoadExtensionSchemaUpdates( $updater ) {
-		$base = dirname( __DIR__ );
-
-		$updater->addExtensionTable(
-			'revision_verification',  "$base/sql/data_accounting.sql"
-		);
-		$updater->addExtensionTable(
-			'witness_events',  "$base/sql/data_accounting.sql"
-		);
-		$updater->addExtensionTable(
-			'witness_page',  "$base/sql/data_accounting.sql"
-		);
-		$updater->addExtensionTable(
-			'witness_merkle_tree',  "$base/sql/data_accounting.sql"
-		);
-		$updater->addExtensionTable(
-			'da_settings',  "$base/sql/data_accounting.sql"
-		);
-
-		// TODO: Register patches
 	}
 }
