@@ -2,7 +2,7 @@
 
 namespace DataAccounting\API;
 
-use DataAccounting\Verification\VerificationEntity;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\Rest\HttpException;
 use Wikimedia\ParamValidator\ParamValidator;
 

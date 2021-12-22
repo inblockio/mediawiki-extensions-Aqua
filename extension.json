@@ -142,7 +142,10 @@
 			]
 		},
 		"handleHashWriterHooks": {
-			"class": "DataAccounting\\HashWriterHooks"
+			"class": "DataAccounting\\Hook\\WriteVerificationData",
+			"services": [
+				"DataAccountingVerificationEngine"
+			]
 		},
 		"registerRevisionSlots": {
 			"class": "DataAccounting\\Hook\\RegisterRevisionSlots"

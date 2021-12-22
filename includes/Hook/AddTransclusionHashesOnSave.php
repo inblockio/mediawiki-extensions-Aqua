@@ -79,7 +79,10 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		// At this point we are in the middle of saving, all content slots for this edit must already
 		// be inserted, and page was just parsed (but not saved yet)
 		$po = $renderedRevision->getSlotParserOutput( SlotRecord::MAIN );
-		$extractor = new TransclusionHashExtractor( $po, $this->titleFactory, $this->verificationEngine );
+		$extractor = new TransclusionHashExtractor(
+			$renderedRevision->getRevision()->getPageAsLinkTarget(),
+			$po, $this->titleFactory, $this->verificationEngine
+		);
 		$hashmap = $extractor->getHashmap();
 		// Now, with access to the PO of the main slot, we can extract included pages/files
 		// and add the to the hashes slot, using the content which we previously added to the revision

@@ -4,13 +4,16 @@ namespace DataAccounting\Util;
 
 use DataAccounting\Hasher\RevisionVerificationRepo;
 use DataAccounting\Verification\VerificationEngine;
-use DataAccounting\Verification\VerificationEntity;
+use DataAccounting\Verification\Entity\VerificationEntity;
+use MediaWiki\Linker\LinkTarget;
 use MWException;
 use ParserOutput;
 use Title;
 use TitleFactory;
 
 class TransclusionHashExtractor {
+	/** @var LinkTarget */
+	private $subject;
 	/** @var ParserOutput */
 	private $parserOutput;
 	/** @var TitleFactory */
@@ -20,14 +23,24 @@ class TransclusionHashExtractor {
 	/** @var array|null */
 	private $hashMap = null;
 
+	/**
+	 * @param ParserOutput $po
+	 * @param TitleFactory $titleFactory
+	 * @param VerificationEngine $verificationEngine
+	 */
 	public function __construct(
-		ParserOutput $po, TitleFactory $titleFactory, VerificationEngine $verificationEngine
+		LinkTarget $subject, ParserOutput $po,
+		TitleFactory $titleFactory, VerificationEngine $verificationEngine
 	) {
+		$this->subject = $subject;
 		$this->parserOutput = $po;
 		$this->titleFactory = $titleFactory;
 		$this->verifcationEngine = $verificationEngine;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getHashmap(): array {
 		if ( $this->hashMap === null ) {
 			$this->parsePageResources();
@@ -35,6 +48,9 @@ class TransclusionHashExtractor {
 		return $this->hashMap;
 	}
 
+	/**
+	 * @throws MWException
+	 */
 	private function parsePageResources() {
 		$this->hashMap = [];
 
@@ -48,25 +64,44 @@ class TransclusionHashExtractor {
 		$this->retrieveHashes( $titles );
 	}
 
+	/**
+	 * @param array $titles
+	 */
 	private function parseImages( array &$titles ) {
 		foreach ( $this->parserOutput->getImages() as $name => $const ) {
 			$title = $this->titleFactory->makeTitle( NS_FILE, $name );
+			if ( $title->equals( $this->subject ) ) {
+				continue;
+			}
 			$titles[$title->getPrefixedDBkey()] = $title;
 		}
 	}
 
+	/**
+	 * @param array $titles
+	 */
 	private function parseTemplates( array &$titles ) {
 		$this->parseNested( $this->parserOutput->getTemplates(), $titles );
 	}
 
+	/**
+	 * @param array $titles
+	 */
 	private function parseLinks( array &$titles ) {
 		$this->parseNested( $this->parserOutput->getLinks(), $titles );
 	}
 
+	/**
+	 * @param array $data
+	 * @param array $titles
+	 */
 	private function parseNested( array $data, array &$titles ) {
 		foreach ( $data as $ns => $links ) {
 			foreach ( $links as $name => $id ) {
 				$title = $this->titleFactory->makeTitle( $ns, $name );
+				if ( $title->equals( $this->subject ) ) {
+					continue;
+				}
 				$titles[$title->getPrefixedDBkey()] = $title;
 			}
 		}

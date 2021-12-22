@@ -2,7 +2,10 @@
 
 namespace DataAccounting\Verification;
 
+use DataAccounting\Verification\Entity\VerificationEntity;
 use Exception;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\RevisionStore;
 use Title;
 use Wikimedia\Rdbms\ILoadBalancer;
@@ -184,5 +187,58 @@ class VerificationLookup {
 		}
 
 		return $entities;
+	}
+
+	/**
+	 * Insert "seed" data for the verification entry.
+	 * This is done to "reserve" place for the verification data
+	 *
+	 * @param RevisionRecord $revisionRecord
+	 * @return int|null Id of inserted record or null on failure
+	 */
+	public function insertShellData( RevisionRecord $revisionRecord ): ?int {
+		$db = $this->lb->getConnection( DB_PRIMARY );
+		// TODO: inject, although it should not even be necessary, table should use NS and dbkey instead
+		$titleFactory = \MediaWiki\MediaWikiServices::getInstance()->getTitleFactory();
+		$title = $titleFactory->makeTitle(
+			$revisionRecord->getPage()->getNamespace(), $revisionRecord->getPage()->getDBkey()
+		);
+		if ( !$title ) {
+			return null;
+		}
+		$res = $db->insert(
+			static::TABLE,
+			[
+				'page_title' => $title->getPrefixedText(),
+				'page_id' => $revisionRecord->getPageId(),
+				'rev_id' => $revisionRecord->getID(),
+				'time_stamp' => $revisionRecord->getTimestamp(),
+			],
+			__METHOD__
+		);
+
+		if ( !$res ) {
+			return null;
+		}
+
+		return $db->insertId();
+	}
+
+	/**
+	 * Clear all entries for the given page
+	 * (on page deletion)
+	 *
+	 * @param Title $title
+	 * @return bool
+	 */
+	public function clearEntriesForPage( Title $title ): bool {
+		return $this->lb->getConnection( DB_PRIMARY )->delete(
+			static::TABLE,
+			[
+				// TODO: This should be getPrefixedDbKey(), but that wouldnt be B/C
+				'page_title' => $title->getPrefixedText()
+			],
+			__METHOD__
+		);
 	}
 }

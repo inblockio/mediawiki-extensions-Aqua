@@ -3,30 +3,128 @@
  namespace DataAccounting\Transfer;
 
  use DataAccounting\Verification\VerificationEngine;
+ use DataAccounting\Verification\Entity\VerificationEntity;
+ use DataAccounting\Verification\WitnessingEngine;
+ use HashConfig;
+ use MediaWiki\Content\IContentHandlerFactory;
  use MediaWiki\MediaWikiServices;
+ use MWContentSerializationException;
+ use MWException;
+ use MWUnknownContentModelException;
+ use OldRevisionImporter;
  use Title;
+ use UploadRevisionImporter;
  use WikiRevision;
 
  class Importer {
  	/** @var VerificationEngine */
  	private VerificationEngine $verificationEngine;
+ 	/** @var WitnessingEngine */
+ 	private WitnessingEngine $witnessingEngine;
+ 	/** @var OldRevisionImporter */
+	private OldRevisionImporter $revisionImporter;
+	/** @var UploadRevisionImporter */
+	private UploadRevisionImporter $uploadRevisionImporter;
+	/** @var IContentHandlerFactory */
+	private IContentHandlerFactory $contentHandlerFactory;
 
 	 /**
 	  * @param VerificationEngine $verificationEngine
+	  * @param WitnessingEngine $witnessingEngine
+	  * @param OldRevisionImporter $revisionImporter
+	  * @param UploadRevisionImporter $uploadRevisionImporter
+	  * @param IContentHandlerFactory $contentHandlerFactory
 	  */
- 	public function __construct( VerificationEngine $verificationEngine ) {
+ 	public function __construct(
+ 		VerificationEngine $verificationEngine, WitnessingEngine $witnessingEngine,
+		OldRevisionImporter $revisionImporter, UploadRevisionImporter $uploadRevisionImporter,
+		IContentHandlerFactory $contentHandlerFactory
+	) {
  		$this->verificationEngine = $verificationEngine;
+ 		$this->witnessingEngine = $witnessingEngine;
+ 		$this->revisionImporter = $revisionImporter;
+ 		$this->uploadRevisionImporter = $uploadRevisionImporter;
+ 		$this->contentHandlerFactory = $contentHandlerFactory;
 	}
 
-	public function importRevision( TransferRevisionEntity $revisionEntity, TransferContext $context ) {
- 		$this->doImportRevision( $revisionEntity, $context );
+	 /**
+	  * @param TransferRevisionEntity $revisionEntity
+	  * @param TransferContext $context Contains result of `get_hash_chain_info`
+	  * @throws MWException
+	  */
+	public function importRevision(
+		TransferRevisionEntity $revisionEntity, TransferContext $context
+	) {
+		if ( isset( $revisionEntity->getContent()['file'] ) ) {
+			$this->doImportUpload( $revisionEntity, $context );
+		} else {
+			$this->doImportRevision( $revisionEntity, $context );
+		}
 		$this->buildVerification( $revisionEntity, $context );
 	}
 
+	 /**
+	  * @param TransferRevisionEntity $revisionEntity
+	  * @param TransferContext $context
+	  * @throws MWContentSerializationException
+	  * @throws MWException
+	  * @throws MWUnknownContentModelException
+	  */
 	 private function doImportRevision(
 	 	TransferRevisionEntity $revisionEntity, TransferContext $context
 	 ) {
-		 $revision = new WikiRevision( new \HashConfig() );
+		 $revision = $this->prepRevision( $revisionEntity, $context );
+
+		 if ( isset( $revisionEntity->getContent()['minor'] ) ) {
+			 $revision->setMinor( true );
+		 }
+
+		 $this->revisionImporter->import( $revision );
+	 }
+
+	 /**
+	  * @param TransferRevisionEntity $revisionEntity
+	  * @param TransferContext $context
+	  * @throws MWContentSerializationException
+	  * @throws MWException
+	  * @throws MWUnknownContentModelException
+	  */
+	 private function doImportUpload( TransferRevisionEntity $revisionEntity, TransferContext $context ) {
+		 $revision = $this->prepRevision( $revisionEntity, $context );
+		 $fileInfo = $revisionEntity->getContent()['file'];
+		 $revision->setFilename( $fileInfo['filename'] );
+		 if ( isset( $fileInfo['archivename'] ) ) {
+			 $revision->setArchiveName( $fileInfo['archivename'] );
+		 }
+
+		 $tempDir = wfTempDir();
+		 $file =  $tempDir . '/' . $fileInfo['filename'];
+		 if ( !is_writable( $tempDir ) ) {
+		 	throw new MWException( 'Cannot write to temp file to ' . $tempDir );
+		 }
+		 file_put_contents( $file, base64_decode( $fileInfo['data'] ) );
+		 $revision->setFileSrc( $file, true );
+		 $revision->setSize( intval( $fileInfo['size'] ) );
+		 $revision->setComment( $fileInfo['comment'] );
+
+		 $status = $this->uploadRevisionImporter->import( $revision );
+		 if ( !$status->isOK() ) {
+		 	throw new MWException( 'Could not upload file' );
+		 }
+	 }
+
+	 /**
+	  * @param TransferRevisionEntity $revisionEntity
+	  * @param TransferContext $context
+	  * @return WikiRevision
+	  * @throws MWContentSerializationException
+	  * @throws MWException
+	  * @throws MWUnknownContentModelException
+	  */
+	 private function prepRevision(
+	 	TransferRevisionEntity $revisionEntity, TransferContext $context
+	 ): WikiRevision {
+		 $revision = new WikiRevision( new HashConfig() );
 
 		 $revId = $revisionEntity->getContent()['rev_id'] ?? 0;
 		 if ( $revId ) {
@@ -37,164 +135,154 @@
 
 		 $contents = $this->getContents( $revisionEntity, $context->getTitle() );
 		 foreach ( $contents as $role => $content ) {
-		 	$revision->setContent( $role, $content );
+			 $revision->setContent( $role, $content );
 		 }
 
 		 $revision->setTimestamp(
-		 	$revisionEntity->getMetadata()['time_stamp'] ?? \MWTimestamp::now( TS_MW )
+			 $revisionEntity->getMetadata()['time_stamp'] ?? \MWTimestamp::now( TS_MW )
 		 );
-
 		 if ( isset( $revisionEntity->getContent()['comment'] ) ) {
 			 $revision->setComment( $revisionEntity->getContent()['comment'] );
 		 }
+		 // TODO: This needs fixing. Question is which user will be attributed with edit.
+		 // If its actual user who created the revision in the first place, that info needs to
+		 // be passed in `get_revision` and that user must exist in target wiki
+		 // If its some "admin" user on the target, that username needs to be defined somewhere
+		 // For the moment, take first user created on wiki (which is admin)
+		 $user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( 1 );
+		 $revision->setUserObj( $user );
 
-		 if ( isset( $revisionEntity->getContent()['minor'] ) ) {
-			 $revision->setMinor( true );
-		 }
-
-		 $revImporter = MediaWikiServices::getInstance()->getWikiRevisionOldRevisionImporter();
-		 $revImporter->import( $revision );
+		 return $revision;
 	 }
 
+	 /**
+	  * @param TransferRevisionEntity $transferEntity
+	  * @param TransferContext $context
+	  * @throws MWException
+	  */
 	 private function buildVerification(
-	 	TransferRevisionEntity $revisionEntity, TransferContext $context
+	 	TransferRevisionEntity $transferEntity, TransferContext $context
 	 ) {
 		 $verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromTitle(
 		 	$context->getTitle()
 		 );
  		if ( !$verificationEntity ) {
- 			throw new \MWException( "Import of verification data failed" );
+			// Do nothing if entry does not exist => TODO: Why?
+			return;
 		}
- 		$this->verificationEngine->getLookup()->updateEntity( $verificationEntity, $this->compileVerificationData( $revisionEntity, $context ) );
-		 /*$table = 'revision_verification';
-		 $lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		 $dbw = $lb->getConnectionRef( DB_PRIMARY );
 
-		 if ( $verificationInfo !== null ) {
-			 $verificationInfo['page_title'] = $title;
-			 $verificationInfo['source'] = 'imported';
-			 unset( $verificationInfo["rev_id"] );
+ 		$witness = $transferEntity->getWitness();
+ 		if ( $witness !== null ) {
+ 			$this->processWitness( $transferEntity, $verificationEntity );
+		}
 
-			 $res = $dbw->select(
-				 $table,
-				 [ 'revision_verification_id', 'rev_id', 'page_title', 'source' ],
-				 [ 'page_title' => $title ],
-				 __METHOD__,
-				 [ 'ORDER BY' => 'revision_verification_id' ]
-			 );
-			 $last_row = [];
-			 foreach ( $res as $row ) {
-				 $last_row = $row;
-			 }
-			 if ( empty( $last_row ) ) {
-				 // Do nothing if empty
-				 return;
-			 }
-
-			 // Witness-specific
-			 // TODO move this to processWitness
-			 if ( isset( $verificationInfo['witness'] ) ) {
-				 $witnessInfo = $verificationInfo['witness'];
-				 $structured_merkle_proof = json_decode( $witnessInfo['structured_merkle_proof'], true );
-				 unset( $witnessInfo['structured_merkle_proof'] );
-
-				 //Check if witness_event_verification_hash is already present,
-				 //if so skip import into witness_events
-
-				 $rowWitness = $dbw->selectRow(
-					 'witness_events',
-					 [ 'witness_event_id', 'witness_event_verification_hash' ],
-					 [ 'witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash'] ]
-				 );
-				 if ( !$rowWitness ) {
-					 $witnessInfo['source'] = 'imported';
-					 $witnessInfo['domain_manifest_title'] = 'N/A';
-					 $dbw->insert(
-						 'witness_events',
-						 $witnessInfo,
-					 );
-					 $local_witness_event_id = getMaxWitnessEventId( $dbw );
-					 if ( $local_witness_event_id === null ) {
-						 $local_witness_event_id = 1;
-					 }
-				 } else {
-					 $local_witness_event_id = $rowWitness->witness_event_id;
-				 }
-
-				 // Patch revision_verification table to use the local version of
-				 // witness_event_id instead of from the foreign version.
-				 $dbw->update(
-					 'revision_verification',
-					 [ 'witness_event_id' => $local_witness_event_id ],
-					 [ 'revision_verification_id' => $last_row->revision_verification_id ],
-				 );
-
-				 // Check if merkle tree proof is present, if so skip, if not
-				 // import AND attribute to the correct witness_id
-				 $revision_verification_hash = $verificationInfo['verification_hash'];
-
-				 $rowProof = $dbw->selectRow(
-					 'witness_merkle_tree',
-					 [ 'witness_event_id' ],
-					 [
-						 'left_leaf=\'' . $revision_verification_hash . '\'' .
-						 ' OR right_leaf=\'' . $revision_verification_hash . '\''
-					 ]
-				 );
-
-				 if ( !$rowProof ) {
-					 $latest_witness_event_id = $dbw->selectRow(
-						 'witness_events',
-						 [ 'max(witness_event_id) as witness_event_id' ],
-						 ''
-					 )->witness_event_id;
-
-					 foreach ( $structured_merkle_proof as $row ) {
-						 $row["witness_event_id"] = $latest_witness_event_id;
-						 $dbw->insert(
-							 'witness_merkle_tree',
-							 $row,
-						 );
-					 }
-				 }
-
-				 // This unset is important, otherwise the dbw->update for
-				 // revision_verification accidentally includes witness.
-				 unset( $verificationInfo["witness"] );
-			 }
-			 // End of witness-specific
-
-			 $dbw->update(
-				 $table,
-				 $verificationInfo,
-				 [ 'revision_verification_id' => $last_row->revision_verification_id ],
-				 __METHOD__
-			 );
-		 } else {
-			 $dbw->delete(
-				 $table,
-				 [ 'page_title' => $title ]
-			 );
-		 }*/
+ 		$res = $this->verificationEngine->getLookup()->updateEntity(
+ 			$verificationEntity, $this->compileVerificationData( $transferEntity, $context )
+		);
+ 		if ( !$res ) {
+ 			throw new MWException( 'Failed to store verification' );
+		}
 	 }
 
+	 /**
+	  * @param TransferRevisionEntity $transferRevisionEntity
+	  * @param VerificationEntity $verificationEntity
+	  * @throws MWException
+	  */
+	 private function processWitness(
+	 	TransferRevisionEntity $transferRevisionEntity,
+		VerificationEntity $verificationEntity
+	 ) {
+ 		$witnessInfo = $transferRevisionEntity->getWitness();
+ 		$structuredMerkleProof = json_decode( $witnessInfo['structured_merkle_proof'], true );
+ 		unset( $witnessInfo['structured_merkle_proof'] );
+
+ 		$witnessEntity = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
+ 			'witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash']
+		] );
+
+ 		if ( !$witnessEntity ) {
+			$witnessInfo['source'] = 'imported';
+			$witnessInfo['domain_manifest_title'] = 'N/A';
+			$localWitnessEventId = $this->witnessingEngine->getLookup()->insertWitnessEvent(
+				$witnessInfo
+			);
+			if ( !$localWitnessEventId ) {
+				// Not expected to happen in practice
+				throw new MWException( 'Cannot insert witness event' );
+			}
+		} else {
+ 			$localWitnessEventId = $witnessEntity->get( 'witness_event_id' );
+		}
+
+ 		$res = $this->verificationEngine->getLookup()->updateEntity( $verificationEntity, [
+ 			'witness_event_id' => $localWitnessEventId,
+		] );
+ 		if ( !$res ) {
+ 			throw new MWException( "Cannot store witness ID to verification entity" );
+		}
+
+ 		$revisionVerificationHash = $transferRevisionEntity->getMetadata()['verification_hash'] ?? null;
+		$proofEntity = $this->witnessingEngine->getLookup()->merkleTreeFromQuery( [
+			'left_leaf=\'' . $revisionVerificationHash . '\'' .
+			' OR right_leaf=\'' . $revisionVerificationHash . '\''
+		] );
+
+		if ( !$proofEntity ) {
+			// TODO: Why latest? doesnt this apply only if new "witness_event" was inserted?
+			$lastWitnessEventId = $this->witnessingEngine->getLookup()->lastWitnessEventId();
+
+			foreach ( $structuredMerkleProof as $row ) {
+				$row["witness_event_id"] = $lastWitnessEventId;
+				$this->witnessingEngine->getLookup()->insertMerkleTree( $row );
+			}
+		}
+	 }
+
+	 /**
+	  * @param TransferRevisionEntity $entity
+	  * @param Title $title
+	  * @return array
+	  * @throws MWException
+	  * @throws MWContentSerializationException
+	  * @throws MWUnknownContentModelException
+	  */
 	 private function getContents( TransferRevisionEntity $entity, Title $title ) {
  		$slotRoleRegistry = MediaWikiServices::getInstance()->getSlotRoleRegistry();
  		$contents = [];
  		foreach ( $entity->getContent()['content'] as $role => $text ) {
  			if ( !$slotRoleRegistry->isDefinedRole( $role ) ) {
- 				throw new \MWException( "Required role \"$role\" is not defined" );
+ 				throw new MWException( "Required role \"$role\" is not defined" );
 			}
  			$model = $slotRoleRegistry->getRoleHandler( $role )->getDefaultModel( $title );
- 			$content = MediaWikiServices::getInstance()->getContentHandlerFactory()
-				->getContentHandler( $model )->unserializeContent( $text );
+ 			$content = $this->contentHandlerFactory->getContentHandler( $model )->unserializeContent( $text );
  			$contents[$role] = $content;
 		}
 
  		return $contents;
 	 }
 
-	 private function compileVerificationData( TransferRevisionEntity $revisionEntity, TransferContext $context ) {
-
+	 /**
+	  * @param TransferRevisionEntity $revisionEntity
+	  * @param TransferContext $context
+	  * @return array
+	  */
+	 private function compileVerificationData(
+	 	TransferRevisionEntity $revisionEntity, TransferContext $context
+	 ): array {
+		return [
+			'domain_id' => $revisionEntity->getMetadata()['domain_id'],
+			'genesis_hash' => $context->getGenesisHash(),
+			'verification_hash' => $revisionEntity->getMetadata()['verification_hash'],
+			'time_stamp' => $revisionEntity->getMetadata()['time_stamp'],
+			'verification_context' => json_encode( $revisionEntity->getVerificationContext() ),
+			'content_hash' => $revisionEntity->getContent()['content_hash'],
+			'metadata_hash' => $revisionEntity->getMetadata()['metadata_hash'],
+			'signature' => $revisionEntity->getSignature()['signature'],
+			'signature_hash' => $revisionEntity->getSignature()['signature_hash'],
+			'public_key' => $revisionEntity->getSignature()['public_key'],
+			'wallet_address' => $revisionEntity->getSignature()['wallet_address'],
+			'source' => 'import'
+		];
 	 }
  }

@@ -4,7 +4,7 @@ namespace DataAccounting\API;
 
 use DataAccounting\Transfer\TransferEntityFactory;
 use DataAccounting\Verification\VerificationEngine;
-use DataAccounting\Verification\VerificationEntity;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\Permissions\PermissionManager;
 use Wikimedia\ParamValidator\ParamValidator;
 

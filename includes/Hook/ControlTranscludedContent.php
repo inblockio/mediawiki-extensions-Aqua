@@ -3,7 +3,7 @@
 namespace DataAccounting\Hook;
 
 use DataAccounting\TransclusionManager;
-use DataAccounting\Verification\VerificationEntity;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\Hook\BeforeParserFetchFileAndTitleHook;
 use MediaWiki\Hook\BeforeParserFetchTemplateRevisionRecordHook;
 use MediaWiki\Linker\LinkTarget;

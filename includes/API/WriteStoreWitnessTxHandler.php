@@ -2,118 +2,26 @@
 
 namespace DataAccounting\API;
 
-use MediaWiki\MediaWikiServices;
+use DataAccounting\Verification\VerificationEngine;
+use DataAccounting\Verification\WitnessingEngine;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\LocalizedHttpException;
 use MediaWiki\Rest\SimpleHandler;
 use MediaWiki\Rest\Validator\JsonBodyValidator;
 use RequestContext;
-use Title;
+use User;
 use Wikimedia\Message\MessageValue;
 use Wikimedia\ParamValidator\ParamValidator;
-use WikiPage;
-
-require_once __DIR__ . "/../ApiUtil.php";
-require_once __DIR__ . "/../Util.php";
-
-function selectToArray( $db, string $table, string $col, array $conds ): array {
-	$out = [];
-	$res = $db->select(
-		$table,
-		[ $col ],
-		$conds,
-	);
-	foreach ( $res as $row ) {
-		array_push( $out, $row->{$col} );
-	}
-	return $out;
-}
-
-// TODO move to Util.php
-function addReceiptToDomainManifest( $user, $witness_event_id, $db ) {
-	$row = $db->selectRow(
-		'witness_events',
-		[
-			"domain_id",
-			"domain_manifest_title",
-			"domain_manifest_genesis_hash",
-			"merkle_root",
-			"witness_event_verification_hash",
-			"witness_network",
-			"smart_contract_address",
-			"witness_event_transaction_hash",
-			"sender_account_address",
-		],
-		[ 'witness_event_id' => $witness_event_id ]
-	);
-	if ( !$row ) {
-		throw new HttpException( "Witness event data is missing.", 400 );
-	}
-
-	$dm = "DomainManifest $witness_event_id";
-	if ( "Data Accounting:$dm" !== $row->domain_manifest_title ) {
-		throw new HttpException( "Domain manifest title is inconsistent.", 400 );
-	}
-
-	//6942 is custom namespace. See namespace definition in extension.json.
-	$tentativeTitle = Title::newFromText( $dm, 6942 );
-	$page = new WikiPage( $tentativeTitle );
-	$text = "\n<h1> Witness Event Publishing Data </h1>\n";
-	$text .= "<p> This means, that the Witness Event Verification Hash has been written to a Witness Network and has been Timestamped.\n";
-
-	$text .= "* Witness Event: " . $witness_event_id . "\n";
-	$text .= "* Domain ID: " . $row->domain_id . "\n";
-	// We don't include witness hash.
-	$text .= "* Page Domain Manifest verification Hash: " . $row->domain_manifest_genesis_hash . "\n";
-	$text .= "* Merkle Root: " . $row->merkle_root . "\n";
-	$text .= "* Witness Event Verification Hash: " . $row->witness_event_verification_hash . "\n";
-	$text .= "* Witness Network: " . $row->witness_network . "\n";
-	$text .= "* Smart Contract Address: " . $row->smart_contract_address . "\n";
-	$text .= "* Transaction Hash: " . $row->witness_event_transaction_hash . "\n";
-	$text .= "* Sender Account Address: " . $row->sender_account_address . "\n";
-	// We don't include source.
-
-	$pageText = $page->getContent()->getText();
-	// We create a new content using the old content, and append $text to it.
-	$newContent = $pageText . $text;
-	editPageContent( $page, $newContent, "Domain Manifest witnessed", $user );
-
-	// Rename from tentative title to final title.
-	$domainManifestVH = $row->domain_manifest_genesis_hash;
-	$finalTitle = Title::newFromText( "DomainManifest:$domainManifestVH", 6942 );
-	$mp = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage( $tentativeTitle, $finalTitle );
-	$reason = "Changed from tentative title to final title";
-	$createRedirect = false;
-	$mp->move( $user, $reason, $createRedirect );
-	$db->update(
-		'witness_events',
-		[ 'domain_manifest_title' => $finalTitle->getPrefixedText() ],
-		[
-			'domain_manifest_title' => $tentativeTitle->getPrefixedText(),
-			'witness_event_id' => $witness_event_id,
-		],
-	);
-}
-
-function getWitnessNetwork( $db, $witness_event_id ): string {
-	$res = $db->selectRow(
-		'witness_events',
-		[ 'witness_network' ],
-		[ 'witness_event_id' => $witness_event_id ]
-	);
-	if ( !$res ) {
-		// If something bad happens. We mark is as corrupted and expect it to
-		// be replaced by the new witness event.
-		return "corrupted";
-	}
-	return $res->witness_network;
-}
 
 class WriteStoreWitnessTxHandler extends SimpleHandler {
 
 	/** @var PermissionManager */
 	private $permissionManager;
+	/** @var VerificationEngine */
+	private $verificationEngine;
+	/** @var WitnessingEngine */
+	private $witnessingEngine;
 
 	/** @var User */
 	private $user;
@@ -122,9 +30,13 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 	 * @param PermissionManager $permissionManager
 	 */
 	public function __construct(
-		PermissionManager $permissionManager
+		PermissionManager $permissionManager,
+		VerificationEngine $verificationEngine,
+		WitnessingEngine $witnessingEngine
 	) {
 		$this->permissionManager = $permissionManager;
+		$this->verificationEngine = $verificationEngine;
+		$this->witnessingEngine = $witnessingEngine;
 
 		// @todo Inject this, when there is a good way to do that
 		$this->user = RequestContext::getMain()->getUser();
@@ -151,95 +63,82 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 		$transaction_hash = $body['transaction_hash'];
 		$witnessNetwork = $body['witness_network'];
 
-		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_PRIMARY );
-
-		$table = 'witness_events';
-
-		$verification_hashes = selectToArray(
-			$dbw,
-			'witness_page',
-			'revision_verification_hash',
-			[ 'witness_event_id' => $witness_event_id ]
-		);
-		if ( count( $verification_hashes ) == 0 ) {
-			throw new HttpException( "witness_event_id not found in the witness_page table.", 404 );
+		$witnessPages = $this->witnessingEngine->getLookup()->pageEntitiesFromWitnessId( $witness_event_id );
+		if ( empty( $witnessPages ) ) {
+			throw new HttpException( "No revisions are witnessed by given id", 404 );
 		}
+
+		/*$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$dbw = $lb->getConnectionRef( DB_PRIMARY );
+		$table = 'witness_events';*/
 
 		// Witness ID update rules:
 		// - Newer mainnet witness takes precedence over existing testnet witness.
 		// - If witness ID exists, don't write the witness_id. If it doesn't
 		//   exist, insert the witness_id. This is because the oldest witness has
 		//   the biggest value. This proves that the revision has existed earlier.
-		foreach ( $verification_hashes as $vh ) {
-			$row = $dbw->selectRow(
-				'revision_verification',
-				[ 'witness_event_id' ],
-				[ 'verification_hash' => $vh ]
+		foreach ( $witnessPages as $page ) {
+			$verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromHash(
+				$page->get( 'revision_verification_hash' )
 			);
-			if ( $row->witness_event_id === null ) {
-				$dbw->update(
-					'revision_verification',
-					[ 'witness_event_id' => $witness_event_id ],
-					[ 'verification_hash' => $vh ]
-				);
+			if ( $verificationEntity === null ) {
+				$this->verificationEngine->getLookup()->updateEntity( $verificationEntity, [
+					'witness_event_id' => $witness_event_id,
+				] );
 			} else {
-				// TODO the mapping between the witness event id and the
-				// witness network can be cached so we don't need unnecessary
-				// DB ops.
-				$previousWitnessNetwork = getWitnessNetwork( $dbw, $row->witness_event_id );
+				$pageWitnessEvent = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
+					'witness_event_id' => $verificationEntity->getWitnessEventId(),
+				] );
+				$previousWitnessNetwork = 'corrupted';
+				if ( $pageWitnessEvent ) {
+					$previousWitnessNetwork = $pageWitnessEvent->get( 'witness_network' );
+				}
+
 				if ( $previousWitnessNetwork !== 'mainnet' && $witnessNetwork === 'mainnet' ) {
-					// TODO refactor. this is exactly the same as the code when
-					// the witness_event_id is null (see previous if block
-					// right above).
-					$dbw->update(
-						'revision_verification',
-						[ 'witness_event_id' => $witness_event_id ],
-						[ 'verification_hash' => $vh ]
-					);
+					$this->verificationEngine->getLookup()->updateEntity( $verificationEntity, [
+						'witness_event_id' => $witness_event_id,
+					] );
 				}
 			}
 		}
 
-		// Generate the witness_hash
-		$row = $dbw->selectRow(
-			'witness_events',
-			[ 'domain_manifest_genesis_hash', 'merkle_root', 'witness_network' ],
-			[ 'witness_event_id' => $witness_event_id ]
-		);
-		if ( !$row ) {
+		$witnessEvent = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
+			'witness_event_id' => $witness_event_id
+		] );
+		if ( !$witnessEvent ) {
 			throw new HttpException( "witness_event_id not found in the witness_events table.", 404 );
 		}
-		$witness_hash = getHashSum(
-			$row->domain_manifest_genesis_hash .
-			$row->merkle_root .
-			$row->witness_network .
+
+		$witnessHash = $this->verificationEngine->getHasher()->getHashSum(
+			$witnessEvent->get( 'domain_manifest_genesis_hash' ) .
+			$witnessEvent->get( 'merkle_root' ) .
+			$witnessEvent->get( 'witness_network' ) .
 			$transaction_hash
 		);
+
+
 		/** write data to database */
 		// Write the witness_hash into the witness_events table
-		$dbw->update(
-			$table,
-			[
-				'sender_account_address' => $account_address,
-				'witness_event_transaction_hash' => $transaction_hash,
-				'source' => 'default',
-				'witness_hash' => $witness_hash,
-			],
-			"witness_event_id = $witness_event_id"
-		);
+		$this->witnessingEngine->getLookup()->updateWitnessEventEntity( $witnessEvent, [
+			'sender_account_address' => $account_address,
+			'witness_event_transaction_hash' => $transaction_hash,
+			'source' => 'default',
+			'witness_hash' => $witnessHash,
+		] );
 
 		// Patch witness data into domain manifest page.
-		$dbw->update(
-			'revision_verification',
-			[
-				'witness_event_id' => $witness_event_id,
-			],
-			[ "verification_hash" => $row->domain_manifest_genesis_hash ]
+		$domainManifestPage = $this->verificationEngine->getLookup()->verificationEntityFromHash(
+			$witnessEvent->get( 'domain_manifest_genesis_hash' )
 		);
+		if ( !$domainManifestPage ) {
+			throw new HttpException( "No Domain manifest page found", 404 );
+		}
+		$this->verificationEngine->getLookup()->updateEntity( $domainManifestPage, [
+			'witness_event_id' => $witness_event_id,
+		] );
 
 		// Add receipt to the domain manifest
-		addReceiptToDomainManifest( $this->user, $witness_event_id, $dbw );
+		$this->witnessingEngine->addReceiptToDomainManifest( $this->user, $witnessEvent );
 
 		return true;
 	}

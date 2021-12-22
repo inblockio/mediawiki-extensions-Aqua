@@ -1,6 +1,6 @@
 <?php
 
-namespace DataAccounting\Verification;
+namespace DataAccounting\Verification\Entity;
 
 use DateTime;
 use JsonSerializable;

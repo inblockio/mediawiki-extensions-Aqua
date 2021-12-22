@@ -5,7 +5,7 @@ namespace DataAccounting;
 use CommentStoreComment;
 use DataAccounting\Content\TransclusionHashes;
 use DataAccounting\Verification\VerificationEngine;
-use DataAccounting\Verification\VerificationEntity;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use File;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\RevisionRecord;

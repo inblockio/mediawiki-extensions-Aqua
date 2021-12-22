@@ -3,7 +3,7 @@
 namespace DataAccounting\API;
 
 use DataAccounting\Verification\VerificationEngine;
-use DataAccounting\Verification\VerificationEntity;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use Language;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;

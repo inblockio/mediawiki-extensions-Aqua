@@ -3,7 +3,7 @@
 namespace DataAccounting\API;
 
 use DataAccounting\Verification\VerificationEngine;
-use DataAccounting\Verification\VerificationEntity;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;

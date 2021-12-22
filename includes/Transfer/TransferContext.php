@@ -2,7 +2,7 @@
 
 namespace DataAccounting\Transfer;
 
-use DataAccounting\Verification\VerificationEntity;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use Title;
 
 class TransferContext implements \JsonSerializable {

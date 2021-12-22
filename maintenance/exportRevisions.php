@@ -1,10 +1,13 @@
 <?php
 
-use DataAccounting\Verification\VerificationEntity;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\MediaWikiServices;
 
 require_once dirname( dirname( dirname( ( __DIR__ ) ) ) ) ."/maintenance/Maintenance.php";
 
+/**
+ * This script is mostly for testing, not made for production
+ */
 class ExportRevisions extends Maintenance {
 
 	public function __construct() {

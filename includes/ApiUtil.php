@@ -44,7 +44,7 @@ function getPageChainHeight( string $page_title ): int {
  * @param null $depth
  * @return array
  *
- * @deprecated Use VerificationEngine
+ * @deprecated Use WitnessingEngine::getLookup::requestMerkleProof
  */
 function requestMerkleProof( $witness_event_id, $revision_verification_hash, $depth = null ) {
 	//IF query returns a left or right leaf empty, it means the successor string will be identifical the next layer up. In this case it is required to read the depth and start the query with a depth parameter -1 to go to the next layer. This is repeated until the left or right leaf is present and the successor hash different.
@@ -111,7 +111,7 @@ function requestMerkleProof( $witness_event_id, $revision_verification_hash, $de
 /**
  * @param $witness_event_id
  * @return array|string
- * @deprecated Use VerificationEngine
+ * @deprecated Use WitnessingEngine::getLookup::witnessEventFromVerificationEntity
  */
 function getWitnessData( $witness_event_id ) {
 	if ( $witness_event_id === null ) {
@@ -163,7 +163,7 @@ function getWitnessData( $witness_event_id ) {
 /**
  * @param \IDatabase $db
  * @return null
- * @deprecated Use VerificationEngine
+ * @deprecated Use WitnessingEngine::getLookup::lastWitnessEventId
  */
 function getMaxWitnessEventId( $db ) {
 	$row = $db->selectRow(

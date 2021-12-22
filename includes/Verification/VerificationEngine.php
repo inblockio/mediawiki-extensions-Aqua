@@ -4,6 +4,7 @@ namespace DataAccounting\Verification;
 
 use DataAccounting\Config\DataAccountingConfig;
 use DataAccounting\Content\SignatureContent;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use File;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\WikiPageFactory;
@@ -29,6 +30,8 @@ class VerificationEngine {
 	private $revisionStore;
 	/** @var PageUpdaterFactory */
 	private $pageUpdaterFactory;
+	/** @var WitnessingEngine */
+	private $witnessingEngine;
 
 	/**
 	 * @param VerificationLookup $verificationLookup
@@ -44,7 +47,8 @@ class VerificationEngine {
 		DataAccountingConfig $config,
 		WikiPageFactory $wikiPageFactory,
 		RevisionStore $revisionStore,
-		PageUpdaterFactory $pageUpdaterFactory
+		PageUpdaterFactory $pageUpdaterFactory,
+		WitnessingEngine $witnessingEngine
 	) {
 		$this->verificationLookup = $verificationLookup;
 		$this->lb = $lb;
@@ -52,6 +56,7 @@ class VerificationEngine {
 		$this->wikiPageFactory = $wikiPageFactory;
 		$this->pageUpdaterFactory = $pageUpdaterFactory;
 		$this->revisionStore = $revisionStore;
+		$this->witnessingEngine = $witnessingEngine;
 	}
 
 	/**
@@ -70,134 +75,6 @@ class VerificationEngine {
 	}
 
 	/**
-	 * @param VerificationEntity $verificationEntity
-	 * @return GenericDatabaseEntity|null if not witnessed
-	 */
-	public function getWitnessEntity( VerificationEntity $verificationEntity ): ?GenericDatabaseEntity {
-		if ( !$verificationEntity->getWitnessEventId() ) {
-			return null;
-		}
-
-		$row = $this->lb->getConnection( DB_REPLICA )->selectRow(
-			'witness_events',
-			[
-				'domain_id',
-				'domain_manifest_title',
-				'witness_hash',
-				'witness_event_verification_hash',
-				'witness_network',
-				'smart_contract_address',
-				'domain_manifest_genesis_hash',
-				'merkle_root',
-				'witness_event_transaction_hash',
-				'sender_account_address',
-				'source'
-			],
-			[ 'witness_event_id' => $verificationEntity->getWitnessEventId() ],
-			__METHOD__
-		);
-
-		if ( !$row ) {
-			return null;
-		}
-
-		return new GenericDatabaseEntity( $row );
-	}
-
-	/**
-	 * @param VerificationEntity $verificationEntity
-	 * @param int|null $depth
-	 * @return array
-	 */
-	public function requestMerkleProof( VerificationEntity $verificationEntity, $depth = null ) {
-		// IF query returns a left or right leaf empty, it means the successor string
-		// will be identical the next layer up. In this case it is required to
-		// read the depth and start the query with a depth parameter -1 to go to the next layer.
-		// This is repeated until the left or right leaf is present and the successor hash different.
-
-		$witnessEventId = $verificationEntity->getWitnessEventId();
-		$verificationHash = $verificationEntity->getHash( VerificationEntity::VERIFICATION_HASH );
-		$finalOutput = [];
-
-		while ( true ) {
-			// TODO: This can be written more nicely by using the $dbr methods for lists
-			if ( $depth === null ) {
-				$conds =
-					'left_leaf=\'' . $verificationHash .
-					'\' AND witness_event_id=' . $witnessEventId .
-					' OR right_leaf=\'' . $verificationHash .
-					'\' AND witness_event_id=' . $witnessEventId;
-			} else {
-				$conds =
-					'left_leaf=\'' . $verificationHash .
-					'\' AND witness_event_id=' . $witnessEventId .
-					' AND depth=' . $depth .
-					' OR right_leaf=\'' . $verificationHash .
-					'\'  AND witness_event_id=' . $witnessEventId .
-					' AND depth=' . $depth;
-			}
-			$res = $this->lb->getConnection( DB_REPLICA )->select(
-				'witness_merkle_tree',
-				[
-					'witness_event_id',
-					'depth',
-					'left_leaf',
-					'right_leaf',
-					'successor'
-				],
-				$conds,
-			);
-
-			$output = null;
-			$maxDepth = null;
-			foreach ( $res as $row ) {
-				if ( $maxDepth === null || ( (int)$row->depth > $maxDepth ) ) {
-					$maxDepth = $row->depth;
-					$output = new GenericDatabaseEntity( $row );
-				}
-			}
-			if ( $output === null ) {
-				break;
-			}
-			$depth = $maxDepth - 1;
-			$verificationHash = $output->get( 'successor' );
-			$final_output[] = $output;
-			if ( $depth === -1 ) {
-				break;
-			}
-		}
-
-		return $finalOutput;
-	}
-
-	/**
-	 * @return int|null
-	 */
-	public function getMaxWitnessEventId(): ?int {
-		$row = $this->lb->getConnection( DB_REPLICA )->selectRow(
-			'witness_events',
-			[ 'MAX( witness_event_id ) as witness_event_id' ],
-			[],
-			__METHOD__,
-		);
-		if ( !$row ) {
-			return null;
-		}
-		return (int)$row->witness_event_id;
-	}
-
-	/**
-	 * @param string $input
-	 * @return string
-	 */
-	public function getHashSum( $input ): string {
-		if ( $input == '' ) {
-			return '';
-		}
-		return hash( "sha3-512", $input, false );
-	}
-
-	/**
 	 * @return string
 	 * @throws \Exception
 	 */
@@ -205,7 +82,7 @@ class VerificationEngine {
 		$domainID = (string)$this->config->get( 'DomainID' );
 		if ( $domainID === "UnspecifiedDomainId" ) {
 			// A default domain ID is still used, so we generate a new one
-			$domainID = $this->generateDomainId();
+			$domainID = $this->getHasher()->generateDomainId();
 			$this->config->set( 'DomainID', $domainID );
 		}
 		return $domainID;
@@ -224,7 +101,7 @@ class VerificationEngine {
 	public function signRevision(
 		RevisionRecord $revision, User $user, $walletAddress, $signature, $publicKey
 	) {
-		$signatureHash = $this->getHashSum( $signature . $publicKey );
+		$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
 
 		// TODO: Should it even be possible to sign old revision (not current)?
 		$entity = $this->getLookup()->verificationEntityFromRevId( $revision->getId() );
@@ -279,6 +156,13 @@ class VerificationEngine {
 	}
 
 	/**
+	 * @return Hasher
+	 */
+	public function getHasher(): Hasher {
+		return new Hasher();
+	}
+
+	/**
 	 * @param VerificationEntity $entity
 	 * @param User $user
 	 * @param string $walletAddress
@@ -311,22 +195,77 @@ class VerificationEngine {
 	}
 
 	/**
-	 * @return string
+	 * @param VerificationEntity $entity
+	 * @param \MediaWiki\Revision\RevisionRecord $rev
+	 * @return bool
+	 * @throws MWException
 	 */
-	private function generateDomainId(): string {
-		$domainIdFull = $this->generateRandomHash();
-		return substr( $domainIdFull, 0, 10 );
-	}
+	public function buildAndUpdateVerificationData(
+		VerificationEntity $entity, \MediaWiki\Revision\RevisionRecord $rev
+	): bool {
+		$contentHash = $this->getHasher()->calculateContentHash( $rev );
 
-	/**
-	 * @return string
-	 */
-	private function generateRandomHash(): string {
-		// Returns a hash sum (calculated using getHashSum) of n characters.
-		$randomval = '';
-		for ( $i = 0; $i < 128; $i++ ) {
-			$randomval .= chr( rand( 65, 90 ) );
+		$parentRevision = $rev->getParentId();
+		$parentEntity = null;
+		if ( $parentRevision ) {
+			$parentEntity = $this->getLookup()->verificationEntityFromRevId( $parentRevision );
 		}
-		return $this->getHashSum( $randomval );
+
+		// META DATA HASH CALCULATOR
+		$previousVerificationHash = $parentEntity ?
+			$parentEntity->getHash( VerificationEntity::VERIFICATION_HASH ) : '';
+		$timestamp = $rev->getTimestamp();
+		$metadataHash = $this->getHasher()->getHashSum(
+			$this->getDomainId() . $timestamp . $previousVerificationHash
+		);
+
+		// SIGNATURE DATA HASH CALCULATOR
+		$signature = $parentEntity ? $parentEntity->getSignature() : '';
+		$publicKey = $parentEntity ? $parentEntity->getPublicKey() : '';
+		$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
+
+		$witnessHash = '';
+		if ( $parentEntity && $parentEntity->getWitnessEventId() ) {
+			$witnessEntity = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
+				'witness_event_id' => $parentEntity->getWitnessEventId()
+			] );
+			if ( $witnessEntity ) {
+				$witnessHash = $this->getHasher()->getHashSum(
+					$witnessEntity->get( 'domain_manifest_genesis_hash' ) .
+					$witnessEntity->get( 'merkle_root' ) .
+					$witnessEntity->get( 'witness_network' ) .
+					$witnessEntity->get( 'witness_event_transaction_hash' )
+				);
+			}
+		}
+
+		$verificationHash = $this->getHasher()->getHashSum(
+			"{$contentHash}{$metadataHash}{$signatureHash}{$witnessHash}"
+		);
+
+		$genesisHash = $parentEntity ?
+			$parentEntity->getHash( VerificationEntity::GENESIS_HASH ) :  $verificationHash;
+
+		$verificationContext = [
+			"has_transclusion" => false,
+			"has_previous_signature" => !empty( $signatureHash ),
+			"has_previous_witness" => !empty( $witnessHash )
+		];
+
+		return $this->getLookup()->updateEntity( $entity, [
+			'domain_id' => $this->getDomainId(),
+			'genesis_hash' => $genesisHash,
+			'rev_id' => $rev->getId(),
+			'verification_context' => json_encode( $verificationContext ),
+			'content_hash' => $contentHash,
+			'time_stamp' => $timestamp,
+			'metadata_hash' => $metadataHash,
+			'verification_hash' => $verificationHash,
+			'previous_verification_hash' => $previousVerificationHash,
+			'signature' => '',
+			'public_key' => '',
+			'wallet_address' => '',
+			'source' => 'default',
+		] );
 	}
 }

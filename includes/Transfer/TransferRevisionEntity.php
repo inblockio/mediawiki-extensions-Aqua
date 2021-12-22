@@ -2,7 +2,7 @@
 
 namespace DataAccounting\Transfer;
 
-use DataAccounting\Verification\VerificationEntity;
+use DataAccounting\Verification\Entity\VerificationEntity;
 
 class TransferRevisionEntity implements \JsonSerializable {
 	/** @var array */

@@ -2,23 +2,33 @@
 
 namespace DataAccounting\Transfer;
 
-use DataAccounting\Verification\GenericDatabaseEntity;
+use DataAccounting\Verification\Entity\GenericDatabaseEntity;
 use DataAccounting\Verification\VerificationEngine;
-use DataAccounting\Verification\VerificationEntity;
+use DataAccounting\Verification\Entity\VerificationEntity;
+use DataAccounting\Verification\WitnessingEngine;
 use TitleFactory;
 
 class TransferEntityFactory {
 	/** @var VerificationEngine */
 	private $verificationEngine;
+	/** @var WitnessingEngine */
+	private $witnessingEngine;
 	/** @var TitleFactory */
 	private $titleFactory;
 
 	/**
 	 * @param VerificationEngine $engine
+	 * @param WitnessingEngine $witnessingEngine
+	 * @param TitleFactory $titleFactory
 	 */
-	public function __construct( VerificationEngine $engine, TitleFactory $titleFactory ) {
+	public function __construct(
+		VerificationEngine $engine,
+		WitnessingEngine $witnessingEngine,
+		TitleFactory $titleFactory
+	) {
 		$this->verificationEngine = $engine;
 		$this->titleFactory = $titleFactory;
+		$this->witnessingEngine = $witnessingEngine;
 	}
 
 	/**
@@ -88,7 +98,12 @@ class TransferEntityFactory {
 			if ( $file instanceof \File ) {
 				$content = file_get_contents( $file->getLocalRefPath() );
 				if ( is_string( $content ) ) {
-					$contentOutput['file'] = base64_encode( $content );
+					$contentOutput['file'] = [
+						'data' => base64_encode( $content ),
+						'filename' => $file->getName(),
+						'size' => $file->getSize(),
+						'comment' => $entity->getRevision()->getComment()->text,
+					];
 				}
 			}
 		}
@@ -98,6 +113,7 @@ class TransferEntityFactory {
 			'time_stamp' => $entity->getTime()->format( 'YmdHis' ),
 			'previous_verification_hash' => $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ),
 			'metadata_hash' => $entity->getHash( VerificationEntity::METADATA_HASH ),
+			'verification_hash' => $entity->getHash( VerificationEntity::VERIFICATION_HASH )
 		];
 
 		$signatureOutput = [
@@ -109,11 +125,11 @@ class TransferEntityFactory {
 
 		$witnessOutput = null;
 		if ( $entity->getWitnessEventId() ) {
-			$witnessEntity = $this->verificationEngine->getWitnessEntity( $entity );
+			$witnessEntity = $this->witnessingEngine->getLookup()->witnessEventFromVerificationEntity( $entity );
 			if ( $witnessEntity instanceof GenericDatabaseEntity ) {
 				$witnessOutput = $witnessEntity->jsonSerialize();
 				$witnessOutput['structured_merkle_proof'] =
-					$this->verificationEngine->requestMerkleProof( $entity );
+					$this->witnessingEngine->getLookup()->requestMerkleProof( $entity );
 			}
 		}
 

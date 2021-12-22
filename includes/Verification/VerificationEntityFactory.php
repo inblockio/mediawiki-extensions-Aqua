@@ -2,6 +2,7 @@
 
 namespace DataAccounting\Verification;
 
+use DataAccounting\Verification\Entity\VerificationEntity;
 use DateTime;
 use MediaWiki\Storage\RevisionRecord;
 use MediaWiki\Storage\RevisionStore;
@@ -53,12 +54,13 @@ class VerificationEntityFactory {
 		if ( !( $time instanceof DateTime ) ) {
 			return null;
 		}
-		$verificationContext = ( $row->verification_context === '' ) ?
+		$verificationContext = !$row->verification_context ?
 			[] : json_decode( $row->verification_context, 1 );
 
 		return new VerificationEntity(
-			$title, $revision, $row->domain_id, $hashes, $time, $verificationContext, $row->signature,
-			$row->public_key, $row->wallet_address, (int)$row->witness_event_id, $row->source
+			$title, $revision, $row->domain_id ?? '', $hashes, $time,
+			$verificationContext, $row->signature, $row->public_key, $row->wallet_address,
+			(int)$row->witness_event_id, $row->source ?? 'default'
 		);
 	}
 
