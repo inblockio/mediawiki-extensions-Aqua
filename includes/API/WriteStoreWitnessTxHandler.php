@@ -116,7 +116,6 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 			$transaction_hash
 		);
 
-
 		/** write data to database */
 		// Write the witness_hash into the witness_events table
 		$this->witnessingEngine->getLookup()->updateWitnessEventEntity( $witnessEvent, [

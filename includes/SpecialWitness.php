@@ -221,7 +221,7 @@ class SpecialWitness extends SpecialPage {
 					'domain_manifest_genesis_hash' => $domain_manifest_genesis_hash,
 					'merkle_root' => $merkle_root,
 					'witness_event_verification_hash' => $this->verificationEngine->getHasher()
-						->getHashSum($domain_manifest_genesis_hash . $merkle_root ),
+						->getHashSum( $domain_manifest_genesis_hash . $merkle_root ),
 					'smart_contract_address' => $SmartContractAddress,
 					'witness_network' => $WitnessNetwork,
 				],

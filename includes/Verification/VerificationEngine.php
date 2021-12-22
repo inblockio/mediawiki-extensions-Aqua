@@ -244,7 +244,7 @@ class VerificationEngine {
 		);
 
 		$genesisHash = $parentEntity ?
-			$parentEntity->getHash( VerificationEntity::GENESIS_HASH ) :  $verificationHash;
+			$parentEntity->getHash( VerificationEntity::GENESIS_HASH ) : $verificationHash;
 
 		$verificationContext = [
 			"has_transclusion" => false,

@@ -9,7 +9,7 @@ class FileVerificationContent extends JsonContent {
 	public const CONTENT_MODEL_FILE_VERIFICATION = 'file-verification';
 	public const SLOT_ROLE_FILE_VERIFICATION = 'file-verification-slot';
 
-	public function __construct( $text, $modelId = static::CONTENT_MODEL_FILE_VERIFICATION ) {
+	public function __construct( $text, $modelId = self::CONTENT_MODEL_FILE_VERIFICATION ) {
 		parent::__construct( $text, $modelId );
 	}
 

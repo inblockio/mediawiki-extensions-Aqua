@@ -15,7 +15,7 @@ class WitnessLookup {
 	/**
 	 * @param ILoadBalancer $loadBalancer
 	 */
-	public function __construct( ILoadBalancer $loadBalancer	) {
+	public function __construct( ILoadBalancer $loadBalancer ) {
 		$this->lb = $loadBalancer;
 	}
 
@@ -54,7 +54,7 @@ class WitnessLookup {
 		);
 
 		 if ( !$res ) {
-		 	return null;
+			return null;
 		 }
 
 		 return $db->insertId();

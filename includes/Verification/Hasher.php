@@ -22,7 +22,7 @@ class Hasher {
 		string $signature_hash,
 		string $witness_hash
 	): string {
-		return $this->getHashSum($contentHash . $metadataHash . $signature_hash . $witness_hash );
+		return $this->getHashSum( $contentHash . $metadataHash . $signature_hash . $witness_hash );
 	}
 
 	/**

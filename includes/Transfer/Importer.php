@@ -17,11 +17,11 @@
  use WikiRevision;
 
  class Importer {
- 	/** @var VerificationEngine */
- 	private VerificationEngine $verificationEngine;
- 	/** @var WitnessingEngine */
- 	private WitnessingEngine $witnessingEngine;
- 	/** @var OldRevisionImporter */
+	/** @var VerificationEngine */
+	private VerificationEngine $verificationEngine;
+	/** @var WitnessingEngine */
+	private WitnessingEngine $witnessingEngine;
+	/** @var OldRevisionImporter */
 	private OldRevisionImporter $revisionImporter;
 	/** @var UploadRevisionImporter */
 	private UploadRevisionImporter $uploadRevisionImporter;
@@ -35,16 +35,16 @@
 	  * @param UploadRevisionImporter $uploadRevisionImporter
 	  * @param IContentHandlerFactory $contentHandlerFactory
 	  */
- 	public function __construct(
- 		VerificationEngine $verificationEngine, WitnessingEngine $witnessingEngine,
+	public function __construct(
+		VerificationEngine $verificationEngine, WitnessingEngine $witnessingEngine,
 		OldRevisionImporter $revisionImporter, UploadRevisionImporter $uploadRevisionImporter,
 		IContentHandlerFactory $contentHandlerFactory
 	) {
- 		$this->verificationEngine = $verificationEngine;
- 		$this->witnessingEngine = $witnessingEngine;
- 		$this->revisionImporter = $revisionImporter;
- 		$this->uploadRevisionImporter = $uploadRevisionImporter;
- 		$this->contentHandlerFactory = $contentHandlerFactory;
+		$this->verificationEngine = $verificationEngine;
+		$this->witnessingEngine = $witnessingEngine;
+		$this->revisionImporter = $revisionImporter;
+		$this->uploadRevisionImporter = $uploadRevisionImporter;
+		$this->contentHandlerFactory = $contentHandlerFactory;
 	}
 
 	 /**
@@ -71,7 +71,7 @@
 	  * @throws MWUnknownContentModelException
 	  */
 	 private function doImportRevision(
-	 	TransferRevisionEntity $revisionEntity, TransferContext $context
+		TransferRevisionEntity $revisionEntity, TransferContext $context
 	 ) {
 		 $revision = $this->prepRevision( $revisionEntity, $context );
 
@@ -98,9 +98,9 @@
 		 }
 
 		 $tempDir = wfTempDir();
-		 $file =  $tempDir . '/' . $fileInfo['filename'];
+		 $file = $tempDir . '/' . $fileInfo['filename'];
 		 if ( !is_writable( $tempDir ) ) {
-		 	throw new MWException( 'Cannot write to temp file to ' . $tempDir );
+			throw new MWException( 'Cannot write to temp file to ' . $tempDir );
 		 }
 		 file_put_contents( $file, base64_decode( $fileInfo['data'] ) );
 		 $revision->setFileSrc( $file, true );
@@ -109,7 +109,7 @@
 
 		 $status = $this->uploadRevisionImporter->import( $revision );
 		 if ( !$status->isOK() ) {
-		 	throw new MWException( 'Could not upload file' );
+			throw new MWException( 'Could not upload file' );
 		 }
 	 }
 
@@ -122,7 +122,7 @@
 	  * @throws MWUnknownContentModelException
 	  */
 	 private function prepRevision(
-	 	TransferRevisionEntity $revisionEntity, TransferContext $context
+		TransferRevisionEntity $revisionEntity, TransferContext $context
 	 ): WikiRevision {
 		 $revision = new WikiRevision( new HashConfig() );
 
@@ -161,26 +161,26 @@
 	  * @throws MWException
 	  */
 	 private function buildVerification(
-	 	TransferRevisionEntity $transferEntity, TransferContext $context
+		TransferRevisionEntity $transferEntity, TransferContext $context
 	 ) {
 		 $verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromTitle(
-		 	$context->getTitle()
+			$context->getTitle()
 		 );
- 		if ( !$verificationEntity ) {
+		if ( !$verificationEntity ) {
 			// Do nothing if entry does not exist => TODO: Why?
 			return;
 		}
 
- 		$witness = $transferEntity->getWitness();
- 		if ( $witness !== null ) {
- 			$this->processWitness( $transferEntity, $verificationEntity );
+		$witness = $transferEntity->getWitness();
+		if ( $witness !== null ) {
+			$this->processWitness( $transferEntity, $verificationEntity );
 		}
 
- 		$res = $this->verificationEngine->getLookup()->updateEntity(
- 			$verificationEntity, $this->compileVerificationData( $transferEntity, $context )
+		$res = $this->verificationEngine->getLookup()->updateEntity(
+			$verificationEntity, $this->compileVerificationData( $transferEntity, $context )
 		);
- 		if ( !$res ) {
- 			throw new MWException( 'Failed to store verification' );
+		if ( !$res ) {
+			throw new MWException( 'Failed to store verification' );
 		}
 	 }
 
@@ -190,18 +190,18 @@
 	  * @throws MWException
 	  */
 	 private function processWitness(
-	 	TransferRevisionEntity $transferRevisionEntity,
+		TransferRevisionEntity $transferRevisionEntity,
 		VerificationEntity $verificationEntity
 	 ) {
- 		$witnessInfo = $transferRevisionEntity->getWitness();
- 		$structuredMerkleProof = json_decode( $witnessInfo['structured_merkle_proof'], true );
- 		unset( $witnessInfo['structured_merkle_proof'] );
+		$witnessInfo = $transferRevisionEntity->getWitness();
+		$structuredMerkleProof = json_decode( $witnessInfo['structured_merkle_proof'], true );
+		unset( $witnessInfo['structured_merkle_proof'] );
 
- 		$witnessEntity = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
- 			'witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash']
+		$witnessEntity = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
+			'witness_event_verification_hash' => $witnessInfo['witness_event_verification_hash']
 		] );
 
- 		if ( !$witnessEntity ) {
+		if ( !$witnessEntity ) {
 			$witnessInfo['source'] = 'imported';
 			$witnessInfo['domain_manifest_title'] = 'N/A';
 			$localWitnessEventId = $this->witnessingEngine->getLookup()->insertWitnessEvent(
@@ -212,17 +212,17 @@
 				throw new MWException( 'Cannot insert witness event' );
 			}
 		} else {
- 			$localWitnessEventId = $witnessEntity->get( 'witness_event_id' );
+			$localWitnessEventId = $witnessEntity->get( 'witness_event_id' );
 		}
 
- 		$res = $this->verificationEngine->getLookup()->updateEntity( $verificationEntity, [
- 			'witness_event_id' => $localWitnessEventId,
+		$res = $this->verificationEngine->getLookup()->updateEntity( $verificationEntity, [
+			'witness_event_id' => $localWitnessEventId,
 		] );
- 		if ( !$res ) {
- 			throw new MWException( "Cannot store witness ID to verification entity" );
+		if ( !$res ) {
+			throw new MWException( "Cannot store witness ID to verification entity" );
 		}
 
- 		$revisionVerificationHash = $transferRevisionEntity->getMetadata()['verification_hash'] ?? null;
+		$revisionVerificationHash = $transferRevisionEntity->getMetadata()['verification_hash'] ?? null;
 		$proofEntity = $this->witnessingEngine->getLookup()->merkleTreeFromQuery( [
 			'left_leaf=\'' . $revisionVerificationHash . '\'' .
 			' OR right_leaf=\'' . $revisionVerificationHash . '\''
@@ -248,18 +248,18 @@
 	  * @throws MWUnknownContentModelException
 	  */
 	 private function getContents( TransferRevisionEntity $entity, Title $title ) {
- 		$slotRoleRegistry = MediaWikiServices::getInstance()->getSlotRoleRegistry();
- 		$contents = [];
- 		foreach ( $entity->getContent()['content'] as $role => $text ) {
- 			if ( !$slotRoleRegistry->isDefinedRole( $role ) ) {
- 				throw new MWException( "Required role \"$role\" is not defined" );
+		$slotRoleRegistry = MediaWikiServices::getInstance()->getSlotRoleRegistry();
+		$contents = [];
+		foreach ( $entity->getContent()['content'] as $role => $text ) {
+			if ( !$slotRoleRegistry->isDefinedRole( $role ) ) {
+				throw new MWException( "Required role \"$role\" is not defined" );
 			}
- 			$model = $slotRoleRegistry->getRoleHandler( $role )->getDefaultModel( $title );
- 			$content = $this->contentHandlerFactory->getContentHandler( $model )->unserializeContent( $text );
- 			$contents[$role] = $content;
+			$model = $slotRoleRegistry->getRoleHandler( $role )->getDefaultModel( $title );
+			$content = $this->contentHandlerFactory->getContentHandler( $model )->unserializeContent( $text );
+			$contents[$role] = $content;
 		}
 
- 		return $contents;
+		return $contents;
 	 }
 
 	 /**
@@ -268,7 +268,7 @@
 	  * @return array
 	  */
 	 private function compileVerificationData(
-	 	TransferRevisionEntity $revisionEntity, TransferContext $context
+		TransferRevisionEntity $revisionEntity, TransferContext $context
 	 ): array {
 		return [
 			'domain_id' => $revisionEntity->getMetadata()['domain_id'],
