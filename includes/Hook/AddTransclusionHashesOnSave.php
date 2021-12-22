@@ -11,7 +11,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Storage\Hook\MultiContentSaveHook;
 use MediaWiki\Storage\PageUpdater;
-use MediaWiki\Storage\SlotRecord;
+use MediaWiki\Revision\SlotRecord;
 use MediaWiki\User\UserIdentity;
 use Status;
 use TitleFactory;

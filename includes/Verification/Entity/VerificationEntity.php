@@ -4,7 +4,7 @@ namespace DataAccounting\Verification\Entity;
 
 use DateTime;
 use JsonSerializable;
-use MediaWiki\Storage\RevisionRecord;
+use MediaWiki\Revision\RevisionRecord;
 use Title;
 
 class VerificationEntity implements JsonSerializable {

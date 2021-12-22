@@ -54,6 +54,7 @@ abstract class AuthorizedEntityHandler extends SimpleHandler {
 		$this->assertEntitySet( ...$params );
 		$this->checkPermission();
 
+		// @phpstan-ignore-next-line
 		return $this->run( ...$params );
 	}
 

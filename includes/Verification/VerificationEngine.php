@@ -10,7 +10,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Storage\PageUpdaterFactory;
-use MediaWiki\Storage\RevisionRecord;
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\RevisionStore;
 use MWException;
 use Title;

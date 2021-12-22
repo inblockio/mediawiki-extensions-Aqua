@@ -4,7 +4,7 @@ namespace DataAccounting\Verification;
 
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DateTime;
-use MediaWiki\Storage\RevisionRecord;
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\RevisionStore;
 use stdClass;
 use Title;

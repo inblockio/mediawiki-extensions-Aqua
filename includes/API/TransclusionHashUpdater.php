@@ -5,7 +5,7 @@ namespace DataAccounting\API;
 use DataAccounting\TransclusionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
-use MediaWiki\Storage\RevisionStore;
+use MediaWiki\Revision\RevisionStore;
 use RequestContext;
 use Title;
 use TitleFactory;
