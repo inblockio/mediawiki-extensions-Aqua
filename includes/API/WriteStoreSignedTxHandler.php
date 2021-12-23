@@ -78,7 +78,7 @@ class WriteStoreSignedTxHandler extends SimpleHandler {
 				$revision, $this->user, $wallet_address, $signature, $public_key
 			);
 		} catch ( \Exception $ex ) {
-			throw new HttpException( $ex->getMessage(), $ex->getCode() );
+			throw new HttpException( $ex->getMessage(), 500 );
 		}
 		if ( !$res ) {
 			throw new HttpException( "Could not sign the revision", 500 );
