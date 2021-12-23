@@ -88,7 +88,7 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 	public function testNoDomainManifestYet(): void {
 		// Expects error when domain manifest is not yet generated.
 		$this->expectExceptionObject(
-			new HttpException( "witness_event_id not found in the witness_page table.", 404 )
+			new HttpException( "No revisions are witnessed by given id", 404 )
 		);
 		$this->executeHandler(
 			new WriteStoreWitnessTxHandler(

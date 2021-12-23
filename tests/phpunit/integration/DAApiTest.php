@@ -129,7 +129,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 		$this->assertJsonContentType( $response );
 		$data = $this->getJsonBody( $response );
 		// TODO why is this not an int?
-		$this->assertSame( [ '1' ], $data );
+		$this->assertSame( [ 1 ], $data );
 
 		// Testing the case when the page doesn't exist.
 		$title = 'IDONTEXIST IDONTEXIST';
@@ -177,7 +177,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			$this->assertArrayHasKey( $key, $data );
 		}
 		// TODO the rev_id shouldn't be a string.
-		$this->assertSame( '1', $data['rev_id'] );
+		$this->assertSame( 1, $data['rev_id'] );
 		$this->assertSame( 'UTPage', $data['page_title'] );
 
 		// Testing the case when the page is not found.
@@ -258,7 +258,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			);
 		} catch ( HttpException $ex ) {
 			$this->assertSame(
-				"Not found",
+				"Permission denied",
 				$ex->getMessage()
 			);
 		}
