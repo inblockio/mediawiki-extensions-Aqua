@@ -8,3 +8,6 @@ we can disable it altogether, as we cannot control it
 we are subject to caching. This means that resources wont update immediatelly after save, but only after parser cache
   expires. Best way to solve this is to disable parser cache: `$wgParserCacheType = CACHE_NONE;` Despite feeling wrong,
   this has no big impact on performance.
+
+## Important
+`$GLOBALS['wgParserCacheType'] = CACHE_NONE;` is strongly recommended, if not required for this functionality.
