@@ -194,7 +194,10 @@
 		},
 		{
 			"path": "/data_accounting/get_witness_data/{witness_event_id}",
-			"class": "DataAccounting\\API\\GetWitnessDataHandler"
+			"class": "DataAccounting\\API\\GetWitnessDataHandler",
+			"services": [
+				"DataAccountingWitnessingEngine"
+			]
 		},
 		{
 			"path": "/data_accounting/request_merkle_proof/{witness_event_id}/{revision_verification_hash}",

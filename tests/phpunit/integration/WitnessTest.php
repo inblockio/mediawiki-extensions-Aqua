@@ -58,7 +58,7 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 		$this->witnessingEngine = $this->getServiceContainer()->getService(
 			'DataAccountingWitnessingEngine'
 		);
-		
+
 		// Mock permission manager that allows any access.
 		$pmMock = $this->createMock( PermissionManager::class );
 		$pmMock->method( 'userHasRight' )->willReturn( true );
@@ -105,7 +105,7 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 			new HttpException( "Not found", 404 )
 		);
 		$this->executeHandler(
-			new GetWitnessDataHandler(),
+			new GetWitnessDataHandler( $this->witnessingEngine ),
 			new RequestData( [ 'pathParams' => [ 'witness_event_id' => 1 ] ] )
 		);
 	}
@@ -123,7 +123,7 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 
 		// Test for getWitnessData.
 		$data = $this->executeHandlerAndGetBodyData(
-			new GetWitnessDataHandler(),
+			new GetWitnessDataHandler( $this->witnessingEngine ),
 			new RequestData( [ 'pathParams' => [ 'witness_event_id' => 1 ] ] )
 		);
 		$keys = [
@@ -166,7 +166,7 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 
 		// Test for getWitnessData after publish.
 		$data = $this->executeHandlerAndGetBodyData(
-			new GetWitnessDataHandler(),
+			new GetWitnessDataHandler( $this->witnessingEngine ),
 			new RequestData( [ 'pathParams' => [ 'witness_event_id' => 1 ] ] )
 		);
 		foreach ( $keys as $key ) {
