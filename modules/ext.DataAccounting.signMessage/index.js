@@ -9,15 +9,6 @@
 ;(function () {
   var signMessage
 
-  function extractPageTitle(urlObj) {
-    // If you update this function, make sure to sync with the same function in
-    // the VerifyPage repo, in src/verifier.ts file.
-    if (!urlObj) {
-      return ''
-    }
-    const title = urlObj.pathname.split('/').pop();
-    return title ? title.replace(/_/g, ' ') : '';
-  }
 
   // TODO: Maybe replace with Bootstrap
   // We no longer use this function for now.
@@ -68,9 +59,8 @@
       $daButton.on('click', function (event) {
         event.preventDefault()
         const urlObj = new URL(window.location.href)
-        const pageTitle = extractPageTitle(urlObj)
+        const pageTitle = mw.config.get( 'wgTitle' );
         const server = window.location.protocol + '//' + window.location.host
-        console.log(pageTitle)
         if (window.ethereum) {
           function doSignProcess() {
             fetch(server + '/rest.php/data_accounting/get_page_last_rev/' + pageTitle)
