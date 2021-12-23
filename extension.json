@@ -58,7 +58,8 @@
 				"PermissionManager",
 				"DBLoadBalancer",
 				"TitleFactory",
-				"DataAccountingVerificationEngine"
+				"DataAccountingVerificationEngine",
+				"DataAccountingWitnessingEngine"
 			]
 		},
 		"WitnessPublisher": {

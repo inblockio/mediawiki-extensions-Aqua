@@ -10,6 +10,7 @@
 
 namespace DataAccounting;
 
+use DataAccounting\Verification\WitnessingEngine;
 use Exception;
 
 use Config;
@@ -40,11 +41,21 @@ class SpecialWitness extends SpecialPage {
 
 	private VerificationEngine $verificationEngine;
 
+	private WitnessingEngine $witnessingEngine;
+
 	/**
 	 * Initialize the special page.
+	 * @param PermissionManager $permManager
+	 * @param LoadBalancer $lb
+	 * @param TitleFactory $titleFactory
+	 * @param VerificationEngine $verificationEngine
+	 * @param WitnessingEngine $witnessingEngine
 	 */
-	public function __construct( PermissionManager $permManager, LoadBalancer $lb,
-		TitleFactory $titleFactory, VerificationEngine $verificationEngine ) {
+	public function __construct(
+		PermissionManager $permManager, LoadBalancer $lb,
+		TitleFactory $titleFactory, VerificationEngine $verificationEngine,
+		WitnessingEngine $witnessingEngine
+	) {
 		// A special page should at least have a name.
 		// We do this by calling the parent class (the SpecialPage class)
 		// constructor method with the name as first and only parameter.
@@ -53,6 +64,7 @@ class SpecialWitness extends SpecialPage {
 		$this->lb = $lb;
 		$this->titleFactory = $titleFactory;
 		$this->verificationEngine = $verificationEngine;
+		$this->witnessingEngine = $witnessingEngine;
 	}
 
 	/**
@@ -241,7 +253,7 @@ class SpecialWitness extends SpecialPage {
 	 *       params) or strings (message keys)
 	 */
 	public function generateDomainManifest( array $formData ) {
-		$old_max_witness_event_id = $this->verificationEngine->getMaxWitnessEventId();
+		$old_max_witness_event_id = $this->witnessingEngine->getLookup()->lastWitnessEventId();
 		// Set to 0 if null.
 		$old_max_witness_event_id = $old_max_witness_event_id === null ? 0 : $old_max_witness_event_id;
 		$witness_event_id = $old_max_witness_event_id + 1;
