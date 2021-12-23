@@ -4,7 +4,7 @@
 	"description": "Implements the basic principles of data accounting with cryptographically signed revisions",
 	"license": "GPL-3.0-only",
 	"require": {
-		"composer/installers": "~1.0",
+		"composer/installers": "~2.0",
 		"rht/merkle-tree": "dev-master"
 	},
 	"require-dev": {
