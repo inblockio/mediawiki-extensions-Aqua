@@ -115,7 +115,8 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 			$this->permissionManagerMock,
 			$this->lb,
 			$this->titleFactory,
-			$this->verificationEngine
+			$this->verificationEngine,
+			$this->witnessingEngine
 		);
 		$sp->getOutput()->setTitle( Title::newFromText( 'Witness' ) );
 		// Test that generating domain manifest works.
