@@ -10,19 +10,5 @@
 		"vimeo/psalm": "^4.12.0",
 		"phpstan/phpstan": "^1.1.2",
 		"mediawiki/mediawiki-codesniffer": "37.0.0"
-	},
-	"scripts": {
-		"test": [
-			"parallel-lint . --exclude vendor --exclude node_modules",
-			"minus-x check .",
-			"phpcs -p -s"
-		],
-		"fix": [
-			"minus-x fix .",
-			"phpcbf"
-		]
-	},
-	"extra": {
-		"installer-name": "DataAccounting"
 	}
 }
