@@ -174,7 +174,7 @@ class VerificationEntity implements JsonSerializable {
 			'signature' => $this->signature,
 			'public_key' => $this->publicKey,
 			'wallet_address' => $this->walletAddress,
-			'witness_even_id' => empty( $this->witnessEventId ) ? null : $this->witnessEventId,
+			'witness_event_id' => empty( $this->witnessEventId ) ? null : $this->witnessEventId,
 			'source' => $this->source
 		], $this->hashes );
 	}
