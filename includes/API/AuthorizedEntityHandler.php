@@ -83,8 +83,6 @@ abstract class AuthorizedEntityHandler extends SimpleHandler {
 	}
 
 	protected function checkPermission() {
-		// @phan-suppress-next-line PhanUndeclaredMethod
-		// @phpstan-ignore-next-line
 		$title = $this->provideTitle();
 		if ( !$title ) {
 			throw new HttpException( "Not found", 404 );
