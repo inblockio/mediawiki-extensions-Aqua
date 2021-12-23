@@ -27,6 +27,7 @@ class FileVerificationContent extends JsonContent {
 		if ( !$content ) {
 			return null;
 		}
+		// @phpstan-ignore-next-line
 		return new static( json_encode( [
 			'hash' => hash( "sha3-512", $content, false ),
 		] ) );
