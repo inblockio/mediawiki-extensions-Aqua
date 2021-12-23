@@ -247,8 +247,8 @@
 			"class": "DataAccounting\\API\\WriteStoreSignedTxHandler",
 			"services": [
 				"PermissionManager",
-				"RevisionStore",
-				"DataAccountingVerificationEngine"
+				"DataAccountingVerificationEngine",
+				"RevisionStore"
 			]
 		},
 		{
@@ -256,7 +256,9 @@
 			"path": "/data_accounting/write/store_witness_tx",
 			"class": "DataAccounting\\API\\WriteStoreWitnessTxHandler",
 			"services": [
-				"PermissionManager"
+				"PermissionManager",
+				"DataAccountingVerificationEngine",
+				"DataAccountingWitnessingEngine"
 			]
 		},
 		{
