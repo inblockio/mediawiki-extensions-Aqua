@@ -230,7 +230,7 @@
 
 		if ( !$proofEntity ) {
 			// TODO: Why latest? doesnt this apply only if new "witness_event" was inserted?
-			$lastWitnessEventId = $this->witnessingEngine->getLookup()->lastWitnessEventId();
+			$lastWitnessEventId = $this->witnessingEngine->getLookup()->getLastWitnessEventId();
 
 			foreach ( $structuredMerkleProof as $row ) {
 				$row["witness_event_id"] = $lastWitnessEventId;

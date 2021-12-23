@@ -163,7 +163,7 @@ function getWitnessData( $witness_event_id ) {
 /**
  * @param \IDatabase $db
  * @return null
- * @deprecated Use WitnessingEngine::getLookup::lastWitnessEventId
+ * @deprecated Use WitnessingEngine::getLookup::getLastWitnessEventId
  */
 function getMaxWitnessEventId( $db ) {
 	$row = $db->selectRow(

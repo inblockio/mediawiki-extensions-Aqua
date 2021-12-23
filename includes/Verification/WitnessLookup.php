@@ -63,7 +63,7 @@ class WitnessLookup {
 	/**
 	 * @return int
 	 */
-	public function lastWitnessEventId(): int {
+	public function getLastWitnessEventId(): int {
 		$res = $this->lb->getConnection( DB_REPLICA )->selectRow(
 			'witness_events',
 			[ 'MAX( witness_event_id) as id' ],

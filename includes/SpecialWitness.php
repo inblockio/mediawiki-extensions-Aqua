@@ -253,7 +253,7 @@ class SpecialWitness extends SpecialPage {
 	 *       params) or strings (message keys)
 	 */
 	public function generateDomainManifest( array $formData ) {
-		$old_max_witness_event_id = $this->witnessingEngine->getLookup()->lastWitnessEventId();
+		$old_max_witness_event_id = $this->witnessingEngine->getLookup()->getLastWitnessEventId();
 		// Set to 0 if null.
 		$old_max_witness_event_id = $old_max_witness_event_id === null ? 0 : $old_max_witness_event_id;
 		$witness_event_id = $old_max_witness_event_id + 1;
