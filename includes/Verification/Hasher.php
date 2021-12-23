@@ -5,26 +5,6 @@ namespace DataAccounting\Verification;
 use MediaWiki\Revision\RevisionRecord;
 
 class Hasher {
-	public function calculateWitnessHash(
-		string $domain_manifest_genesis_hash,
-		string $merkle_root,
-		string $witness_network,
-		string $witness_tx_hash
-	): string {
-		return $this->getHashSum(
-			$domain_manifest_genesis_hash . $merkle_root . $witness_network . $witness_tx_hash
-		);
-	}
-
-	public function calculateVerificationHash(
-		string $contentHash,
-		string $metadataHash,
-		string $signature_hash,
-		string $witness_hash
-	): string {
-		return $this->getHashSum( $contentHash . $metadataHash . $signature_hash . $witness_hash );
-	}
-
 	/**
 	 * @param string $input
 	 * @return string
