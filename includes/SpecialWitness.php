@@ -110,7 +110,6 @@ class SpecialWitness extends SpecialPage {
 			[ 'page_title', 'max(rev_id) as rev_id' ],
 			[
 				"page_title NOT LIKE 'Data Accounting:%'",
-				"page_title NOT LIKE 'File:%'"
 			],
 			__METHOD__,
 			[ 'GROUP BY' => 'page_title' ]
