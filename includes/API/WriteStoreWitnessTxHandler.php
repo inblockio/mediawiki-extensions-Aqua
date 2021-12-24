@@ -81,7 +81,7 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 			$verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromHash(
 				$page->get( 'revision_verification_hash' )
 			);
-			if ( $verificationEntity === null ) {
+			if ( $verificationEntity->getWitnessEventID() === 0 ) {
 				$this->verificationEngine->getLookup()->updateEntity( $verificationEntity, [
 					'witness_event_id' => $witness_event_id,
 				] );
@@ -93,7 +93,6 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 				if ( $pageWitnessEvent ) {
 					$previousWitnessNetwork = $pageWitnessEvent->get( 'witness_network' );
 				}
-
 				if ( $previousWitnessNetwork !== 'mainnet' && $witnessNetwork === 'mainnet' ) {
 					$this->verificationEngine->getLookup()->updateEntity( $verificationEntity, [
 						'witness_event_id' => $witness_event_id,

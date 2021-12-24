@@ -56,7 +56,7 @@ class VerificationEntity implements JsonSerializable {
 	public function __construct(
 		Title $title, RevisionRecord $revision, string $domainId, array $hashes, DateTime $time,
 		array $verificationContext, string $signature, string $publicKey, string $walletAddress,
-		string $witnessEventId, string $source
+		int $witnessEventId, string $source
 	) {
 		$this->title = $title;
 		$this->revision = $revision;
@@ -147,10 +147,10 @@ class VerificationEntity implements JsonSerializable {
 	}
 
 	/**
-	 * @return string
+	 * @return int
 	 */
-	public function getWitnessEventId(): string {
-		return $this->walletAddress;
+	public function getWitnessEventId(): int {
+		return $this->witnessEventId;
 	}
 
 	/**
