@@ -154,7 +154,7 @@ class WitnessLookup {
 			}
 			$depth = $maxDepth - 1;
 			$verificationHash = $output->get( 'successor' );
-			$final_output[] = $output;
+			$finalOutput[] = $output;
 			if ( $depth === -1 ) {
 				break;
 			}
