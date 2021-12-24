@@ -37,11 +37,6 @@ class WriteVerificationData implements
 	// This function updates the dataset wit the correct revision ID, especially important during import.
 	// https://github.com/inblockio/DataAccounting/commit/324cd13fadb1daed281c2df454268a7b1ba30fcd
 	public function onRevisionRecordInserted( $revisionRecord ) {
-		if ( $revisionRecord->hasSlot( SignatureContent::SLOT_ROLE_SIGNATURE ) ) {
-			// Do not insert shell data on signature updates
-			return;
-		}
-
 		$this->verificationEngine->getLookup()->insertShellData( $revisionRecord );
 	}
 
