@@ -85,6 +85,9 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 				continue;
 			}
 			if ( $verificationEntity->getWitnessEventID() === 0 ) {
+				// If this revisin of the page has been aggregated in the
+				// witness_page table, but has never been witnessed before, we
+				// expect it to be 0.
 				$this->verificationEngine->getLookup()->updateEntity( $verificationEntity, [
 					'witness_event_id' => $witness_event_id,
 				] );

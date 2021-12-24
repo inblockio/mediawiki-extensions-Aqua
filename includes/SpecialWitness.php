@@ -105,6 +105,9 @@ class SpecialWitness extends SpecialPage {
 
 		EOD;
 
+		// We include all pages which have a verification_hash and take the
+		// last one of each page-object. Excluding the Domain Manifest pages
+		// identified by 'Data Accounting:%'.
 		$res = $this->lb->getConnection( DB_REPLICA )->select(
 			'revision_verification',
 			[ 'page_title', 'max(rev_id) as rev_id' ],
@@ -134,6 +137,9 @@ class SpecialWitness extends SpecialPage {
 				return false;
 			}
 
+			// We do not update the witnessEventID of the revision because it
+			// is not witnessed / published yet.
+			// We aggregate them here so they can be witnessed in the future.
 			$this->lb->getConnection( DB_PRIMARY )->insert(
 				'witness_page',
 				[
