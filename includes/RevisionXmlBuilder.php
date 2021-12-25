@@ -8,13 +8,18 @@ use DOMDocument;
 use SimpleXMLElement;
 use Wikimedia\Rdbms\ILoadBalancer;
 
+use DataAccounting\Verification\WitnessingEngine;
+
 class RevisionXmlBuilder {
 	private ILoadBalancer $loadBalancer;
+	private WitnessingEngine $witnessingEngine;
 
 	public function __construct(
-		ILoadBalancer $loadBalancer
+		ILoadBalancer $loadBalancer,
+		WitnessingEngine $witnessingEngine
 	) {
 		$this->loadBalancer = $loadBalancer;
+		$this->witnessingEngine = $witnessingEngine;
 	}
 
 	public function getPageMetadataByRevId( int $revId ): string {
@@ -78,7 +83,9 @@ class RevisionXmlBuilder {
 	}
 
 	private function getPageWitnessData( $witness_event_id, $revision_verification_hash ) {
-		$witness_data = getWitnessData( $witness_event_id );
+		$witness_data = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
+			'witness_event_id' => $witness_event_id
+		] );
 		if ( empty( $witness_data ) ) {
 			return '';
 		}

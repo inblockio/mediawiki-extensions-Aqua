@@ -8,6 +8,7 @@
 namespace DataAccounting;
 
 use DataAccounting\Verification\VerificationEngine;
+use DataAccounting\Verification\WitnessingEngine;
 use FormatJson;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\OutputPageParserOutputHook;
@@ -42,12 +43,18 @@ class Hooks implements
 	private PermissionManager $permissionManager;
 	private TitleFactory $titleFactory;
 	private VerificationEngine $verificationEngine;
+	private WitnessingEngine $witnessingEngine;
 
-	public function __construct( PermissionManager $permissionManager, TitleFactory $titleFactory,
-		VerificationEngine $verificationEngine ) {
+	public function __construct(
+		PermissionManager $permissionManager,
+		TitleFactory $titleFactory,
+		VerificationEngine $verificationEngine,
+		WitnessingEngine $witnessingEngine
+	) {
 		$this->permissionManager = $permissionManager;
 		$this->titleFactory = $titleFactory;
 		$this->verificationEngine = $verificationEngine;
+		$this->witnessingEngine = $witnessingEngine;
 	}
 
 	/**
@@ -198,10 +205,11 @@ class Hooks implements
 		);
 	}
 
-	public static function onXmlDumpWriterWriteRevision( \XmlDumpWriter $dumpWriter, string &$output, stdClass $page, string $text, RevisionRecord $revision ): void {
+	public function onXmlDumpWriterWriteRevision( \XmlDumpWriter $dumpWriter, string &$output, stdClass $page, string $text, RevisionRecord $revision ): void {
 		// This method is for verified exporter.
 		$xmlBuilder = new RevisionXmlBuilder(
-			MediaWikiServices::getInstance()->getDBLoadBalancer()
+			MediaWikiServices::getInstance()->getDBLoadBalancer(),
+			$this->witnessingEngine
 		);
 
 		$output .= $xmlBuilder->getPageMetadataByRevId( $revision->getId() );

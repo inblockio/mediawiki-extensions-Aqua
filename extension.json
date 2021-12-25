@@ -123,7 +123,7 @@
 		"PageMoveComplete": "handleHashWriterHooks",
 		"LoadExtensionSchemaUpdates": "update",
 		"XmlDumpWriterOpenPage": "handleHooks",
-		"XmlDumpWriterWriteRevision": "DataAccounting\\Hooks::onXmlDumpWriterWriteRevision",
+		"XmlDumpWriterWriteRevision": "handleHooks",
 		"ImportHandlePageXMLTag": "handleHooks",
 		"MediaWikiServices": [ "registerRevisionSlots", "overrideService" ],
 		"DASaveRevisionAddSlots": "addTransclusionHashes",
@@ -137,7 +137,8 @@
 			"services": [
 				"PermissionManager",
 				"TitleFactory",
-				"DataAccountingVerificationEngine"
+				"DataAccountingVerificationEngine",
+				"DataAccountingWitnessingEngine"
 			]
 		},
 		"handleHashWriterHooks": {
