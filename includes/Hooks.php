@@ -61,6 +61,9 @@ class Hooks implements
 	 * Method for extension.json callback on extension registry
 	 */
 	public static function onRegistration() {
+		// The following line is added to override a legacy MW behavior.
+		// We want this so that all the transcluded content are properly hashed and
+		// controlled at all times. Therefor the parser cache can not be used
 		$GLOBALS['wgParserCacheType'] = CACHE_NONE;
 	}
 
