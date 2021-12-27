@@ -1380,6 +1380,9 @@ class VerifiedWikiImporter {
 	private static function processVerification( ?array $verificationInfo, string $title ) {
 		$table = 'revision_verification';
 		$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
+		$witnessingEngine = MediaWikiServices::getInstance()->getService(
+			'DataAccountingWitnessingEngine'
+		);
 		$dbw = $lb->getConnectionRef( DB_PRIMARY );
 
 		if ( $verificationInfo !== null ) {
@@ -1425,8 +1428,8 @@ class VerifiedWikiImporter {
 						'witness_events',
 						$witnessInfo,
 					);
-					$local_witness_event_id = getMaxWitnessEventId( $dbw );
-					if ( $local_witness_event_id === null ) {
+					$local_witness_event_id = $witnessingEngine->getLookup()->getLastWitnessEventId();
+					if ( $local_witness_event_id < 1 ) {
 						$local_witness_event_id = 1;
 					}
 				} else {

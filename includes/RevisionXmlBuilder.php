@@ -83,16 +83,18 @@ class RevisionXmlBuilder {
 	}
 
 	private function getPageWitnessData( $witness_event_id, $revision_verification_hash ) {
-		$witnessEntity = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
+		$witness_data = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
 			'witness_event_id' => $witness_event_id
 		] );
-		if ( $witnessEntity === null ) {
+		if ( empty( $witness_data ) ) {
 			return '';
 		}
-		$structured_merkle_proof = $this->witnessingEngine->getLookup()->requestMerkleProof(
-			$witness_event_id, $revision_verification_hash
+		$merkleProof = $this->witnessingEngine->getLookup()->requestMerkleProof(
+			$witness_event_id,
+			$revision_verification_hash
 		);
-		$witness_data["structured_merkle_proof"] = json_encode( $structured_merkle_proof );
+		$structured_merkle_proof = json_encode( $merkleProof );
+		$witness_data["structured_merkle_proof"] = $structured_merkle_proof;
 		$xmlString = $this->convertArray2XMLString( $witness_data, "<witness/>" );
 		return $xmlString;
 	}
@@ -113,4 +115,5 @@ class RevisionXmlBuilder {
 		$xmlString = preg_replace( '/^.+\n/', '', $xmlString );
 		return $xmlString;
 	}
+
 }
