@@ -205,7 +205,7 @@
 			"path": "/data_accounting/request_merkle_proof/{witness_event_id}/{revision_verification_hash}",
 			"class": "DataAccounting\\API\\RequestMerkleProofHandler",
 			"services": [
-				"DataAccountingVerificationEngine"
+				"DataAccountingWitnessingEngine"
 			]
 		},
 		{

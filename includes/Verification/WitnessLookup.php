@@ -98,18 +98,16 @@ class WitnessLookup {
 	}
 
 	/**
-	 * @param VerificationEntity $verificationEntity
-	 * @param int|null $depth
+	 * @param int $witnessEventId
+	 * @param string $verificationHash
+	 * @param null $depth
 	 * @return array
 	 */
-	public function requestMerkleProof( VerificationEntity $verificationEntity, $depth = null ) {
+	public function requestMerkleProof( $witnessEventId, $verificationHash, $depth = null ) {
 		// IF query returns a left or right leaf empty, it means the successor string
 		// will be identical the next layer up. In this case it is required to
 		// read the depth and start the query with a depth parameter -1 to go to the next layer.
 		// This is repeated until the left or right leaf is present and the successor hash different.
-
-		$witnessEventId = $verificationEntity->getWitnessEventId();
-		$verificationHash = $verificationEntity->getHash( VerificationEntity::VERIFICATION_HASH );
 		$finalOutput = [];
 
 		while ( true ) {

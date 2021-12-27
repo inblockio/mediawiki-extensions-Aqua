@@ -2,21 +2,18 @@
 
 namespace DataAccounting\API;
 
-use DataAccounting\Verification\VerificationEngine;
-use DataAccounting\Verification\Entity\VerificationEntity;
-use MediaWiki\Rest\HttpException;
+use DataAccounting\Verification\WitnessingEngine;
 use MediaWiki\Rest\SimpleHandler;
 use Wikimedia\ParamValidator\ParamValidator;
 
 class RequestMerkleProofHandler extends SimpleHandler {
-	/** @var VerificationEngine */
-	private $verificationEngine;
+	private WitnessingEngine $witnessingEngine;
 
 	/**
-	 * @param VerificationEngine $verificationEngine
+	 * @param WitnessingEngine $witnessingEngine
 	 */
-	public function __construct( VerificationEngine $verificationEngine ) {
-		$this->verificationEngine = $verificationEngine;
+	public function __construct( WitnessingEngine $witnessingEngine ) {
+		$this->witnessingEngine = $witnessingEngine;
 	}
 
 	/** @inheritDoc */
@@ -29,15 +26,10 @@ class RequestMerkleProofHandler extends SimpleHandler {
 		#the different layers. Depth can be specified via the $depth parameter;
 
 		$params = $this->getValidatedParams();
-		$depth = $params['depth'];
-		$entity = $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
-			VerificationEntity::VERIFICATION_HASH => $revision_verification_hash,
-			'witness_event_id' => $witness_event_id
-		] );
-		if ( !$entity ) {
-			throw new HttpException( "Not found", 404 );
-		}
-		return $this->verificationEngine->requestMerkleProof( $entity, $depth );
+		$depth = $params['depth'] ?? null;
+		return $this->witnessingEngine->getLookup()->requestMerkleProof(
+			$witness_event_id, $revision_verification_hash, $depth
+		);
 	}
 
 	/** @inheritDoc */

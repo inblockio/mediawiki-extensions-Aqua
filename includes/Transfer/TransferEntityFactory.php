@@ -129,7 +129,10 @@ class TransferEntityFactory {
 			if ( $witnessEntity instanceof GenericDatabaseEntity ) {
 				$witnessOutput = $witnessEntity->jsonSerialize();
 				$witnessOutput['structured_merkle_proof'] =
-					$this->witnessingEngine->getLookup()->requestMerkleProof( $entity );
+					$this->witnessingEngine->getLookup()->requestMerkleProof(
+						$entity->getWitnessEventId(),
+						$entity->getHash( VerificationEntity::VERIFICATION_HASH )
+					);
 			}
 		}
 
