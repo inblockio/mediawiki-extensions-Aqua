@@ -58,6 +58,14 @@ class Hooks implements
 	}
 
 	/**
+	 * Method for extension.json callback on extension registry
+	 */
+	public static function onRegistration() {
+		$GLOBALS['wgParserCacheType'] = CACHE_NONE;
+	}
+
+
+	/**
 	 * Customisations to OutputPage right before page display.
 	 *
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/BeforePageDisplay
