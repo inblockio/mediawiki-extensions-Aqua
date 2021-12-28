@@ -2,7 +2,6 @@
 
 namespace DataAccounting\Util;
 
-use DataAccounting\Hasher\RevisionVerificationRepo;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\Linker\LinkTarget;
@@ -18,7 +17,7 @@ class TransclusionHashExtractor {
 	private $parserOutput;
 	/** @var TitleFactory */
 	private $titleFactory;
-	/** @var RevisionVerificationRepo */
+	/** @var VerificationEngine */
 	private $verifcationEngine;
 	/** @var array|null */
 	private $hashMap = null;
