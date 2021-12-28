@@ -47,7 +47,8 @@
 		"ExampleMagic": "Example.i18n.magic.php"
 	},
 	"AutoloadNamespaces": {
-		"DataAccounting\\": "includes/"
+		"DataAccounting\\": "includes/",
+		"DataAccounting\\Tests\\": "tests/phpunit/"
 	},
 	"APIListModules": {
 		"example": "DataAccounting\\ApiQueryExample"
