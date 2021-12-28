@@ -92,9 +92,9 @@ class RevisionXmlBuilder {
 		$structured_merkle_proof = $this->witnessingEngine->getLookup()->requestMerkleProof(
 			$witness_event_id, $revision_verification_hash
 		);
-		$witness_data["structured_merkle_proof"] = json_encode( $structured_merkle_proof );
-		$xmlString = $this->convertArray2XMLString( $witness_data, "<witness/>" );
-		return $xmlString;
+		$witnessData = $witnessEntity->jsonSerialize();
+		$witnessData["structured_merkle_proof"] = json_encode( $structured_merkle_proof );
+		return $this->convertArray2XMLString( $witnessData, "<witness/>" );
 	}
 
 	private function convertArray2XMLString( $arr, $tag ) {
