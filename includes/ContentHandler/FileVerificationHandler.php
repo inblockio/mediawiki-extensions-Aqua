@@ -4,10 +4,10 @@ namespace DataAccounting\ContentHandler;
 
 use Content;
 use DataAccounting\Content\FileVerificationContent;
-use JsonContentHandler;
 use MediaWiki\Content\Transform\PreSaveTransformParams;
+use TextContentHandler;
 
-class FileVerificationHandler extends JsonContentHandler {
+class FileVerificationHandler extends TextContentHandler {
 	public function __construct() {
 		parent::__construct( FileVerificationContent::CONTENT_MODEL_FILE_VERIFICATION );
 	}

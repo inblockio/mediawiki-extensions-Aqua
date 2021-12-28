@@ -36,7 +36,12 @@ class TransclusionHashes extends JsonContent {
 	 * @param array $hashmap
 	 */
 	public function setHashmap( array $hashmap ) {
-		$this->mText = json_encode( $hashmap );
+		if ( !empty( $hashmap ) ) {
+			$this->mText = json_encode( $hashmap );
+		} else {
+			$this->mText = '';
+		}
+
 	}
 
 	/**
@@ -52,7 +57,11 @@ class TransclusionHashes extends JsonContent {
 		unset( $newData['dbkey'] );
 		unset( $newData['ns'] );
 
-		$data = $this->getData()->getValue();
+		$data = [];
+		$parseStatus = $this->getData();
+		if ( $parseStatus->isOK() ) {
+			$data = $parseStatus->getValue();
+		}
 		foreach ( $data as $resource ) {
 			if (
 				$resource->dbkey === $resourceTitle->getDBkey() &&
@@ -167,17 +176,6 @@ class TransclusionHashes extends JsonContent {
 		$row .= Html::closeElement( 'tr' );
 
 		return $row;
-	}
-
-	public function serialize( $format = null ) {
-		// We dont want to / need to expose dbkey and ns to API
-		$toSerialize = array_map( static function( $hashEntity ) {
-			//unset( $hashEntity->dbkey );
-			//unset( $hashEntity->ns );
-			return $hashEntity;
-		}, $this->getResourceHashes() );
-
-		return json_encode( $toSerialize );
 	}
 
 	/**

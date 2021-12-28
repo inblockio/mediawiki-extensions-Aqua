@@ -3,14 +3,32 @@
 namespace DataAccounting\Content;
 
 use File;
-use JsonContent;
+use Message;
+use ParserOptions;
+use ParserOutput;
+use TextContent;
+use Title;
 
-class FileVerificationContent extends JsonContent {
+class FileVerificationContent extends TextContent {
 	public const CONTENT_MODEL_FILE_VERIFICATION = 'file-verification';
 	public const SLOT_ROLE_FILE_VERIFICATION = 'file-verification-slot';
 
-	public function __construct( $text, $modelId = self::CONTENT_MODEL_FILE_VERIFICATION ) {
-		parent::__construct( $text, $modelId );
+	public function __construct( $text ) {
+		parent::__construct( $text, static::CONTENT_MODEL_FILE_VERIFICATION );
+	}
+
+	protected function fillParserOutput(
+		Title $title, $revId, ParserOptions $options, $generateHtml, ParserOutput &$output
+	) {
+		if ( $this->mText === '' ) {
+			$output->setText( Message::newFromKey( 'da-file-verification-no-hash' )->text() );
+		} else {
+			$output->setText(
+				Message::newFromKey( 'da-file-verification-hash' )
+					->params( trim( $this->getText() ) )
+					->parseAsBlock()
+			);
+		}
 	}
 
 	/**
@@ -28,12 +46,6 @@ class FileVerificationContent extends JsonContent {
 			return null;
 		}
 		// @phpstan-ignore-next-line
-		return new static( json_encode( [
-			'hash' => hash( "sha3-512", $content, false ),
-		] ) );
-	}
-
-	public function isValid() {
-		return $this->getText() === '' || parent::isValid();
+		return new static( hash( "sha3-512", $content, false ) );
 	}
 }

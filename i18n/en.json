@@ -24,5 +24,7 @@
 	"da-transclusion-hash-ui-state-invalid": "Invalid hash or verification data missing",
 	"da-transclusion-hash-ui-state-new-version": "New version of the resource available",
 	"da-transclusion-hash-ui-update-version": "Update to latest version",
-	"da-transclusion-hash-ui-visit-latest": "This section is not available on old revisions, visit '''latest revision''' to access it"
+	"da-transclusion-hash-ui-visit-latest": "This section is not available on old revisions, visit '''latest revision''' to access it",
+	"da-file-verification-no-hash":  "No file hash available",
+	"da-file-verification-hash":  "File hash: <code>$1</code>"
 }
