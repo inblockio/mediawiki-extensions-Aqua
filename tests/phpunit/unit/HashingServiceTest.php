@@ -53,7 +53,7 @@ class HashingServiceTest extends TestCase {
 	public function testCalculateSignatureHash(): void {
 		$previousSignature = '0xe930ad52a31ed5b5e981866c1cf68bb09071f55047845c8ef5b81d8d13632710144d500120ce0785242c297c24a6a8927621a5d7f2827d28ee044f05497409401c';
 		$previousPublicKey = '0x041518581af65749b3ddc69889df3e5d229bc8ad79279a07ddeb368ade5e1592368c5ff3b69143d7a1e7cf64f7d0774a6724e6eaf138d318d07ddc30f6081ca89a';
-		$signatureHash =  $this->verificationEngine->getHasher()->getHashSum( $previousSignature . $previousPublicKey );
+		$signatureHash = $this->verificationEngine->getHasher()->getHashSum( $previousSignature . $previousPublicKey );
 		$this->assertEquals(
 			$this->expectedSignatureHash,
 			$signatureHash
@@ -65,7 +65,7 @@ class HashingServiceTest extends TestCase {
 		$merkle_root = 'bbc665767bac03f0a16321555c40b28bd6a6da9bc16f736c5680414b266a910d4ae436a091326a8ca6b71d2628326e42191d67214b65b87acf096c176f126447';
 		$witness_network = 'goerli';
 		$witness_tx_hash = '0x473b0b7b9ad818b9af02c0ab73cd9b186b28b6208c13f7d07554ace0915ca88e';
-		$wh =  $this->verificationEngine->getHasher()->getHashSum(
+		$wh = $this->verificationEngine->getHasher()->getHashSum(
 			$domain_manifest_genesis_hash .
 			$merkle_root .
 			$witness_network .
@@ -91,7 +91,7 @@ class HashingServiceTest extends TestCase {
 		);
 		// Test the next revision in the hash chain, which uses the previous
 		// chain's witness hash as an input.
-		$actualNextVH =  $this->verificationEngine->getHasher()->getHashSum(
+		$actualNextVH = $this->verificationEngine->getHasher()->getHashSum(
 			'bbb362540fd4451ac309243b277c4c91fc572871aa322e0d09385f9c09871c15ed36424dc5a12d066695402bb7df6dfafc90af01aac8b58c58b0fcc6495379fa' .
 			'9062387004712f32f73278b1804416710fef52732737e0807edeab928f4d614ececdb14e1e695f23d4fbe106578fa52588158d6faf5c54c8c569b69385ee84d9' .
 			'cfc99c25bb799554b06d7dab8e2d602918a9991fac968bf2ac26290e1454f7f2d2e42c192d91bfce97e7fa430b23494ca0c183a46e29d2cc958f83c532e683e3' .

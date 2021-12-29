@@ -41,7 +41,6 @@ class TransclusionHashes extends JsonContent {
 		} else {
 			$this->mText = '';
 		}
-
 	}
 
 	/**

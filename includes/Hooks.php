@@ -67,7 +67,6 @@ class Hooks implements
 		$GLOBALS['wgParserCacheType'] = CACHE_NONE;
 	}
 
-
 	/**
 	 * Customisations to OutputPage right before page display.
 	 *

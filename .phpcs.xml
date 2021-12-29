@@ -3,6 +3,9 @@
 	<file>includes/</file>
 	<file>tests/</file>
 
+	<rule ref="./vendor/sirbrillig/phpcs-variable-analysis/VariableAnalysis">
+		<exclude name="VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable" />
+	</rule>
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
 		<exclude name="Generic.Files.LineLength.TooLong" />
 		<exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine" />

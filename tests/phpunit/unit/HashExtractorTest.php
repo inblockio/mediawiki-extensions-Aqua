@@ -23,7 +23,6 @@ class HashExtractorTest extends TestCase {
 		$this->verificationEngine = $this->createMock( VerificationEngine::class );
 		$this->lookup = $this->createMock( VerificationLookup::class );
 		$this->verificationEngine->method( 'getLookup' )->willReturn( $this->lookup );
-
 	}
 
 	/**

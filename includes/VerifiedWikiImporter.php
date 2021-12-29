@@ -914,18 +914,17 @@ class VerifiedWikiImporter {
 					$pageInfo[$tag] = $this->nodeContents();
 				}
 			} elseif ( $tag == 'revision' || $tag == 'upload' ) {
-				if ( !isset( $title ) ) {
-					$title = $this->processTitle( $pageInfo['title'],
-						$pageInfo['ns'] ?? null );
+				
+				$title = $this->processTitle( $pageInfo['title'],
+					$pageInfo['ns'] ?? null );
 
-					// $title is either an array of two titles or false.
-					if ( is_array( $title ) ) {
-						$this->pageCallback( $title );
-						list( $pageInfo['_title'], $foreignTitle ) = $title;
-					} else {
-						$badTitle = true;
-						$skip = true;
-					}
+				// $title is either an array of two titles or false.
+				if ( is_array( $title ) ) {
+					$this->pageCallback( $title );
+					list( $pageInfo['_title'], $foreignTitle ) = $title;
+				} else {
+					$badTitle = true;
+					$skip = true;
 				}
 
 				if ( $title ) {

@@ -81,7 +81,7 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 			$verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromHash(
 				$page->get( 'revision_verification_hash' )
 			);
-			if ( $verificationEntity === null) {
+			if ( $verificationEntity === null ) {
 				continue;
 			}
 			if ( $verificationEntity->getWitnessEventID() === 0 ) {
