@@ -12,7 +12,7 @@ use Title;
 
 class FileVerificationContent extends TextContent {
 	public const CONTENT_MODEL_FILE_VERIFICATION = 'file-verification';
-	public const SLOT_ROLE_FILE_VERIFICATION = 'file-verification-slot';
+	public const SLOT_ROLE_FILE_VERIFICATION = 'file_content_hash';
 
 	public function __construct( $text ) {
 		parent::__construct( $text, static::CONTENT_MODEL_FILE_VERIFICATION );
