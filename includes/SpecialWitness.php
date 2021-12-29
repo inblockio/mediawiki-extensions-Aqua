@@ -10,6 +10,7 @@
 
 namespace DataAccounting;
 
+use DataAccounting\Verification\Hasher;
 use DataAccounting\Verification\WitnessingEngine;
 use Exception;
 
@@ -166,7 +167,7 @@ class SpecialWitness extends SpecialPage {
 
 	public function helperGenerateDomainManifestMerkleTree( array $verification_hashes ): array {
 		$hasher = function ( $data ) {
-			return hash( 'sha3-512', $data, false );
+			return ( new Hasher() )->getHashSum( $data );
 		};
 
 		$tree = new FixedSizeTree( count( $verification_hashes ), $hasher, null, true );

@@ -13,30 +13,37 @@ use MediaWiki\Storage\Hook\MultiContentSaveHook;
 use MediaWiki\Storage\PageUpdater;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\User\UserIdentity;
+use RepoGroup;
 use Status;
 use TitleFactory;
 use WikiPage;
 
 class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisionAddSlotsHook {
 	/** @var TransclusionHashes|null */
-	private ?TransclusionHashes $content = null;
+	private ?TransclusionHashes $transclusionHashesContent = null;
 	/** @var WikiPage|null */
 	private ?WikiPage $wikiPage = null;
+	private ?FileVerificationContent $fileVerificationContent = null;
 	/** @var TitleFactory */
 	private TitleFactory $titleFactory;
 	/** @var VerificationEngine */
 	private VerificationEngine $verificationEngine;
+	private RepoGroup $repoGroup;
 
 	/**
 	 * @param TitleFactory $titleFactory
+	 * @param VerificationEngine $verificationEngine
+	 * @param RepoGroup $repoGroup
 	 */
-	public function __construct( TitleFactory $titleFactory, VerificationEngine $verificationEngine ) {
+	public function __construct(
+		TitleFactory $titleFactory, VerificationEngine $verificationEngine, RepoGroup $repoGroup
+	) {
 		$this->titleFactory = $titleFactory;
 		$this->verificationEngine = $verificationEngine;
+		$this->repoGroup = $repoGroup;
 	}
 
 	/**
-	 * // TODO: Issue: This will allow null edits and clear out hashes!
 	 *
 	 * @param PageUpdater $updater
 	 */
@@ -47,21 +54,15 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		}
 		$this->wikiPage = $wikiPage;
 		if ( $wikiPage->getTitle()->getNamespace() === NS_FILE ) {
-			$repoGroup = MediaWikiServices::getInstance()->getRepoGroup();
-			$file = $repoGroup->findFile( $wikiPage->getTitle() );
-			if ( $file && $file->isLocal() ) {
-				$content = FileVerificationContent::newFromFile( $file );
-				if ( $content ) {
-					$updater->setContent( FileVerificationContent::SLOT_ROLE_FILE_VERIFICATION, $content );
-				}
-			}
+			$this->fileVerificationContent = new FileVerificationContent( '' );
+			$updater->setContent( FileVerificationContent::SLOT_ROLE_FILE_VERIFICATION, $this->fileVerificationContent );
 		}
 
 		// This happens before saving of revision is initiated
 		// We create an empty content for the hashes and store reference to it
-		$this->content = new TransclusionHashes( '' );
+		$this->transclusionHashesContent = new TransclusionHashes( '' );
 		// We set it to the appropriate revision slot
-		$updater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $this->content );
+		$updater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $this->transclusionHashesContent );
 	}
 
 	/**
@@ -73,7 +74,14 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	 * @return bool|void
 	 */
 	public function onMultiContentSave( $renderedRevision, $user, $summary, $flags, $status ) {
-		if ( !$this->content ) {
+		if ( $this->fileVerificationContent ) {
+			$file = $this->repoGroup->findFile( $this->wikiPage->getTitle() );
+			if ( $file && $file->isLocal() ) {
+				$this->fileVerificationContent->setHashFromFile( $file );
+			}
+		}
+
+		if ( !$this->transclusionHashesContent ) {
 			return;
 		}
 		// At this point we are in the middle of saving, all content slots for this edit must already
@@ -86,6 +94,6 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		$hashmap = $extractor->getHashmap();
 		// Now, with access to the PO of the main slot, we can extract included pages/files
 		// and add the to the hashes slot, using the content which we previously added to the revision
-		$this->content->setHashmap( $hashmap );
+		$this->transclusionHashesContent->setHashmap( $hashmap );
 	}
 }

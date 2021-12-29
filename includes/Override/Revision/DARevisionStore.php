@@ -25,8 +25,9 @@ class DARevisionStore extends RevisionStore {
 			return $revision;
 		}
 
-		$content = FileVerificationContent::newFromFile( $file );
-		if ( $content === null ) {
+		$content = new FileVerificationContent( '' );
+		$result = $content->setHashFromFile( $file );
+		if ( !$result ) {
 			return $revision;
 		}
 		$revision->setContent( FileVerificationContent::SLOT_ROLE_FILE_VERIFICATION, $content );

@@ -14,8 +14,8 @@ class RegisterRevisionSlots implements MediaWikiServicesHook {
 		$services->addServiceManipulator(
 			'SlotRoleRegistry',
 			function( SlotRoleRegistry $registry ) {
-				$this->registerSignatureRole( $registry );
 				$this->registerTransclusionHashesRole( $registry );
+				$this->registerSignatureRole( $registry );
 				$this->registerFileVerificationRole( $registry );
 			}
 		);

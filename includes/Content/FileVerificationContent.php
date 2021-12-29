@@ -2,6 +2,7 @@
 
 namespace DataAccounting\Content;
 
+use DataAccounting\Verification\Hasher;
 use File;
 use Message;
 use ParserOptions;
@@ -33,19 +34,21 @@ class FileVerificationContent extends TextContent {
 
 	/**
 	 * @param File $file
-	 * @return FileVerificationContent|null
+	 * @return bool
 	 */
-	public static function newFromFile( File $file ): ?FileVerificationContent {
+	public function setHashFromFile( File $file ): bool {
 		$path = $file->getLocalRefPath();
 		if ( !$path || !file_exists( $path ) ) {
-			return null;
+			return false;
 		}
 
 		$content = file_get_contents( $path );
 		if ( !$content ) {
-			return null;
+			return false;
 		}
-		// @phpstan-ignore-next-line
-		return new static( hash( "sha3-512", $content, false ) );
+
+		$hasher = new Hasher();
+		$this->mText = $hasher->getHashSum( $content );
+		return true;
 	}
 }
