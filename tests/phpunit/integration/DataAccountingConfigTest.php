@@ -1,10 +1,9 @@
 <?php
 
-namespace DataAccounting\Tests\Unit;
+namespace DataAccounting\Tests;
 
 use DataAccounting\Config\DataAccountingConfig;
 use MediaWikiIntegrationTestCase;
-use GlobalVarConfig;
 
 /**
  * @group Database
