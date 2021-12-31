@@ -2,6 +2,7 @@
 
 use DataAccounting\Config\Handler;
 use DataAccounting\TransclusionManager;
+use DataAccounting\Transfer\Exporter;
 use DataAccounting\Transfer\Importer;
 use DataAccounting\Transfer\TransferEntityFactory;
 use DataAccounting\Verification\VerificationEngine;
@@ -68,7 +69,9 @@ return [
 		return new TransferEntityFactory(
 			$services->getService( 'DataAccountingVerificationEngine' ),
 			$services->getService( 'DataAccountingWitnessingEngine' ),
-			$services->getTitleFactory()
+			$services->getTitleFactory(),
+			$services->getContentLanguage(),
+			$services->getNamespaceInfo()
 		);
 	},
 	'DataAccountingImporter' => static function( MediaWikiServices $services ): Importer {
@@ -79,5 +82,11 @@ return [
 			$services->getUploadRevisionImporter(),
 			$services->getContentHandlerFactory()
 		);
-	}
+	},
+	'DataAccountingExporter' => static function( MediaWikiServices $services ): Exporter {
+		return new Exporter(
+			$services->getService( 'DataAccountingTransferEntityFactory' ),
+			$services->getService( 'DataAccountingVerificationEngine' )
+		);
+	},
 ];

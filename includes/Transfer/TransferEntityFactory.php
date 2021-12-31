@@ -6,6 +6,10 @@ use DataAccounting\Verification\Entity\GenericDatabaseEntity;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\WitnessingEngine;
+use Language;
+use MediaWiki\MediaWikiServices;
+use NamespaceInfo;
+use Title;
 use TitleFactory;
 
 class TransferEntityFactory {
@@ -15,27 +19,39 @@ class TransferEntityFactory {
 	private $witnessingEngine;
 	/** @var TitleFactory */
 	private $titleFactory;
+	/** @var Language */
+	private $language;
+	/** @var NamespaceInfo */
+	private $nsInfo;
+	/** @var array|null */
+	private $siteInfo = null;
 
 	/**
 	 * @param VerificationEngine $engine
 	 * @param WitnessingEngine $witnessingEngine
 	 * @param TitleFactory $titleFactory
+	 * @param Language $contentLang
+	 * @param NamespaceInfo $nsInfo
 	 */
 	public function __construct(
 		VerificationEngine $engine,
 		WitnessingEngine $witnessingEngine,
-		TitleFactory $titleFactory
+		TitleFactory $titleFactory,
+		Language $contentLang,
+		NamespaceInfo $nsInfo
 	) {
 		$this->verificationEngine = $engine;
 		$this->titleFactory = $titleFactory;
 		$this->witnessingEngine = $witnessingEngine;
+		$this->language = $contentLang;
+		$this->nsInfo = $nsInfo;
 	}
 
 	/**
 	 * @param array $data
 	 * @return TransferContext|null
 	 */
-	public function newTransferContext( array $data ): ?TransferContext {
+	public function newTransferContextFromData( array $data ): ?TransferContext {
 		if (
 			isset( $data['site_info'] ) && is_array( $data['site_info'] ) &&
 			isset( $data['title'] ) && isset( $data['namespace'] )
@@ -55,6 +71,52 @@ class TransferEntityFactory {
 		}
 
 		return null;
+	}
+
+	public function newTransferContextFromTitle( \Title $title ): ?TransferContext {
+		$entity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
+		if ( !$entity ) {
+			return null;
+		}
+
+		return $this->newTransferContextFromData( [
+			VerificationEntity::GENESIS_HASH => $entity->getHash( VerificationEntity::GENESIS_HASH ),
+			VerificationEntity::DOMAIN_ID => $entity->getDomainId(),
+			'latest_verification_hash' => $entity->getHash( VerificationEntity::VERIFICATION_HASH ),
+			'site_info' => $this->getSiteInfo(),
+			'title' => $entity->getTitle()->getDBkey(),
+			'namespace' => $entity->getTitle()->getNamespace(),
+			'chain_height' => $this->verificationEngine->getPageChainHeight(
+				$title
+			),
+		] );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getSiteInfo(): array {
+		if ( $this->siteInfo === null ) {
+			$config = MediaWikiServices::getInstance()->getMainConfig();
+
+			$nsList = [];
+			foreach ( $this->language->getFormattedNamespaces() as $ns => $title ) {
+				$nsList[$ns] = [
+					'case' => $this->nsInfo->isCapitalized( $ns ),
+					'title' => $title
+				];
+			}
+			$this->siteInfo = [
+				'sitename' => $config->get( 'Sitename' ),
+				'dbname' => $config->get( 'DBname' ),
+				'base' => Title::newMainPage()->getCanonicalURL(),
+				'generator' => 'MediaWiki ' . MW_VERSION,
+				'case' => $config->get( 'CapitalLinks' ) ? 'first-letter' : 'case-sensitive',
+				'namespaces' => $nsList
+			];
+		}
+
+		return $this->siteInfo;
 	}
 
 	/**
