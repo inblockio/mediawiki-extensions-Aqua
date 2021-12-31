@@ -59,11 +59,12 @@
       $daButton.on('click', function (event) {
         event.preventDefault()
         const urlObj = new URL(window.location.href)
-        const pageTitle = mw.config.get( 'wgTitle' );
+        // We use wgPageName instead of wgTitle because the former includes localized namespace.
+        const pageName = mw.config.get( 'wgPageName' );
         const server = window.location.protocol + '//' + window.location.host
         if (window.ethereum) {
           function doSignProcess() {
-            fetch(server + '/rest.php/data_accounting/get_page_last_rev/' + pageTitle)
+            fetch(server + '/rest.php/data_accounting/get_page_last_rev/' + pageName)
             .then((resp) => {
               if (!resp.ok) {
                 resp.text().then(parsed => alert(parsed))
