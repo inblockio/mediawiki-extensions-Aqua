@@ -42,7 +42,15 @@ class Hasher {
 	 */
 	public function calculateContentHash( RevisionRecord $rev ) {
 		$pageContent = '';
-		foreach ( $rev->getSlots()->getSlotRoles() as $slot ) {
+		// Important! We sort the slot array alphabetically [1], to make it
+		// consistent with canonical JSON (see
+		// https://datatracker.ietf.org/doc/html/rfc8785).
+		// [1] Actually, it is
+		// > MUST order the members of all objects lexicographically by the UCS
+		// (Unicode Character Set) code points of their names.
+		$slots = $rev->getSlots()->getSlotRoles();
+		sort($slots);
+		foreach ( $slots as $slot ) {
 			$pageContent .= $rev->getContent( $slot )->serialize();
 		}
 		return $this->getHashSum( $pageContent );

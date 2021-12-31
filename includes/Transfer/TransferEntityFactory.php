@@ -152,7 +152,14 @@ class TransferEntityFactory {
 	 * @return array
 	 */
 	private function prepareContent( VerificationEntity $entity ) {
+		// Important! We sort the slot array alphabetically [1], to make it
+		// consistent with canonical JSON (see
+		// https://datatracker.ietf.org/doc/html/rfc8785).
+		// [1] Actually, it is
+		// > MUST order the members of all objects lexicographically by the UCS
+		// (Unicode Character Set) code points of their names.
 		$slots = $entity->getRevision()->getSlotRoles();
+		sort($slots);
 		$merged = [];
 		foreach ( $slots as $role ) {
 			$slot = $entity->getRevision()->getSlot( $role );
