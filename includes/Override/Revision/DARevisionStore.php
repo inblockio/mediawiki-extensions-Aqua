@@ -3,7 +3,7 @@
 namespace DataAccounting\Override\Revision;
 
 use CommentStoreComment;
-use DataAccounting\Content\FileVerificationContent;
+use DataAccounting\Content\FileHashContent;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\PageIdentity;
 use MediaWiki\Revision\RevisionStore;
@@ -25,12 +25,12 @@ class DARevisionStore extends RevisionStore {
 			return $revision;
 		}
 
-		$content = new FileVerificationContent( '' );
+		$content = new FileHashContent( '' );
 		$result = $content->setHashFromFile( $file );
 		if ( !$result ) {
 			return $revision;
 		}
-		$revision->setContent( FileVerificationContent::SLOT_ROLE_FILE_VERIFICATION, $content );
+		$revision->setContent( FileHashContent::SLOT_ROLE_FILE_HASH, $content );
 		return $revision;
 	}
 }

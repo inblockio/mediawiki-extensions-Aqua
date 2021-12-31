@@ -3,7 +3,7 @@
 namespace DataAccounting\Hook;
 
 use CommentStoreComment;
-use DataAccounting\Content\FileVerificationContent;
+use DataAccounting\Content\FileHashContent;
 use DataAccounting\Content\TransclusionHashes;
 use DataAccounting\Util\TransclusionHashExtractor;
 use DataAccounting\Verification\VerificationEngine;
@@ -23,7 +23,7 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	private ?TransclusionHashes $transclusionHashesContent = null;
 	/** @var WikiPage|null */
 	private ?WikiPage $wikiPage = null;
-	private ?FileVerificationContent $fileVerificationContent = null;
+	private ?FileHashContent $fileHashContent = null;
 	/** @var TitleFactory */
 	private TitleFactory $titleFactory;
 	/** @var VerificationEngine */
@@ -54,8 +54,8 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		}
 		$this->wikiPage = $wikiPage;
 		if ( $wikiPage->getTitle()->getNamespace() === NS_FILE ) {
-			$this->fileVerificationContent = new FileVerificationContent( '' );
-			$updater->setContent( FileVerificationContent::SLOT_ROLE_FILE_VERIFICATION, $this->fileVerificationContent );
+			$this->fileHashContent = new FileHashContent( '' );
+			$updater->setContent( FileHashContent::SLOT_ROLE_FILE_HASH, $this->fileHashContent );
 		}
 
 		// This happens before saving of revision is initiated
@@ -74,10 +74,10 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	 * @return bool|void
 	 */
 	public function onMultiContentSave( $renderedRevision, $user, $summary, $flags, $status ) {
-		if ( $this->fileVerificationContent ) {
+		if ( $this->fileHashContent) {
 			$file = $this->repoGroup->findFile( $this->wikiPage->getTitle() );
 			if ( $file && $file->isLocal() ) {
-				$this->fileVerificationContent->setHashFromFile( $file );
+				$this->fileHashContent->setHashFromFile( $file );
 			}
 		}
 

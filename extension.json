@@ -306,7 +306,7 @@
 	"ContentHandlers": {
 		"signature": "DataAccounting\\ContentHandler\\SignatureHandler",
 		"transclusion-hashes": "DataAccounting\\ContentHandler\\TransclusionHashesHandler",
-		"file-verification": "DataAccounting\\ContentHandler\\FileVerificationHandler"
+		"file-hash": "DataAccounting\\ContentHandler\\FileHashHandler"
 	},
 	"manifest_version": 2
 }

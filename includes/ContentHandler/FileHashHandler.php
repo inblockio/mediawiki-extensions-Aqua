@@ -3,20 +3,20 @@
 namespace DataAccounting\ContentHandler;
 
 use Content;
-use DataAccounting\Content\FileVerificationContent;
+use DataAccounting\Content\FileHashContent;
 use MediaWiki\Content\Transform\PreSaveTransformParams;
 use TextContentHandler;
 
-class FileVerificationHandler extends TextContentHandler {
+class FileHashHandler extends TextContentHandler {
 	public function __construct() {
-		parent::__construct( FileVerificationContent::CONTENT_MODEL_FILE_VERIFICATION );
+		parent::__construct( FileHashContent::CONTENT_MODEL_FILE_HASH );
 	}
 
 	/**
 	 * @return string
 	 */
 	protected function getContentClass() {
-		return FileVerificationContent::class;
+		return FileHashContent::class;
 	}
 
 	/**
