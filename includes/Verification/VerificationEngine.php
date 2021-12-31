@@ -247,7 +247,6 @@ class VerificationEngine {
 			$parentEntity->getHash( VerificationEntity::GENESIS_HASH ) : $verificationHash;
 
 		$verificationContext = [
-			"has_transclusion" => false,
 			"has_previous_signature" => !empty( $signatureHash ),
 			"has_previous_witness" => !empty( $witnessHash )
 		];
