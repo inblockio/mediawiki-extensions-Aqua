@@ -156,7 +156,15 @@ class SpecialWitness extends SpecialPage {
 			array_push( $verification_hashes, $vhash );
 
 			$revisionWikiLink = "[[Special:PermanentLink/{$row->rev_id}|See]]";
-			$output .= "|-\n|" . $tableIndexCount . "\n| [[" . $row->page_title . "]]\n|" . $this->wikilinkifyHash(
+
+			// We thumbnail file pages so that they are not taking too much
+			// screen space.
+			$thumbnailedTitle = $row->page_title;
+			if ( str_starts_with( $thumbnailedTitle, "File:" ) ) {
+				$thumbnailedTitle .= "|thumb";
+			}
+
+			$output .= "|-\n|" . $tableIndexCount . "\n| [[" . $thumbnailedTitle . "]]\n|" . $this->wikilinkifyHash(
 					$vhash
 				) . "\n|" . $revisionWikiLink . "\n";
 			$tableIndexCount++;
