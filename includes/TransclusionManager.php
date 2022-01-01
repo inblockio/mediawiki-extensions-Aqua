@@ -2,6 +2,7 @@
 
 namespace DataAccounting;
 
+use Exception;
 use CommentStoreComment;
 use DataAccounting\Content\TransclusionHashes;
 use DataAccounting\Verification\VerificationEngine;
@@ -105,7 +106,11 @@ class TransclusionManager {
 	 * @return TransclusionHashes|null if slot not set
 	 */
 	public function getTransclusionHashesContent( RevisionRecord $revision ): ?TransclusionHashes {
-		$content = $revision->getContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES );
+		try {
+			$content = $revision->getContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES );
+		} catch ( Exception $e ) {
+			return null;
+		}
 		if ( !$content instanceof TransclusionHashes ) {
 			return null;
 		}
