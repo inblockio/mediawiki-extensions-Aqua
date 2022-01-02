@@ -1389,18 +1389,14 @@ class VerifiedWikiImporter {
 			$verificationInfo['source'] = 'imported';
 			unset( $verificationInfo["rev_id"] );
 
-			$res = $dbw->select(
+			$last_row = $dbw->selectRow(
 				$table,
 				[ 'revision_verification_id', 'rev_id', 'page_title', 'source' ],
 				[ 'page_title' => $title ],
 				__METHOD__,
-				[ 'ORDER BY' => 'revision_verification_id' ]
+				[ 'ORDER BY' => 'revision_verification_id DESC' ]
 			);
-			$last_row = [];
-			foreach ( $res as $row ) {
-				$last_row = $row;
-			}
-			if ( empty( $last_row ) ) {
+			if ( !$last_row ) {
 				// Do nothing if empty
 				return;
 			}
