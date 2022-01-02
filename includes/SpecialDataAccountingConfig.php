@@ -60,6 +60,12 @@ class SpecialDataAccountingConfig extends SpecialPage {
 		$out .= "<br>Data Accounting Version: 2.0.0-alpha";
 		$out .= "<br>API Version: " .  ServerInfo::DA_API_VERSION;
 		$out .= "<br>Your Domain ID is: <b>" . $this->verificationEngine->getDomainId() . "</b>";
+
+		$out .= "<hr><h2>Signature</h2>";
+		$out .= "<i>Configure behavior of Signature</i>";
+		$out .= "<br><i>Content Signature adds a visible signature into the page content and write a new revision when signing a page with your wallet.</i>";
+		$out .= "<br><b>Content Signature:</b> I'M a CHECKBOX";
+
 		$out .=	"<hr><h2> Witness Configuration </h2>";
 		$out .= "<i>Configure Witness Network and Smart-Contract-Address for [[Special:WitnessPublisher| Domain Manifest Publisher]]";
 		$out .= "<br><i>Ensure you're generating a [[Special:Witness| Domain Manifest]] before publishing.";
