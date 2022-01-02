@@ -48,14 +48,7 @@ class WriteVerificationData implements
 	 * @param string[] &$tags
 	 */
 	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
-		/**
-		 * We check if a comment 'revision imported' or 'revisions imported' is
-		 * present which indicates that we are importing a page, if we import a
-		 * page we do not run the hook, we would prefer a upgraded version of
-		 * the revision object which allows us to capture the context to make
-		 * this hack unnecessary
-		 */
-		// This retrieved half-empty entity set in the previous step
+		// This retrieves half-empty entity set in the previous step
 		$entity = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $rev->getId() );
 		if ( !$entity ) {
 			return;
