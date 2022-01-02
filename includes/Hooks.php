@@ -19,7 +19,6 @@ use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Hook\ImportHandlePageXMLTagHook;
 use MediaWiki\Hook\XmlDumpWriterOpenPageHook;
-use MovePage;
 use MWException;
 use OutputPage;
 use Parser;
@@ -256,12 +255,14 @@ class Hooks implements
 
 			$ot = $this->titleFactory->newFromText( $pageInfo['title'] );
 			$nt = $this->titleFactory->newFromText( $newTitle );
-			$mp = new MovePage( $ot, $nt );
+			$mp = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage( $ot, $nt );
+			$reason = "Resolving naming collision because imported page has longer verified chain height.";
+			$createRedirect = false;
 
 			$mp->moveIfAllowed(
 				RequestContext::getMain()->getUser(),
-				"Resolving naming collision because imported page has longer verified chain height.",
-				false
+				$reason,
+				$createRedirect
 			);
 		}
 
