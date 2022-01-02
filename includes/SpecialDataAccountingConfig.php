@@ -53,11 +53,16 @@ class SpecialDataAccountingConfig extends SpecialPage {
 			throw new PermissionsError( 'import' );
 		}
 
-		$out = "<i>This page gives you all configuration options for the Media Wikia - Data Accounting Extension Version 1.1</i><hr>";
+		$out = "<i>Configuration for the MediaWiki - Data Accounting Extension</i><hr>";
 
-		$out .= "<br>Project Page with GitHub and Roadmap: https://aqua.inblock.io/index.php/Main_Page<br>";
-		$out .= "<br>Your Domain ID is: <b>" . $this->verificationEngine->getDomainId() . "</b><br><h1> Module 4: Witness Configuration </h1>";
-		$out .= "<i>Configure witness network for witness events to be published and against which witness network (which Blockchain) your historic witness events are checked. </i><hr>";
+		$out .= "<h2>Software Info</h2>";
+		$out .= "Project GitHub: https://github.com/inblockio";
+		$out .= "<br>Data Accounting Version: 2.0.0-alpha";
+		$out .= "<br>API Version: " .  ServerInfo::DA_API_VERSION;
+		$out .= "<br>Your Domain ID is: <b>" . $this->verificationEngine->getDomainId() . "</b>";
+		$out .=	"<hr><h2> Witness Configuration </h2>";
+		$out .= "<i>Configure Witness Network and Smart-Contract-Address for [[Special:WitnessPublisher| Domain Manifest Publisher]]";
+		$out .= "<br><i>Ensure you're generating a [[Special:Witness| Domain Manifest]] before publishing.";
 
 		$this->getOutput()->addWikiTextAsInterface( $out );
 		$this->getOutput()->setPageTitle( 'Data Accounting Configuration' );
