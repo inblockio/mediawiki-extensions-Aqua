@@ -106,11 +106,10 @@ class TransclusionManager {
 	 * @return TransclusionHashes|null if slot not set
 	 */
 	public function getTransclusionHashesContent( RevisionRecord $revision ): ?TransclusionHashes {
-		try {
-			$content = $revision->getContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES );
-		} catch ( Exception $e ) {
+		if ( !$revision->hasSlot( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES ) ) {
 			return null;
 		}
+		$content = $revision->getContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES );
 		if ( !$content instanceof TransclusionHashes ) {
 			return null;
 		}
