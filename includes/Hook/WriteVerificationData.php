@@ -71,13 +71,23 @@ class WriteVerificationData implements
 		// unfortunately, the steps to update the DA table happens after the
 		// who import has finished, causing inconsistency.
 		$revIds = $this->verificationEngine->getLookup()->getAllRevisionIds( $old );
+		// If the page is moved with the redirect enabled, a new page is
+		// created with a new genesis hash. And so, we need to update the newly
+		// created page's genesis hash with the original one. This is not
+		// needed when there is no redirect, but the genesis hash override
+		// doesn't override the case without redirect anyway.
+		$oldGenesisHash = null;
 		foreach ( $revIds as $revId ) {
 			$entity = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $revId );
+			if ( $oldGenesisHash === null ) {
+				$oldGenesisHash = $entity->getHash( VerificationEntity::GENESIS_HASH );
+			}
 			if ( $entity instanceof VerificationEntity ) {
 				$this->verificationEngine->getLookup()->updateEntity( $entity, [
 					// TODO: Should be getPrefixedDbKey()
 					'page_title' => $new->getPrefixedText(),
-					'page_id' => $pageid
+					'page_id' => $pageid,
+					'genesis_hash' => $oldGenesisHash,
 				] );
 			}
 		}
