@@ -28,7 +28,7 @@ class VerificationEntity implements JsonSerializable {
 	/** @var DateTime */
 	private $time;
 	/** @var array */
-	private $verficationContext;
+	private $verificationContext;
 	/** @var string */
 	private $signature;
 	/** @var string */
@@ -63,7 +63,7 @@ class VerificationEntity implements JsonSerializable {
 		$this->domainId = $domainId;
 		$this->hashes = $hashes;
 		$this->time = $time;
-		$this->verficationContext = $verificationContext;
+		$this->verificationContext = $verificationContext;
 		$this->signature = $signature;
 		$this->publicKey = $publicKey;
 		$this->walletAddress = $walletAddress;
@@ -122,7 +122,7 @@ class VerificationEntity implements JsonSerializable {
 	 * @return array
 	 */
 	public function getVerificationContext(): array {
-		return $this->verficationContext;
+		return $this->verificationContext;
 	}
 
 	/**
@@ -170,7 +170,7 @@ class VerificationEntity implements JsonSerializable {
 			'rev_id' => $this->revision->getId(),
 			'domain_id' => $this->domainId,
 			'time_stamp' => $this->time->format( 'YmdHis' ),
-			'verification_context' => $this->verficationContext,
+			'verification_context' => $this->verificationContext,
 			'signature' => $this->signature,
 			'public_key' => $this->publicKey,
 			'wallet_address' => $this->walletAddress,
