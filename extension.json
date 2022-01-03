@@ -50,8 +50,11 @@
 		"DataAccounting\\": "includes/",
 		"DataAccounting\\Tests\\": "tests/phpunit/"
 	},
-	"APIListModules": {
-		"example": "DataAccounting\\ApiQueryExample"
+	"APIModules": {
+		"da-export-page": {
+			"class": "DataAccounting\\API\\ApiExportPage",
+			"services": [ "TitleFactory", "RevisionStore", "DataAccountingVerificationEngine", "DataAccountingExporter" ]
+		}
 	},
 	"SpecialPages": {
 		"Witness": {
@@ -131,7 +134,8 @@
 		"DASaveRevisionAddSlots": "addTransclusionHashes",
 		"MultiContentSave": "addTransclusionHashes",
 		"BeforeParserFetchTemplateRevisionRecord": "controlTranscludedContent",
-		"BeforeParserFetchFileAndTitle": "controlTranscludedContent"
+		"BeforeParserFetchFileAndTitle": "controlTranscludedContent",
+		"SkinTemplateNavigation::Universal": "addExportAction"
 	},
 	"HookHandlers": {
 		"handleHooks": {
@@ -165,6 +169,9 @@
 		},
 		"update": {
 			"class": "DataAccounting\\Hook\\Update"
+		},
+		"addExportAction": {
+			"class": "DataAccounting\\Hook\\AddExportAction"
 		}
 	},
 	"RestRoutes": [
@@ -296,6 +303,11 @@
 		"ext.dataAccounting.updateTransclusionHashes": {
 			"scripts": [
 				"ext.dataAccounting.updateTransclusionHashes.js"
+			]
+		},
+		"ext.dataAccounting.exportSinglePage": {
+			"scripts": [
+				"ext.dataAccounting.exportSinglePage.js"
 			]
 		}
 	},
