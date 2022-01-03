@@ -122,7 +122,7 @@
 		"RevisionFromEditComplete": "handleHashWriterHooks",
 		"RevisionRecordInserted": "handleHashWriterHooks",
 		"ArticleDeleteComplete": "handleHashWriterHooks",
-		"PageMoveComplete": "handleHashWriterHooks",
+		"PageMoveCompleting": "handleHashWriterHooks",
 		"LoadExtensionSchemaUpdates": "update",
 		"XmlDumpWriterOpenPage": "handleHooks",
 		"XmlDumpWriterWriteRevision": "handleHooks",

@@ -10,7 +10,7 @@ namespace DataAccounting\Hook;
 use DataAccounting\Content\SignatureContent;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
-use MediaWiki\Hook\PageMoveCompleteHook;
+use MediaWiki\Hook\PageMoveCompletingHook;
 use MediaWiki\Page\Hook\ArticleDeleteCompleteHook;
 use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 use MediaWiki\Revision\Hook\RevisionRecordInsertedHook;
@@ -22,7 +22,7 @@ class WriteVerificationData implements
 	RevisionFromEditCompleteHook,
 	RevisionRecordInsertedHook,
 	ArticleDeleteCompleteHook,
-	PageMoveCompleteHook
+	PageMoveCompletingHook
 {
 	/** @var VerificationEngine */
 	private $verificationEngine;
@@ -63,7 +63,13 @@ class WriteVerificationData implements
 		$this->verificationEngine->getLookup()->clearEntriesForPage( $wikiPage->getTitle() );
 	}
 
-	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ) {
+	public function onPageMoveCompleting( $old, $new, $user, $pageid, $redirid, $reason, $revision ) {
+		// We use onPageMoveCompleting instead of onPageMoveComplete because
+		// the latter caused problem during an XML import of a title that
+		// already exists in the wiki. The existing page is then renamed by
+		// appending the chain height and timestamp to its title, but
+		// unfortunately, the steps to update the DA table happens after the
+		// who import has finished, causing inconsistency.
 		$revIds = $this->verificationEngine->getLookup()->getAllRevisionIds( $old );
 		foreach ( $revIds as $revId ) {
 			$entity = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $revId );
