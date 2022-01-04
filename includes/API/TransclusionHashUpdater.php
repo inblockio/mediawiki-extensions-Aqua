@@ -3,6 +3,7 @@
 namespace DataAccounting\API;
 
 use DataAccounting\TransclusionManager;
+use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
 use MediaWiki\Revision\RevisionStore;
@@ -13,6 +14,8 @@ use Wikimedia\ParamValidator\ParamValidator;
 use MediaWiki\Rest\Validator\JsonBodyValidator;
 
 class TransclusionHashUpdater extends SimpleHandler {
+	/** @var PermissionManager */
+	private PermissionManager $permissionManager;
 	/** @var TransclusionManager */
 	private TransclusionManager $transclusionManager;
 	/** @var TitleFactory */
@@ -26,11 +29,14 @@ class TransclusionHashUpdater extends SimpleHandler {
 	 * @param RevisionStore $revisionStore
 	 */
 	public function __construct(
-		TransclusionManager $transclusionManager, TitleFactory $titleFactory, RevisionStore $revisionStore
+		TransclusionManager $transclusionManager, TitleFactory $titleFactory,
+		RevisionStore $revisionStore, PermissionManager $permissionManager
 	) {
 		$this->transclusionManager = $transclusionManager;
 		$this->titleFactory = $titleFactory;
 		$this->revisionStore = $revisionStore;
+		$this->permissionManager = $permissionManager;
+		$this->user = RequestContext::getMain()->getUser();
 	}
 
 	/** @inheritDoc */
@@ -43,18 +49,26 @@ class TransclusionHashUpdater extends SimpleHandler {
 		if ( !( $subject instanceof Title ) || !$subject->exists() ) {
 			throw new HttpException( 'Invalid subject title' );
 		}
+		if ( !$this->permissionManager->userCan( 'edit', $this->user, $subject ) ) {
+			throw new HttpException( "Permission denied", 401 );
+		}
 		// Always operate on latest revision
 		$latestRevision = $this->revisionStore->getRevisionByTitle( $subject );
 		if ( $latestRevision === null ) {
 			throw new HttpException( 'Could not retrieve revision for ' . $subject->getPrefixedDBkey() );
 		}
 		$res = $this->transclusionManager->updateResource(
-			$latestRevision, $resourcePage, RequestContext::getMain()->getUser()
+			$latestRevision, $resourcePage, $this->user
 		);
 
 		return $this->getResponseFactory()->createJson( [
 			'success' => $res
 		] );
+	}
+
+/** @inheritDoc */
+	public function needsWriteAccess() {
+		return true;
 	}
 
 	/**

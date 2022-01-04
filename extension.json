@@ -277,7 +277,10 @@
 			"path": "/data_accounting/transclusion/update_hash",
 			"class": "DataAccounting\\API\\TransclusionHashUpdater",
 			"services": [
-				"DataAccountingTransclusionManager", "TitleFactory", "RevisionStore"
+				"DataAccountingTransclusionManager",
+				"TitleFactory",
+				"RevisionStore",
+				"PermissionManager"
 			]
 		}
 	],

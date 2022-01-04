@@ -19,6 +19,7 @@ use DataAccounting\API\WriteStoreSignedTxHandler;
 use DataAccounting\API\GetHashChainInfoHandler;
 use DataAccounting\API\GetRevisionHandler;
 use DataAccounting\API\GetRevisionHashesHandler;
+use DataAccounting\API\TransclusionHashUpdater;
 
 use DataAccounting\ServerInfo;
 use DataAccounting\Verification\Entity\VerificationEntity;
@@ -458,6 +459,55 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			new RequestHashHandler( ...$services ),
 			new RequestData( [ 'pathParams' => [ 'rev_id' => 0 ] ] )
 		);
+	}
+
+	/**
+	 * @covers \DataAccounting\API\TransclusionHashUpdater
+	 */
+	public function testTransclusionHashUpdater(): void {
+		// Testing the case when the page is found.
+		$services = [
+			$this->getServiceContainer()->getService( 'DataAccountingTransclusionManager' ),
+			$this->getServiceContainer()->getTitleFactory(),
+			$this->getServiceContainer()->getRevisionStore(),
+			$this->getServiceContainer()->getPermissionManager(),
+		];
+		$requestData = new RequestData( [ 'pathParams' => [
+			'page_title' => 'UTPage',
+			'resource' => 'Main_page',
+		] ] );
+		$this->expectContextPermissionDenied(
+			new TransclusionHashUpdater( ...$services ),
+			$requestData
+		);
+		// Let's authorize the user. Because this API endpoint requires 'read'
+		// permission for the title that is related to given rev_id.
+		$services[3] = $this->createMock( PermissionManager::class );
+		$services[3]->method( 'userCan' )->willReturn( true );
+		$response = $this->executeHandler(
+			new TransclusionHashUpdater( ...$services ),
+			$requestData
+		);
+		$this->assertJsonContentType( $response );
+		$data = $this->getJsonBody( $response );
+		error_log(var_export($data,true));
+		$this->assertIsArray( $data, 'Body must be a JSON array' );
+		$this->assertArrayHasKey('success', $data );
+		$this->assertSame( true, $data['success'] );
+
+
+		$response = $this->executeHandler(
+			new TransclusionHashUpdater( ...$services ),
+			new RequestData( [ 'pathParams' => [
+				'page_title' => 'Test',
+				'resource' => 'Main_page',
+			] ] )
+		);
+		$this->assertJsonContentType( $response );
+		$data = $this->getJsonBody( $response );
+		$this->assertIsArray( $data, 'Body must be a JSON array' );
+		$this->assertArrayHasKey('success', $data );
+		$this->assertSame( false, $data['success'] );
 	}
 
 	public function expectPermissionDenied( $handler, RequestData $requestData ) {
