@@ -55,10 +55,10 @@ class WitnessingEngine {
 		return $this->lookup;
 	}
 
-	public function addReceiptToDomainManifest( User $user, WitnessEventEntity $entity ) {
-		$dm = "DomainManifest {$entity->get( 'witness_event_id' )}";
-		if ( "Data Accounting:$dm" !== $entity->get( 'domain_manifest_title' ) ) {
-			throw new HttpException( "Domain manifest title is inconsistent.", 400 );
+	public function addReceiptToDomainSnapshot( User $user, WitnessEventEntity $entity ) {
+		$dm = "DomainSnapshot {$entity->get( 'witness_event_id' )}";
+		if ( "Data Accounting:$dm" !== $entity->get( 'domain_snapshot_title' ) ) {
+			throw new HttpException( "Domain Snapshot title is inconsistent.", 400 );
 		}
 
 		//6942 is custom namespace. See namespace definition in extension.json.
@@ -74,23 +74,23 @@ class WitnessingEngine {
 		$updater = $this->pageUpdaterFactory->newPageUpdater( $page, $user );
 		$updater->setContent( SlotRecord::MAIN, $newContent );
 		$newRevision = $updater->saveRevision(
-			\CommentStoreComment::newUnsavedComment( "Domain Manifest witnessed" )
+			\CommentStoreComment::newUnsavedComment( "Domain Snapshot witnessed" )
 		);
 
 		if ( !$newRevision instanceof RevisionRecord ) {
-			throw new \MWException( 'Could not store receipt to Domain Manifest' );
+			throw new \MWException( 'Could not store receipt to Domain Snapshot' );
 		}
 
 		// Rename from tentative title to final title.
-		$domainManifestVH = $entity->get( 'domain_manifest_genesis_hash' );
-		$finalTitle = $this->titleFactory->makeTitle( 6942, "DomainManifest:$domainManifestVH" );
+		$domainSnapshotVH = $entity->get( 'domain_snapshot_genesis_hash' );
+		$finalTitle = $this->titleFactory->makeTitle( 6942, "DomainSnapshot:$domainSnapshotVH" );
 		$movePage = $this->movePageFactory->newMovePage( $tentativeTitle, $finalTitle );
 		$mp = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage( $tentativeTitle, $finalTitle );
 		$reason = "Changed from tentative title to final title";
 		$createRedirect = false;
 		$movePage->move( $user, $reason, $createRedirect );
 		$this->getLookup()->updateWitnessEventEntity( $entity, [
-			'domain_manifest_title' => $finalTitle->getPrefixedText(),
+			'domain_snapshot_title' => $finalTitle->getPrefixedText(),
 		] );
 	}
 
@@ -105,7 +105,7 @@ class WitnessingEngine {
 		$text .= "* Witness Event: {$entity->get( 'witness_event_id' )}\n";
 		$text .= "* Domain ID: {$entity->get( 'domain_id' )}\n";
 		// We don't include witness hash.
-		$text .= "* Page Domain Manifest verification Hash: {$entity->get( 'domain_manifest_genesis_hash' )}\n";
+		$text .= "* Page Domain Snapshot verification Hash: {$entity->get( 'domain_snapshot_genesis_hash' )}\n";
 		$text .= "* Merkle Root: {$entity->get( 'merkle_root' )}\n";
 		$text .= "* Witness Event Verification Hash: {$entity->get( 'witness_event_verification_hash' )}\n";
 		$text .= "* Witness Network: {$entity->get( 'witness_network' )}\n";

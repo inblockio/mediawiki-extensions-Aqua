@@ -231,7 +231,7 @@ class VerificationEngine {
 			] );
 			if ( $witnessEntity ) {
 				$witnessHash = $this->getHasher()->getHashSum(
-					$witnessEntity->get( 'domain_manifest_genesis_hash' ) .
+					$witnessEntity->get( 'domain_snapshot_genesis_hash' ) .
 					$witnessEntity->get( 'merkle_root' ) .
 					$witnessEntity->get( 'witness_network' ) .
 					$witnessEntity->get( 'witness_event_transaction_hash' )

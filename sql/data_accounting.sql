@@ -41,14 +41,14 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_events (
         -- to make page_title unique
         `domain_id` VARCHAR(128),
         -- from revision_verification
-        `domain_manifest_title` VARCHAR(255),
-        -- Hashes together domain_manifest_genesis_hash + merkle_root + witness_network + smart contract address
+        `domain_snapshot_title` VARCHAR(255),
+        -- Hashes together domain_snapshot_genesis_hash + merkle_root + witness_network + smart contract address
         `witness_hash` VARCHAR(128),
         -- from revision_verification table
-        `domain_manifest_genesis_hash` VARCHAR(128),
+        `domain_snapshot_genesis_hash` VARCHAR(128),
         -- Merkle Root Hash
         `merkle_root` VARCHAR(128),
-        -- XOR of domain_manifest_genesis_hash and merkle_root - populated when witness event is triggered
+        -- XOR of domain_snapshot_genesis_hash and merkle_root - populated when witness event is triggered
         `witness_event_verification_hash` VARCHAR(128),
         -- populated by SpecialPage:Witness configuration input fields
         `witness_network` VARCHAR(128) DEFAULT 'PLEASE SET THE VARIABLE IN THE SPECIALPAGE:WITNESS',

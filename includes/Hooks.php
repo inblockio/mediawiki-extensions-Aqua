@@ -78,7 +78,7 @@ class Hooks implements
 		if ( $this->permissionManager->userCan( 'read', $out->getUser(), $out->getTitle() ) ) {
 			// Load our module on all pages
 			$out->addModules( 'ext.DataAccounting.signMessage' );
-			$out->addModules( 'publishDomainManifest' );
+			$out->addModules( 'publishDomainSnapshot' );
 		}
 	}
 

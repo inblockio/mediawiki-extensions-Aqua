@@ -20,7 +20,7 @@ class GetWitnessDataHandler extends SimpleHandler {
 
 	/** @inheritDoc */
 	public function run( $witness_event_id ) {
-		#Expects 'get_witness_data\'- USES witness_event_id - used to retrieve all required data to execute a witness event (including domain_manifest_genesis_hash, merkle_root, network ID or name, witness smart contract address, transaction_id) for the publishing via MetaMask'];
+		#Expects 'get_witness_data\'- USES witness_event_id - used to retrieve all required data to execute a witness event (including domain_snapshot_genesis_hash, merkle_root, network ID or name, witness smart contract address, transaction_id) for the publishing via MetaMask'];
 		$witnessEntity = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
 			'witness_event_id' => $witness_event_id,
 		] );

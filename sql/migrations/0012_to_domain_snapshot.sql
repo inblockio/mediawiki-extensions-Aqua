@@ -1,0 +1,2 @@
+ALTER TABLE witness_events RENAME COLUMN domain_manifest_title to domain_snapshot_title;
+ALTER TABLE witness_events RENAME COLUMN domain_manifest_genesis_hash to domain_snapshot_genesis_hash;

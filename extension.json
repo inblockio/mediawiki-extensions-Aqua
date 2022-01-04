@@ -288,10 +288,10 @@
 				"ext.DataAccounting.signMessage/init.js"
 			]
 		},
-		"publishDomainManifest": {
+		"publishDomainSnapshot": {
 			"scripts": [
-				"publishDomainManifest/index.js",
-				"publishDomainManifest/init.js"
+				"publishDomainSnapshot/index.js",
+				"publishDomainSnapshot/init.js"
 			]
 		},
 		"ext.dataAccounting.updateTransclusionHashes": {

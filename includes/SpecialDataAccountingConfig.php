@@ -67,8 +67,8 @@ class SpecialDataAccountingConfig extends SpecialPage {
 		$out .= "<br><b>Content Signature:</b> I'M a CHECKBOX";
 
 		$out .=	"<hr><h2> Witness Configuration </h2>";
-		$out .= "<i>Configure Witness Network and Smart-Contract-Address for [[Special:WitnessPublisher| Domain Manifest Publisher]]";
-		$out .= "<br><i>Ensure you're generating a [[Special:Witness| Domain Manifest]] before publishing.";
+		$out .= "<i>Configure Witness Network and Smart-Contract-Address for [[Special:WitnessPublisher| Domain Snapshot Publisher]]";
+		$out .= "<br><i>Ensure you're generating a [[Special:Witness| Domain Snapshot]] before publishing.";
 
 		$this->getOutput()->addWikiTextAsInterface( $out );
 		$this->getOutput()->setPageTitle( 'Data Accounting Configuration' );

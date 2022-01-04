@@ -185,7 +185,7 @@
       <code>$witness_event_id</code>
     </MissingParamType>
     <MissingReturnType occurrences="3">
-      <code>addReceiptToDomainManifest</code>
+      <code>addReceiptToDomainSnapshot</code>
       <code>run</code>
       <code>selectToArray</code>
     </MissingReturnType>
@@ -201,7 +201,7 @@
     <MixedAssignment occurrences="12">
       <code>$account_address</code>
       <code>$body</code>
-      <code>$domainManifestVH</code>
+      <code>$domainSnapshotVH</code>
       <code>$pageText</code>
       <code>$res</code>
       <code>$row</code>
@@ -220,8 +220,8 @@
     <MixedOperand occurrences="13">
       <code>$pageText</code>
       <code>$row-&gt;domain_id</code>
-      <code>$row-&gt;domain_manifest_genesis_hash</code>
-      <code>$row-&gt;domain_manifest_genesis_hash</code>
+      <code>$row-&gt;domain_snapshot_genesis_hash</code>
+      <code>$row-&gt;domain_snapshot_genesis_hash</code>
       <code>$row-&gt;merkle_root</code>
       <code>$row-&gt;sender_account_address</code>
       <code>$row-&gt;smart_contract_address</code>
@@ -234,8 +234,8 @@
     </MixedOperand>
     <MixedPropertyFetch occurrences="10">
       <code>$row-&gt;domain_id</code>
-      <code>$row-&gt;domain_manifest_title</code>
-      <code>$row-&gt;domain_manifest_genesis_hash</code>
+      <code>$row-&gt;domain_snapshot_title</code>
+      <code>$row-&gt;domain_snapshot_genesis_hash</code>
       <code>$row-&gt;merkle_root</code>
       <code>$row-&gt;sender_account_address</code>
       <code>$row-&gt;smart_contract_address</code>
@@ -245,7 +245,7 @@
       <code>$row-&gt;{$col}</code>
     </MixedPropertyFetch>
     <PossiblyInvalidPropertyFetch occurrences="4">
-      <code>$row-&gt;domain_manifest_genesis_hash</code>
+      <code>$row-&gt;domain_snapshot_genesis_hash</code>
       <code>$row-&gt;merkle_root</code>
       <code>$row-&gt;witness_event_id</code>
       <code>$row-&gt;witness_network</code>
@@ -335,8 +335,8 @@
       <code>$row-&gt;depth</code>
       <code>$row-&gt;depth</code>
       <code>$row-&gt;domain_id</code>
-      <code>$row-&gt;domain_manifest_title</code>
-      <code>$row-&gt;domain_manifest_genesis_hash</code>
+      <code>$row-&gt;domain_snapshot_title</code>
+      <code>$row-&gt;domain_snapshot_genesis_hash</code>
       <code>$row-&gt;left_leaf</code>
       <code>$row-&gt;merkle_root</code>
       <code>$row-&gt;page_id</code>
@@ -373,7 +373,7 @@
       <code>$contentHash</code>
       <code>$dbr</code>
       <code>$domainId</code>
-      <code>$domain_manifest_genesis_hash</code>
+      <code>$domain_snapshot_genesis_hash</code>
       <code>$merkle_root</code>
       <code>$metadataHash</code>
       <code>$previousVerificationHash</code>
@@ -414,7 +414,7 @@
     <MixedAssignment occurrences="17">
       <code>$contentHash</code>
       <code>$domainId</code>
-      <code>$domain_manifest_genesis_hash</code>
+      <code>$domain_snapshot_genesis_hash</code>
       <code>$merkle_root</code>
       <code>$metadataHash</code>
       <code>$new_title</code>
@@ -436,7 +436,7 @@
     <MixedOperand occurrences="9">
       <code>$contentHash</code>
       <code>$domainId</code>
-      <code>$domain_manifest_genesis_hash</code>
+      <code>$domain_snapshot_genesis_hash</code>
       <code>$previousVerificationHash</code>
       <code>$signature</code>
       <code>$signature_hash</code>
@@ -754,7 +754,7 @@
       <code>$dbw</code>
       <code>$depth</code>
       <code>$do_wikitext</code>
-      <code>$domain_manifest_genesis_hash</code>
+      <code>$domain_snapshot_genesis_hash</code>
       <code>$formData</code>
       <code>$hash</code>
       <code>$hash</code>
@@ -779,10 +779,10 @@
     </MissingParamType>
     <MissingReturnType occurrences="11">
       <code>execute</code>
-      <code>generateDomainManifest</code>
-      <code>helperGenerateDomainManifestMerkleTree</code>
-      <code>helperGenerateDomainManifestTable</code>
-      <code>helperMakeNewDomainManifestpage</code>
+      <code>generateDomainSnapshot</code>
+      <code>helperGenerateDomainSnapshotMerkleTree</code>
+      <code>helperGenerateDomainSnapshotTable</code>
+      <code>helperMakeNewDomainSnapshotpage</code>
       <code>helperMaybeInsertWitnessEvent</code>
       <code>hrefifyHashW</code>
       <code>shortenHash</code>
@@ -805,7 +805,7 @@
       <code>DB_PRIMARY</code>
     </MixedArgument>
     <MixedArrayAccess occurrences="7">
-      <code>$domainManifestVH</code>
+      <code>$domainSnapshotVH</code>
       <code>$is_valid</code>
       <code>$merkleTreeHtmlText</code>
       <code>$output</code>
@@ -817,7 +817,7 @@
       <code>$SmartContractAddress</code>
       <code>$WitnessNetwork</code>
       <code>$children</code>
-      <code>$domainManifestVH</code>
+      <code>$domainSnapshotVH</code>
       <code>$formatted_key</code>
       <code>$key</code>
       <code>$merkleTreeWikitext</code>
@@ -837,7 +837,7 @@
       <code>$vhash</code>
       <code>$witness_event_id</code>
       <code>[ $is_valid, $verification_hashes, $output ]</code>
-      <code>[ $title, $domainManifestVH, $merkleTreeHtmlText ]</code>
+      <code>[ $title, $domainSnapshotVH, $merkleTreeHtmlText ]</code>
     </MixedAssignment>
     <MixedMethodCall occurrences="8">
       <code>addWikiTextAsContent</code>
@@ -851,7 +851,7 @@
     </MixedMethodCall>
     <MixedOperand occurrences="19">
       <code>$depth</code>
-      <code>$domain_manifest_genesis_hash</code>
+      <code>$domain_snapshot_genesis_hash</code>
       <code>$formatted_key</code>
       <code>$hash</code>
       <code>$key</code>
@@ -904,7 +904,7 @@
     <MissingReturnType occurrences="4">
       <code>execute</code>
       <code>hrefifyHash</code>
-      <code>shortenDomainManifestTitle</code>
+      <code>shortenDomainSnapshotTitle</code>
       <code>shortenHash</code>
     </MissingReturnType>
     <MixedArgument occurrences="4">
@@ -924,7 +924,7 @@
     <MixedOperand occurrences="8">
       <code>$hash</code>
       <code>$prefix</code>
-      <code>$row-&gt;domain_manifest_title</code>
+      <code>$row-&gt;domain_snapshot_title</code>
       <code>$row-&gt;witness_event_id</code>
       <code>shortenHash( $hash )</code>
       <code>shortenHash( $hashOnly )</code>
@@ -937,7 +937,7 @@
     </ParamNameMismatch>
     <PossiblyInvalidPropertyFetch occurrences="7">
       <code>$row-&gt;domain_id</code>
-      <code>$row-&gt;domain_manifest_title</code>
+      <code>$row-&gt;domain_snapshot_title</code>
       <code>$row-&gt;witness_event_id</code>
       <code>$row-&gt;witness_event_id</code>
       <code>$row-&gt;witness_event_transaction_hash</code>
@@ -1116,7 +1116,7 @@
       <code>$this-&gt;foreignNamespaces[$this-&gt;nodeAttribute( 'key' )]</code>
       <code>$verificationInfo['page_title']</code>
       <code>$verificationInfo['source']</code>
-      <code>$witnessInfo['domain_manifest_title']</code>
+      <code>$witnessInfo['domain_snapshot_title']</code>
       <code>$witnessInfo['source']</code>
     </MixedArrayAssignment>
     <MixedAssignment occurrences="35">

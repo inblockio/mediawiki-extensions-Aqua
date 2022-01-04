@@ -49,7 +49,7 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	 */
 	public function onDASaveRevisionAddSlots( PageUpdater $updater, WikiPage $wikiPage ) {
 		if ( $wikiPage->getTitle()->getNamespace() === 6942 ) {
-			// Do not scan domain manifests
+			// Do not scan domain snapshots
 			return;
 		}
 		$this->wikiPage = $wikiPage;

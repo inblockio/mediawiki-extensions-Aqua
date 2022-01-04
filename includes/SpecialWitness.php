@@ -1,9 +1,9 @@
 <?php
 /**
- * This Special Page is used to Generate Domain Manifests for Witness events
- * Input is the list of all verified pages with the latest revision id and verification hashes which are stored in the table page_list which are printed in section 1 of the Domain Manifest. This is used as input for generating and populating the table witness_merkle_tree.
- * The witness_merkle_tree is printed out on section 2 of the Domain Manifest.
- * Output is a Domain Manifest # as well as a redirect link to the SpecialPage:WitnessPublisher
+ * This Special Page is used to Generate Domain Snapshots for Witness events
+ * Input is the list of all verified pages with the latest revision id and verification hashes which are stored in the table page_list which are printed in section 1 of the Domain Snapshot. This is used as input for generating and populating the table witness_merkle_tree.
+ * The witness_merkle_tree is printed out on section 2 of the Domain Snapshot.
+ * Output is a Domain Snapshot # as well as a redirect link to the SpecialPage:WitnessPublisher
  *
  * @file
  */
@@ -83,13 +83,13 @@ class SpecialWitness extends SpecialPage {
 			throw new PermissionsError( 'import' );
 		}
 
-		$htmlForm = new HTMLForm( [], $this->getContext(), 'daDomainManifest' );
-		$htmlForm->setSubmitText( 'Generate Domain Manifest' );
-		$htmlForm->setSubmitCallback( [ $this, 'generateDomainManifest' ] );
+		$htmlForm = new HTMLForm( [], $this->getContext(), 'daDomainSnapshot' );
+		$htmlForm->setSubmitText( 'Generate Domain Snapshot' );
+		$htmlForm->setSubmitCallback( [ $this, 'generateDomainSnapshot' ] );
 		$htmlForm->show();
 	}
 
-	public function helperGenerateDomainManifestTable(
+	public function helperGenerateDomainSnapshotTable(
 		OutputPage $out,
 		int $witness_event_id,
 		string $output
@@ -107,7 +107,7 @@ class SpecialWitness extends SpecialPage {
 		EOD;
 
 		// We include all pages which have a verification_hash and take the
-		// last one of each page-object. Excluding the Domain Manifest pages
+		// last one of each page-object. Excluding the Domain Snapshot pages
 		// identified by 'Data Accounting:%'.
 		$res = $this->lb->getConnection( DB_REPLICA )->select(
 			'revision_verification',
@@ -174,7 +174,7 @@ class SpecialWitness extends SpecialPage {
 		return [ true, $verification_hashes, $output ];
 	}
 
-	public function helperGenerateDomainManifestMerkleTree( array $verification_hashes ): array {
+	public function helperGenerateDomainSnapshotMerkleTree( array $verification_hashes ): array {
 		$hasher = function ( $data ) {
 			return ( new Hasher() )->getHashSum( $data );
 		};
@@ -187,14 +187,14 @@ class SpecialWitness extends SpecialPage {
 		return $treeLayers;
 	}
 
-	public function helperMakeNewDomainManifestpage(
+	public function helperMakeNewDomainSnapshotpage(
 		int $witness_event_id,
 		array $treeLayers,
 		string $output
 	): array {
-		//Generate the Domain Manifest as a new page
+		//Generate the Domain Snapshot as a new page
 		//6942 is custom namespace. See namespace definition in extension.json.
-		$title = $this->titleFactory->newFromText( "DomainManifest $witness_event_id", 6942 );
+		$title = $this->titleFactory->newFromText( "DomainSnapshot $witness_event_id", 6942 );
 		$page = new WikiPage( $title );
 		$merkleTreeHtmlText = '<br><pre>' . $this->treePPrint( false, $treeLayers ) . '</pre>';
 		$merkleTreeWikitext = $this->treePPrint( true, $treeLayers );
@@ -206,7 +206,7 @@ class SpecialWitness extends SpecialPage {
 			$this->getUser()
 		);
 
-		//Get the freshly-generated Domain Manifest verification hash.
+		//Get the freshly-generated Domain Snapshot verification hash.
 		$rowDMVH = $this->lb->getConnection( DB_REPLICA )->selectRow(
 			'revision_verification',
 			[ 'verification_hash' ],
@@ -216,13 +216,13 @@ class SpecialWitness extends SpecialPage {
 		if ( !$rowDMVH ) {
 			throw new Exception( "Verification hash not found for $title" );
 		}
-		$domainManifestVH = $rowDMVH->verification_hash;
+		$domainSnapshotVH = $rowDMVH->verification_hash;
 
-		return [ $title, $domainManifestVH, $merkleTreeHtmlText ];
+		return [ $title, $domainSnapshotVH, $merkleTreeHtmlText ];
 	}
 
 	public function helperMaybeInsertWitnessEvent(
-		string $domain_manifest_genesis_hash,
+		string $domain_snapshot_genesis_hash,
 		int $witness_event_id,
 		Title $title,
 		string $merkle_root
@@ -244,11 +244,11 @@ class SpecialWitness extends SpecialPage {
 				[
 					'witness_event_id' => $witness_event_id,
 					'domain_id' => $this->verificationEngine->getDomainId(),
-					'domain_manifest_title' => $title,
-					'domain_manifest_genesis_hash' => $domain_manifest_genesis_hash,
+					'domain_snapshot_title' => $title,
+					'domain_snapshot_genesis_hash' => $domain_snapshot_genesis_hash,
 					'merkle_root' => $merkle_root,
 					'witness_event_verification_hash' => $this->verificationEngine->getHasher()
-						->getHashSum( $domain_manifest_genesis_hash . $merkle_root ),
+						->getHashSum( $domain_snapshot_genesis_hash . $merkle_root ),
 					'smart_contract_address' => $SmartContractAddress,
 					'witness_network' => $WitnessNetwork,
 				],
@@ -267,16 +267,16 @@ class SpecialWitness extends SpecialPage {
 	 *       object, an HTML string, or an array of arrays (message keys and
 	 *       params) or strings (message keys)
 	 */
-	public function generateDomainManifest( array $formData ) {
+	public function generateDomainSnapshot( array $formData ) {
 		$old_max_witness_event_id = $this->witnessingEngine->getLookup()->getLastWitnessEventId();
 		// Set to 0 if null.
 		$old_max_witness_event_id = $old_max_witness_event_id === null ? 0 : $old_max_witness_event_id;
 		$witness_event_id = $old_max_witness_event_id + 1;
 
-		$output = 'This page is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Manifest Publisher]] to publish your generated Domain Manifest to your preffered witness network.' . '<br><br>';
+		$output = 'This page is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Snapshot Publisher]] to publish your generated Domain Snapshot to your preffered witness network.' . '<br><br>';
 
 		$out = $this->getOutput();
-		[ $is_valid, $verification_hashes, $output ] = $this->helperGenerateDomainManifestTable(
+		[ $is_valid, $verification_hashes, $output ] = $this->helperGenerateDomainSnapshotTable(
 			$out,
 			$witness_event_id,
 			$output
@@ -291,15 +291,15 @@ class SpecialWitness extends SpecialPage {
 			return true;
 		}
 
-		$treeLayers = $this->helperGenerateDomainManifestMerkleTree( $verification_hashes );
+		$treeLayers = $this->helperGenerateDomainSnapshotMerkleTree( $verification_hashes );
 
 		$out->addWikiTextAsContent( $output );
 
 		// Store the Merkle tree in the DB
 		$this->storeMerkleTree( $witness_event_id, $treeLayers );
 
-		//Generate the Domain Manifest as a new page
-		[ $title, $domainManifestVH, $merkleTreeHtmlText ] = $this->helperMakeNewDomainManifestpage(
+		//Generate the Domain Snapshot as a new page
+		[ $title, $domainSnapshotVH, $merkleTreeHtmlText ] = $this->helperMakeNewDomainSnapshotpage(
 			$witness_event_id,
 			$treeLayers,
 			$output
@@ -311,7 +311,7 @@ class SpecialWitness extends SpecialPage {
 		// Check if $witness_event_id is already present in the witness_events
 		// table. If not, do insert.
 		$this->helperMaybeInsertWitnessEvent(
-			$domainManifestVH,
+			$domainSnapshotVH,
 			$witness_event_id,
 			$title,
 			$merkle_root

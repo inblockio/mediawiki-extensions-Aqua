@@ -20,7 +20,7 @@ appropriate hash of the given input.
 ## WitnessingEngine
 As the `VerificationEngine` deals with integrity of the data presented on the page, this class deals with
 making that page data witnessed by a blockchain. It is mainly tasked with generating and storing the witnessing
-data on the DomainManifest, but also provides subservices:
+data on the DomainSnapshot, but also provides subservices:
 
 ### WitnessLookup
 Same as for `VerificationLookup`, it is an abstraction for DB tables regarding witness data. Since there are several

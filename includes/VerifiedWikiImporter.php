@@ -1418,7 +1418,7 @@ class VerifiedWikiImporter {
 				);
 				if ( !$rowWitness ) {
 					$witnessInfo['source'] = 'imported';
-					$witnessInfo['domain_manifest_title'] = 'N/A';
+					$witnessInfo['domain_snapshot_title'] = 'N/A';
 					$dbw->insert(
 						'witness_events',
 						$witnessInfo,
@@ -1496,12 +1496,12 @@ class VerifiedWikiImporter {
 		$witnessInfo = [];
 		$normalFields = [
 			"domain_id",
-			"domain_manifest_title",
+			"domain_snapshot_title",
 			"witness_hash",
 			"witness_event_verification_hash",
 			"witness_network",
 			"smart_contract_address",
-			"domain_manifest_genesis_hash",
+			"domain_snapshot_genesis_hash",
 			"merkle_root",
 			"structured_merkle_proof",
 			"witness_event_transaction_hash",

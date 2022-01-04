@@ -1,5 +1,5 @@
 ;(function () {
-  var publishDomainManifest
+  var publishDomainSnapshot
 
   var ethChainIdMap = {
     'mainnet': '0x1',
@@ -38,9 +38,9 @@
     })
   }
 
-  publishDomainManifest = {
+  publishDomainSnapshot = {
     init: function () {
-      $(".publish-domain-manifest").click(
+      $(".publish-domain-snapshot").click(
         function() {
           function formatHash(hash) {
             // Format verification hash to be fed into the smart contract
@@ -109,7 +109,7 @@
     },
   }
 
-  module.exports = publishDomainManifest
+  module.exports = publishDomainSnapshot
 
-  mw.publishDomainManifest = publishDomainManifest
+  mw.publishDomainSnapshot = publishDomainSnapshot
 })()

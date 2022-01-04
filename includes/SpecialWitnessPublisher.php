@@ -1,7 +1,7 @@
 <?php
 /**
  * Behaviral description of SpecialPage:WitnessPublisher
- * The SpecialPage prints out the database witness_events in decending order (starting with the latest witness event). If a Domain Manifest was not yet published, the page should hold a publish button instead of the empty field for 'page_witness_transaction_hash'. In this list it is easy to see how many Witness Events have taken place and which receipts in the form of the domain_manifests have been generated and whats their page link (they should be clickable to be redireted to the respective Domain Manifest).
+ * The SpecialPage prints out the database witness_events in decending order (starting with the latest witness event). If a Domain Snapshot was not yet published, the page should hold a publish button instead of the empty field for 'page_witness_transaction_hash'. In this list it is easy to see how many Witness Events have taken place and which receipts in the form of the domain_snapshots have been generated and whats their page link (they should be clickable to be redireted to the respective Domain Snapshot).
  */
 
 namespace DataAccounting;
@@ -51,19 +51,19 @@ class SpecialWitnessPublisher extends SpecialPage {
 			throw new PermissionsError( 'import' );
 		}
 
-		$this->getOutput()->setPageTitle( 'Domain Manifest Publisher' );
+		$this->getOutput()->setPageTitle( 'Domain Snapshot Publisher' );
 
 		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
 
 		$res = $dbw->select(
 			'witness_events',
-			[ 'witness_event_id, domain_id, domain_manifest_title, witness_event_verification_hash, witness_network, smart_contract_address, witness_event_transaction_hash, sender_account_address' ],
+			[ 'witness_event_id, domain_id, domain_snapshot_title, witness_event_verification_hash, witness_network, smart_contract_address, witness_event_transaction_hash, sender_account_address' ],
 			'',
 			__METHOD__,
 			[ 'ORDER BY' => ' witness_event_id DESC' ]
 		);
 
-		$output = 'The Domain Manifest Publisher shows you a list of all Domain Manifests. You can publish a Domain Manifest from here to the Ethereum Network to timestamp all page verification hashes and the related page revisions included in the manifest. After publishing the manifest, this will be written into the revision_verification data and included into the page history.<br><br>';
+		$output = 'The Domain Snapshot Publisher shows you a list of all Domain Snapshots. You can publish a Domain Snapshot from here to the Ethereum Network to timestamp all page verification hashes and the related page revisions included in the Domain Snapshot. After publishing the Domain Snapshot, this will be written into the revision_verification data and included into the page history.<br><br>';
 		$out = $this->getOutput();
 		$out->addHTML( $output );
 
@@ -72,7 +72,7 @@ class SpecialWitnessPublisher extends SpecialPage {
             <tr>
                 <th>Witness Event</th>
                 <th>Domain ID</th>
-                <th>Domain Manifest</th>
+                <th>Domain Snapshot</th>
                 <th>Verification Hash</th>
                 <th>Witness Network</th>
                 <th>Transaction ID</th>
@@ -98,7 +98,7 @@ class SpecialWitnessPublisher extends SpecialPage {
 				$publishingStatus = '<td style="background-color:#DDDDDD">Imported</td>';
 			} else {
 				if ( $row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE' ) {
-					$publishingStatus = '<td style="background-color:#F27049"><button type="button" class="publish-domain-manifest" id="' . $row->witness_event_id . '">Publish!</button></td>';
+					$publishingStatus = '<td style="background-color:#F27049"><button type="button" class="publish-domain-snapshot" id="' . $row->witness_event_id . '">Publish!</button></td>';
 				} else {
 					$publishingStatus = '<td style="background-color:#B1C97F">' . $this->hrefifyHash(
 							$row->witness_event_transaction_hash,
@@ -107,11 +107,11 @@ class SpecialWitnessPublisher extends SpecialPage {
 				}
 			}
 
-			if ( $row->domain_manifest_title === null ) {
-				$linkedDomainManifest = 'N/A';
+			if ( $row->domain_snapshot_title === null ) {
+				$linkedDomainSnapshot = 'N/A';
 			} else {
-				$linkedDomainManifest = '<a href=\'/index.php/' . $row->domain_manifest_title . '\'>' . $this->shortenDomainManifestTitle(
-						$row->domain_manifest_title
+				$linkedDomainSnapshot = '<a href=\'/index.php/' . $row->domain_snapshot_title . '\'>' . $this->shortenDomainSnapshotTitle(
+						$row->domain_snapshot_title
 					) . '</a>';
 			}
 
@@ -119,7 +119,7 @@ class SpecialWitnessPublisher extends SpecialPage {
                 <tr>
                     <td>{$row->witness_event_id}</td>
                     <td>{$row->domain_id}</td>
-                    <td>{$linkedDomainManifest}</td>
+                    <td>{$linkedDomainSnapshot}</td>
                     <td>$hrefWEVH</td>
                     <td>{$row->witness_network}</td>
                     $publishingStatus
@@ -148,11 +148,11 @@ class SpecialWitnessPublisher extends SpecialPage {
 		return "<a href='" . $prefix . $hash . "'>" . $this->shortenHash( $hash ) . "</a>";
 	}
 
-	private function shortenDomainManifestTitle( string $dm ): string {
+	private function shortenDomainSnapshotTitle( string $dm ): string {
 		// TODO we are hardcoding the name space here. Fix!
 		// 6942
 		$withoutNameSpace = str_replace( "Data Accounting:", "", $dm );
-		$hashOnly = str_replace( "DomainManifest:", "", $withoutNameSpace );
-		return "DomainManifest:" . $this->shortenHash( $hashOnly );
+		$hashOnly = str_replace( "DomainSnapshot:", "", $withoutNameSpace );
+		return "DomainSnapshot:" . $this->shortenHash( $hashOnly );
 	}
 }

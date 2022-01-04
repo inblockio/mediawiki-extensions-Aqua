@@ -115,7 +115,7 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 		}
 
 		$witnessHash = $this->verificationEngine->getHasher()->getHashSum(
-			$witnessEvent->get( 'domain_manifest_genesis_hash' ) .
+			$witnessEvent->get( 'domain_snapshot_genesis_hash' ) .
 			$witnessEvent->get( 'merkle_root' ) .
 			$witnessEvent->get( 'witness_network' ) .
 			$transaction_hash
@@ -130,19 +130,19 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 			'witness_hash' => $witnessHash,
 		] );
 
-		// Patch witness data into domain manifest page.
-		$domainManifestPage = $this->verificationEngine->getLookup()->verificationEntityFromHash(
-			$witnessEvent->get( 'domain_manifest_genesis_hash' )
+		// Patch witness data into domain snapshot page.
+		$domainSnapshotPage = $this->verificationEngine->getLookup()->verificationEntityFromHash(
+			$witnessEvent->get( 'domain_snapshot_genesis_hash' )
 		);
-		if ( !$domainManifestPage ) {
-			throw new HttpException( "No Domain manifest page found", 404 );
+		if ( !$domainSnapshotPage ) {
+			throw new HttpException( "No Domain Snapshot page found", 404 );
 		}
-		$this->verificationEngine->getLookup()->updateEntity( $domainManifestPage, [
+		$this->verificationEngine->getLookup()->updateEntity( $domainSnapshotPage, [
 			'witness_event_id' => $witness_event_id,
 		] );
 
-		// Add receipt to the domain manifest
-		$this->witnessingEngine->addReceiptToDomainManifest( $this->user, $witnessEvent );
+		// Add receipt to the domain snapshot
+		$this->witnessingEngine->addReceiptToDomainSnapshot( $this->user, $witnessEvent );
 
 		return true;
 	}

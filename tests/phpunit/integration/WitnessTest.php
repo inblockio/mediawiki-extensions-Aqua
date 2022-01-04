@@ -85,8 +85,8 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 		);
 	}
 
-	public function testNoDomainManifestYet(): void {
-		// Expects error when domain manifest is not yet generated.
+	public function testNoDomainSnapshotYet(): void {
+		// Expects error when domain snapshot is not yet generated.
 		$this->expectExceptionObject(
 			new HttpException( "No revisions are witnessed by given id", 404 )
 		);
@@ -119,8 +119,8 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 			$this->witnessingEngine
 		);
 		$sp->getOutput()->setTitle( Title::newFromText( 'Witness' ) );
-		// Test that generating domain manifest works.
-		$sp->generateDomainManifest( [] );
+		// Test that generating domain snapshot works.
+		$sp->generateDomainSnapshot( [] );
 
 		// Test for getWitnessData.
 		$data = $this->executeHandlerAndGetBodyData(
@@ -129,12 +129,12 @@ class WitnessTest extends MediaWikiIntegrationTestCase {
 		);
 		$keys = [
 			"domain_id",
-			"domain_manifest_title",
+			"domain_snapshot_title",
 			"witness_hash",
 			"witness_event_verification_hash",
 			"witness_network",
 			"smart_contract_address",
-			"domain_manifest_genesis_hash",
+			"domain_snapshot_genesis_hash",
 			"merkle_root",
 			"witness_event_transaction_hash",
 			"sender_account_address",

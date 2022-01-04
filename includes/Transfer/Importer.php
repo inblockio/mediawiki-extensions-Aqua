@@ -203,7 +203,7 @@
 
 		if ( !$witnessEntity ) {
 			$witnessInfo['source'] = 'imported';
-			$witnessInfo['domain_manifest_title'] = 'N/A';
+			$witnessInfo['domain_snapshot_title'] = 'N/A';
 			$localWitnessEventId = $this->witnessingEngine->getLookup()->insertWitnessEvent(
 				$witnessInfo
 			);

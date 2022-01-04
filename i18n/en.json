@@ -19,7 +19,7 @@
 	"contentaction-daact": "Sign 🔑",
 	"verifiedexport": "Verified Export",
 	"verifiedimport": "Verified Import",
-	"witness": "Domain Manifest Generator",
+	"witness": "Domain Snapshot Generator",
 	"da-transclusion-hash-ui-state-unchanged": "Up to date",
 	"da-transclusion-hash-ui-state-invalid": "Invalid hash or verification data missing",
 	"da-transclusion-hash-ui-state-new-version": "New version of the resource available",
