@@ -3,7 +3,6 @@
 namespace DataAccounting\Verification;
 
 use DataAccounting\Verification\Entity\WitnessEventEntity;
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\MovePageFactory;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Rest\HttpException;
@@ -85,7 +84,6 @@ class WitnessingEngine {
 		$domainSnapshotVH = $entity->get( 'domain_snapshot_genesis_hash' );
 		$finalTitle = $this->titleFactory->makeTitle( 6942, "DomainSnapshot:$domainSnapshotVH" );
 		$movePage = $this->movePageFactory->newMovePage( $tentativeTitle, $finalTitle );
-		$mp = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage( $tentativeTitle, $finalTitle );
 		$reason = "Changed from tentative title to final title";
 		$createRedirect = false;
 		$movePage->move( $user, $reason, $createRedirect );

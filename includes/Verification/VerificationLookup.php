@@ -155,15 +155,25 @@ class VerificationLookup {
 	/**
 	 * @param VerificationEntity $entity
 	 * @param array $data
-	 * @return bool
+	 * @return VerificationEntity|null Updated entity of null on failure
 	 */
-	public function updateEntity( VerificationEntity $entity, array $data ): bool {
-		return $this->lb->getConnection( DB_PRIMARY )->update(
+	public function updateEntity( VerificationEntity $entity, array $data ): ?VerificationEntity {
+		$res = $this->lb->getConnection( DB_PRIMARY )->update(
 			static::TABLE,
 			$data,
 			[ 'rev_id' => $entity->getRevision()->getId() ],
 			__METHOD__
 		);
+
+		if ( $res ) {
+			return $this->verificationEntityFactory->newFromDbRow(
+				(object)array_merge(
+					$entity->jsonSerialize(),
+					$data
+				)
+			);
+		}
+		return null;
 	}
 
 	/**

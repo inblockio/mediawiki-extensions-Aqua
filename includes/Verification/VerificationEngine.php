@@ -197,12 +197,12 @@ class VerificationEngine {
 	/**
 	 * @param VerificationEntity $entity
 	 * @param \MediaWiki\Revision\RevisionRecord $rev
-	 * @return bool
+	 * @return VerificationEntity|null
 	 * @throws MWException
 	 */
 	public function buildAndUpdateVerificationData(
 		VerificationEntity $entity, \MediaWiki\Revision\RevisionRecord $rev
-	): bool {
+	): ?VerificationEntity {
 		$contentHash = $this->getHasher()->calculateContentHash( $rev );
 
 		$parentRevision = $rev->getParentId();

@@ -225,14 +225,22 @@ class WitnessLookup {
 	/**
 	 * @param WitnessEventEntity $entity
 	 * @param array $data
-	 * @return bool
+	 * @return WitnessEventEntity|null Updated entity or null on failure
 	 */
-	public function updateWitnessEventEntity( WitnessEventEntity $entity, array $data ): bool {
-		return $this->lb->getConnection( DB_PRIMARY )->update(
+	public function updateWitnessEventEntity( WitnessEventEntity $entity, array $data ): ?WitnessEventEntity {
+		$res = $this->lb->getConnection( DB_PRIMARY )->update(
 			'witness_events',
 			$data,
 			[ 'witness_event_id' => $entity->get( 'witness_event_id' ) ],
 			__METHOD__
 		);
+
+		if ( $res ) {
+			return new WitnessEventEntity(
+				(object) array_merge( $entity->jsonSerialize(), $data )
+			);
+		}
+
+		return null;
 	}
 }

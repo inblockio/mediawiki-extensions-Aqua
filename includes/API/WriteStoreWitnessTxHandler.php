@@ -123,12 +123,15 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 
 		/** write data to database */
 		// Write the witness_hash into the witness_events table
-		$this->witnessingEngine->getLookup()->updateWitnessEventEntity( $witnessEvent, [
+		$witnessEvent = $this->witnessingEngine->getLookup()->updateWitnessEventEntity( $witnessEvent, [
 			'sender_account_address' => $account_address,
 			'witness_event_transaction_hash' => $transaction_hash,
 			'source' => 'default',
 			'witness_hash' => $witnessHash,
 		] );
+		if ( !$witnessEvent ) {
+			throw new HttpException( "Could not update witness event", 500 );
+		}
 
 		// Patch witness data into domain snapshot page.
 		$domainSnapshotPage = $this->verificationEngine->getLookup()->verificationEntityFromHash(
