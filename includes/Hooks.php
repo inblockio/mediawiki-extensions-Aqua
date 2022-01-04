@@ -80,6 +80,11 @@ class Hooks implements
 			$out->addModules( 'ext.DataAccounting.signMessage' );
 			$out->addModules( 'publishDomainManifest' );
 		}
+		if ( $out->getTitle()->getNamespace() > -1
+			// temporarily disable uploads in wikieditor. VERY HACKY!
+			&& $out->getRequest()->getVal( 'action' ) === 'edit' ) {
+			$out->addModules( 'ext.dataaccounting.disableeditorupload' );
+		}
 	}
 
 	public function onOutputPageParserOutput( $out, $parserOutput ): void {
