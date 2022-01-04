@@ -90,20 +90,14 @@ class SpecialWitnessPublisher extends SpecialPage {
 
 		foreach ( $res as $row ) {
 			$hrefWEVH = $this->hrefifyHash( $row->witness_event_verification_hash );
-			// Color taken from https://www.schemecolor.com/warm-autumn-2.php
-			// #B33030 is Chinese Orange
-			// #B1C97F is Sage
-
 			if ( $this->verificationEngine->getDomainId() != $row->domain_id ) {
 				$publishingStatus = '<td style="background-color:#DDDDDD">Imported</td>';
 			} else {
 				if ( $row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE' ) {
-					$publishingStatus = '<td style="background-color:#F27049"><button type="button" class="publish-domain-snapshot" id="' . $row->witness_event_id . '">Publish!</button></td>';
+					$publishingStatus = '<td><button type="button" class="btn btn-danger publish-domain-snapshot" id="' . $row->witness_event_id . '">Publish!</button></td>';
 				} else {
-					$publishingStatus = '<td style="background-color:#B1C97F">' . $this->hrefifyHash(
-							$row->witness_event_transaction_hash,
-							$witnessNetworkMap[$WitnessNetwork]
-						) . '</td>';
+					$a = "<a href='" . $witnessNetworkMap[$WitnessNetwork] . $row->witness_event_transaction_hash . "'>Lookup</a>";
+					$publishingStatus = '<td><button type="button" class="btn btn-success">' . $a . '</button></td>';
 				}
 			}
 
