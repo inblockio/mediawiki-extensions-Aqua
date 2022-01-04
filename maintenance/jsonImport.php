@@ -57,7 +57,6 @@ class JsonImport extends Maintenance {
 				$this->output( "done\n" );
 			}
 		}
-		return;
 	}
 }
 

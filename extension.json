@@ -50,12 +50,6 @@
 		"DataAccounting\\": "includes/",
 		"DataAccounting\\Tests\\": "tests/phpunit/"
 	},
-	"APIModules": {
-		"da-export-page": {
-			"class": "DataAccounting\\API\\ApiExportPage",
-			"services": [ "TitleFactory", "RevisionStore", "DataAccountingVerificationEngine", "DataAccountingExporter" ]
-		}
-	},
 	"SpecialPages": {
 		"Witness": {
 			"class": "DataAccounting\\SpecialWitness",
@@ -86,11 +80,13 @@
 			"class": "DataAccounting\\SpecialVerifiedImport",
 			"services": [
 				"PermissionManager",
-				"VerifiedWikiImporterFactory"
+				"DataAccountingTransferEntityFactory",
+				"DataAccountingImporter"
 			]
 		},
 		"VerifiedExport": {
-			"class": "DataAccounting\\SpecialVerifiedExport"
+			"class": "DataAccounting\\SpecialVerifiedExport",
+			"services": [ "TitleFactory", "RevisionStore", "DataAccountingVerificationEngine", "DataAccountingExporter" ]
 		}
 	},
 
@@ -307,7 +303,11 @@
 		},
 		"ext.dataAccounting.exportSinglePage": {
 			"scripts": [
+				"ui/SinglePageExportDialog.js",
 				"ext.dataAccounting.exportSinglePage.js"
+			],
+			"dependencies": [
+				"oojs-ui"
 			]
 		}
 	},

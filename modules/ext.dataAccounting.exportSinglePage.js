@@ -5,17 +5,12 @@
 				e.stopPropagation();
 				e.preventDefault();
 
-				new mw.Api().get( {
-					action: 'da-export-page',
-					page: mw.config.get( 'wgTitle' )
-				} ).done( function( response ) {
-					if ( !response.hasOwnProperty( 'da-export-page' ) ) {
-						console.error( "Invalid API response" );
-					}
+				var windowManager = new OO.ui.WindowManager();
+				$( document.body ).append( windowManager.$element );
 
-				} ).fail( function() {
-
-				} );
+				var dialog = new da.ui.SinglePageExportDialog( { pageName: mw.config.get( 'wgTitle' ) } );
+				windowManager.addWindows( [ dialog ] );
+				windowManager.openWindow( dialog );
 			} );
 		} )
 	} );

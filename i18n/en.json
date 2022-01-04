@@ -45,5 +45,12 @@
 	"da-specialdaconfig-witnessconfiguration-witnessnetwork-option-kovan": "Kovan",
 	"da-specialdaconfig-witnessconfiguration-witnessnetwork-option-rinkeby": "Rinkeby",
 	"da-specialdaconfig-witnessconfiguration-witnessnetwork-option-goerli": "Goerli",
-	"da-specialdaconfig-save-label": "Save"
+	"da-specialdaconfig-save-label": "Save",
+	"da-export-field-titles-label": "Pages to export (one per line)",
+	"da-export-field-transclusions-label": "Include transcluded resources",
+	"da-export-field-latest-label": "Include only latest revision of the page. If checked, only referenced revisions of transcluded resources will be exported",
+	"da-export-field-depth-label": "Max depth for transcluded resources",
+	"da-export-button-export-label": "Export",
+	"da-import-field-file-label": "Filename",
+	"da-import-button-import-label": "Import"
 }
