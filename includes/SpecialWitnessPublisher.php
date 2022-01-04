@@ -96,8 +96,9 @@ class SpecialWitnessPublisher extends SpecialPage {
 				if ( $row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE' ) {
 					$publishingStatus = '<td><button type="button" class="btn btn-danger publish-domain-snapshot" id="' . $row->witness_event_id . '">Publish!</button></td>';
 				} else {
-					$a = "<a style='color:white' href='" . $witnessNetworkMap[$WitnessNetwork] . $row->witness_event_transaction_hash . "' target='_blank'>Lookup</a>";
-					$publishingStatus = '<td><button type="button" class="btn btn-success">' . $a . '</button></td>';
+					$lookupUrl = $witnessNetworkMap[$WitnessNetwork] . $row->witness_event_transaction_hash;
+					$onclick = "onclick=\"window.open('$lookupUrl', '_blank')\"";
+					$publishingStatus = "<td><button type='button' class='btn btn-success' $onclick>Lookup</button></td>";
 				}
 			}
 
