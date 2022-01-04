@@ -97,7 +97,7 @@ class SpecialWitness extends SpecialPage {
 		// For the table
 		$output .= <<<EOD
 
-			{| class="wikitable"
+			{| class="table table-bordered"
 			|-
 			! Index
 			! Page Title

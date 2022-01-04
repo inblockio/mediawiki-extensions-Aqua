@@ -136,7 +136,7 @@ class TransclusionHashes extends JsonContent {
 
 	private function drawTable( array $states ): string {
 		$table = Html::openElement( 'table', [
-			'class' => 'wikitable',
+			'class' => 'table table-bordered',
 			'style' => 'width: 100%',
 			'id' => 'transclusionResourceTable'
 		] );
