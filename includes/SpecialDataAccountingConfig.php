@@ -18,10 +18,20 @@ namespace DataAccounting;
 
 use DataAccounting\Verification\VerificationEngine;
 use Exception;
+use Html;
 use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
 use MutableConfig;
+use OOUI\TextInputWidget;
+use OOUI\CheckboxInputWidget;
+use OOUI\DropdownInputWidget;
+use OOUI\ButtonInputWidget;
+use OOUI\Element;
+use OOUI\HtmlSnippet;
+use OOUI\FieldsetLayout;
+use OOUI\FormLayout;
+use OOUI\FieldLayout;
 use PermissionsError;
 use SpecialPage;
 
@@ -52,6 +62,12 @@ class SpecialDataAccountingConfig extends SpecialPage {
 		if ( !$this->permManager->userHasRight( $user, 'import' ) ) {
 			throw new PermissionsError( 'import' );
 		}
+		$errors = [];
+		if ( $this->getRequest()->wasPosted() ) {
+			$values = $this->getRequest()->getPostValues();
+			$errors = $this->save( $values );
+		}
+		// todo: show possible errors here $errors
 
 		$out = "<i>Configuration for the MediaWiki - Data Accounting Extension</i><hr>";
 
@@ -60,72 +76,125 @@ class SpecialDataAccountingConfig extends SpecialPage {
 		$out .= "<br>Data Accounting Version: 2.0.0-alpha";
 		$out .= "<br>API Version: " .  ServerInfo::DA_API_VERSION;
 		$out .= "<br>Your Domain ID is: <b>" . $this->verificationEngine->getDomainId() . "</b>";
-
-		$out .= "<hr><h2>Signature</h2>";
-		$out .= "<i>Configure behavior of Signature</i>";
-		$out .= "<br><i>Content Signature adds a visible signature into the page content and write a new revision when signing a page with your wallet.</i>";
-		$out .= "<br><b>Content Signature:</b> I'M a CHECKBOX";
-
-		$out .=	"<hr><h2> Witness Configuration </h2>";
-		$out .= "<i>Configure Witness Network and Smart-Contract-Address for [[Special:WitnessPublisher| Domain Snapshot Publisher]]";
-		$out .= "<br><i>Ensure you're generating a [[Special:Witness| Domain Snapshot]] before publishing.";
-
 		$this->getOutput()->addWikiTextAsInterface( $out );
+
+		$this->getOutput()->enableOOUI();
+		$form = new FormLayout( [
+            'action' => $this->getFullTitle()->getFullURL(),
+            'method' => 'post',
+			'align' => 'left',
+            'items' => [
+                new FieldsetLayout( [
+					'align' => 'left',
+                    'items' => $this->makeFrom( $errors )
+                ] ),
+            ]
+        ] );
+
+		$this->getOutput()->addHTML( $form->toString() );
 		$this->getOutput()->setPageTitle( 'Data Accounting Configuration' );
+	}
 
-		$witnessNetworks = [
-			'mainnet' => 'mainnet',
-			'ropsten' => 'ropsten',
-			'kovan' => 'kovan',
-			'rinkeby' => 'rinkeby',
-			'goerli' => 'goerli',
+	private function makeFrom( array $errors ): array{
+		return [
+			new Element( [
+				'content' => new HtmlSnippet(
+					Html::element( 'h2', [], 'Signature' )
+				)
+			] ),
+			new Element( [
+				'content' => new HtmlSnippet(
+					Html::element( 'i', [], 'Configure behavior of Signature' )
+				)
+			] ),
+			new Element( [
+				'content' => new HtmlSnippet(
+					Html::element( 'i', [], 'Content Signature adds a visible signature into the page content and write a new revision when signing a page with your wallet.' )
+				)
+			] ),
+			new FieldLayout(
+				new CheckboxInputWidget( [
+					'name' => 'InjectSignature',
+					'selected' => $this->getConfig()->get( 'InjectSignature' ),
+					'indeterminate' => false
+				] ),
+				[
+					'label' => 'Configure behavior of Signature:',
+					'align' => 'top',
+				]
+			),
+			new Element( [
+				'content' => new HtmlSnippet(
+					Html::element( 'h2', [], 'Witness Configuration' )
+				)
+			] ),
+			new Element( [
+				'content' => new HtmlSnippet(
+					Html::element( 'i', [], 'Configure Witness Network and Smart-Contract-Address for [[Special:WitnessPublisher| Domain Snapshot Publisher]]' )
+				)
+			] ),
+			new Element( [
+				'content' => new HtmlSnippet(
+					Html::element( 'i', [], 'Ensure you\'re generating a [[Special:Witness| Domain Snapshot]] before publishing.' )
+				)
+			] ),
+			new FieldLayout(
+				new TextInputWidget( [
+					'name' => 'SmartContractAddress',
+					'value' => $this->getConfig()->get( 'SmartContractAddress' ),
+				] ),
+				[
+					'label' => 'Smart Contract Address:',
+					'align' => 'top',
+				]
+			),
+			new FieldLayout(
+				new DropdownInputWidget( [
+					'name' => 'WitnessNetwork',
+					'options' => [
+						[
+							'label' => 'Mainnet',
+							'data' => 'mainnet'
+						], [
+							'label' => 'Ropsten',
+							'data' => 'ropsten'
+						], [
+							'label' => 'Kovan',
+							'data' => 'kovan'
+						], [
+							'label' => 'Rinkeby',
+							'data' => 'rinkeby'
+						], [
+							'label' => 'Goerli',
+							'data' => 'goerli'
+						],
+					],
+					'value' => $this->getConfig()->get( 'WitnessNetwork' ),
+				] ),
+				[
+					'label' => 'Witness Network:',
+					'align' => 'top',
+				]
+			),
+			new ButtonInputWidget( [
+				'label' => 'Save',
+				'type' => 'submit',
+				'flags' => [ 'primary', 'progressive' ],
+			] ),
 		];
-
-		$formDescriptor = [
-			'SmartContractAddress' => [
-				'label' => 'Smart Contract Address:', // Label of the field
-				'type' => 'text', // Input type
-				'default' => $this->getConfig()->get( 'SmartContractAddress' ),
-			],
-			'WitnessNetwork' => [
-				'label' => 'Witness Network:',
-				'type' => 'select', // Input type
-				'default' => $this->getConfig()->get( 'WitnessNetwork' ),
-				'options' => $witnessNetworks,
-			],
-		];
-
-		$htmlForm = new HTMLForm( $formDescriptor, $this->getContext(), 'daForm' );
-		$htmlForm->setSubmitText( 'Save' );
-		$htmlForm->setSubmitCallback( function( array $formData ) {
-			$res = $this->save( $formData );
-			if ( $res === true ) {
-				// else the form would disappear
-				return false;
-			}
-			return $res;
-		} );
-		$htmlForm->show();
 	}
 
 	public function getConfig(): MutableConfig {
 		return MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'da' );
 	}
 
-	/**
-	 * @see: HTMLForm::trySubmit
-	 * @param array $formData
-	 * @return bool|string|array|Status
-	 *     - Bool true or a good Status object indicates success,
-	 *     - Bool false indicates no submission was attempted,
-	 *     - Anything else indicates failure. The value may be a fatal Status
-	 *       object, an HTML string, or an array of arrays (message keys and
-	 *       params) or strings (message keys)
-	 */
-	private function save( array $formData ) {
+	private function save( array $values ): array {
+		// because checkbox input widgets are not very smart
+		$values[ 'InjectSignature' ] = isset( $values[ 'InjectSignature' ] ) ? true : false;
+
 		$errors = [];
 		// TODO: validate user input!
-		foreach ( $formData as $name => $value ) {
+		foreach ( $values as $name => $value ) {
 			try {
 				$this->getConfig()->set( $name, $value );
 			} catch ( Exception $e ) {
@@ -134,6 +203,6 @@ class SpecialDataAccountingConfig extends SpecialPage {
 				continue;
 			}
 		}
-		return empty( $errors ) ? true : $errors;
+		return $errors;
 	}
 }
