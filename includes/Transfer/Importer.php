@@ -8,6 +8,8 @@
  use HashConfig;
  use MediaWiki\Content\IContentHandlerFactory;
  use MediaWiki\MediaWikiServices;
+ use MediaWiki\Storage\RevisionRecord;
+ use MediaWiki\Storage\RevisionStore;
  use MWContentSerializationException;
  use MWException;
  use MWUnknownContentModelException;
@@ -27,6 +29,8 @@
 	private UploadRevisionImporter $uploadRevisionImporter;
 	/** @var IContentHandlerFactory */
 	private IContentHandlerFactory $contentHandlerFactory;
+	/** @var RevisionStore */
+	private RevisionStore $revisionStore;
 
 	 /**
 	  * @param VerificationEngine $verificationEngine
@@ -34,17 +38,19 @@
 	  * @param OldRevisionImporter $revisionImporter
 	  * @param UploadRevisionImporter $uploadRevisionImporter
 	  * @param IContentHandlerFactory $contentHandlerFactory
+	  * @param RevisionStore $revisionStore
 	  */
 	public function __construct(
 		VerificationEngine $verificationEngine, WitnessingEngine $witnessingEngine,
 		OldRevisionImporter $revisionImporter, UploadRevisionImporter $uploadRevisionImporter,
-		IContentHandlerFactory $contentHandlerFactory
+		IContentHandlerFactory $contentHandlerFactory, RevisionStore $revisionStore
 	) {
 		$this->verificationEngine = $verificationEngine;
 		$this->witnessingEngine = $witnessingEngine;
 		$this->revisionImporter = $revisionImporter;
 		$this->uploadRevisionImporter = $uploadRevisionImporter;
 		$this->contentHandlerFactory = $contentHandlerFactory;
+		$this->revisionStore = $revisionStore;
 	}
 
 	 /**
@@ -56,9 +62,13 @@
 		TransferRevisionEntity $revisionEntity, TransferContext $context
 	) {
 		if ( isset( $revisionEntity->getContent()['file'] ) ) {
-			$this->doImportUpload( $revisionEntity, $context );
+			$revision = $this->doImportUpload( $revisionEntity, $context );
 		} else {
-			$this->doImportRevision( $revisionEntity, $context );
+			$revision = $this->doImportRevision( $revisionEntity, $context );
+		}
+
+		if ( !$revision ) {
+			throw new MWException( 'Could not import revision' );
 		}
 		$this->buildVerification( $revisionEntity, $context );
 	}
@@ -69,10 +79,11 @@
 	  * @throws MWContentSerializationException
 	  * @throws MWException
 	  * @throws MWUnknownContentModelException
+	  * @return RevisionRecord|null
 	  */
 	 private function doImportRevision(
 		TransferRevisionEntity $revisionEntity, TransferContext $context
-	 ) {
+	 ): ?RevisionRecord {
 		 $revision = $this->prepRevision( $revisionEntity, $context );
 
 		 if ( isset( $revisionEntity->getContent()['minor'] ) ) {
@@ -80,6 +91,9 @@
 		 }
 
 		 $this->revisionImporter->import( $revision );
+		 return $this->revisionStore->getRevisionByTimestamp(
+			 $revision->getTitle(), $revision->getTimestamp()
+		 );
 	 }
 
 	 /**
@@ -88,8 +102,11 @@
 	  * @throws MWContentSerializationException
 	  * @throws MWException
 	  * @throws MWUnknownContentModelException
+	  * @return RevisionRecord|null
 	  */
-	 private function doImportUpload( TransferRevisionEntity $revisionEntity, TransferContext $context ) {
+	 private function doImportUpload(
+	 	TransferRevisionEntity $revisionEntity, TransferContext $context
+	 ): ?RevisionRecord {
 		 $revision = $this->prepRevision( $revisionEntity, $context );
 		 $fileInfo = $revisionEntity->getContent()['file'];
 		 $revision->setFilename( $fileInfo['filename'] );
@@ -112,6 +129,10 @@
 		 	$errors = implode( ',', $status->getErrors() );
 			throw new MWException( 'Could not upload file: ' . $errors );
 		 }
+
+		 return $this->revisionStore->getRevisionByTimestamp(
+			 $revision->getTitle(), $revision->getTimestamp()
+		 );
 	 }
 
 	 /**
@@ -164,9 +185,9 @@
 	 private function buildVerification(
 		TransferRevisionEntity $transferEntity, TransferContext $context
 	 ) {
-		 $verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromTitle(
+		$verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromTitle(
 			$context->getTitle()
-		 );
+		);
 		if ( !$verificationEntity ) {
 			// Do nothing if entry does not exist => TODO: Why?
 			return;
@@ -264,6 +285,8 @@
 	 }
 
 	 /**
+	  * see comment on static::buildVerification
+	  *
 	  * @param TransferRevisionEntity $revisionEntity
 	  * @param TransferContext $context
 	  * @return array
@@ -277,6 +300,7 @@
 			'verification_hash' => $revisionEntity->getMetadata()['verification_hash'],
 			'time_stamp' => $revisionEntity->getMetadata()['time_stamp'],
 			'verification_context' => json_encode( $revisionEntity->getVerificationContext() ),
+			'previous_verification_hash' => $revisionEntity->getMetadata()['previous_verification_hash'],
 			'content_hash' => $revisionEntity->getContent()['content_hash'],
 			'metadata_hash' => $revisionEntity->getMetadata()['metadata_hash'],
 			'signature' => $revisionEntity->getSignature()['signature'],

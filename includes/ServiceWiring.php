@@ -64,7 +64,8 @@ return [
 			$services->getService( 'DataAccountingWitnessingEngine' ),
 			$services->getOldRevisionImporter(),
 			$services->getUploadRevisionImporter(),
-			$services->getContentHandlerFactory()
+			$services->getContentHandlerFactory(),
+			$services->getRevisionStore()
 		);
 	},
 	'DataAccountingExporter' => static function( MediaWikiServices $services ): Exporter {
