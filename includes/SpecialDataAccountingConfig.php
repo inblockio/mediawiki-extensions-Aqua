@@ -18,8 +18,8 @@ namespace DataAccounting;
 
 use DataAccounting\Verification\VerificationEngine;
 use Exception;
+use ExtensionRegistry;
 use Html;
-use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
 use MutableConfig;
@@ -69,14 +69,20 @@ class SpecialDataAccountingConfig extends SpecialPage {
 		}
 		// todo: show possible errors here $errors
 
-		$out = "<i>Configuration for the MediaWiki - Data Accounting Extension</i><hr>";
-
-		$out .= "<h2>Software Info</h2>";
-		$out .= "Project GitHub: https://github.com/inblockio";
-		$out .= "<br>Data Accounting Version: 2.0.0-alpha";
-		$out .= "<br>API Version: " .  ServerInfo::DA_API_VERSION;
-		$out .= "<br>Your Domain ID is: <b>" . $this->verificationEngine->getDomainId() . "</b>";
-		$this->getOutput()->addWikiTextAsInterface( $out );
+		$out = Html::element( 'i', [], $this->msg( 'da-specialdaconfig-desc' ) );
+		$out .= Html::element( 'hr' );
+		$out .= Html::element(
+			'h2',
+			[],
+			$this->msg( 'da-specialdaconfig-section-softwareinfo' )->plain()
+		);
+		$extension = ExtensionRegistry::getInstance()->getAllThings()['DataAccounting'];
+		$out .= $this->msg( 'da-specialdaconfig-softwareinfo' )->params( [
+			'https://github.com/inblockio',
+			$extension['version'],
+			ServerInfo::DA_API_VERSION,
+			$this->verificationEngine->getDomainId(),
+		] )->parse();
 
 		$this->getOutput()->enableOOUI();
 		$form = new FormLayout( [
@@ -90,27 +96,33 @@ class SpecialDataAccountingConfig extends SpecialPage {
                 ] ),
             ]
         ] );
+		$out .= $form->toString();
 
-		$this->getOutput()->addHTML( $form->toString() );
-		$this->getOutput()->setPageTitle( 'Data Accounting Configuration' );
+		$this->getOutput()->addHTML( $out );
 	}
 
 	private function makeFrom( array $errors ): array{
 		return [
 			new Element( [
-				'content' => new HtmlSnippet(
-					Html::element( 'h2', [], 'Signature' )
-				)
+				'content' => new HtmlSnippet( Html::element(
+					'h2',
+					[],
+					$this->msg( 'da-specialdaconfig-section-signature' )->plain()
+				) )
 			] ),
 			new Element( [
-				'content' => new HtmlSnippet(
-					Html::element( 'i', [], 'Configure behavior of Signature' )
-				)
+				'content' => new HtmlSnippet( Html::element(
+					'i',
+					[],
+					$this->msg( 'da-specialdaconfig-signature-desc' )->plain()
+				) )
 			] ),
 			new Element( [
-				'content' => new HtmlSnippet(
-					Html::element( 'i', [], 'Content Signature adds a visible signature into the page content and write a new revision when signing a page with your wallet.' )
-				)
+				'content' => new HtmlSnippet( Html::element(
+					'i',
+					[],
+					$this->msg( 'da-specialdaconfig-signature-help' )->plain()
+				) )
 			] ),
 			new FieldLayout(
 				new CheckboxInputWidget( [
@@ -119,24 +131,30 @@ class SpecialDataAccountingConfig extends SpecialPage {
 					'indeterminate' => false
 				] ),
 				[
-					'label' => 'Configure behavior of Signature:',
+					'label' => $this->msg( 'da-specialdaconfig-signature-checkbox-label' )->plain(),
 					'align' => 'top',
 				]
 			),
 			new Element( [
-				'content' => new HtmlSnippet(
-					Html::element( 'h2', [], 'Witness Configuration' )
-				)
+				'content' => new HtmlSnippet( Html::element(
+					'h2',
+					[],
+					$this->msg( 'da-specialdaconfig-section-witnessconfiguration' )->plain()
+				) )
 			] ),
 			new Element( [
-				'content' => new HtmlSnippet(
-					Html::element( 'i', [], 'Configure Witness Network and Smart-Contract-Address for [[Special:WitnessPublisher| Domain Snapshot Publisher]]' )
-				)
+				'content' => new HtmlSnippet( Html::rawElement(
+					'i',
+					[],
+					$this->msg( 'da-specialdaconfig-witnessconfiguration-desc' )->parse()
+				) )
 			] ),
 			new Element( [
-				'content' => new HtmlSnippet(
-					Html::element( 'i', [], 'Ensure you\'re generating a [[Special:Witness| Domain Snapshot]] before publishing.' )
-				)
+				'content' => new HtmlSnippet( Html::rawElement(
+					'i',
+					[],
+					$this->msg( 'da-specialdaconfig-witnessconfiguration-help' )->parse()
+				) )
 			] ),
 			new FieldLayout(
 				new TextInputWidget( [
@@ -144,7 +162,7 @@ class SpecialDataAccountingConfig extends SpecialPage {
 					'value' => $this->getConfig()->get( 'SmartContractAddress' ),
 				] ),
 				[
-					'label' => 'Smart Contract Address:',
+					'label' => $this->msg( 'da-specialdaconfig-witnessconfiguration-smartcontractaddress-label' )->plain(),
 					'align' => 'top',
 				]
 			),
@@ -153,31 +171,41 @@ class SpecialDataAccountingConfig extends SpecialPage {
 					'name' => 'WitnessNetwork',
 					'options' => [
 						[
-							'label' => 'Mainnet',
+							'label' => $this->msg(
+								'da-specialdaconfig-witnessconfiguration-witnessnetwork-option-mainnet'
+							)->plain(),
 							'data' => 'mainnet'
 						], [
-							'label' => 'Ropsten',
+							'label' => $this->msg(
+								'da-specialdaconfig-witnessconfiguration-witnessnetwork-option-ropsten'
+							)->plain(),
 							'data' => 'ropsten'
 						], [
-							'label' => 'Kovan',
+							'label' => $this->msg(
+								'da-specialdaconfig-witnessconfiguration-witnessnetwork-option-kovan'
+							)->plain(),
 							'data' => 'kovan'
 						], [
-							'label' => 'Rinkeby',
+							'label' => $this->msg(
+								'da-specialdaconfig-witnessconfiguration-witnessnetwork-option-rinkeby'
+							)->plain(),
 							'data' => 'rinkeby'
 						], [
-							'label' => 'Goerli',
+							'label' => $this->msg(
+								'da-specialdaconfig-witnessconfiguration-witnessnetwork-option-goerli'
+							)->plain(),
 							'data' => 'goerli'
 						],
 					],
 					'value' => $this->getConfig()->get( 'WitnessNetwork' ),
 				] ),
 				[
-					'label' => 'Witness Network:',
+					'label' => $this->msg( 'da-specialdaconfig-witnessconfiguration-witnessnetwork-label' )->plain(),
 					'align' => 'top',
 				]
 			),
 			new ButtonInputWidget( [
-				'label' => 'Save',
+				'label' => $this->msg( 'da-specialdaconfig-save-label' )->plain(),
 				'type' => 'submit',
 				'flags' => [ 'primary', 'progressive' ],
 			] ),
