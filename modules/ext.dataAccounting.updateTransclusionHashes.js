@@ -9,7 +9,7 @@
 				if ( !resourceKey ) {
 					return;
 				}
-				const title = mw.config.get( 'wgTitle' )
+				const title = mw.config.get( 'wgPageName' )
 
 				$.ajax( {
 					method: 'POST',
