@@ -10,25 +10,9 @@ use DataAccounting\Verification\VerificationEntityFactory;
 use DataAccounting\Verification\VerificationLookup;
 use DataAccounting\Verification\WitnessingEngine;
 use DataAccounting\Verification\WitnessLookup;
-use DataAccounting\VerifiedWikiImporterFactory;
 use MediaWiki\MediaWikiServices;
 
 return [
-	/** TODO: Try replace with DataAccountingImporter */
-	'VerifiedWikiImporterFactory' => static function ( MediaWikiServices $services ): VerifiedWikiImporterFactory {
-		return new VerifiedWikiImporterFactory(
-			$services->getconfigFactory()->makeConfig( 'da' ),
-			$services->getHookContainer(),
-			$services->getContentLanguage(),
-			$services->getNamespaceInfo(),
-			$services->getTitleFactory(),
-			$services->getWikiPageFactory(),
-			$services->getWikiRevisionUploadImporter(),
-			$services->getPermissionManager(),
-			$services->getContentHandlerFactory(),
-			$services->getSlotRoleRegistry()
-		);
-	},
 	'DataAccountingConfigHandler' => static function ( MediaWikiServices $services ): Handler {
 		return new Handler(
 			$services->getDBLoadBalancer()

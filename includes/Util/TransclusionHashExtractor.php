@@ -119,7 +119,6 @@ class TransclusionHashExtractor {
 			$transclusion = [
 				'dbkey' => $title->getDBkey(),
 				'ns' => $title->getNamespace(),
-				'revid' => $title->getLatestRevID(),
 				VerificationEntity::GENESIS_HASH => null,
 				VerificationEntity::VERIFICATION_HASH => null,
 				VerificationEntity::CONTENT_HASH => null,

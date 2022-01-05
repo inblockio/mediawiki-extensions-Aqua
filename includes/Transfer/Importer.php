@@ -109,8 +109,8 @@
 
 		 $status = $this->uploadRevisionImporter->import( $revision );
 		 if ( !$status->isOK() ) {
-		 	error_log( var_export( $status->getErrors(), 1));
-			throw new MWException( 'Could not upload file' );
+		 	$errors = implode( ',', $status->getErrors() );
+			throw new MWException( 'Could not upload file: ' . $errors );
 		 }
 	 }
 

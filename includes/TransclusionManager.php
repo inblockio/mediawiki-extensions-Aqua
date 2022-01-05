@@ -2,7 +2,6 @@
 
 namespace DataAccounting;
 
-use Exception;
 use CommentStoreComment;
 use DataAccounting\Content\TransclusionHashes;
 use DataAccounting\Verification\VerificationEngine;
@@ -81,9 +80,9 @@ class TransclusionManager {
 				}
 			} else {
 				$recordedEntity = $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
-					'rev_id' => $transclusion->revid,
 					VerificationEntity::GENESIS_HASH => $transclusion->{VerificationEntity::GENESIS_HASH},
 					VerificationEntity::CONTENT_HASH => $transclusion->{VerificationEntity::CONTENT_HASH},
+					VerificationEntity::VERIFICATION_HASH => $transclusion->{VerificationEntity::VERIFICATION_HASH},
 				] );
 				if ( $recordedEntity === null || $latestEntity === null ) {
 					// Entity no longer exists in DB => something weird happening
@@ -148,9 +147,9 @@ class TransclusionManager {
 			return null;
 		}
 		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
-			'rev_id' => $resourceDetails->revid,
 			VerificationEntity::GENESIS_HASH => $resourceDetails->{VerificationEntity::GENESIS_HASH},
 			VerificationEntity::CONTENT_HASH => $resourceDetails->{VerificationEntity::CONTENT_HASH},
+			VerificationEntity::VERIFICATION_HASH => $resourceDetails->{VerificationEntity::VERIFICATION_HASH},
 		] );
 	}
 
@@ -189,7 +188,6 @@ class TransclusionManager {
 		}
 
 		$data = [
-			'revid' => $resourceTitle->getLatestRevID(),
 			VerificationEntity::GENESIS_HASH => $entity->getHash( VerificationEntity::GENESIS_HASH ),
 			VerificationEntity::VERIFICATION_HASH => $entity->getHash( VerificationEntity::VERIFICATION_HASH ),
 			VerificationEntity::CONTENT_HASH => $entity->getHash( VerificationEntity::CONTENT_HASH )

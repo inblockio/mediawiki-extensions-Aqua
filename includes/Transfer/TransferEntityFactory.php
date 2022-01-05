@@ -2,6 +2,7 @@
 
 namespace DataAccounting\Transfer;
 
+use DataAccounting\ServerInfo;
 use DataAccounting\Verification\Entity\GenericDatabaseEntity;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\Entity\VerificationEntity;
@@ -112,7 +113,8 @@ class TransferEntityFactory {
 				'base' => Title::newMainPage()->getCanonicalURL(),
 				'generator' => 'MediaWiki ' . MW_VERSION,
 				'case' => $config->get( 'CapitalLinks' ) ? 'first-letter' : 'case-sensitive',
-				'namespaces' => $nsList
+				'namespaces' => $nsList,
+				'version' => ServerInfo::DA_API_VERSION
 			];
 		}
 

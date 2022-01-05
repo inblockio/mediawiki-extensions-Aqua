@@ -43,17 +43,10 @@ class Exporter {
 			// TODO: Remove site info from context
 			unset( $pageData['site_info'] );
 			if ( empty( $data['revisionIds'] ) ) {
-				$pageData['revisions'] = $this->getAllTitleRevisions( $data['title'] );
+				$allRevisions = $this->verificationEngine->getLookup()->getAllRevisionIds( $data['title'] );
+				$pageData['revisions'] = $this->getRevisionEntities( $data['title'], $allRevisions );
 			} else {
-				$revisions = [];
-				foreach ( $data['revisionIds'] as $revId ) {
-					$revision = $this->getRevisionEntity( $data['title'], $revId );
-					if ( $revision instanceof TransferRevisionEntity ) {
-						$verificationHash = $revision->getMetadata()["verification_hash"];
-						$revisions[$verificationHash] = $revision;
-					}
-				}
-				$pageData['revisions'] = $revisions;
+				$pageData['revisions'] = $this->getRevisionEntities( $data['title'], $data['revisionIds'] );
 			}
 
 			$exportData['pages'][] = $pageData;
@@ -64,12 +57,12 @@ class Exporter {
 
 	/**
 	 * @param Title $title
+	 * @param array $revisionIds
 	 * @return array
 	 */
-	private function getAllTitleRevisions( Title $title ): array {
-		$allRevisionIds = $this->verificationEngine->getLookup()->getAllRevisionIds( $title );
+	private function getRevisionEntities( Title $title, array $revisionIds ): array {
 		$data = [];
-		foreach ( $allRevisionIds as $revId ) {
+		foreach ( $revisionIds as $revId ) {
 			$revisionEntity = $this->getRevisionEntity( $title, $revId );
 			if ( $revisionEntity instanceof TransferRevisionEntity ) {
 				$verificationHash = $revisionEntity->getMetadata()["verification_hash"];
