@@ -13,7 +13,7 @@ class AddExportAction implements SkinTemplateNavigation__UniversalHook {
 		$links['actions']['da_export'] = [
 			'id' => 'ca-da-export',
 			'href' => '#',
-			'text' => 'Export verified page',
+			'text' => 'Export 📦',
 		];
 		$sktemplate->getOutput()->addModules( 'ext.dataAccounting.exportSinglePage' );
 	}
