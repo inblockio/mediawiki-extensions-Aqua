@@ -94,7 +94,7 @@ class SpecialVerifiedExport extends SpecialPage {
 				$this->addTranscluded( $title, $exportSpec, $onlyLatest, $depth );
 			}
 		}
-		$fileName = "{$this->verificationEngine->getDomainId()}{$titles[0]->getPrefixedDBkey()}.json";
+		$fileName = "{$this->verificationEngine->getDomainId()}_{$titles[0]->getPrefixedDBkey()}.json";
 
 		$this->getContext()->getOutput()->disable();
 		$response = $this->getContext()->getRequest()->response();

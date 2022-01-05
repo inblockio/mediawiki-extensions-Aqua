@@ -8,7 +8,7 @@
 				var windowManager = new OO.ui.WindowManager();
 				$( document.body ).append( windowManager.$element );
 
-				var dialog = new da.ui.SinglePageExportDialog( { pageName: mw.config.get( 'wgTitle' ) } );
+				var dialog = new da.ui.SinglePageExportDialog( { pageName: mw.config.get( 'wgPageName' ) } );
 				windowManager.addWindows( [ dialog ] );
 				windowManager.openWindow( dialog );
 			} );

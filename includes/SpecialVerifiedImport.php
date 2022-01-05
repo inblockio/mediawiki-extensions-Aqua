@@ -154,10 +154,10 @@ class SpecialVerifiedImport extends SpecialPage {
 						continue;
 					}
 					$this->importer->importRevision( $entity, $context );
-					if ( !isset( $stats[$page['title']] ) ) {
-						$stats[$page['title']] = 0;
+					if ( !isset( $stats[$context->getTitle()->getPrefixedDBkey()] ) ) {
+						$stats[$context->getTitle()->getPrefixedDBkey()] = 0;
 					}
-					$stats[$page['title']]++;
+					$stats[$context->getTitle()->getPrefixedDBkey()]++;
 
 				}
 			}
