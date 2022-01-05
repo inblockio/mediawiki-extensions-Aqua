@@ -81,12 +81,15 @@
 			"services": [
 				"PermissionManager",
 				"DataAccountingTransferEntityFactory",
-				"DataAccountingImporter"
+				"DataAccountingImporter",
+				"TitleFactory", "LinkRenderer"
 			]
 		},
 		"VerifiedExport": {
 			"class": "DataAccounting\\SpecialVerifiedExport",
-			"services": [ "TitleFactory", "RevisionStore", "DataAccountingVerificationEngine", "DataAccountingExporter" ]
+			"services": [
+				"TitleFactory", "RevisionStore", "DataAccountingVerificationEngine", "DataAccountingExporter"
+			]
 		}
 	},
 

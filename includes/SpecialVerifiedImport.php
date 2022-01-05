@@ -26,27 +26,25 @@
 
 namespace DataAccounting;
 
-use Config;
 use DataAccounting\Transfer\Importer;
 use DataAccounting\Transfer\TransferEntityFactory;
-use HTMLForm;
-use ImportReporter;
+use Html;
 use ImportStreamSource;
+use MediaWiki\Linker\LinkRenderer;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
+use Message;
 use OOUI\ButtonInputWidget;
-use OOUI\CheckboxInputWidget;
 use OOUI\FieldLayout;
 use OOUI\FormLayout;
 use OOUI\HiddenInputWidget;
-use OOUI\MultilineTextInputWidget;
-use OOUI\NumberInputWidget;
 use OOUI\SelectFileInputWidget;
 use PermissionsError;
 use SpecialPage;
 use Status;
 use UnexpectedValueException;
 use Exception;
+use TitleFactory;
 
 class SpecialVerifiedImport extends SpecialPage {
 	/** @var PermissionManager */
@@ -55,21 +53,31 @@ class SpecialVerifiedImport extends SpecialPage {
 	private $transferEntityFactory;
 	/** @var Importer */
 	private $importer;
+	/** @var TitleFactory */
+	private $titleFactory;
+	/** @var LinkRenderer */
+	private $linker;
 
 	/**
 	 * @param PermissionManager $permissionManager
 	 * @param TransferEntityFactory $transferEntityFactory
 	 * @param Importer $importer
+	 * @param TitleFactory $titleFactory
+	 * @param LinkRenderer $linker
 	 */
 	public function __construct(
 		PermissionManager $permissionManager,
 		TransferEntityFactory $transferEntityFactory,
-		Importer $importer
+		Importer $importer,
+		TitleFactory $titleFactory,
+		LinkRenderer $linker
 	) {
 		parent::__construct( 'VerifiedImport', 'import' );
 		$this->permManager = $permissionManager;
 		$this->transferEntityFactory = $transferEntityFactory;
 		$this->importer = $importer;
+		$this->titleFactory = $titleFactory;
+		$this->linker = $linker;
 	}
 
 	public function doesWrites(): bool {
@@ -133,23 +141,37 @@ class SpecialVerifiedImport extends SpecialPage {
 				return;
 			}
 
-			$output = '';
+			$stats = [];
 			$siteInfo = $arrayContent['siteInfo'];
 			foreach ( $arrayContent['pages'] as $page ) {
 				$revisions = $page['revisions'];
 				unset( $page['revisions'] );
 				$page['site_info'] = $siteInfo;
 				$context = $this->transferEntityFactory->newTransferContextFromData( $page );
-				foreach ( $revisions as $revision ) {
+				foreach ( $revisions as $hash => $revision ) {
 					$entity = $this->transferEntityFactory->newRevisionEntityFromApiData( $revision );
 					if ( !$entity instanceof \DataAccounting\Transfer\TransferRevisionEntity ) {
 						continue;
 					}
 					$this->importer->importRevision( $entity, $context );
-					$output .= \Html::element( 'li', [], "Imported {$page['title']} revision {$revision['content']['rev_id']}" );
+					if ( !isset( $stats[$page['title']] ) ) {
+						$stats[$page['title']] = 0;
+					}
+					$stats[$page['title']]++;
+
 				}
 			}
-			$this->getOutput()->addHTML( \Html::rawElement( 'ul', [], $output ) );
+			$output = Html::openElement( 'ul' );
+			foreach( $stats as $pagename => $count ) {
+				$title = $this->titleFactory->newFromText( $pagename );
+				$output .= Html::rawElement(
+					'li', [],
+					Message::newFromKey( 'da-import-result-line' )
+						->rawParams( $this->linker->makeLink( $title ), $count )->text()
+				);
+			}
+			$output .= Html::closeElement( 'ul' );
+			$this->getOutput()->addHTML( $output );
 		}
 	}
 

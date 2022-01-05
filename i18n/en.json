@@ -52,5 +52,6 @@
 	"da-export-field-depth-label": "Max depth for transcluded resources",
 	"da-export-button-export-label": "Export",
 	"da-import-field-file-label": "Filename",
-	"da-import-button-import-label": "Import"
+	"da-import-button-import-label": "Import",
+	"da-import-result-line": "Imported page $1 ({{PLURAL:$2|one revision|$2 revisions}})"
 }
