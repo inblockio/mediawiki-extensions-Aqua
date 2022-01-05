@@ -49,7 +49,8 @@ class Exporter {
 				foreach ( $data['revisionIds'] as $revId ) {
 					$revision = $this->getRevisionEntity( $data['title'], $revId );
 					if ( $revision instanceof TransferRevisionEntity ) {
-						$revisions[] = $revision;
+						$verificationHash = $revision->getMetadata()["verification_hash"];
+						$revisions[$verificationHash] = $revision;
 					}
 				}
 				$pageData['revisions'] = $revisions;
@@ -71,7 +72,8 @@ class Exporter {
 		foreach ( $allRevisionIds as $revId ) {
 			$revisionEntity = $this->getRevisionEntity( $title, $revId );
 			if ( $revisionEntity instanceof TransferRevisionEntity ) {
-				$data[] = $revisionEntity;
+				$verificationHash = $revisionEntity->getMetadata()["verification_hash"];
+				$data[$verificationHash] = $revisionEntity;
 			}
 		}
 
