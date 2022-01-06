@@ -45,6 +45,7 @@ use Language;
 use NamespaceInfo;
 use TitleFactory;
 use UploadRevisionImporter;
+use NamespaceImportTitleFactory;
 use XMLReader;
 use UploadSourceAdapter;
 use NaiveImportTitleFactory;
