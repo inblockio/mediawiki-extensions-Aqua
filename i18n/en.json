@@ -58,5 +58,12 @@
 	"da-specialwitness-error-revisionpermalink": "[[Special:PermanentLink/$1|See]]",
 	"da-specialwitness-snapshot-help": "This page is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher|Domain Snapshot Publisher]] to publish your generated Domain Snapshot to your preffered witness network.",
 	"da-specialwitness-error-emptyhash-description": "No verified page revisions available. Create a new page revision first.",
-	"da-specialwitness-showmerkleproof-text": "Visit [[$1]] to see the Merkle proof."
+	"da-specialwitness-showmerkleproof-text": "Visit [[$1]] to see the Merkle proof.",
+	"da-specialwitnesspublisher-help-text": "The Domain Snapshot Publisher shows you a list of all Domain Snapshots. You can publish a Domain Snapshot from here to the Ethereum Network to timestamp all page verification hashes and the related page revisions included in the Domain Snapshot. After publishing the Domain Snapshot, this will be written into the revision_verification data and included into the page history.",
+	"da-specialwitnesspublisher-tableheader-witnessevent": "Witness Event",
+	"da-specialwitnesspublisher-tableheader-domainid": "Domain ID",
+	"da-specialwitnesspublisher-tableheader-domainsnapshot": "Domain Snapshot",
+	"da-specialwitnesspublisher-tableheader-verificationhash": "Verification Hash",
+	"da-specialwitnesspublisher-tableheader-witnessnetwork": "Witness Network",
+	"da-specialwitnesspublisher-tableheader-transactionid": "Transaction ID"
 }

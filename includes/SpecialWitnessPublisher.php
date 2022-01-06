@@ -51,8 +51,6 @@ class SpecialWitnessPublisher extends SpecialPage {
 			throw new PermissionsError( 'import' );
 		}
 
-		$this->getOutput()->setPageTitle( 'Domain Snapshot Publisher' );
-
 		$dbw = $this->lb->getConnectionRef( DB_PRIMARY );
 
 		$res = $dbw->select(
@@ -63,19 +61,19 @@ class SpecialWitnessPublisher extends SpecialPage {
 			[ 'ORDER BY' => ' witness_event_id DESC' ]
 		);
 
-		$output = 'The Domain Snapshot Publisher shows you a list of all Domain Snapshots. You can publish a Domain Snapshot from here to the Ethereum Network to timestamp all page verification hashes and the related page revisions included in the Domain Snapshot. After publishing the Domain Snapshot, this will be written into the revision_verification data and included into the page history.<br><br>';
+		$output = $this->msg( 'da-specialwitnesspublisher-help-text' )->plain() . '<br><br>';
 		$out = $this->getOutput();
 		$out->addHTML( $output );
 
 		$output = '<table class="table table-bordered">';
 		$output .= <<<EOD
             <tr>
-                <th>Witness Event</th>
-                <th>Domain ID</th>
-                <th>Domain Snapshot</th>
-                <th>Verification Hash</th>
-                <th>Witness Network</th>
-                <th>Transaction ID</th>
+                <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-witnessevent' )->plain()}</th>
+                <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-domainid' )->plain()}</th>
+                <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-domainsnapshot' )->plain()}</th>
+                <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-verificationhash' )->plain()}</th>
+                <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-witnessnetwork' )->plain()}</th>
+                <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-transactionid' )->plain()}</th>
             </tr>
         EOD;
 
