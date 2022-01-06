@@ -8,10 +8,6 @@
 		]
 	},
 	"da-desc": "This is an example extension using the BoilerPlate.",
-	"apihelp-query+example-summary": "Example Query API module.",
-	"apihelp-query+example-param-key": "The 'key' parameter of the Example Query API.",
-	"apihelp-query+example-example-1": "Query 1",
-	"apihelp-query+example-example-2": "Query 2",
 	"da-contentaction-daact": "Sign 🔑",
 	"verifiedexport": "Verified Export",
 	"verifiedimport": "Verified Import",
