@@ -35,7 +35,7 @@
 	"da-specialdaconfig-section-witnessconfiguration": "Witness Configuration",
 	"da-specialdaconfig-signature-desc": "Configure behavior of Signature",
 	"da-specialdaconfig-signature-help": "Content Signature adds a visible signature into the page content and write a new revision when signing a page with your wallet.",
-	"da-specialdaconfig-signature-checkbox-label": "Configure behavior of Signature:",
+	"da-specialdaconfig-signature-checkbox-label": "Enable or disable inject signature:",
 	"da-specialdaconfig-witnessconfiguration-desc": "Configure Witness Network and Smart-Contract-Address for [[Special:WitnessPublisher| Domain Snapshot Publisher]]",
 	"da-specialdaconfig-witnessconfiguration-help": "Ensure you're generating a [[Special:Witness| Domain Snapshot]] before publishing.",
 	"da-specialdaconfig-witnessconfiguration-smartcontractaddress-label": "Smart Contract Address:",
