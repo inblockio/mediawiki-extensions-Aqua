@@ -13,11 +13,11 @@ use FormatJson;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\OutputPageParserOutputHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
-use MediaWiki\Hook\SkinTemplateNavigationHook;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Hook\ImportHandlePageXMLTagHook;
+use MediaWiki\Hook\SkinTemplateNavigation__UniversalHook;
 use MediaWiki\Hook\XmlDumpWriterOpenPageHook;
 use MWException;
 use OutputPage;
@@ -33,10 +33,10 @@ use WikiImporter;
 class Hooks implements
 	BeforePageDisplayHook,
 	ParserFirstCallInitHook,
-	SkinTemplateNavigationHook,
 	OutputPageParserOutputHook,
 	ImportHandlePageXMLTagHook,
-	XmlDumpWriterOpenPageHook
+	XmlDumpWriterOpenPageHook,
+	SkinTemplateNavigation__UniversalHook
 {
 
 	private PermissionManager $permissionManager;
@@ -115,19 +115,27 @@ class Hooks implements
 	}
 
 	/**
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SkinTemplateNavigation
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SkinTemplateNavigation::Universal
 	 *
 	 * @param SkinTemplate $skin
-	 * @param array &$cactions
+	 * @param array &$links
 	 */
-	public function onSkinTemplateNavigation( $skin, &$cactions ): void {
-		$action = $skin->getRequest()->getText( 'action' );
-
+	public function onSkinTemplateNavigation__Universal( $skin, &$links ): void {
+		if ( isset( $links['actions']['watch'] ) ) {
+			unset(  $links['actions']['watch'] );
+		}
+		if ( isset( $links['actions']['unwatch'] ) ) {
+			unset(  $links['actions']['unwatch'] );
+		}
+		if ( isset( $links['actions']['protect'] ) ) {
+			unset(  $links['actions']['protect'] );
+		}
 		if ( $skin->getTitle()->getNamespace() !== NS_SPECIAL ) {
 			if ( !$this->permissionManager->userCan( 'edit', $skin->getUser(), $skin->getTitle() ) ) {
 				return;
 			}
-			$cactions['actions']['daact'] = [
+			$action = $skin->getRequest()->getText( 'action' );
+			$links['actions']['daact'] = [
 				'class' => $action === 'daact' ? 'selected' : false,
 				'text' => $skin->msg( 'contentaction-daact' )->text(),
 				'href' => $skin->getTitle()->getLocalURL( 'action=daact' ),
