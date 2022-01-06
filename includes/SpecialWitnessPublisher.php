@@ -89,14 +89,17 @@ class SpecialWitnessPublisher extends SpecialPage {
 		foreach ( $res as $row ) {
 			$hrefWEVH = $this->hrefifyHash( $row->witness_event_verification_hash );
 			if ( $this->verificationEngine->getDomainId() != $row->domain_id ) {
-				$publishingStatus = '<td style="background-color:#DDDDDD">Imported</td>';
+				$msg = $this->msg( 'da-specialwitnesspublisher-tableheader-publishingstatus-imported' )->plain();
+				$publishingStatus = '<td style="background-color:#DDDDDD">' . $msg . '</td>';
 			} else {
 				if ( $row->witness_event_transaction_hash == 'PUBLISH WITNESS HASH TO BLOCKCHAIN TO POPULATE' ) {
-					$publishingStatus = '<td><button type="button" class="btn btn-danger publish-domain-snapshot" id="' . $row->witness_event_id . '">Publish!</button></td>';
+					$msg = $this->msg( 'da-specialwitnesspublisher-tableheader-publishingstatus-publish' )->plain();
+					$publishingStatus = '<td><button type="button" class="btn btn-danger publish-domain-snapshot" id="' . $row->witness_event_id . '">' . $msg . '</button></td>';
 				} else {
 					$lookupUrl = $witnessNetworkMap[$WitnessNetwork] . $row->witness_event_transaction_hash;
 					$onclick = "onclick=\"window.open('$lookupUrl', '_blank')\"";
-					$publishingStatus = "<td><button type='button' class='btn btn-success' $onclick>Lookup</button></td>";
+					$msg = $this->msg( 'da-specialwitnesspublisher-tableheader-publishingstatus-lookup' )->plain();
+					$publishingStatus = "<td><button type='button' class='btn btn-success' $onclick>$msg</button></td>";
 				}
 			}
 

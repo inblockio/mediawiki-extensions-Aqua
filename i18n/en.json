@@ -65,5 +65,8 @@
 	"da-specialwitnesspublisher-tableheader-domainsnapshot": "Domain Snapshot",
 	"da-specialwitnesspublisher-tableheader-verificationhash": "Verification Hash",
 	"da-specialwitnesspublisher-tableheader-witnessnetwork": "Witness Network",
-	"da-specialwitnesspublisher-tableheader-transactionid": "Transaction ID"
+	"da-specialwitnesspublisher-tableheader-transactionid": "Transaction ID",
+	"da-specialwitnesspublisher-tableheader-publishingstatus-imported": "Imported",
+	"da-specialwitnesspublisher-tableheader-publishingstatus-publish": "Publish!",
+	"da-specialwitnesspublisher-tableheader-publishingstatus-lookup": "Lookup"
 }
