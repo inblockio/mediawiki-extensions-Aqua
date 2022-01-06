@@ -13,7 +13,7 @@ $specialPageAliases['en'] = [
 	'VerifiedImport' => [ 'Verified Import' ],
 	'WitnessPublisher' => [ 'Witness Publisher' ],
 	'DataAccountingConfig' => [ 'Data Accounting Config' ],
-	'Witness' => [ 'Witness' ],
+	'Witness' => [ 'Domain Snapshot Generator' ],
 ];
 
 /** Dutch (Nederlands) */

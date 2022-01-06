@@ -84,7 +84,7 @@ class SpecialWitness extends SpecialPage {
 		}
 
 		$htmlForm = new HTMLForm( [], $this->getContext(), 'daDomainSnapshot' );
-		$htmlForm->setSubmitText( 'Generate Domain Snapshot' );
+		$htmlForm->setSubmitText( $this->msg( 'da-specialwitness-submit-label' ) );
 		$htmlForm->setSubmitCallback( [ $this, 'generateDomainSnapshot' ] );
 		$htmlForm->show();
 	}
@@ -99,10 +99,10 @@ class SpecialWitness extends SpecialPage {
 
 			{| class="table table-bordered"
 			|-
-			! Index
-			! Page Title
-			! Verification Hash
-			! Revision
+			! {$this->msg( 'da-specialwitness-snapshottable-header-index' )->plain()}
+			! {$this->msg( 'da-specialwitness-snapshottable-header-pagetitle' )->plain()}
+			! {$this->msg( 'da-specialwitness-snapshottable-header-verificationhash' )->plain()}
+			! {$this->msg( 'da-specialwitness-snapshottable-header-revision' )->plain()}
 
 		EOD;
 
@@ -134,7 +134,7 @@ class SpecialWitness extends SpecialPage {
 			if ( $vhash === null ) {
 				$title = $row->page_title;
 				$out->addWikiTextAsContent(
-					"Error: [[$title]] has an empty verification hash. This indicates a manipulation, database corruption, or a bug. Recover or delete page."
+					$this->msg( 'da-specialwitness-error-emptyhash' )->params( $title )->parse()
 				);
 				return false;
 			}
@@ -156,7 +156,9 @@ class SpecialWitness extends SpecialPage {
 
 			array_push( $verification_hashes, $vhash );
 
-			$revisionWikiLink = "[[Special:PermanentLink/{$row->rev_id}|See]]";
+			$revisionWikiLink = $this->msg( 'da-specialwitness-error-revisionpermalink' )
+				->params( $row->rev_id )
+				->plain();
 
 			// We thumbnail file pages so that they are not taking too much
 			// screen space.
@@ -273,7 +275,7 @@ class SpecialWitness extends SpecialPage {
 		$old_max_witness_event_id = $old_max_witness_event_id === null ? 0 : $old_max_witness_event_id;
 		$witness_event_id = $old_max_witness_event_id + 1;
 
-		$output = 'This page is a summary of all verified pages within your domain and is used to generate a merkle tree to witness and timestamp them simultanously. Use the [[Special:WitnessPublisher | Domain Snapshot Publisher]] to publish your generated Domain Snapshot to your preffered witness network.' . '<br><br>';
+		$output = $this->msg( 'da-specialwitness-snapshot-help' )->plain() . '<br><br>';
 
 		$out = $this->getOutput();
 		[ $is_valid, $verification_hashes, $output ] = $this->helperGenerateDomainSnapshotTable(
@@ -287,7 +289,7 @@ class SpecialWitness extends SpecialPage {
 		}
 
 		if ( empty( $verification_hashes ) ) {
-			$out->addHTML( 'No verified page revisions available. Create a new page revision first.' );
+			$out->addHTML( $this->msg( 'da-specialwitness-error-emptyhash-description' )->plain() );
 			return true;
 		}
 
@@ -318,7 +320,9 @@ class SpecialWitness extends SpecialPage {
 		);
 
 		$out->addHTML( $merkleTreeHtmlText );
-		$out->addWikiTextAsContent( "<br> Visit [[$title]] to see the Merkle proof." );
+		$out->addHTML(
+			"<br>" . $this->msg( 'da-specialwitness-showmerkleproof-text' )->params( $title )->parse()
+		);
 		return true;
 	}
 

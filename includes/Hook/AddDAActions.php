@@ -42,7 +42,7 @@ class AddDAActions implements SkinTemplateNavigation__UniversalHook {
 			$action = $sktemplate->getRequest()->getText( 'action' );
 			$links['actions']['daact'] = [
 				'class' => $action === 'daact' ? 'selected' : false,
-				'text' => $sktemplate->msg( 'contentaction-daact' )->text(),
+				'text' => $sktemplate->msg( 'da-contentaction-daact' )->text(),
 				'href' => $sktemplate->getTitle()->getLocalURL( 'action=daact' ),
 			];
 		}
