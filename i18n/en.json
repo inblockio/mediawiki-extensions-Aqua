@@ -7,16 +7,12 @@
 			"Timo Tijhof"
 		]
 	},
-	"example-desc": "This is an example extension using the BoilerPlate.",
-	"example-welcome-title-user": "Howdy $1, today is a fine $2!",
-	"example-welcome-title-loggedout": "Hey you there, today is a fine $2!",
-	"example-helloworld": "Bar",
-	"example-helloworld-intro": "This is the HelloWorld special page, as provided by the Example extension.",
+	"da-desc": "This is an example extension using the BoilerPlate.",
 	"apihelp-query+example-summary": "Example Query API module.",
 	"apihelp-query+example-param-key": "The 'key' parameter of the Example Query API.",
 	"apihelp-query+example-example-1": "Query 1",
 	"apihelp-query+example-example-2": "Query 2",
-	"contentaction-daact": "Sign 🔑",
+	"da-contentaction-daact": "Sign 🔑",
 	"verifiedexport": "Verified Export",
 	"verifiedimport": "Verified Import",
 	"witness": "Domain Snapshot Generator",
@@ -55,5 +51,6 @@
 	"da-import-button-import-label": "Import",
 	"da-import-result-line": "Imported page $1 ({{PLURAL:$2|one revision|$2 revisions}})",
 	"da-import-fail-revision": "Failed to import revision $2 of title [[$1]]",
-	"da-import-fail-title": "'''Import failed!'''"
+	"da-import-fail-title": "'''Import failed!'''",
+	"witnesspublisher": "Witness Publisher"
 }

@@ -9,10 +9,11 @@ $specialPageAliases = [];
 
 /** English (English) */
 $specialPageAliases['en'] = [
-	'VerifiedExport' => [ 'VerifiedExport' ],
-	'VerifiedImport' => [ 'VerifiedImport' ],
-	'WitnessPublisher' => [ 'WitnessPublisher' ],
-	'DataAccountingConfig' => [ 'DataAccountingConfig' ]
+	'VerifiedExport' => [ 'Verified Export' ],
+	'VerifiedImport' => [ 'Verified Import' ],
+	'WitnessPublisher' => [ 'Witness Publisher' ],
+	'DataAccountingConfig' => [ 'Data Accounting Config' ],
+	'Witness' => [ 'Witness' ],
 ];
 
 /** Dutch (Nederlands) */

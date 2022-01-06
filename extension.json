@@ -7,7 +7,7 @@
 		"rht rhtbot@protonmail.com"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:Example",
-	"descriptionmsg": "example-desc",
+	"descriptionmsg": "da-desc",
 	"license-name": "GPL-3.0-or-later",
 	"type": "other",
 	"requires": {
@@ -37,14 +37,14 @@
 		"da": "\\DataAccounting\\Config\\Handler::configFactoryCallback"
 	},
 	"MessagesDirs": {
-		"Example": [
+		"DataAccounting": [
 			"i18n",
 			"i18n/api"
 		]
 	},
 	"ExtensionMessagesFiles": {
-		"ExampleAlias": "Example.i18n.alias.php",
-		"ExampleMagic": "Example.i18n.magic.php"
+		"DataAccountingAlias": "languages/DataAccounting.alias.php",
+		"DataAccountingMagic": "languages/DataAccounting.magic.php"
 	},
 	"AutoloadNamespaces": {
 		"DataAccounting\\": "includes/",
