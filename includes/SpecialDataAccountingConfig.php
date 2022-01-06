@@ -132,7 +132,7 @@ class SpecialDataAccountingConfig extends SpecialPage {
 				] ),
 				[
 					'label' => $this->msg( 'da-specialdaconfig-signature-checkbox-label' )->plain(),
-					'align' => 'top',
+					'align' => 'left',
 				]
 			),
 			new Element( [
