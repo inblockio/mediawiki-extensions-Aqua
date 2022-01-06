@@ -134,7 +134,7 @@
 		"MultiContentSave": "addTransclusionHashes",
 		"BeforeParserFetchTemplateRevisionRecord": "controlTranscludedContent",
 		"BeforeParserFetchFileAndTitle": "controlTranscludedContent",
-		"SkinTemplateNavigation::Universal": "addExportAction"
+		"SkinTemplateNavigation::Universal": "addDAActions"
 	},
 	"HookHandlers": {
 		"handleHooks": {
@@ -169,8 +169,11 @@
 		"update": {
 			"class": "DataAccounting\\Hook\\Update"
 		},
-		"addExportAction": {
-			"class": "DataAccounting\\Hook\\AddExportAction"
+		"addDAActions": {
+			"class": "DataAccounting\\Hook\\AddDAActions",
+            "services": [
+				"PermissionManager"
+            ]
 		}
 	},
 	"RestRoutes": [

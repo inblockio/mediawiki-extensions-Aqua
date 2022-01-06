@@ -17,7 +17,6 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Hook\ImportHandlePageXMLTagHook;
-use MediaWiki\Hook\SkinTemplateNavigation__UniversalHook;
 use MediaWiki\Hook\XmlDumpWriterOpenPageHook;
 use MWException;
 use OutputPage;
@@ -25,7 +24,6 @@ use Parser;
 use PPFrame;
 use RequestContext;
 use Skin;
-use SkinTemplate;
 use stdClass;
 use TitleFactory;
 use WikiImporter;
@@ -35,8 +33,7 @@ class Hooks implements
 	ParserFirstCallInitHook,
 	OutputPageParserOutputHook,
 	ImportHandlePageXMLTagHook,
-	XmlDumpWriterOpenPageHook,
-	SkinTemplateNavigation__UniversalHook
+	XmlDumpWriterOpenPageHook
 {
 
 	private PermissionManager $permissionManager;
@@ -112,35 +109,6 @@ class Hooks implements
 		// Add the following to a wiki page to see how it works:
 		// {{#showme: hello | hi | there }}
 		$parser->setFunctionHook( 'showme', [ self::class, 'parserFunctionShowme' ] );
-	}
-
-	/**
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SkinTemplateNavigation::Universal
-	 *
-	 * @param SkinTemplate $skin
-	 * @param array &$links
-	 */
-	public function onSkinTemplateNavigation__Universal( $skin, &$links ): void {
-		if ( isset( $links['actions']['watch'] ) ) {
-			unset(  $links['actions']['watch'] );
-		}
-		if ( isset( $links['actions']['unwatch'] ) ) {
-			unset(  $links['actions']['unwatch'] );
-		}
-		if ( isset( $links['actions']['protect'] ) ) {
-			unset(  $links['actions']['protect'] );
-		}
-		if ( $skin->getTitle()->getNamespace() !== NS_SPECIAL ) {
-			if ( !$this->permissionManager->userCan( 'edit', $skin->getUser(), $skin->getTitle() ) ) {
-				return;
-			}
-			$action = $skin->getRequest()->getText( 'action' );
-			$links['actions']['daact'] = [
-				'class' => $action === 'daact' ? 'selected' : false,
-				'text' => $skin->msg( 'contentaction-daact' )->text(),
-				'href' => $skin->getTitle()->getLocalURL( 'action=daact' ),
-			];
-		}
 	}
 
 	/**
