@@ -6,41 +6,6 @@ parameters:
 			path: includes/SpecialVerifiedExport.php
 
 		-
-			message: "#^Caught class DataAccounting\\\\Exception not found\\.$#"
-			count: 1
-			path: includes/SpecialVerifiedImport.php
-
-		-
-			message: "#^Instantiated class DataAccounting\\\\UnexpectedValueException not found\\.$#"
-			count: 1
-			path: includes/SpecialVerifiedImport.php
-
-		-
-			message: "#^Caught class DataAccounting\\\\MWContentSerializationException not found\\.$#"
-			count: 1
-			path: includes/VerifiedWikiImporter.php
-
-		-
-			message: "#^Instantiated class DataAccounting\\\\MWException not found\\.$#"
-			count: 5
-			path: includes/VerifiedWikiImporter.php
-
-		-
-			message: "#^Instantiated class DataAccounting\\\\NamespaceImportTitleFactory not found\\.$#"
-			count: 1
-			path: includes/VerifiedWikiImporter.php
-
-		-
-			message: "#^Instantiated class DataAccounting\\\\SubpageImportTitleFactory not found\\.$#"
-			count: 1
-			path: includes/VerifiedWikiImporter.php
-
-		-
-			message: "#^Instantiated class DataAccounting\\\\NaiveForeignTitleFactory not found\\.$#"
-			count: 1
-			path: includes/VerifiedWikiImporter.php
-
-		-
 			message: "#^Variable \\$foreignTitle might not be defined\\.$#"
 			count: 1
 			path: includes/VerifiedWikiImporter.php

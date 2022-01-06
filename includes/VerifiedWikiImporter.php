@@ -53,6 +53,8 @@ use ImportTitleFactory;
 use ExternalUserNames;
 use Status;
 use NamespaceAwareForeignTitleFactory;
+use SubpageImportTitleFactory;
+use NaiveForeignTitleFactory;
 use RequestContext;
 use MediaWiki\MediaWikiServices;
 use WikiRevision;
@@ -60,6 +62,8 @@ use Title;
 use ForeignTitle;
 use DeferredUpdates;
 use SiteStatsUpdate;
+use MWException;
+use MWContentSerializationException;
 
 /**
  * This class is cloned from Mediawiki 1.37.0's WikiImporter. Almost the same

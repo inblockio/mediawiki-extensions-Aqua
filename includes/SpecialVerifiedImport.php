@@ -35,6 +35,8 @@ use MediaWiki\Permissions\PermissionManager;
 use PermissionsError;
 use SpecialPage;
 use Status;
+use UnexpectedValueException;
+use Exception;
 
 /**
  * DataAccounting modifications:
