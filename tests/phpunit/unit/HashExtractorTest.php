@@ -118,7 +118,6 @@ class HashExtractorTest extends TestCase {
 					[
 						'dbkey' => 'File:Test.png',
 						'ns' => NS_FILE,
-						'revid' => 0,
 						VerificationEntity::GENESIS_HASH => null,
 						VerificationEntity::VERIFICATION_HASH => null,
 						VerificationEntity::CONTENT_HASH => null,
@@ -126,7 +125,6 @@ class HashExtractorTest extends TestCase {
 					[
 						'dbkey' => 'File:Test.jpg',
 						'ns' => NS_FILE,
-						'revid' => 0,
 						VerificationEntity::GENESIS_HASH => null,
 						VerificationEntity::VERIFICATION_HASH => null,
 						VerificationEntity::CONTENT_HASH => null,
@@ -134,7 +132,6 @@ class HashExtractorTest extends TestCase {
 					[
 						'dbkey' => 'Foo',
 						'ns' => NS_TEMPLATE,
-						'revid' => 123,
 						VerificationEntity::GENESIS_HASH => '123',
 						VerificationEntity::VERIFICATION_HASH => '456',
 						VerificationEntity::CONTENT_HASH => '789',
@@ -142,7 +139,6 @@ class HashExtractorTest extends TestCase {
 					[
 						'dbkey' => 'Bar',
 						'ns' => NS_TEMPLATE,
-						'revid' => 0,
 						VerificationEntity::GENESIS_HASH => null,
 						VerificationEntity::VERIFICATION_HASH => null,
 						VerificationEntity::CONTENT_HASH => null,
@@ -150,7 +146,6 @@ class HashExtractorTest extends TestCase {
 					[
 						'dbkey' => 'Test.js',
 						'ns' => NS_MEDIAWIKI,
-						'revid' => 0,
 						VerificationEntity::GENESIS_HASH => null,
 						VerificationEntity::VERIFICATION_HASH => null,
 						VerificationEntity::CONTENT_HASH => null,
