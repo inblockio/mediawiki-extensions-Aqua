@@ -1,9 +1,5 @@
 parameters:
 	ignoreErrors:
-		-
-			message: "#^Variable \\$history might not be defined\\.$#"
-			count: 1
-			path: includes/SpecialVerifiedExport.php
 
 		-
 			message: "#^Variable \\$foreignTitle might not be defined\\.$#"

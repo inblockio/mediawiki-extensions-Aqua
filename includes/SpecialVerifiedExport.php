@@ -7,13 +7,12 @@ use DataAccounting\Transfer\Exporter;
 use DataAccounting\Transfer\ExportSpecification;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
-use MediaWiki\Storage\RevisionStore;
+use MediaWiki\Revision\RevisionStore;
 use Message;
 use OOUI\ButtonInputWidget;
 use OOUI\CheckboxInputWidget;
 use OOUI\FieldLayout;
 use OOUI\FormLayout;
-use OOUI\HorizontalLayout;
 use OOUI\MultilineTextInputWidget;
 use OOUI\NumberInputWidget;
 use SpecialPage;
@@ -62,9 +61,12 @@ class SpecialVerifiedExport extends SpecialPage {
 			$this->getRequest()->getPostValues() :
 			$this->getRequest()->getQueryValues();
 
-		$titles = $this->getRequest()->wasPosted() ?
-			explode( "\n", trim( $params['titles'] ?? '' ) ) :
-			explode( '|', trim( $params['titles'] ?? '' ) );
+		$titles = [];
+		if( $this->getRequest()->wasPosted() && !empty( $params['titles'] ) ) {
+			$titles = explode( "\n", trim( $params['titles'] ?? '' ) );
+		} elseif( !empty( $params['titles'] ) ) {
+			$titles = explode( '|', trim( $params['titles'] ?? '' ) );
+		}
 
 		if ( empty( $titles ) ) {
 			$this->error( $this->getContext()->msg( 'da-export-no-title' ) );

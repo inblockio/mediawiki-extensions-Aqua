@@ -9,7 +9,7 @@ use DataAccounting\Transfer\Exporter;
 use DataAccounting\Transfer\ExportSpecification;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
-use MediaWiki\Storage\RevisionStore;
+use MediaWiki\Revision\RevisionStore;
 use Title;
 use Wikimedia\ParamValidator\ParamValidator;
 
