@@ -119,22 +119,18 @@
 		"BeforePageDisplay": "handleHooks",
 		"ParserFirstCallInit": "handleHooks",
 		"ParserGetVariableValueSwitch": "handleHooks",
-		"SkinTemplateNavigation::Universal": "handleHooks",
+		"SkinTemplateNavigation::Universal": "addDAActions",
 		"OutputPageParserOutput": "handleHooks",
 		"RevisionFromEditComplete": "handleHashWriterHooks",
 		"RevisionRecordInserted": "handleHashWriterHooks",
 		"ArticleDeleteComplete": "handleHashWriterHooks",
 		"PageMoveCompleting": "handleHashWriterHooks",
 		"LoadExtensionSchemaUpdates": "update",
-		"XmlDumpWriterOpenPage": "handleHooks",
-		"XmlDumpWriterWriteRevision": "handleHooks",
-		"ImportHandlePageXMLTag": "handleHooks",
 		"MediaWikiServices": [ "registerRevisionSlots", "overrideService" ],
 		"DASaveRevisionAddSlots": "addTransclusionHashes",
 		"MultiContentSave": "addTransclusionHashes",
 		"BeforeParserFetchTemplateRevisionRecord": "controlTranscludedContent",
-		"BeforeParserFetchFileAndTitle": "controlTranscludedContent",
-		"SkinTemplateNavigation::Universal": "addDAActions"
+		"BeforeParserFetchFileAndTitle": "controlTranscludedContent"
 	},
 	"HookHandlers": {
 		"handleHooks": {

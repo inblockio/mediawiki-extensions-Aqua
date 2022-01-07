@@ -9,8 +9,9 @@
  use HashConfig;
  use MediaWiki\Content\IContentHandlerFactory;
  use MediaWiki\MediaWikiServices;
- use MediaWiki\Revision\RevisionRecord;
- use MediaWiki\Revision\RevisionStore;
+ use MediaWiki\Page\MovePageFactory;
+ use MediaWiki\Storage\RevisionRecord;
+ use MediaWiki\Storage\RevisionStore;
  use Message;
  use MWContentSerializationException;
  use MWException;
@@ -20,7 +21,9 @@
  use Status;
  use StatusValue;
  use Title;
+ use TitleFactory;
  use UploadRevisionImporter;
+ use User;
  use WikiRevision;
 
  class Importer {
@@ -38,6 +41,10 @@
 	private RevisionStore $revisionStore;
 	/** @var RepoGroup */
 	private RepoGroup $repoGroup;
+	/** @var TitleFactory */
+	private TitleFactory $titleFactory;
+	/** @var MovePageFactory */
+	private MovePageFactory $movePageFactory;
 
 	 /**
 	  * @param VerificationEngine $verificationEngine
@@ -47,11 +54,14 @@
 	  * @param IContentHandlerFactory $contentHandlerFactory
 	  * @param RevisionStore $revisionStore
 	  * @param RepoGroup $repoGroup
+	  * @param TitleFactory $titleFactory
+	  * @param MovePageFactory $movePageFactory
 	  */
 	public function __construct(
 		VerificationEngine $verificationEngine, WitnessingEngine $witnessingEngine,
 		OldRevisionImporter $revisionImporter, UploadRevisionImporter $uploadRevisionImporter,
-		IContentHandlerFactory $contentHandlerFactory, RevisionStore $revisionStore, RepoGroup $repoGroup
+		IContentHandlerFactory $contentHandlerFactory, RevisionStore $revisionStore,
+		RepoGroup $repoGroup, TitleFactory $titleFactory, MovePageFactory $movePageFactory
 	) {
 		$this->verificationEngine = $verificationEngine;
 		$this->witnessingEngine = $witnessingEngine;
@@ -60,23 +70,30 @@
 		$this->contentHandlerFactory = $contentHandlerFactory;
 		$this->revisionStore = $revisionStore;
 		$this->repoGroup = $repoGroup;
+		$this->titleFactory = $titleFactory;
+		$this->movePageFactory = $movePageFactory;
 	}
 
 	 /**
 	  * @param TransferRevisionEntity $revisionEntity
 	  * @param TransferContext $context Contains result of `get_hash_chain_info`
+	  * @param User $actor
 	  * @return Status
+	  * @throws MWContentSerializationException
+	  * @throws MWException
+	  * @throws MWUnknownContentModelException
 	  */
 	public function importRevision(
-		TransferRevisionEntity $revisionEntity, TransferContext $context
+		TransferRevisionEntity $revisionEntity, TransferContext $context, User $actor
 	): Status {
+		$collisionResolutionStatus = $this->checkAndFixCollision( $actor, $context );
 		if ( isset( $revisionEntity->getContent()['file'] ) ) {
 			$status = $this->doImportUpload( $revisionEntity, $context );
 		} else {
 			$status = $this->doImportRevision( $revisionEntity, $context );
 		}
 
-		return $status;
+		return $status->merge( $collisionResolutionStatus, true );
 	}
 
 	 /**
@@ -134,7 +151,6 @@
 		 $revision->setFileSrc( $file, true );
 		 $revision->setSize( intval( $fileInfo['size'] ) );
 		 $revision->setComment( $fileInfo['comment'] );
-
 		 $status = $this->uploadRevisionImporter->import( $revision );
 		 if ( !$status->isOK() ) {
 		 	return $status;
@@ -355,5 +371,49 @@
 		return Status::newFatal(
 			Message::newFromKey( 'da-import-fail-revision' )->params( $revision->getTitle(), $revision->getID() )
 		);
+	 }
+
+	 /**
+	  * @param User $actor
+	  * @param TransferContext $context
+	  * @return Status
+	  */
+	 private function checkAndFixCollision( User $actor, TransferContext $context ): Status {
+		if ( !$context->getTitle()->exists() ) {
+			return Status::newGood();
+		}
+
+		$ownChainHeight = $this->verificationEngine->getPageChainHeight( $context->getTitle() );
+		if ( $ownChainHeight === 0 ) {
+			return Status::newGood();
+		}
+
+		if ( $ownChainHeight <= $context->getChainHeight() ) {
+			// Move and rename own page
+			// Rename the page that is about to be imported
+			$now = date( 'Y-m-d-H-i-s', time() );
+			$newTitle = $context->getTitle()->getPrefixedDBkey() . "_ChainHeight_{$ownChainHeight}_$now";
+			$newTitle = $this->titleFactory->newFromText( $newTitle );
+			$mp = $this->movePageFactory->newMovePage( $context->getTitle(), $newTitle );
+			$reason = "Resolving naming collision because imported page has longer verified chain height.";
+			$createRedirect = false;
+
+			$status = $mp->moveIfAllowed(
+				$actor,
+				$reason,
+				$createRedirect
+			);
+			if ( !$status->isOK() ) {
+				return $status;
+			}
+			return Status::newGood( [
+				'collision_move' => [
+					'old' => $context->getTitle(),
+					'new' => $newTitle
+				]
+			] );
+		}
+
+		return Status::newGood();
 	 }
  }

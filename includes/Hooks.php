@@ -31,9 +31,7 @@ use WikiImporter;
 class Hooks implements
 	BeforePageDisplayHook,
 	ParserFirstCallInitHook,
-	OutputPageParserOutputHook,
-	ImportHandlePageXMLTagHook,
-	XmlDumpWriterOpenPageHook
+	OutputPageParserOutputHook
 {
 
 	private PermissionManager $permissionManager;
@@ -167,82 +165,5 @@ class Hooks implements
 		return '<pre>Showme Function: '
 			. htmlspecialchars( FormatJson::encode( $showme, /*prettyPrint=*/ true ) )
 			. '</pre>';
-	}
-
-	/**
-	 * This hook is called at the end of XmlDumpWriter::openPage, to allow
-	 * extra metadata to be added.
-	 *
-	 * @since 1.35
-	 *
-	 * @param XmlDumpWriter $obj
-	 * @param string &$out Output string
-	 * @param stdClass $row Database row for the page
-	 * @param Title $title Title of the page
-	 * @return bool|void True or no return value to continue or false to abort
-	 */
-	public function onXmlDumpWriterOpenPage( $obj, &$out, $row, $title ) {
-		// This method is for verified exporter.
-		$out .= \Xml::element(
-			'data_accounting_chain_height',
-			[],
-			$this->verificationEngine->getPageChainHeight( $title->getText() )
-		);
-	}
-
-	public function onXmlDumpWriterWriteRevision( \XmlDumpWriter $dumpWriter, string &$output, stdClass $page, string $text, RevisionRecord $revision ): void {
-		// This method is for verified exporter.
-		$xmlBuilder = new RevisionXmlBuilder(
-			MediaWikiServices::getInstance()->getDBLoadBalancer(),
-			$this->witnessingEngine
-		);
-
-		$output .= $xmlBuilder->getPageMetadataByRevId( $revision->getId() );
-	}
-
-	/**
-	 * This hook is called when parsing an XML tag in a page.
-	 *
-	 * @since 1.35
-	 *
-	 * @param WikiImporter $reader
-	 * @param array &$pageInfo Array of information
-	 * @return bool|void True or no return value to continue, or false to stop further
-	 *   processing of the tag
-	 */
-	public function onImportHandlePageXMLTag( $reader, &$pageInfo ) {
-		// This method is for verified importer.
-		if ( $reader->getReader()->localName !== 'data_accounting_chain_height' ) {
-			return true;
-		}
-
-		$own_chain_height = $this->verificationEngine->getPageChainHeight( $pageInfo['title'] );
-
-		if ( $own_chain_height == 0 ) {
-			return false;
-		}
-
-		$imported_chain_height = $reader->nodeContents();
-		if ( $own_chain_height <= $imported_chain_height ) {
-			// Move and rename own page
-			// Rename the page that is about to be imported
-			$now = date( 'Y-m-d-H-i-s', time() );
-			$newTitle = $pageInfo['title'] . "_ChainHeight_{$own_chain_height}_$now";
-
-			$ot = $this->titleFactory->newFromText( $pageInfo['title'] );
-			$nt = $this->titleFactory->newFromText( $newTitle );
-			$mp = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage( $ot, $nt );
-			$reason = "Resolving naming collision because imported page has longer verified chain height.";
-			$createRedirect = false;
-
-			$mp->moveIfAllowed(
-				RequestContext::getMain()->getUser(),
-				$reason,
-				$createRedirect
-			);
-		}
-
-		// This prevents continuing down the else-if statements in WikiImporter, which would reach `$tag != '#text'`
-		return false;
 	}
 }

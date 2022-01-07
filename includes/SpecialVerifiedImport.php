@@ -17,8 +17,6 @@ use OOUI\SelectFileInputWidget;
 use PermissionsError;
 use SpecialPage;
 use Status;
-use UnexpectedValueException;
-use Exception;
 use TitleFactory;
 
 class SpecialVerifiedImport extends SpecialPage {
@@ -116,7 +114,7 @@ class SpecialVerifiedImport extends SpecialPage {
 				return;
 			}
 
-			$stats = [];
+			$stats = $collisions = [];
 			$siteInfo = $arrayContent['siteInfo'];
 			foreach ( $arrayContent['pages'] as $page ) {
 				$revisions = $page['revisions'];
@@ -128,10 +126,16 @@ class SpecialVerifiedImport extends SpecialPage {
 					if ( !$entity instanceof \DataAccounting\Transfer\TransferRevisionEntity ) {
 						continue;
 					}
-					$status = $this->importer->importRevision( $entity, $context );
+					$status = $this->importer->importRevision( $entity, $context, $this->getUser() );
 					if ( !$status->isOK() ) {
 						$this->errorFromStatus( $status );
 						return;
+					}
+					$value = $status->getValue();
+					error_log( var_export( $value
+					, 1));
+					if ( isset( $value['collision_move'] ) ) {
+						$collisions[$value['collision_move']['old']->getPrefixedDBkey()] = $value['collision_move']['new'];
 					}
 					if ( !isset( $stats[$context->getTitle()->getPrefixedDBkey()] ) ) {
 						$stats[$context->getTitle()->getPrefixedDBkey()] = 0;
@@ -148,6 +152,18 @@ class SpecialVerifiedImport extends SpecialPage {
 					Message::newFromKey( 'da-import-result-line' )
 						->rawParams( $this->linker->makeLink( $title ), $count )->text()
 				);
+				if ( isset( $collisions[$pagename] ) ) {
+					$output .= Html::rawElement(
+						'ul', [],
+						Html::rawElement(
+							'li', [],
+							Message::newFromKey( 'da-import-result-collision' )
+								->rawParams(
+									$this->linker->makeLink( $collisions[$pagename] )
+								)->text()
+						)
+					);
+				}
 			}
 			$output .= Html::closeElement( 'ul' );
 			$this->getOutput()->addHTML( $output );

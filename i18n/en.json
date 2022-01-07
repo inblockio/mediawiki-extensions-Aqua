@@ -68,5 +68,6 @@
 	"da-specialwitnesspublisher-tableheader-transactionid": "Transaction ID",
 	"da-specialwitnesspublisher-tableheader-publishingstatus-imported": "Imported",
 	"da-specialwitnesspublisher-tableheader-publishingstatus-publish": "Publish!",
-	"da-specialwitnesspublisher-tableheader-publishingstatus-lookup": "Lookup"
+	"da-specialwitnesspublisher-tableheader-publishingstatus-lookup": "Lookup",
+	"da-import-result-collision": "Collision detected, original title moved to $1"
 }
