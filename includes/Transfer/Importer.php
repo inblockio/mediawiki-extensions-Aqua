@@ -153,7 +153,7 @@
 		 	// Revision for the file page will only be created in a deferred update,
 			// and the update itself will only be added on DB tx commit,
 			// so we need to hook into the same DB connection, listen to tx commit and run updates
-		 	function () use ( $revision, $revisionEntity, $context, $verificationUpdate ) {
+		 	function () use ( $verificationUpdate ) {
 				// Downside is that we dont have any checks here, if this fails,
 				// noone will know, as this happens after our code has already completed
 
