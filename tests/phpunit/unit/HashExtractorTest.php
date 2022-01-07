@@ -118,37 +118,27 @@ class HashExtractorTest extends TestCase {
 					[
 						'dbkey' => 'File:Test.png',
 						'ns' => NS_FILE,
-						VerificationEntity::GENESIS_HASH => null,
 						VerificationEntity::VERIFICATION_HASH => null,
-						VerificationEntity::CONTENT_HASH => null,
 					],
 					[
 						'dbkey' => 'File:Test.jpg',
 						'ns' => NS_FILE,
-						VerificationEntity::GENESIS_HASH => null,
 						VerificationEntity::VERIFICATION_HASH => null,
-						VerificationEntity::CONTENT_HASH => null,
 					],
 					[
 						'dbkey' => 'Foo',
 						'ns' => NS_TEMPLATE,
-						VerificationEntity::GENESIS_HASH => '123',
 						VerificationEntity::VERIFICATION_HASH => '456',
-						VerificationEntity::CONTENT_HASH => '789',
 					],
 					[
 						'dbkey' => 'Bar',
 						'ns' => NS_TEMPLATE,
-						VerificationEntity::GENESIS_HASH => null,
 						VerificationEntity::VERIFICATION_HASH => null,
-						VerificationEntity::CONTENT_HASH => null,
 					],
 					[
 						'dbkey' => 'Test.js',
 						'ns' => NS_MEDIAWIKI,
-						VerificationEntity::GENESIS_HASH => null,
 						VerificationEntity::VERIFICATION_HASH => null,
-						VerificationEntity::CONTENT_HASH => null,
 					]
 				]
 			]
