@@ -119,9 +119,7 @@ class TransclusionHashExtractor {
 			$transclusion = [
 				'dbkey' => $title->getDBkey(),
 				'ns' => $title->getNamespace(),
-				VerificationEntity::GENESIS_HASH => null,
 				VerificationEntity::VERIFICATION_HASH => null,
-				VerificationEntity::CONTENT_HASH => null,
 			];
 			if ( $title->exists() ) {
 				$entity = $this->verifcationEngine->getLookup()
@@ -130,12 +128,8 @@ class TransclusionHashExtractor {
 					// this is just for sanity, should never even happen
 					throw new MWException( 'Failed to retrieve entity for revid ' . $title->getLatestRevID() );
 				}
-				$transclusion[VerificationEntity::GENESIS_HASH] =
-					$entity->getHash( VerificationEntity::GENESIS_HASH );
 				$transclusion[VerificationEntity::VERIFICATION_HASH] =
 					$entity->getHash( VerificationEntity::VERIFICATION_HASH );
-				$transclusion[VerificationEntity::CONTENT_HASH] =
-					$entity->getHash( VerificationEntity::CONTENT_HASH );
 			}
 
 			$this->hashMap[] = $transclusion;

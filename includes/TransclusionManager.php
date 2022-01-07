@@ -80,8 +80,6 @@ class TransclusionManager {
 				}
 			} else {
 				$recordedEntity = $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
-					VerificationEntity::GENESIS_HASH => $transclusion->{VerificationEntity::GENESIS_HASH},
-					VerificationEntity::CONTENT_HASH => $transclusion->{VerificationEntity::CONTENT_HASH},
 					VerificationEntity::VERIFICATION_HASH => $transclusion->{VerificationEntity::VERIFICATION_HASH},
 				] );
 				if ( $recordedEntity === null || $latestEntity === null ) {
@@ -143,12 +141,10 @@ class TransclusionManager {
 	 * @return VerificationEntity|null
 	 */
 	private function getVerificationEntityForResource( $resourceDetails ): ?VerificationEntity {
-		if ( $resourceDetails->{VerificationEntity::GENESIS_HASH} === null ) {
+		if ( $resourceDetails->{VerificationEntity::VERIFICATION_HASH} === null ) {
 			return null;
 		}
 		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
-			VerificationEntity::GENESIS_HASH => $resourceDetails->{VerificationEntity::GENESIS_HASH},
-			VerificationEntity::CONTENT_HASH => $resourceDetails->{VerificationEntity::CONTENT_HASH},
 			VerificationEntity::VERIFICATION_HASH => $resourceDetails->{VerificationEntity::VERIFICATION_HASH},
 		] );
 	}
@@ -188,9 +184,7 @@ class TransclusionManager {
 		}
 
 		$data = [
-			VerificationEntity::GENESIS_HASH => $entity->getHash( VerificationEntity::GENESIS_HASH ),
 			VerificationEntity::VERIFICATION_HASH => $entity->getHash( VerificationEntity::VERIFICATION_HASH ),
-			VerificationEntity::CONTENT_HASH => $entity->getHash( VerificationEntity::CONTENT_HASH )
 		];
 		$updateRes = $content->updateResource( $resourceTitle, $data );
 		if ( !$updateRes ) {
