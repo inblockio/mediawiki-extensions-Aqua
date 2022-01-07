@@ -5,15 +5,20 @@
  use DataAccounting\Verification\VerificationEngine;
  use DataAccounting\Verification\Entity\VerificationEntity;
  use DataAccounting\Verification\WitnessingEngine;
+ use DeferredUpdates;
  use HashConfig;
  use MediaWiki\Content\IContentHandlerFactory;
  use MediaWiki\MediaWikiServices;
  use MediaWiki\Storage\RevisionRecord;
  use MediaWiki\Storage\RevisionStore;
+ use Message;
  use MWContentSerializationException;
  use MWException;
  use MWUnknownContentModelException;
  use OldRevisionImporter;
+ use RepoGroup;
+ use Status;
+ use StatusValue;
  use Title;
  use UploadRevisionImporter;
  use WikiRevision;
@@ -31,6 +36,8 @@
 	private IContentHandlerFactory $contentHandlerFactory;
 	/** @var RevisionStore */
 	private RevisionStore $revisionStore;
+	/** @var RepoGroup */
+	private RepoGroup $repoGroup;
 
 	 /**
 	  * @param VerificationEngine $verificationEngine
@@ -39,11 +46,12 @@
 	  * @param UploadRevisionImporter $uploadRevisionImporter
 	  * @param IContentHandlerFactory $contentHandlerFactory
 	  * @param RevisionStore $revisionStore
+	  * @param RepoGroup $repoGroup
 	  */
 	public function __construct(
 		VerificationEngine $verificationEngine, WitnessingEngine $witnessingEngine,
 		OldRevisionImporter $revisionImporter, UploadRevisionImporter $uploadRevisionImporter,
-		IContentHandlerFactory $contentHandlerFactory, RevisionStore $revisionStore
+		IContentHandlerFactory $contentHandlerFactory, RevisionStore $revisionStore, RepoGroup $repoGroup
 	) {
 		$this->verificationEngine = $verificationEngine;
 		$this->witnessingEngine = $witnessingEngine;
@@ -51,39 +59,38 @@
 		$this->uploadRevisionImporter = $uploadRevisionImporter;
 		$this->contentHandlerFactory = $contentHandlerFactory;
 		$this->revisionStore = $revisionStore;
+		$this->repoGroup = $repoGroup;
 	}
 
 	 /**
 	  * @param TransferRevisionEntity $revisionEntity
 	  * @param TransferContext $context Contains result of `get_hash_chain_info`
-	  * @throws MWException
+	  * @return Status
 	  */
 	public function importRevision(
 		TransferRevisionEntity $revisionEntity, TransferContext $context
-	) {
+	): Status {
 		if ( isset( $revisionEntity->getContent()['file'] ) ) {
-			$revision = $this->doImportUpload( $revisionEntity, $context );
+			$status = $this->doImportUpload( $revisionEntity, $context );
 		} else {
-			$revision = $this->doImportRevision( $revisionEntity, $context );
+			$status = $this->doImportRevision( $revisionEntity, $context );
 		}
 
-		if ( !$revision ) {
-			throw new MWException( 'Could not import revision' );
-		}
-		$this->buildVerification( $revisionEntity, $context );
+		return $status;
 	}
 
 	 /**
 	  * @param TransferRevisionEntity $revisionEntity
 	  * @param TransferContext $context
-	  * @throws MWContentSerializationException
+	  * @return Status
 	  * @throws MWException
 	  * @throws MWUnknownContentModelException
-	  * @return RevisionRecord|null
+	  * @throws MWContentSerializationException
 	  */
 	 private function doImportRevision(
 		TransferRevisionEntity $revisionEntity, TransferContext $context
-	 ): ?RevisionRecord {
+	 ): Status
+	 {
 		 $revision = $this->prepRevision( $revisionEntity, $context );
 
 		 if ( isset( $revisionEntity->getContent()['minor'] ) ) {
@@ -91,9 +98,13 @@
 		 }
 
 		 $this->revisionImporter->import( $revision );
-		 return $this->revisionStore->getRevisionByTimestamp(
-			 $revision->getTitle(), $revision->getTimestamp()
-		 );
+
+		 $status = $this->newRevisionStatus( $revision ) ;
+		 if ( $status->isOK() ) {
+			 return $this->buildVerification( $revisionEntity, $context );
+		 }
+
+		 return $status;
 	 }
 
 	 /**
@@ -102,11 +113,11 @@
 	  * @throws MWContentSerializationException
 	  * @throws MWException
 	  * @throws MWUnknownContentModelException
-	  * @return RevisionRecord|null
+	  * @return Status
 	  */
 	 private function doImportUpload(
 	 	TransferRevisionEntity $revisionEntity, TransferContext $context
-	 ): ?RevisionRecord {
+	 ): StatusValue {
 		 $revision = $this->prepRevision( $revisionEntity, $context );
 		 $fileInfo = $revisionEntity->getContent()['file'];
 		 $revision->setFilename( $fileInfo['filename'] );
@@ -126,13 +137,32 @@
 
 		 $status = $this->uploadRevisionImporter->import( $revision );
 		 if ( !$status->isOK() ) {
-		 	$errors = implode( ',', $status->getErrors() );
-			throw new MWException( 'Could not upload file: ' . $errors );
+		 	return $status;
 		 }
-
-		 return $this->revisionStore->getRevisionByTimestamp(
-			 $revision->getTitle(), $revision->getTimestamp()
+		 $dbw = $this->repoGroup->getRepo( 'local' )->getPrimaryDB();
+		 $importer = $this;
+		 $verificationUpdate = new \AutoCommitUpdate(
+			 $dbw,
+			 __METHOD__,
+			 static function() use ( $revisionEntity, $context, $importer ) {
+				 $importer->buildVerification( $revisionEntity, $context );
+			 }
 		 );
+
+		 $dbw->onTransactionCommitOrIdle(
+		 	// Revision for the file page will only be created in a deferred update,
+			// and the update itself will only be added on DB tx commit,
+			// so we need to hook into the same DB connection, listen to tx commit and run updates
+		 	function () use ( $revision, $revisionEntity, $context, $verificationUpdate ) {
+				// Downside is that we dont have any checks here, if this fails,
+				// noone will know, as this happens after our code has already completed
+
+		 		DeferredUpdates::addUpdate( $verificationUpdate, DeferredUpdates::PRESEND );
+			},
+			 __METHOD__
+		 );
+
+		 return Status::newGood( [ 'update' => false ] );
 	 }
 
 	 /**
@@ -180,9 +210,9 @@
 	 /**
 	  * @param TransferRevisionEntity $transferEntity
 	  * @param TransferContext $context
-	  * @throws MWException
+	  * @return Status
 	  */
-	 private function buildVerification(
+	 public function buildVerification(
 		TransferRevisionEntity $transferEntity, TransferContext $context
 	 ) {
 		$verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromTitle(
@@ -190,7 +220,7 @@
 		);
 		if ( !$verificationEntity ) {
 			// Do nothing if entry does not exist => TODO: Why?
-			return;
+			return Status::newGood();
 		}
 
 		$witness = $transferEntity->getWitness();
@@ -202,8 +232,10 @@
 			$verificationEntity, $this->compileVerificationData( $transferEntity, $context )
 		);
 		if ( !$res ) {
-			throw new MWException( 'Failed to store verification' );
+			return Status::newFatal( "Could not store verification data" );
 		}
+
+		return Status::newGood();
 	 }
 
 	 /**
@@ -309,5 +341,19 @@
 			'wallet_address' => $revisionEntity->getSignature()['wallet_address'],
 			'source' => 'import'
 		];
+	 }
+
+	 private function newRevisionStatus( WikiRevision $revision ) {
+		 $newRevision = $this->revisionStore->getRevisionByTimestamp(
+			 $revision->getTitle(), $revision->getTimestamp()
+		 );
+
+		 if ( $newRevision instanceof RevisionRecord ) {
+			 return Status::newGood();
+		 }
+
+		return Status::newFatal(
+			Message::newFromKey( 'da-import-fail-revision' )->params( $revision->getTitle(), $revision->getID() )
+		);
 	 }
  }

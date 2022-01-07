@@ -65,7 +65,8 @@ return [
 			$services->getOldRevisionImporter(),
 			$services->getUploadRevisionImporter(),
 			$services->getContentHandlerFactory(),
-			$services->getRevisionStore()
+			$services->getRevisionStore(),
+			$services->getRepoGroup()
 		);
 	},
 	'DataAccountingExporter' => static function( MediaWikiServices $services ): Exporter {

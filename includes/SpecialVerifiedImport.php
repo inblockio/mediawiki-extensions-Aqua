@@ -128,7 +128,11 @@ class SpecialVerifiedImport extends SpecialPage {
 					if ( !$entity instanceof \DataAccounting\Transfer\TransferRevisionEntity ) {
 						continue;
 					}
-					$this->importer->importRevision( $entity, $context );
+					$status = $this->importer->importRevision( $entity, $context );
+					if ( !$status->isOK() ) {
+						$this->errorFromStatus( $status );
+						return;
+					}
 					if ( !isset( $stats[$context->getTitle()->getPrefixedDBkey()] ) ) {
 						$stats[$context->getTitle()->getPrefixedDBkey()] = 0;
 					}
@@ -181,5 +185,13 @@ class SpecialVerifiedImport extends SpecialPage {
 
 	protected function getGroupName(): string {
 		return 'pagetools';
+	}
+
+	/**
+	 * @param Status $status
+	 */
+	private function errorFromStatus( Status $status ) {
+		$this->getOutput()->addWikiMsg( 'da-import-fail-title' );
+		$this->getOutput()->addWikiTextAsContent( $status->getWikiText( ));
 	}
 }
