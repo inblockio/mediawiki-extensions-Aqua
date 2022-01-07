@@ -1,12 +1,12 @@
 # DataAccounting
 This is a code extension for MediaWiki to implement the basic principles of DataAccounting. This is done by using the following modules:
-* create a verified revision which is entangled into future revisions (hash-chain)
-* cryptographically sign a verified revision via a wallet
-* export verified revisions
-* import verified revisions
-* witness verified revisions on a witness network (e.g. Ethereum)
+* Create a verified revision which is entangled into future revisions (hash-chain)
+* Cryptographically sign a verified revision via a wallet
+* Export verified revisions
+* Import verified revisions
+* Witness verified revisions on a witness network (e.g. Ethereum)
  
-All Modules interface with the javascript frontend and the maria DB backend. To ensure that we have a modular approach to be able to easy maintain the extention we use Model-View-Controller to seperate functionalities clearly.
+All Modules interface with the javascript frontend and the maria DB backend. To ensure that we have a modular approach, and for ease of maintenance, we use Model-View-Controller to separate functionality clearly.
 
 ## Installation
 
