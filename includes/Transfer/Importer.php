@@ -86,14 +86,13 @@
 	public function importRevision(
 		TransferRevisionEntity $revisionEntity, TransferContext $context, User $actor
 	): Status {
-		$collisionResolutionStatus = $this->checkAndFixCollision( $actor, $context );
 		if ( isset( $revisionEntity->getContent()['file'] ) ) {
 			$status = $this->doImportUpload( $revisionEntity, $context );
 		} else {
 			$status = $this->doImportRevision( $revisionEntity, $context );
 		}
 
-		return $status->merge( $collisionResolutionStatus, true );
+		return $status;
 	}
 
 	 /**
@@ -385,7 +384,7 @@
 	  * @param TransferContext $context
 	  * @return Status
 	  */
-	 private function checkAndFixCollision( User $actor, TransferContext $context ): Status {
+	 public function checkAndFixCollision( User $actor, TransferContext $context ): Status {
 		if ( !$context->getTitle()->exists() ) {
 			return Status::newGood();
 		}

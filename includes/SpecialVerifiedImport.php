@@ -121,6 +121,11 @@ class SpecialVerifiedImport extends SpecialPage {
 				unset( $page['revisions'] );
 				$page['site_info'] = $siteInfo;
 				$context = $this->transferEntityFactory->newTransferContextFromData( $page );
+				$collisionResolutionStatus = $this->importer->checkAndFixCollision( $this->getUser(), $context );
+				if ( !$collisionResolutionStatus->isOK() ) {
+					$this->errorFromStatus( $collisionResolutionStatus );
+					return;
+				}
 				foreach ( $revisions as $hash => $revision ) {
 					$entity = $this->transferEntityFactory->newRevisionEntityFromApiData( $revision );
 					if ( !$entity instanceof \DataAccounting\Transfer\TransferRevisionEntity ) {
