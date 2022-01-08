@@ -10,8 +10,8 @@
  use MediaWiki\Content\IContentHandlerFactory;
  use MediaWiki\MediaWikiServices;
  use MediaWiki\Page\MovePageFactory;
- use MediaWiki\Storage\RevisionRecord;
- use MediaWiki\Storage\RevisionStore;
+ use MediaWiki\Revision\RevisionRecord;
+ use MediaWiki\Revision\RevisionStore;
  use Message;
  use MWContentSerializationException;
  use MWException;
