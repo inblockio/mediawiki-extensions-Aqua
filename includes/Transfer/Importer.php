@@ -272,8 +272,15 @@
 		] );
 
 		if ( !$witnessEntity ) {
+			// If the witness event with the said
+			// witness_event_verification_hash doesn't exist, we create it.
+			// TODO Otherwise, we should skip it instead of updating it. But
+			// this is just a minor perf tweak.
 			$witnessInfo['source'] = 'imported';
 			$witnessInfo['domain_snapshot_title'] = 'N/A';
+			// We have to unset the witness_event_id, because there could be
+			// collision with the existing local witness_event_id's.
+			unset( $witnessInfo["witness_event_id"] );
 			$localWitnessEventId = $this->witnessingEngine->getLookup()->insertWitnessEvent(
 				$witnessInfo
 			);
