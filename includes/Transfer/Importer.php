@@ -395,8 +395,8 @@
 		}
 
 		if ( $ownChainHeight <= $context->getChainHeight() ) {
-			// Move and rename own page
-			// Rename the page that is about to be imported
+			// Move/rename the existing page on MW, and let the page that is
+			// about to be imported has the original title instead.
 			$now = date( 'Y-m-d-H-i-s', time() );
 			$newTitle = $context->getTitle()->getPrefixedDBkey() . "_ChainHeight_{$ownChainHeight}_$now";
 			$newTitle = $this->titleFactory->newFromText( $newTitle );
