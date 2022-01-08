@@ -55,7 +55,7 @@ class SpecialWitnessPublisher extends SpecialPage {
 
 		$res = $dbw->select(
 			'witness_events',
-			[ 'witness_event_id, domain_id, domain_snapshot_title, witness_event_verification_hash, witness_network, smart_contract_address, witness_event_transaction_hash, sender_account_address' ],
+			[ 'witness_event_id, domain_id, domain_snapshot_title, witness_network, smart_contract_address, witness_event_transaction_hash, sender_account_address' ],
 			'',
 			__METHOD__,
 			[ 'ORDER BY' => ' witness_event_id DESC' ]
@@ -71,7 +71,6 @@ class SpecialWitnessPublisher extends SpecialPage {
                 <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-witnessevent' )->plain()}</th>
                 <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-domainid' )->plain()}</th>
                 <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-domainsnapshot' )->plain()}</th>
-                <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-verificationhash' )->plain()}</th>
                 <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-witnessnetwork' )->plain()}</th>
                 <th>{$this->msg( 'da-specialwitnesspublisher-tableheader-transactionid' )->plain()}</th>
             </tr>
@@ -87,7 +86,6 @@ class SpecialWitnessPublisher extends SpecialPage {
 		];
 
 		foreach ( $res as $row ) {
-			$hrefWEVH = $this->hrefifyHash( $row->witness_event_verification_hash );
 			if ( $this->verificationEngine->getDomainId() != $row->domain_id ) {
 				$msg = $this->msg( 'da-specialwitnesspublisher-tableheader-publishingstatus-imported' )->plain();
 				$publishingStatus = '<td style="background-color:#DDDDDD">' . $msg . '</td>';
@@ -116,7 +114,6 @@ class SpecialWitnessPublisher extends SpecialPage {
                     <td>{$row->witness_event_id}</td>
                     <td>{$row->domain_id}</td>
                     <td>{$linkedDomainSnapshot}</td>
-                    <td>$hrefWEVH</td>
                     <td>{$row->witness_network}</td>
                     $publishingStatus
                 </tr>
@@ -137,11 +134,6 @@ class SpecialWitnessPublisher extends SpecialPage {
 
 	private function shortenHash( string $hash ): string {
 		return substr( $hash, 0, 6 ) . "..." . substr( $hash, -6, 6 );
-	}
-
-	private function hrefifyHash( string $hash, string $prefix = "" ): string {
-		// TODO this function is duplicated in SpecialWitness
-		return "<a href='" . $prefix . $hash . "'>" . $this->shortenHash( $hash ) . "</a>";
 	}
 
 	private function shortenDomainSnapshotTitle( string $dm ): string {
