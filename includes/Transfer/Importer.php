@@ -263,7 +263,9 @@
 		VerificationEntity $verificationEntity
 	 ) {
 		$witnessInfo = $transferRevisionEntity->getWitness();
-		$structuredMerkleProof = json_decode( $witnessInfo['structured_merkle_proof'], true );
+		$structuredMerkleProof = $witnessInfo['structured_merkle_proof'];
+		// This is important because insertWitnessEvent expects $witnessInfo to
+		// not contain structured_merkle_proof.
 		unset( $witnessInfo['structured_merkle_proof'] );
 
 		$witnessEntity = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
