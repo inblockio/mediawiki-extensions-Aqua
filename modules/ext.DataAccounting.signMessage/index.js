@@ -61,6 +61,10 @@
         const urlObj = new URL(window.location.href)
         // We use wgPageName instead of wgTitle because the former includes localized namespace.
         const pageName = mw.config.get( 'wgPageName' );
+        if (pageName.endsWith(".pdf")) {
+          alert("Can't sign because MetaMask is disabled for PDF URL.")
+          return
+        }
         const server = window.location.protocol + '//' + window.location.host
         if (window.ethereum) {
           function doSignProcess() {
