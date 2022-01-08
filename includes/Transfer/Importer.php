@@ -398,7 +398,7 @@
 			// Move/rename the existing page on MW, and let the page that is
 			// about to be imported has the original title instead.
 			$now = date( 'Y-m-d-H-i-s', time() );
-			$newTitle = $context->getTitle()->getPrefixedDBkey() . "_ChainHeight_{$ownChainHeight}_$now";
+			$newTitle = $context->getTitle()->getPrefixedDBkey() . "Branch_ChainHeight_{$ownChainHeight}_$now";
 			$newTitle = $this->titleFactory->newFromText( $newTitle );
 			$mp = $this->movePageFactory->newMovePage( $context->getTitle(), $newTitle );
 			$reason = "Resolving naming collision because imported page has longer verified chain height.";
