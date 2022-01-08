@@ -167,9 +167,10 @@ class SpecialWitness extends SpecialPage {
 				$thumbnailedTitle .= "|thumb";
 			}
 
-			$output .= "|-\n|" . $tableIndexCount . "\n| [[" . $thumbnailedTitle . "]]\n|" . $this->wikilinkifyHash(
-					$vhash
-				) . "\n|" . $revisionWikiLink . "\n";
+			$linkifiedVH = $this->wikilinkifyVerificationHash(
+				$vhash
+			);
+			$output .= "|-\n|" . $tableIndexCount . "\n| [[" . $thumbnailedTitle . "]]\n|" . $linkifiedVH . "\n|" . $revisionWikiLink . "\n";
 			$tableIndexCount++;
 		}
 		$output .= "|}\n";
@@ -342,9 +343,9 @@ class SpecialWitness extends SpecialPage {
 		return "<a href='" . $hash . "'>" . $this->shortenHash( $hash ) . "</a>";
 	}
 
-	private function wikilinkifyHash( string $hash ): string {
-		$shortened = $this->shortenHash( $hash );
-		return "[http://$hash $shortened]";
+	private function wikilinkifyVerificationHash( string $vh ): string {
+		$shortened = $this->shortenHash( $vh );
+		return "[{{SERVER}}/rest.php/data_accounting/get_revision/$vh $shortened]";
 	}
 
 	private function treePPrint( bool $do_wikitext, array $layers, string $out = "",
@@ -358,7 +359,7 @@ class SpecialWitness extends SpecialPage {
 				$out .= "Merkle root: " . $key . "\n";
 			} else {
 				$formatted_key = $do_wikitext
-					? $this->wikilinkifyHash( $key )
+					? $this->wikilinkifyVerificationHash( $key )
 					: $this->hrefifyHashW( $key );
 				$glyph = $is_last ? "  └─ " : "  ├─ ";
 				$out .= " " . $prefix . $glyph . $formatted_key . "\n";

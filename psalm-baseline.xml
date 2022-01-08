@@ -788,7 +788,6 @@
       <code>shortenHash</code>
       <code>storeMerkleTree</code>
       <code>tree_pprint</code>
-      <code>wikilinkifyHash</code>
     </MissingReturnType>
     <MixedArgument occurrences="12">
       <code>$children</code>
