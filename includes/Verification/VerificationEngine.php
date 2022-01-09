@@ -244,11 +244,18 @@ class VerificationEngine {
 		);
 
 		if ( $parentEntity ) {
+			// Take the previous genesis_hash if present and continue to use it.
 			$genesisHash = $parentEntity->getHash( VerificationEntity::GENESIS_HASH );
 			if ( $genesisHash === "" ) {
+				// This can happen, if files get imported without verification data
+				// and therefore are not created, imported or moved and the
+				// genesis_hash remains empty.
+				// In this case, use the newly generated verification_hash.
 				$genesisHash = $verificationHash;
 			}
 		} else {
+			// If there is no parent, we know we are on the first verified
+			// revision.
 			$genesisHash = $verificationHash;
 		}
 
