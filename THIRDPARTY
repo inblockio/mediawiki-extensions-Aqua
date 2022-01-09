@@ -1,3 +1,7 @@
 Files: .github/workflows/installWiki.sh
 Copyright: Professional.Wiki
 License: GPLv3
+
+Files: modules/ethers-5.0.umd.min.js
+Copyright: Richard Moore
+License: MIT
