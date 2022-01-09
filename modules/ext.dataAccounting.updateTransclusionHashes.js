@@ -13,8 +13,8 @@
 
 				$.ajax( {
 					method: 'POST',
-					url: mw.util.wikiScript( 'rest' ) + '/data_accounting/transclusion/update_hash/' + title + '/' + resourceKey,
-					data: {},
+					url: mw.util.wikiScript( 'rest' ) + '/data_accounting/transclusion/update_hash',
+					data: {page_title: title, resource: resourceKey},
 					contentType: "application/json",
 					dataType: 'json'
 				} ).done( function( response ) {

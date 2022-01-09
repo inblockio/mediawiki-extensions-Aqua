@@ -274,7 +274,7 @@
 		},
 		{
 			"method": "POST",
-			"path": "/data_accounting/transclusion/update_hash/{page_title}/{resource}",
+			"path": "/data_accounting/transclusion/update_hash",
 			"class": "DataAccounting\\API\\TransclusionHashUpdater",
 			"services": [
 				"DataAccountingTransclusionManager", "TitleFactory", "RevisionStore"
