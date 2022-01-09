@@ -11,21 +11,24 @@
 				}
 				const title = mw.config.get( 'wgPageName' )
 
-				$.ajax( {
-					method: 'POST',
-					url: mw.util.wikiScript( 'rest' ) + '/data_accounting/transclusion/update_hash',
-					data: {page_title: title, resource: resourceKey},
-					contentType: "application/json",
-					dataType: 'json'
-				} ).done( function( response ) {
-					console.log( response );
-					window.location.reload();
-				} ).fail( function( jgXHR, type, status ) {
-					if ( type === 'error' ) {
-						console.error( jgXHR.responseJSON || jgXHR.responseText );
-					}
-					console.error( "Could not update included resource" );
-				} );
+        const payload = {page_title: title, resource: resourceKey}
+        fetch(
+          mw.util.wikiScript( 'rest' ) + '/data_accounting/transclusion/update_hash',
+          {
+            method: "POST",
+            cache: 'no-cache',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          }
+        ).then((response) => {
+            if (!response.ok) {
+              console.log("update_hash not ok: ", response.status)
+              return
+            }
+            window.location.reload()
+        })
 			} );
 		} )
 	} );
