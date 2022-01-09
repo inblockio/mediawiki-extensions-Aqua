@@ -2,9 +2,12 @@
 	"name": "DataAccounting",
 	"version": "2.0.0-alpha",
 	"author": [
-		"Tim Bansemer",
-		"Isaac Patka",
-		"rht rhtbot@protonmail.com"
+		"Tim Bansemer @fantasticofox",
+		"rht rhtbot@protonmail.com",
+		"Dejan Savuljesku @it-spiderman",
+		"Patric Wirth @pwirth",
+		"Jeroen De Dauw @JeroenDeDauw",
+		"Isaac Patka"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:Example",
 	"descriptionmsg": "da-desc",
