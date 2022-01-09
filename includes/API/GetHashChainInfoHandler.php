@@ -26,7 +26,7 @@ class GetHashChainInfoHandler extends AuthorizedEntityHandler {
 	}
 
 	/** @inheritDoc */
-	public function run( string $id_type ) {
+	public function run( string $identifier_type ) {
 		$context = $this->transferEntityFactory->newTransferContextFromTitle(
 			$this->verificationEntity->getTitle()
 		);
@@ -39,7 +39,7 @@ class GetHashChainInfoHandler extends AuthorizedEntityHandler {
 	/** @inheritDoc */
 	public function getParamSettings() {
 		return [
-			'id_type' => [
+			'identifier_type' => [
 				self::PARAM_SOURCE => 'path',
 				ParamValidator::PARAM_TYPE => [ 'genesis_hash', 'title' ],
 				ParamValidator::PARAM_REQUIRED => true,
@@ -53,14 +53,14 @@ class GetHashChainInfoHandler extends AuthorizedEntityHandler {
 	}
 
 	/**
-	 * @param string $idType
+	 * @param string $identifierType
 	 * @param string $identifier
 	 * @return VerificationEntity|null
 	 */
-	protected function getEntity( string $idType ): ?VerificationEntity {
+	protected function getEntity( string $identifierType ): ?VerificationEntity {
 		$identifier = $this->getValidatedParams()['identifier'];
 		$conds = [];
-		if ( $idType === 'title' ) {
+		if ( $identifierType === 'title' ) {
 			// TODO: DB data should hold Db key, not prefixed text (spaces replaced with _)
 			// Once that is done, remove next line
 			$identifier = str_replace( '_', ' ', $identifier );
