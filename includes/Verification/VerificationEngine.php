@@ -243,8 +243,14 @@ class VerificationEngine {
 			"{$contentHash}{$metadataHash}{$signatureHash}{$witnessHash}"
 		);
 
-		$genesisHash = $parentEntity ?
-			$parentEntity->getHash( VerificationEntity::GENESIS_HASH ) : $verificationHash;
+		if ( $parentEntity ) {
+			$genesisHash = $parentEntity->getHash( VerificationEntity::GENESIS_HASH );
+			if ( $genesisHash === "" ) {
+				$genesisHash = $verificationHash;
+			}
+		} else {
+			$genesisHash = $verificationHash;
+		}
 
 		$verificationContext = [
 			"has_previous_signature" => !empty( $signatureHash ),
