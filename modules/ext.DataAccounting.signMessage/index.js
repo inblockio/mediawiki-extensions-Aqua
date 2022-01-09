@@ -120,6 +120,7 @@
               )
               .then((response) => {
                 if (!response.ok) {
+                  console.log("store_signed_tx not ok: ", response.status)
                   return
                 }
                 // Refresh the page after success.
