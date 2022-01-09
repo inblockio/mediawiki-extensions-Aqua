@@ -8,7 +8,7 @@ use Wikimedia\ParamValidator\ParamValidator;
 class GetPageLastRevHandler extends AuthorizedEntityHandler {
 
 	/** @inheritDoc */
-	public function run( $page_title ) {
+	public function run() {
 		return [
 			'page_title' => $this->verificationEntity->getTitle()->getPrefixedDBkey(),
 			'page_id' => $this->verificationEntity->getTitle()->getArticleID(),
@@ -22,7 +22,7 @@ class GetPageLastRevHandler extends AuthorizedEntityHandler {
 	public function getParamSettings() {
 		return [
 			'page_title' => [
-				self::PARAM_SOURCE => 'path',
+				self::PARAM_SOURCE => 'query',
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => true,
 			],
@@ -34,7 +34,8 @@ class GetPageLastRevHandler extends AuthorizedEntityHandler {
 	 * @param string $id
 	 * @return VerificationEntity|null
 	 */
-	protected function getEntity( string $pageTitle ): ?VerificationEntity {
+	protected function getEntity(): ?VerificationEntity {
+		$pageTitle = $this->getValidatedParams()['page_title'];
 		// TODO: DB data should hold Db key, not prefixed text (spaces replaced with _)
 		// Once that is done, remove next line
 		$pageTitle = str_replace( '_', ' ', $pageTitle );

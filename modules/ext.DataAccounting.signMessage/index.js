@@ -68,7 +68,7 @@
         const server = window.location.protocol + '//' + window.location.host
         if (window.ethereum) {
           function doSignProcess() {
-            fetch(server + '/rest.php/data_accounting/get_page_last_rev/' + pageName)
+            fetch(server + '/rest.php/data_accounting/get_page_last_rev?page_title=' + pageName)
             .then((resp) => {
               if (!resp.ok) {
                 resp.text().then(parsed => alert(parsed))

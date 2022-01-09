@@ -197,7 +197,7 @@
 			]
 		},
 		{
-			"path": "/data_accounting/get_page_last_rev/{page_title}",
+			"path": "/data_accounting/get_page_last_rev",
 			"class": "DataAccounting\\API\\GetPageLastRevHandler",
 			"services": [
 				"PermissionManager",

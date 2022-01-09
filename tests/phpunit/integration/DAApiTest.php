@@ -151,7 +151,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 			$this->getServiceContainer()->getPermissionManager(),
 			$this->getServiceContainer()->getService( 'DataAccountingVerificationEngine' ),
 		];
-		$requestData = new RequestData( [ 'pathParams' => [ 'page_title' => 'UTPage' ] ] );
+		$requestData = new RequestData( [ 'queryParams' => [ 'page_title' => 'UTPage' ] ] );
 		$this->expectContextPermissionDenied(
 			new GetPageLastRevHandler( ...$services ),
 			$requestData
