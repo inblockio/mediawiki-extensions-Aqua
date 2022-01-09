@@ -26,7 +26,7 @@ class GetHashChainInfoHandler extends AuthorizedEntityHandler {
 	}
 
 	/** @inheritDoc */
-	public function run( string $id_type, string $id ) {
+	public function run( string $id_type ) {
 		$context = $this->transferEntityFactory->newTransferContextFromTitle(
 			$this->verificationEntity->getTitle()
 		);
@@ -44,8 +44,8 @@ class GetHashChainInfoHandler extends AuthorizedEntityHandler {
 				ParamValidator::PARAM_TYPE => [ 'genesis_hash', 'title' ],
 				ParamValidator::PARAM_REQUIRED => true,
 			],
-			'id' => [
-				self::PARAM_SOURCE => 'path',
+			'identifier' => [
+				self::PARAM_SOURCE => 'query',
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => true,
 			],
@@ -54,18 +54,19 @@ class GetHashChainInfoHandler extends AuthorizedEntityHandler {
 
 	/**
 	 * @param string $idType
-	 * @param string $id
+	 * @param string $identifier
 	 * @return VerificationEntity|null
 	 */
-	protected function getEntity( string $idType, string $id ): ?VerificationEntity {
+	protected function getEntity( string $idType ): ?VerificationEntity {
+		$identifier = $this->getValidatedParams()['identifier'];
 		$conds = [];
 		if ( $idType === 'title' ) {
 			// TODO: DB data should hold Db key, not prefixed text (spaces replaced with _)
 			// Once that is done, remove next line
-			$id = str_replace( '_', ' ', $id );
-			$conds['page_title'] = $id;
+			$identifier = str_replace( '_', ' ', $identifier );
+			$conds['page_title'] = $identifier;
 		} else {
-			$conds[VerificationEntity::GENESIS_HASH] = $id;
+			$conds[VerificationEntity::GENESIS_HASH] = $identifier;
 		}
 		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( $conds );
 	}

@@ -236,7 +236,7 @@
 			]
 		},
 		{
-			"path": "/data_accounting/get_hash_chain_info/{id_type}/{id}",
+			"path": "/data_accounting/get_hash_chain_info/{id_type}",
 			"class": "DataAccounting\\API\\GetHashChainInfoHandler",
 			"services": [
 				"PermissionManager",
