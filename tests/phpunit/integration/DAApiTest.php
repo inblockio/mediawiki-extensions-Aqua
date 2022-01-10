@@ -187,7 +187,7 @@ class DAApiTest extends MediaWikiIntegrationTestCase {
 
 		$response = $this->executeHandler(
 			new GetPageLastRevHandler( ...$services ),
-			new RequestData( [ 'pathParams' => [ 'page_title' => 'IDONTEXIST IDONTEXIST' ] ] )
+			new RequestData( [ 'queryParams' => [ 'page_title' => 'IDONTEXIST IDONTEXIST' ] ] )
 		);
 	}
 
