@@ -136,8 +136,6 @@ class SpecialVerifiedImport extends SpecialPage {
 						return;
 					}
 					$value = $status->getValue();
-					error_log( var_export( $value,
-					 1 ) );
 					if ( isset( $value['collision_move'] ) ) {
 						$collisions[$value['collision_move']['old']->getPrefixedDBkey()] = $value['collision_move']['new'];
 					}
