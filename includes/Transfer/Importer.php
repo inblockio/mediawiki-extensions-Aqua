@@ -105,8 +105,7 @@
 	  */
 	 private function doImportRevision(
 		TransferRevisionEntity $revisionEntity, TransferContext $context
-	 ): Status
-	 {
+	 ): Status {
 		 $revision = $this->prepRevision( $revisionEntity, $context );
 
 		 if ( isset( $revisionEntity->getContent()['minor'] ) ) {
@@ -115,7 +114,7 @@
 
 		 $this->revisionImporter->import( $revision );
 
-		 $status = $this->newRevisionStatus( $revision ) ;
+		 $status = $this->newRevisionStatus( $revision );
 		 if ( $status->isOK() ) {
 			 return $this->buildVerification( $revisionEntity, $context );
 		 }
@@ -132,7 +131,7 @@
 	  * @return Status
 	  */
 	 private function doImportUpload(
-	 	TransferRevisionEntity $revisionEntity, TransferContext $context
+		TransferRevisionEntity $revisionEntity, TransferContext $context
 	 ): StatusValue {
 		 $revision = $this->prepRevision( $revisionEntity, $context );
 		 $fileInfo = $revisionEntity->getContent()['file'];
@@ -152,7 +151,7 @@
 		 $revision->setComment( $fileInfo['comment'] );
 		 $status = $this->uploadRevisionImporter->import( $revision );
 		 if ( !$status->isOK() ) {
-		 	return $status;
+			return $status;
 		 }
 		 $dbw = $this->repoGroup->getRepo( 'local' )->getPrimaryDB();
 		 $importer = $this;
@@ -165,14 +164,14 @@
 		 );
 
 		 $dbw->onTransactionCommitOrIdle(
-		 	// Revision for the file page will only be created in a deferred update,
+			// Revision for the file page will only be created in a deferred update,
 			// and the update itself will only be added on DB tx commit,
 			// so we need to hook into the same DB connection, listen to tx commit and run updates
-		 	function () use ( $verificationUpdate ) {
+			function () use ( $verificationUpdate ) {
 				// Downside is that we dont have any checks here, if this fails,
 				// noone will know, as this happens after our code has already completed
 
-		 		DeferredUpdates::addUpdate( $verificationUpdate, DeferredUpdates::PRESEND );
+				DeferredUpdates::addUpdate( $verificationUpdate, DeferredUpdates::PRESEND );
 			},
 			 __METHOD__
 		 );

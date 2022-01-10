@@ -62,9 +62,9 @@ class SpecialVerifiedExport extends SpecialPage {
 			$this->getRequest()->getQueryValues();
 
 		$titles = [];
-		if( $this->getRequest()->wasPosted() && !empty( $params['titles'] ) ) {
+		if ( $this->getRequest()->wasPosted() && !empty( $params['titles'] ) ) {
 			$titles = explode( "\n", trim( $params['titles'] ?? '' ) );
-		} elseif( !empty( $params['titles'] ) ) {
+		} elseif ( !empty( $params['titles'] ) ) {
 			$titles = explode( '|', trim( $params['titles'] ?? '' ) );
 		}
 

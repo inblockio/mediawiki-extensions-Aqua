@@ -41,8 +41,8 @@ class ExportTest extends MediaWikiIntegrationTestCase {
 		$this->assertArrayHasKey( 'namespace', $page );
 		$this->assertArrayHasKey( 'chain_height', $page );
 		$this->assertEquals( 'ExportTestPage', $page['title'] );
-		$this->assertEquals( 0, $page['namespace'] );
-		$this->assertEquals( 1, $page['chain_height'] );
+		$this->assertSame( 0, $page['namespace'] );
+		$this->assertSame( 1, $page['chain_height'] );
 
 		foreach ( $page['revisions'] as $vh => $revision ) {
 			$revision = $revision->jsonSerialize();

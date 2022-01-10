@@ -21,7 +21,6 @@ class Exporter {
 		$this->verificationEngine = $verificationEngine;
 	}
 
-
 	/**
 	 * @param ExportSpecification $spec
 	 * @return array
@@ -85,6 +84,5 @@ class Exporter {
 
 		return $this->transferEntityFactory->newRevisionEntityFromVerificationEntity( $verificationEntity );
 	}
-
 
 }

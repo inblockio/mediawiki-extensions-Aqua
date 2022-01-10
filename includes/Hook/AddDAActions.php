@@ -18,19 +18,19 @@ class AddDAActions implements SkinTemplateNavigation__UniversalHook {
 
 	/**
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/SkinTemplateNavigation::Universal
-	 *
+	 * // phpcs:disable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 	 * @param SkinTemplate $sktemplate
 	 * @param array &$links
 	 */
 	public function onSkinTemplateNavigation__Universal( $sktemplate, &$links ): void {
 		if ( isset( $links['actions']['watch'] ) ) {
-			unset(  $links['actions']['watch'] );
+			unset( $links['actions']['watch'] );
 		}
 		if ( isset( $links['actions']['unwatch'] ) ) {
-			unset(  $links['actions']['unwatch'] );
+			unset( $links['actions']['unwatch'] );
 		}
 		if ( isset( $links['actions']['protect'] ) ) {
-			unset(  $links['actions']['protect'] );
+			unset( $links['actions']['protect'] );
 		}
 
 		if ( $sktemplate->getTitle()->isSpecialPage() ) {
@@ -55,4 +55,4 @@ class AddDAActions implements SkinTemplateNavigation__UniversalHook {
 		];
 		$sktemplate->getOutput()->addModules( 'ext.dataAccounting.exportSinglePage' );
 	}
- }
+}

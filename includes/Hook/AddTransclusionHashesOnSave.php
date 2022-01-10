@@ -74,7 +74,7 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	 * @return bool|void
 	 */
 	public function onMultiContentSave( $renderedRevision, $user, $summary, $flags, $status ) {
-		if ( $this->fileHashContent) {
+		if ( $this->fileHashContent ) {
 			$file = $this->repoGroup->findFile( $this->wikiPage->getTitle(), [ 'bypassCache' => true ] );
 			if ( $file && $file->isLocal() ) {
 				$this->fileHashContent->setHashFromFile( $file );

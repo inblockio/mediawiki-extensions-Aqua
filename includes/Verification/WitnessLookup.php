@@ -237,7 +237,7 @@ class WitnessLookup {
 
 		if ( $res ) {
 			return new WitnessEventEntity(
-				(object) array_merge( $entity->jsonSerialize(), $data )
+				(object)array_merge( $entity->jsonSerialize(), $data )
 			);
 		}
 

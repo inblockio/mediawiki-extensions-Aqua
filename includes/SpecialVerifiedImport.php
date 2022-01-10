@@ -71,7 +71,6 @@ class SpecialVerifiedImport extends SpecialPage {
 			$this->doImport();
 		}
 		$this->showForm();
-
 	}
 
 	/**
@@ -137,8 +136,8 @@ class SpecialVerifiedImport extends SpecialPage {
 						return;
 					}
 					$value = $status->getValue();
-					error_log( var_export( $value
-					, 1));
+					error_log( var_export( $value,
+					 1 ) );
 					if ( isset( $value['collision_move'] ) ) {
 						$collisions[$value['collision_move']['old']->getPrefixedDBkey()] = $value['collision_move']['new'];
 					}
@@ -150,7 +149,7 @@ class SpecialVerifiedImport extends SpecialPage {
 				}
 			}
 			$output = Html::openElement( 'ul' );
-			foreach( $stats as $pagename => $count ) {
+			foreach ( $stats as $pagename => $count ) {
 				$title = $this->titleFactory->newFromText( $pagename );
 				$output .= Html::rawElement(
 					'li', [],
@@ -213,6 +212,6 @@ class SpecialVerifiedImport extends SpecialPage {
 	 */
 	private function errorFromStatus( Status $status ) {
 		$this->getOutput()->addWikiMsg( 'da-import-fail-title' );
-		$this->getOutput()->addWikiTextAsContent( $status->getWikiText( ));
+		$this->getOutput()->addWikiTextAsContent( $status->getWikiText() );
 	}
 }

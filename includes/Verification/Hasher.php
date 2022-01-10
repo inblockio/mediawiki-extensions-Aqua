@@ -49,7 +49,7 @@ class Hasher {
 		// > MUST order the members of all objects lexicographically by the UCS
 		// (Unicode Character Set) code points of their names.
 		$slots = $rev->getSlots()->getSlotRoles();
-		sort($slots);
+		sort( $slots );
 		foreach ( $slots as $slot ) {
 			$pageContent .= $rev->getContent( $slot )->serialize();
 		}

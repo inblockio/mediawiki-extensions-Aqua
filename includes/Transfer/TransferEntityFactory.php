@@ -223,7 +223,7 @@ class TransferEntityFactory {
 		// > MUST order the members of all objects lexicographically by the UCS
 		// (Unicode Character Set) code points of their names.
 		$slots = $entity->getRevision()->getSlotRoles();
-		sort($slots);
+		sort( $slots );
 		$merged = [];
 		foreach ( $slots as $role ) {
 			$slot = $entity->getRevision()->getSlot( $role );

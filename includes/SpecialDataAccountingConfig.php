@@ -86,22 +86,22 @@ class SpecialDataAccountingConfig extends SpecialPage {
 
 		$this->getOutput()->enableOOUI();
 		$form = new FormLayout( [
-            'action' => $this->getFullTitle()->getFullURL(),
-            'method' => 'post',
+			'action' => $this->getFullTitle()->getFullURL(),
+			'method' => 'post',
 			'align' => 'left',
-            'items' => [
-                new FieldsetLayout( [
+			'items' => [
+				new FieldsetLayout( [
 					'align' => 'left',
-                    'items' => $this->makeFrom( $errors )
-                ] ),
-            ]
-        ] );
+					'items' => $this->makeFrom( $errors )
+				] ),
+			]
+		] );
 		$out .= $form->toString();
 
 		$this->getOutput()->addHTML( $out );
 	}
 
-	private function makeFrom( array $errors ): array{
+	private function makeFrom( array $errors ): array {
 		return [
 			new Element( [
 				'content' => new HtmlSnippet( Html::element(

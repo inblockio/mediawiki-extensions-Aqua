@@ -151,7 +151,6 @@ class DataAccountingConfigTest extends MediaWikiIntegrationTestCase {
 			"The config '$key' does not exist within the da config prefix",
 			$status->getMessage()->plain()
 		);
-		
 	}
 
 	/**
