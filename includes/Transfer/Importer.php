@@ -141,7 +141,11 @@
 		 }
 
 		 $tempDir = wfTempDir();
-		 $file = $tempDir . '/' . $fileInfo['filename'];
+		 $tempName = $fileInfo['filename'];
+		 if ( isset( $fileInfo['archivename'] ) ) {
+			 $tempName = $fileInfo['archivename'];
+		 }
+		 $file = $tempDir . '/' . $tempName;
 		 if ( !is_writable( $tempDir ) ) {
 			throw new MWException( 'Cannot write to temp file to ' . $tempDir );
 		 }
@@ -149,6 +153,8 @@
 		 $revision->setFileSrc( $file, true );
 		 $revision->setSize( intval( $fileInfo['size'] ) );
 		 $revision->setComment( $fileInfo['comment'] );
+		 $this->uploadRevisionImporter->setNullRevisionCreation( false );
+
 		 $status = $this->uploadRevisionImporter->import( $revision );
 		 if ( !$status->isOK() ) {
 			return $status;
@@ -170,13 +176,12 @@
 			function () use ( $verificationUpdate ) {
 				// Downside is that we dont have any checks here, if this fails,
 				// noone will know, as this happens after our code has already completed
-
 				DeferredUpdates::addUpdate( $verificationUpdate, DeferredUpdates::PRESEND );
 			},
 			 __METHOD__
 		 );
 
-		 return Status::newGood( [ 'update' => false ] );
+		 return $this->doImportRevision( $revisionEntity, $context );
 	 }
 
 	 /**

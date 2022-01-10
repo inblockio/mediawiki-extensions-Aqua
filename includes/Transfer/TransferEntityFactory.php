@@ -156,7 +156,6 @@ class TransferEntityFactory {
 			'content' => $this->prepareContent( $entity ),
 			'content_hash' => $entity->getHash( VerificationEntity::CONTENT_HASH ),
 		];
-
 		if ( $entity->getRevision()->getPage()->getNamespace() === NS_FILE ) {
 			$file = $this->verificationEngine->getFileForVerificationEntity( $entity );
 			if ( $file instanceof \File ) {
@@ -168,6 +167,9 @@ class TransferEntityFactory {
 						'size' => $file->getSize(),
 						'comment' => $entity->getRevision()->getComment()->text,
 					];
+				}
+				if ( $file instanceof \OldLocalFile ) {
+					$contentOutput['file']['archivename'] = $file->getArchiveName();
 				}
 			}
 		}
