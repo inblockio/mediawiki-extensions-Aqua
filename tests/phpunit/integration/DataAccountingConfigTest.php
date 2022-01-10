@@ -1,6 +1,6 @@
 <?php
 
-namespace DataAccounting\Tests;
+namespace DataAccounting\Tests\Integration;
 
 use DataAccounting\Config\DataAccountingConfig;
 use MediaWikiIntegrationTestCase;

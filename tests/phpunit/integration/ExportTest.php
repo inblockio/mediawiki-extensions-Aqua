@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace DataAccounting\Tests;
+namespace DataAccounting\Tests\Integration;
 
 use DataAccounting\Transfer\Exporter;
 use DataAccounting\Transfer\ExportSpecification;

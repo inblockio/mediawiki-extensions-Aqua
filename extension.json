@@ -327,5 +327,6 @@
 		"transclusion-hashes": "DataAccounting\\ContentHandler\\TransclusionHashesHandler",
 		"file-hash": "DataAccounting\\ContentHandler\\FileHashHandler"
 	},
-	"manifest_version": 2
+	"manifest_version": 2,
+	"load_composer_autoloader": true
 }
