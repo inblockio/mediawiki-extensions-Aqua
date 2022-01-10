@@ -3,6 +3,7 @@
 namespace DataAccounting\Hook;
 
 use ChangeTags;
+use DataAccounting\Override\MultiSlotRevisionRenderer;
 use DataAccounting\Override\Revision\DARevisionStoreFactory;
 use DataAccounting\Override\Storage\DAPageUpdaterFactory;
 use MediaWiki\Config\ServiceOptions;
@@ -88,6 +89,18 @@ class OverrideServices implements MediaWikiServicesHook {
 				);
 
 				return $store;
+			}
+		);
+
+		$services->redefineService(
+			'RevisionRenderer',
+			function( MediaWikiServices $services ) {
+				$renderer = new MultiSlotRevisionRenderer(
+					$services->getDBLoadBalancer(),
+					$services->getSlotRoleRegistry()
+				);
+				$renderer->setLogger( LoggerFactory::getInstance( 'SaveParse' ) );
+				return $renderer;
 			}
 		);
 	}

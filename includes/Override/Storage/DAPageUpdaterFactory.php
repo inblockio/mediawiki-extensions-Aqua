@@ -8,6 +8,7 @@ use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Content\Transform\ContentTransformer;
 use MediaWiki\HookContainer\HookContainer;
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionRenderer;
 use MediaWiki\Revision\RevisionStore;

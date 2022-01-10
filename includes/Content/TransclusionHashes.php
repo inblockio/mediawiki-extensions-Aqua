@@ -14,9 +14,11 @@ use ParserOutput;
 use stdClass;
 use Title;
 
-class TransclusionHashes extends JsonContent {
+class TransclusionHashes extends JsonContent implements DataAccountingContent {
 	public const CONTENT_MODEL_TRANSCLUSION_HASHES = 'transclusion-hashes';
 	public const SLOT_ROLE_TRANSCLUSION_HASHES = 'transclusion-hashes';
+
+	private $needsUpdate = false;
 
 	/**
 	 * @param string $text
@@ -162,6 +164,7 @@ class TransclusionHashes extends JsonContent {
 			Message::newFromKey( "da-transclusion-hash-ui-state-{$changeState}" )->text()
 		);
 		if ( $changeState === TransclusionManager::STATE_NEW_VERSION ) {
+			$this->needsUpdate = true;
 			$row .= Html::rawElement(
 				'td', [],
 				Html::element( 'a', [
@@ -188,5 +191,33 @@ class TransclusionHashes extends JsonContent {
 			return [];
 		}
 		return (array)$this->getData()->getValue();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getItemCount(): int {
+		return count( json_decode( $this->getText(), 1 ) );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function requiresAction(): bool {
+		return $this->needsUpdate;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getSlotHeader(): string {
+		return 'Transcluded resources';
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function shouldShow(): bool {
+		return !empty( $this->getData()->getValue() );
 	}
 }

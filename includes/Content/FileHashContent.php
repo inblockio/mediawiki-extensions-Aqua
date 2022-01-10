@@ -10,7 +10,7 @@ use ParserOutput;
 use TextContent;
 use Title;
 
-class FileHashContent extends TextContent {
+class FileHashContent extends TextContent implements DataAccountingContent {
 	public const CONTENT_MODEL_FILE_HASH = 'file-hash';
 	public const SLOT_ROLE_FILE_HASH = 'file_hash';
 
@@ -50,5 +50,33 @@ class FileHashContent extends TextContent {
 		$hasher = new Hasher();
 		$this->mText = $hasher->getHashSum( $content );
 		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getItemCount(): int {
+		return 0;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function requiresAction(): bool {
+		return false;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getSlotHeader(): string {
+		return 'File content hash';
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function shouldShow(): bool {
+		return $this->mText !== '';
 	}
 }

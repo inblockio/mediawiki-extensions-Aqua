@@ -9,7 +9,7 @@ use ParserOptions;
 use ParserOutput;
 use Title;
 
-class SignatureContent extends JsonContent {
+class SignatureContent extends JsonContent implements DataAccountingContent {
 	public const CONTENT_MODEL_SIGNATURE = 'signature';
 	public const SLOT_ROLE_SIGNATURE = 'signature-slot';
 
@@ -29,13 +29,7 @@ class SignatureContent extends JsonContent {
 		}
 		$data = json_decode( $this->getText(), 1 );
 
-		$content = Html::rawElement( 'div', [
-			'class' => "mw-collapsible mw-collapsed"
-		], Html::rawElement( 'div', [
-			'style' => 'font-weight:bold;line-height:1.6;',
-		], "Data Accounting Signatures" ) . $this->getSignatureContent( $data ) );
-
-		$output->setText( $content );
+		$output->setText( $this->getSignatureContent( $data ) );
 	}
 
 	public function isValid() {
@@ -57,9 +51,7 @@ class SignatureContent extends JsonContent {
 
 			$signatures .= '<br>';
 		}
-		return Html::rawElement( 'div', [
-			'class' => 'mw-collapsible-content'
-		], $signatures );
+		return Html::rawElement( 'div', [], $signatures );
 	}
 
 	private function getSignatureLine( array $signature ) {
@@ -79,5 +71,33 @@ class SignatureContent extends JsonContent {
 		$line .= $language->userTimeAndDate( $signature['timestamp'], $viewingUser );
 
 		return $line;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getItemCount(): int {
+		return count( json_decode( $this->getText(), 1 ) );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function requiresAction(): bool {
+		return false;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getSlotHeader(): string {
+		return 'Signatures';
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function shouldShow(): bool {
+		return $this->mText !== '';
 	}
 }
