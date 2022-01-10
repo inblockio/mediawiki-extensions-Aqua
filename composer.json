@@ -27,12 +27,6 @@
 			"phpcbf"
 		]
 	},
-	"autoload": {
-		"psr-4": {
-			"DataAccounting\\": "includes/",
-			"DataAccounting\\Tests\\": "tests/phpunit/"
-		}
-	},
 	"extra": {
 		"installer-name": "DataAccounting"
 	}
