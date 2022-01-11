@@ -2,6 +2,7 @@
 
 namespace DataAccounting\Transfer;
 
+use DataAccounting\Exception\MemoryException;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use Title;

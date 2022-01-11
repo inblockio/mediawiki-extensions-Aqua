@@ -167,6 +167,7 @@ class TransferEntityFactory {
 						'size' => $file->getSize(),
 						'comment' => $entity->getRevision()->getComment()->text,
 					];
+					$content = null;
 				}
 				if ( $file instanceof \OldLocalFile ) {
 					$contentOutput['file']['archivename'] = $file->getArchiveName();

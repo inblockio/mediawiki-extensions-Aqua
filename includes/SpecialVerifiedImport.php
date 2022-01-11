@@ -30,6 +30,8 @@ class SpecialVerifiedImport extends SpecialPage {
 	private $titleFactory;
 	/** @var LinkRenderer */
 	private $linker;
+	/** @var array|null */
+	private $limits = null;
 
 	/**
 	 * @param PermissionManager $permissionManager
@@ -104,12 +106,14 @@ class SpecialVerifiedImport extends SpecialPage {
 				}
 				$content .= $chunk;
 			}
+			$this->disableLimits();
 			$arrayContent = json_decode( $content, 1 );
 			if ( !$arrayContent ) {
 				$this->getOutput()->wrapWikiTextAsInterface( 'error',
 					$this->msg( 'importfailed', 'Read failed' )
 						->plain()
 				);
+				$this->restoreLimits();
 				return;
 			}
 
@@ -123,6 +127,7 @@ class SpecialVerifiedImport extends SpecialPage {
 				$collisionResolutionStatus = $this->importer->checkAndFixCollision( $this->getUser(), $context );
 				if ( !$collisionResolutionStatus->isOK() ) {
 					$this->errorFromStatus( $collisionResolutionStatus );
+					$this->restoreLimits();
 					return;
 				}
 				foreach ( $revisions as $hash => $revision ) {
@@ -133,6 +138,7 @@ class SpecialVerifiedImport extends SpecialPage {
 					$status = $this->importer->importRevision( $entity, $context, $this->getUser() );
 					if ( !$status->isOK() ) {
 						$this->errorFromStatus( $status );
+						$this->restoreLimits();
 						return;
 					}
 					$value = $status->getValue();
@@ -146,6 +152,9 @@ class SpecialVerifiedImport extends SpecialPage {
 
 				}
 			}
+
+			$this->restoreLimits();
+
 			$output = Html::openElement( 'ul' );
 			foreach ( $stats as $pagename => $count ) {
 				$title = $this->titleFactory->newFromText( $pagename );
@@ -211,5 +220,25 @@ class SpecialVerifiedImport extends SpecialPage {
 	private function errorFromStatus( Status $status ) {
 		$this->getOutput()->addWikiMsg( 'da-import-fail-title' );
 		$this->getOutput()->addWikiTextAsContent( $status->getWikiText() );
+	}
+
+
+	private function disableLimits() {
+		$this->limits = [
+			'memory_limit' => ini_get( 'memory_limit' ),
+			'max_execution_time' => ini_get( 'max_execution_time' ),
+		];
+
+		ini_set( 'memory_limit', '1G' );
+		ini_set( 'max_execution_time', '-1' );
+	}
+
+	private function restoreLimits() {
+		if ( !is_array( $this->limits ) ) {
+			return;
+		}
+		ini_set( 'memory_limit', $this->limits['memory_limit'] );
+		ini_set( 'max_execution_time', $this->limits['max_execution_time'] );
+		$this->limits = null;
 	}
 }

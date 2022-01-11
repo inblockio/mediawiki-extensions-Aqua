@@ -27,6 +27,8 @@ class SpecialVerifiedExport extends SpecialPage {
 	private $verificationEngine;
 	/** @var Exporter */
 	private $exporter;
+	/** @var array */
+	private $limits;
 
 	public function __construct(
 		\TitleFactory $titleFactory, RevisionStore $store,
@@ -98,6 +100,11 @@ class SpecialVerifiedExport extends SpecialPage {
 		}
 		$fileName = "{$this->verificationEngine->getDomainId()}_{$titles[0]->getPrefixedDBkey()}.json";
 
+		$this->disableLimits();
+		$content = $this->exporter->getExportContents( $exportSpec );
+		$json = json_encode( $content, JSON_PRETTY_PRINT );
+		$this->restoreLimits();
+
 		$this->getContext()->getOutput()->disable();
 		$response = $this->getContext()->getRequest()->response();
 
@@ -113,7 +120,8 @@ class SpecialVerifiedExport extends SpecialPage {
 		$response->header( 'Content-Transfer-Encoding: binary' );
 		$response->header( 'X-Robots-Tag: noindex' );
 
-		echo json_encode( $this->exporter->getExportContents( $exportSpec ), JSON_PRETTY_PRINT );
+
+		echo $json;
 	}
 
 	private function outputForm() {
@@ -198,5 +206,23 @@ class SpecialVerifiedExport extends SpecialPage {
 				$this->addTranscluded( $transcludedTitle, $exportSpec, $latest, $depth, $currentLevel + 1 );
 			}
 		}
+	}
+
+	private function disableLimits() {
+		$this->limits = [
+			'memory_limit' => ini_get( 'memory_limit' ),
+			'max_execution_time' => ini_get( 'max_execution_time' ),
+		];
+
+		ini_set( 'memory_limit', '1G' );
+		ini_set( 'max_execution_time', '-1' );
+	}
+
+	private function restoreLimits() {
+		if ( !is_array( $this->limits ) ) {
+			return;
+		}
+		ini_set( 'memory_limit', $this->limits['memory_limit'] );
+		ini_set( 'max_execution_time', $this->limits['max_execution_time'] );
 	}
 }
