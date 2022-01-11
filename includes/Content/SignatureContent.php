@@ -5,6 +5,7 @@ namespace DataAccounting\Content;
 use Html;
 use JsonContent;
 use MediaWiki\MediaWikiServices;
+use Message;
 use ParserOptions;
 use ParserOutput;
 use Title;
@@ -70,7 +71,7 @@ class SignatureContent extends JsonContent implements DataAccountingContent {
 		$viewingUser = \RequestContext::getMain()->getUser();
 		$line .= $language->userTimeAndDate( $signature['timestamp'], $viewingUser );
 
-		return $line;
+		return Html::rawElement( 'span', [ 'class' => 'da-signature-line' ], $line );
 	}
 
 	/**
@@ -91,7 +92,7 @@ class SignatureContent extends JsonContent implements DataAccountingContent {
 	 * @inheritDoc
 	 */
 	public function getSlotHeader(): string {
-		return 'Signatures';
+		return Message::newFromKey( 'da-signature-slot-header' );
 	}
 
 	/**

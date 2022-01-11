@@ -258,9 +258,16 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 		return $combinedOutput;
 	}
 
-	private function wrapSpecialSlotOutput( array $slots, $forceExpand = false ) {
+	/**
+	 * @param array $slots
+	 * @return string
+	 */
+	private function wrapSpecialSlotOutput( array $slots ) {
 		$accordion = Html::openElement( 'div', [ 'id' => 'da-slots-cnt' ] );
-
+		$accordion .= Html::element(
+			'h5', [],
+			\Message::newFromKey( 'da-revision-renderer-da-data' )->text()
+		);
 		foreach ( $slots as $role => $data ) {
 			/** @var DataAccountingContent $content */
 			$content = $data['content'];
@@ -302,6 +309,8 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 				Html::rawElement( 'div', [ 'class' => 'card-body' ], $data['rendered'] )
 			);
  		}
+
+		$accordion .= Html::closeElement( 'div' );
 
 		return $accordion;
 	}

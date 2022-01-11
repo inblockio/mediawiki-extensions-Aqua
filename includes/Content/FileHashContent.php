@@ -21,15 +21,7 @@ class FileHashContent extends TextContent implements DataAccountingContent {
 	protected function fillParserOutput(
 		Title $title, $revId, ParserOptions $options, $generateHtml, ParserOutput &$output
 	) {
-		if ( $this->mText === '' ) {
-			$output->setText( Message::newFromKey( 'da-file-hash-no-hash' )->text() );
-		} else {
-			$output->setText(
-				Message::newFromKey( 'da-file-hash-hash' )
-					->params( trim( $this->getText() ) )
-					->parseAsBlock()
-			);
-		}
+		$output->setText( trim( $this->getText() ) );
 	}
 
 	/**
@@ -70,7 +62,7 @@ class FileHashContent extends TextContent implements DataAccountingContent {
 	 * @inheritDoc
 	 */
 	public function getSlotHeader(): string {
-		return 'File content hash';
+		return Message::newFromKey( 'da-file-hash-slot-header' );
 	}
 
 	/**

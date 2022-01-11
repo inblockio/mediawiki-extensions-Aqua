@@ -17,6 +17,8 @@ use UnexpectedValueException;
 class OverrideServices implements MediaWikiServicesHook {
 
 	public function onMediaWikiServices( $services ) {
+		// Used to add a hook on PageUpdater::doUpdate
+		// This hook is used to allow same-edit setting of additional slots
 		$services->redefineService(
 			'PageUpdaterFactory',
 			function( MediaWikiServices $services ) {
@@ -59,6 +61,9 @@ class OverrideServices implements MediaWikiServicesHook {
 				);
 			}
 		);
+
+		// Used to redefine RevisionStore::newNullRevision
+		// Otherwise, its called on file upload, and makes uncontrollable revision
 		$services->redefineService(
 			'RevisionStoreFactory',
 			function( MediaWikiServices $services ) {
@@ -92,6 +97,8 @@ class OverrideServices implements MediaWikiServicesHook {
 			}
 		);
 
+		// Used to change how slots are rendered
+		// It changes rendering of the DataAccounting slots only
 		$services->redefineService(
 			'RevisionRenderer',
 			function( MediaWikiServices $services ) {

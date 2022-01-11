@@ -18,6 +18,7 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 	public const CONTENT_MODEL_TRANSCLUSION_HASHES = 'transclusion-hashes';
 	public const SLOT_ROLE_TRANSCLUSION_HASHES = 'transclusion-hashes';
 
+	/** @var bool */
 	private $needsUpdate = false;
 
 	/**
@@ -137,47 +138,57 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 	}
 
 	private function drawTable( array $states ): string {
-		$table = Html::openElement( 'table', [
-			'class' => 'table table-bordered',
+		$table = Html::openElement( 'div', [
+			'class' => 'container',
 			'style' => 'width: 100%',
 			'id' => 'transclusionResourceTable'
 		] );
 		foreach ( $states as $state ) {
 			$table .= $this->drawRow( $state );
 		}
-		$table .= Html::closeElement( 'table' );
+		$table .= Html::closeElement( 'div' );
 
 		return $table;
 	}
 
 	private function drawRow( array $state ): string {
-		$row = Html::openElement( 'tr' );
-
 		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 		$title = $state['titleObject'];
 		$changeState = $state['state'];
 
-		$row .= Html::rawElement( 'td', [], $linkRenderer->makeLink( $title ) );
-
-		$row .= Html::rawElement(
-			'td', [],
-			Message::newFromKey( "da-transclusion-hash-ui-state-{$changeState}" )->text()
-		);
+		$item = Html::openElement( 'div', [ 'class' => 'card' ] );
+		$item .= Html::openElement( 'div', [ 'class'  => 'card-body' ] );
+		$item .= $linkRenderer->makeLink( $title );
+		$badgeClasses = [ 'badge' ];
+		if ( $changeState === TransclusionManager::STATE_NEW_VERSION ) {
+			$badgeClasses[] = 'badge-warning';
+		}
+		if ( $changeState === TransclusionManager::STATE_UNCHANGED ) {
+			$badgeClasses[] = 'badge-success';
+		}
+		if ( $changeState === TransclusionManager::STATE_INVALID ) {
+			$badgeClasses[] = 'badge-danger';
+		}
+		$item .= Html::openElement( 'span', [
+			'class' => implode( ' ', $badgeClasses ),
+			'style' => 'margin-left: 10px',
+		] );
+		$item .= Message::newFromKey( "da-transclusion-hash-ui-state-{$changeState}" )->text();
+		$item .= Html::closeElement( 'span' );
 		if ( $changeState === TransclusionManager::STATE_NEW_VERSION ) {
 			$this->needsUpdate = true;
-			$row .= Html::rawElement(
-				'td', [],
-				Html::element( 'a', [
-					'href' => '#',
-					'class' => 'da-included-resource-update',
-					'data-resource-key' => $title->getPrefixedDbKey(),
-				], Message::newFromKey( 'da-transclusion-hash-ui-update-version' )->text() )
-			);
+			$item .= Html::element( 'a', [
+				'href' => '#',
+				'class' => 'da-included-resource-update',
+				'data-resource-key' => $title->getPrefixedDbKey(),
+				'style' => 'margin-left: 10px;'
+			], Message::newFromKey( 'da-transclusion-hash-ui-update-version' )->text() );
 		}
+		$item .= Html::closeElement( 'div' );
+		$item .= Html::closeElement( 'div' );
 
-		$row .= Html::closeElement( 'tr' );
 
-		return $row;
+		return Html::rawElement( 'div', [ 'class' => 'da-translusion-hashes-item container' ], $item );
 	}
 
 	/**
@@ -211,7 +222,7 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 	 * @inheritDoc
 	 */
 	public function getSlotHeader(): string {
-		return 'Transcluded resources';
+		return Message::newFromKey( 'da-transclusion-hashes-slot-header' );
 	}
 
 	/**
