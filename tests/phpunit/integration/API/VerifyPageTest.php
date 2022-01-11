@@ -14,7 +14,7 @@ use MediaWiki\Permissions\PermissionManager;
 /**
  * @group Database
  */
-class VerifyPage extends API {
+class VerifyPageTest extends API {
 	use HandlerTestTrait;
 
 	/**

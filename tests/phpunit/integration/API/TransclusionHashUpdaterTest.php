@@ -45,11 +45,10 @@ class TransclusionHashUpdaterTest extends API {
 		);
 		$this->assertJsonContentType( $response );
 		$data = $this->getJsonBody( $response );
-		error_log(var_export($data,true));
+		error_log( var_export( $data, true ) );
 		$this->assertIsArray( $data, 'Body must be a JSON array' );
-		$this->assertArrayHasKey('success', $data );
+		$this->assertArrayHasKey( 'success', $data );
 		$this->assertSame( true, $data['success'] );
-
 
 		$response = $this->executeHandler(
 			new TransclusionHashUpdater( ...$services ),
@@ -61,7 +60,7 @@ class TransclusionHashUpdaterTest extends API {
 		$this->assertJsonContentType( $response );
 		$data = $this->getJsonBody( $response );
 		$this->assertIsArray( $data, 'Body must be a JSON array' );
-		$this->assertArrayHasKey('success', $data );
+		$this->assertArrayHasKey( 'success', $data );
 		$this->assertSame( false, $data['success'] );
 	}
 }

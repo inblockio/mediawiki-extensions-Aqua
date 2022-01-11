@@ -13,7 +13,7 @@ use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
 /**
  * @group Database
  */
-class GetServerInfo extends API {
+class GetServerInfoTest extends API {
 	use HandlerTestTrait;
 
 	/**
