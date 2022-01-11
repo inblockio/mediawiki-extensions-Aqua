@@ -317,6 +317,21 @@
 			"dependencies": [
 				"oojs-ui"
 			]
+		},
+		"ext.DataAccounting.createPage": {
+			"scripts": [
+				"ui/CreatePageDialog.js",
+				"ext.DataAccounting.createPage.js"
+			],
+			"dependencies": [
+				"oojs-ui",
+				"mediawiki.widgets"
+			],
+			"messages": [
+				"da-ui-create-page-title",
+				"da-ui-create-page-create",
+				"da-ui-create-page-picker"
+			]
 		}
 	},
 	"ServiceWiringFiles": [

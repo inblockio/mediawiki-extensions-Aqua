@@ -75,6 +75,9 @@ class Hooks implements
 			$out->addModules( 'ext.DataAccounting.signMessage' );
 			$out->addModules( 'publishDomainSnapshot' );
 		}
+		if ( $this->permissionManager->userHasRight( $out->getUser(), 'createpage' ) ) {
+			$out->addModules( 'ext.DataAccounting.createPage' );
+		}
 	}
 
 	public function onOutputPageParserOutput( $out, $parserOutput ): void {
