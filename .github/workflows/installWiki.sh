@@ -18,7 +18,7 @@ cd mediawiki
 
 # TODO hack to address https://github.com/inblockio/DataAccounting/issues/244.
 # Remove this once MediaWiki has made a patch release.
-RUN sed -i 's/$this->package->setProvides( \[ $link \] );/$this->package->setProvides( \[ self::MEDIAWIKI_PACKAGE_NAME => $link \] );/' ./includes/composer/ComposerPackageModifier.php
+sed -i 's/$this->package->setProvides( \[ $link \] );/$this->package->setProvides( \[ self::MEDIAWIKI_PACKAGE_NAME => $link \] );/' ./includes/composer/ComposerPackageModifier.php
 
 composer install --no-progress --no-interaction --prefer-dist --optimize-autoloader
 
