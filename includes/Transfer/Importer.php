@@ -297,6 +297,8 @@
 			$localWitnessEventId = $witnessEntity->get( 'witness_event_id' );
 		}
 
+		// Patch revision_verification table to use the local version of
+		// witness_event_id instead of from the foreign version.
 		$res = $this->verificationEngine->getLookup()->updateEntity( $verificationEntity, [
 			'witness_event_id' => $localWitnessEventId,
 		] );
