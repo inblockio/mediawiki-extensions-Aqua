@@ -89,13 +89,13 @@ class Hooks implements
 			'data-toggle' => 'dropdown',
 			'aria-haspopup' => 'true',
 			'aria-expanded' => 'false'
-		], Html::element( 'i', [ 'class' => 'fas fa-plus-circle' ] )  );
+		], Html::element( 'i', [ 'class' => 'fas fa-plus-circle' ] ) );
 
 		$button .= Html::openElement(
 			'div', [ 'class' => 'dropdown-menu', 'aria-labelledby' => 'aqua-new-button' ]
 		);
 
-		if ( $canCreate) {
+		if ( $canCreate ) {
 			$button .= Html::element(
 				'a', [ 'class' => 'dropdown-item', 'id' => 'aqua-new-page', 'href' => '#' ],
 				Message::newFromKey( 'da-ui-new-page-create-label' )->text()

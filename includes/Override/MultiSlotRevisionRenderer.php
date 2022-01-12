@@ -308,7 +308,7 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 				],
 				Html::rawElement( 'div', [ 'class' => 'card-body' ], $data['rendered'] )
 			);
- 		}
+		}
 
 		$accordion .= Html::closeElement( 'div' );
 

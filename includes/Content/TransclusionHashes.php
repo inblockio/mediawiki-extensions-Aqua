@@ -187,7 +187,6 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 		$item .= Html::closeElement( 'div' );
 		$item .= Html::closeElement( 'div' );
 
-
 		return Html::rawElement( 'div', [ 'class' => 'da-translusion-hashes-item container' ], $item );
 	}
 
