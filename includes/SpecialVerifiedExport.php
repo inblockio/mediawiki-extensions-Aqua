@@ -120,7 +120,6 @@ class SpecialVerifiedExport extends SpecialPage {
 		$response->header( 'Content-Transfer-Encoding: binary' );
 		$response->header( 'X-Robots-Tag: noindex' );
 
-
 		echo $json;
 	}
 
