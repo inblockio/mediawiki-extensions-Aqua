@@ -178,6 +178,9 @@ class SpecialVerifiedExport extends SpecialPage {
 		}
 		foreach ( $transclusions->getValue() as $transclusion ) {
 			$transcludedTitle = $this->titleFactory->makeTitle( $transclusion->ns, $transclusion->dbkey );
+			if ( !$transcludedTitle->exists() ) {
+				continue;
+			}
 			$revs = [];
 			if ( $latest ) {
 				if ( $transclusion->{VerificationEntity::VERIFICATION_HASH} === null ) {
@@ -188,7 +191,6 @@ class SpecialVerifiedExport extends SpecialPage {
 				);
 				if ( $entity instanceof VerificationEntity ) {
 					$revs[] = $entity->getRevision()->getId();
-
 				}
 			}
 			$exportSpec->addTitle( $transcludedTitle, $revs );
