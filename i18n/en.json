@@ -73,5 +73,7 @@
 	"da-transclusion-hashes-slot-header": "Transcluded resources"
 	"da-ui-create-page-title": "Create page",
 	"da-ui-create-page-create": "Create",
-	"da-ui-create-page-picker": "Page name"
+	"da-ui-create-page-picker": "Page name",
+	"da-ui-new-page-create-label": "New page",
+	"da-ui-new-page-upload-label": "Upload file"
 }

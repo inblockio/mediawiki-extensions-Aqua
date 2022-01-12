@@ -11,6 +11,7 @@ use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\WitnessingEngine;
 use FormatJson;
 use Html;
+use IContextSource;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\OutputPageParserOutputHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
@@ -19,6 +20,7 @@ use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Hook\ImportHandlePageXMLTagHook;
 use MediaWiki\Hook\XmlDumpWriterOpenPageHook;
+use Message;
 use MWException;
 use OutputPage;
 use Parser;
@@ -61,12 +63,25 @@ class Hooks implements
 		// controlled at all times. Therefor the parser cache can not be used
 		$GLOBALS['wgParserCacheType'] = CACHE_NONE;
 
-		$GLOBALS['wgTweekiSkinNavigationalElements']['NEWPAGE'] = static::class . '::createNewPageButton';
+		$GLOBALS['wgTweekiSkinSpecialElements']['NEWPAGE'] = static::class . '::createNewPageButton';
 	}
 
+	/**
+	 * Generate HTML for the "new page" button
+	 * @param Skin $skin
+	 * @param IContextSource $context
+	 */
 	public static function createNewPageButton( $skin, $context ) {
-		$button = \Html::openElement( 'div', [ 'class' => 'dropdown', 'style' => 'margin: 0 10px 0 10px' ] );
-		$button .= \Html::rawElement( 'button', [
+		$pm = MediaWikiServices::getInstance()->getPermissionManager();
+		$user = RequestContext::getMain()->getUser();
+		$canCreate = $pm->userHasRight( $user, 'createpage' );
+		$canUpload = $pm->userHasRight( $user, 'upload' );
+
+		if ( !$canCreate && !$canUpload ) {
+			return;
+		}
+		$button = Html::openElement( 'div', [ 'class' => 'dropdown', 'style' => 'margin: 0 10px 0 10px' ] );
+		$button .= Html::rawElement( 'button', [
 			'class' => 'btn btn-link dropdown-toggle ',
 			'type' => 'button',
 			'style' => 'color: white',
@@ -76,22 +91,30 @@ class Hooks implements
 			'aria-expanded' => 'false'
 		], Html::element( 'i', [ 'class' => 'fas fa-plus-circle' ] )  );
 
-		$specialUpload = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Upload' );
-		$button .= Html::rawElement(
-			'div', [ 'class' => 'dropdown-menu', 'aria-labelledby' => 'aqua-new-button' ],
-			Html::element(
-				'a', [ 'class' => 'dropdown-item', 'id' => 'aqua-new-page', 'href' => '#' ], 'New Page'
-			) .
-			Html::element(
+		$button .= Html::openElement(
+			'div', [ 'class' => 'dropdown-menu', 'aria-labelledby' => 'aqua-new-button' ]
+		);
+
+		if ( $canCreate) {
+			$button .= Html::element(
+				'a', [ 'class' => 'dropdown-item', 'id' => 'aqua-new-page', 'href' => '#' ],
+				Message::newFromKey( 'da-ui-new-page-create-label' )->text()
+			);
+		}
+
+		if ( $canUpload ) {
+			$specialUpload = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Upload' );
+			$button .= Html::element(
 				'a', [
 					'class' => 'dropdown-item',
 					'id' => 'aqua-new-file',
 					'href' => $specialUpload->getPageTitle()->getLocalURL()
-				], 'Upload file'
-			)
-		);
+				], Message::newFromKey( 'da-ui-new-page-upload-label' )->text()
+			);
+		}
 
-		$button .= \Html::closeElement( 'div' );
+		$button .= Html::closeElement( 'div' );
+		$button .= Html::closeElement( 'div' );
 
 		echo $button;
 	}
