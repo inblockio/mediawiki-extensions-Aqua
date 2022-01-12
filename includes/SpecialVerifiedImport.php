@@ -80,6 +80,7 @@ class SpecialVerifiedImport extends SpecialPage {
 	 */
 	private function doImport() {
 		if ( $this->permManager->userHasRight( $this->getUser(), 'importupload' ) ) {
+			$this->disableLimits();
 			$source = ImportStreamSource::newFromUpload( "jsonimport" );
 		} else {
 			throw new PermissionsError( 'importupload' );
@@ -106,7 +107,7 @@ class SpecialVerifiedImport extends SpecialPage {
 				}
 				$content .= $chunk;
 			}
-			$this->disableLimits();
+
 			$arrayContent = json_decode( $content, 1 );
 			if ( !$arrayContent ) {
 				$this->getOutput()->wrapWikiTextAsInterface( 'error',
