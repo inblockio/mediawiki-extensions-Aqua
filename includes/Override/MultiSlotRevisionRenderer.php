@@ -263,6 +263,7 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 	 * @return string
 	 */
 	private function wrapSpecialSlotOutput( array $slots ) {
+		$hasVisible = false;
 		$accordion = Html::openElement( 'div', [ 'id' => 'da-slots-cnt' ] );
 		$accordion .= Html::element(
 			'h5', [],
@@ -274,6 +275,7 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 			if ( !$content->shouldShow() ) {
 				continue;
 			}
+			$hasVisible = true;
 			$header = Html::element( 'button', [
 				'class' => 'btn btn-link',
 				'data-toggle' => 'collapse',
@@ -312,7 +314,7 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 
 		$accordion .= Html::closeElement( 'div' );
 
-		return $accordion;
+		return $hasVisible ? $accordion : '';
 	}
 
 }
