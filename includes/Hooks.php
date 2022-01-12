@@ -10,6 +10,7 @@ namespace DataAccounting;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\WitnessingEngine;
 use FormatJson;
+use Html;
 use MediaWiki\Hook\BeforePageDisplayHook;
 use MediaWiki\Hook\OutputPageParserOutputHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
@@ -59,6 +60,40 @@ class Hooks implements
 		// We want this so that all the transcluded content are properly hashed and
 		// controlled at all times. Therefor the parser cache can not be used
 		$GLOBALS['wgParserCacheType'] = CACHE_NONE;
+
+		$GLOBALS['wgTweekiSkinNavigationalElements']['NEWPAGE'] = static::class . '::createNewPageButton';
+	}
+
+	public static function createNewPageButton( $skin, $context ) {
+		$button = \Html::openElement( 'div', [ 'class' => 'dropdown', 'style' => 'margin: 0 10px 0 10px' ] );
+		$button .= \Html::rawElement( 'button', [
+			'class' => 'btn btn-link dropdown-toggle ',
+			'type' => 'button',
+			'style' => 'color: white',
+			'id' => 'aqua-new-button',
+			'data-toggle' => 'dropdown',
+			'aria-haspopup' => 'true',
+			'aria-expanded' => 'false'
+		], Html::element( 'i', [ 'class' => 'fas fa-plus-circle' ] )  );
+
+		$specialUpload = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Upload' );
+		$button .= Html::rawElement(
+			'div', [ 'class' => 'dropdown-menu', 'aria-labelledby' => 'aqua-new-button' ],
+			Html::element(
+				'a', [ 'class' => 'dropdown-item', 'id' => 'aqua-new-page', 'href' => '#' ], 'New Page'
+			) .
+			Html::element(
+				'a', [
+					'class' => 'dropdown-item',
+					'id' => 'aqua-new-file',
+					'href' => $specialUpload->getPageTitle()->getLocalURL()
+				], 'Upload file'
+			)
+		);
+
+		$button .= \Html::closeElement( 'div' );
+
+		echo $button;
 	}
 
 	/**
