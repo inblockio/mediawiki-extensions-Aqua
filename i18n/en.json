@@ -70,7 +70,7 @@
 	"da-revision-renderer-da-data": "DataAccounting data",
 	"da-file-hash-slot-header": "File content hash",
 	"da-signature-slot-header": "Signatures",
-	"da-transclusion-hashes-slot-header": "Transcluded resources"
+	"da-transclusion-hashes-slot-header": "Transcluded resources",
 	"da-ui-create-page-title": "Create page",
 	"da-ui-create-page-create": "Create",
 	"da-ui-create-page-picker": "Page name",
