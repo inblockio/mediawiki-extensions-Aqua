@@ -30,7 +30,7 @@ class SpecialVerifiedImport extends SpecialPage {
 	private $titleFactory;
 	/** @var LinkRenderer */
 	private $linker;
-	/** @var array|null */
+	/** @var array|null Temporary variable - remove once PHP limit alteration is not necessary */
 	private $limits = null;
 
 	/**
@@ -222,7 +222,10 @@ class SpecialVerifiedImport extends SpecialPage {
 		$this->getOutput()->addWikiTextAsContent( $status->getWikiText() );
 	}
 
-
+	/**
+	 * Temporary fix!!
+	 * Increase PHP memory limits to allow for bigger file creation
+	 */
 	private function disableLimits() {
 		$this->limits = [
 			'memory_limit' => ini_get( 'memory_limit' ),
@@ -233,6 +236,10 @@ class SpecialVerifiedImport extends SpecialPage {
 		ini_set( 'max_execution_time', '-1' );
 	}
 
+	/**
+	 * Temporary fix!!
+	 * Restore PHP memory limits original values
+	 */
 	private function restoreLimits() {
 		if ( !is_array( $this->limits ) ) {
 			return;
