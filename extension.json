@@ -282,6 +282,16 @@
 				"RevisionStore",
 				"PermissionManager"
 			]
+		},
+		{
+			"method": "POST",
+			"path": "/data_accounting/import",
+			"class": "DataAccounting\\API\\ImportRevisionHandler",
+			"services": [
+				"PermissionManager",
+				"DataAccountingTransferEntityFactory",
+				"DataAccountingImporter"
+			]
 		}
 	],
 	"ResourceFileModulePaths": {
