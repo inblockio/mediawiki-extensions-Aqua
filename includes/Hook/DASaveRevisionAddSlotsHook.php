@@ -10,7 +10,8 @@ interface DASaveRevisionAddSlotsHook {
 	/**
 	 * @param PageUpdater $updater
 	 * @param WikiPage $wikiPage
+	 * @param string|null $rawText
 	 * @return void
 	 */
-	public function onDASaveRevisionAddSlots( PageUpdater $updater, WikiPage $wikiPage );
+	public function onDASaveRevisionAddSlots( PageUpdater $updater, WikiPage $wikiPage, ?string $rawText );
 }

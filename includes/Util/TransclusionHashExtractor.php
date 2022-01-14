@@ -5,12 +5,16 @@ namespace DataAccounting\Util;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\Linker\LinkTarget;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Storage\SlotRecord;
 use MWException;
 use ParserOutput;
 use Title;
 use TitleFactory;
 
 class TransclusionHashExtractor {
+	/** @var string */
+	private $rawText;
 	/** @var LinkTarget */
 	private $subject;
 	/** @var ParserOutput */
@@ -23,14 +27,17 @@ class TransclusionHashExtractor {
 	private $hashMap = null;
 
 	/**
+	 * @param string $rawText
+	 * @param LinkTarget $subject
 	 * @param ParserOutput $po
 	 * @param TitleFactory $titleFactory
 	 * @param VerificationEngine $verificationEngine
 	 */
 	public function __construct(
-		LinkTarget $subject, ParserOutput $po,
+		string $rawText, LinkTarget $subject, ParserOutput $po,
 		TitleFactory $titleFactory, VerificationEngine $verificationEngine
 	) {
+		$this->rawText = $rawText;
 		$this->subject = $subject;
 		$this->parserOutput = $po;
 		$this->titleFactory = $titleFactory;
@@ -79,7 +86,46 @@ class TransclusionHashExtractor {
 	 * @param array $titles
 	 */
 	private function parseTemplates( array &$titles ) {
-		$this->parseNested( $this->parserOutput->getTemplates(), $titles );
+		// We do this elaborate parsing instead of just calling `ParserOutput::getTemplates`
+		// because we only want direct transclusions, instead of transclusions of transclusions.
+		// Every page handles only its own transclusions
+		$templates = [];
+		$pp = new \Preprocessor_Hash( MediaWikiServices::getInstance()->getParserFactory()->create() );
+		$hashTree = $pp->preprocessToObj( $this->rawText );
+		for ( $node = $hashTree->getFirstChild(); $node; $node = $node->getNextSibling() ) {
+			if ( !( $node instanceof \PPNode_Hash_Attr ) && $node->getName() === 'template' ) {
+				for ( $templateNode = $node->getFirstChild(); $templateNode; $templateNode = $templateNode->getNextSibling() ) {
+					if ( !( $templateNode instanceof \PPNode_Hash_Attr ) && $templateNode->getName() === 'title' ) {
+						$templates[] = $templateNode->getRawChildren()[0];
+					}
+				}
+			}
+		}
+
+		$templates = array_map( function( $templatePage ) {
+			$templatePage = trim( preg_replace( '/\s\s+/', ' ', $templatePage ) );
+			if ( strpos( $templatePage, ':' ) === 0 ) {
+				return $this->titleFactory->newFromText( trim( $templatePage, ':' ) );
+			}
+
+			if ( strpos( $templatePage, ':' ) !== false ) {
+				$title = $this->titleFactory->newFromText( $templatePage );
+				if ( $title->getNamespace() !== NS_MAIN ) {
+					// If name has a colon in the name, it cannot be NS_MAIN. If it is, its invalid NS
+					return $title;
+				}
+			}
+
+			return $this->titleFactory->makeTitle( NS_TEMPLATE, $templatePage );
+		}, $templates );
+
+		$templates = array_filter( $templates, function( $templateTitle ) {
+			return $templateTitle instanceof Title;
+		} );
+
+		foreach ( $templates as $title ) {
+			$titles[$title->getPrefixedDBkey()] = $title;
+		}
 	}
 
 	/**

@@ -28,7 +28,10 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	private TitleFactory $titleFactory;
 	/** @var VerificationEngine */
 	private VerificationEngine $verificationEngine;
+	/** @var RepoGroup */
 	private RepoGroup $repoGroup;
+	/** @var string */
+	private $rawText;
 
 	/**
 	 * @param TitleFactory $titleFactory
@@ -47,12 +50,13 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	 *
 	 * @param PageUpdater $updater
 	 */
-	public function onDASaveRevisionAddSlots( PageUpdater $updater, WikiPage $wikiPage ) {
+	public function onDASaveRevisionAddSlots( PageUpdater $updater, WikiPage $wikiPage, ?string $rawText ) {
 		if ( $wikiPage->getTitle()->getNamespace() === 6942 ) {
 			// Do not scan domain snapshots
 			return;
 		}
 		$this->wikiPage = $wikiPage;
+		$this->rawText = $rawText;
 		if ( $wikiPage->getTitle()->getNamespace() === NS_FILE ) {
 			$this->fileHashContent = new FileHashContent( '' );
 			$updater->setContent( FileHashContent::SLOT_ROLE_FILE_HASH, $this->fileHashContent );
@@ -88,7 +92,7 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		// be inserted, and page was just parsed (but not saved yet)
 		$po = $renderedRevision->getSlotParserOutput( SlotRecord::MAIN );
 		$extractor = new TransclusionHashExtractor(
-			$renderedRevision->getRevision()->getPageAsLinkTarget(),
+			$this->rawText, $renderedRevision->getRevision()->getPageAsLinkTarget(),
 			$po, $this->titleFactory, $this->verificationEngine
 		);
 		$hashmap = $extractor->getHashmap();
