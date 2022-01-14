@@ -67,7 +67,7 @@
 	"da-specialwitnesspublisher-tableheader-publishingstatus-publish": "Publish!",
 	"da-specialwitnesspublisher-tableheader-publishingstatus-lookup": "Lookup",
 	"da-import-result-collision": "Collision detected, original title moved to $1",
-	"da-revision-renderer-da-data": "Verfication Data",
+	"da-revision-renderer-da-data": "Verification Data",
 	"da-file-hash-slot-header": "File content hash",
 	"da-signature-slot-header": "Signatures",
 	"da-transclusion-hashes-slot-header": "Transcluded resources",
