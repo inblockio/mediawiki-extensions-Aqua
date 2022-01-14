@@ -1,0 +1,15 @@
+{
+	"@metadata": {
+		"authors": [
+			"Mschlindwein"
+		]
+	},
+	"da-transclusion-hash-ui-visit-latest": "Dieser Abschnitt ist in alten Versionen nicht verfügbar. Besuchen Sie '''Aktuelle Version''', um ihn zu sehen",
+	"da-specialdaconfig-softwareinfo": "Projekt GitHub: [$1 $1]<br>Data Accounting Version: $2<br>API Version: $3<br>Ihre Domänen-ID ist: <b>$4</b>",
+	"da-specialdaconfig-signature-help": "Content Signature fügt eine sichtbare Unterschrift in den Seiteninhalt ein und schreibt eine neue Version, wenn Sie eine Seite mithilfe Ihrer Brieftasche unterschreiben.",
+	"da-specialdaconfig-witnessconfiguration-help": "Stellen Sie sicher, dass Sie vor der Veröffentlichung einen [[Special:Witness| Domänen-Schnappschuss]] generieren.",
+	"da-specialwitness-snapshot-help": "Diese Seite ist eine Zusammenfassung aller verfizierten Seiten in deiner Domäne und wird verwendet um einen Hash-Baum zu generieren, um sie gleichzeitig zu bezeugen und mit einem Zeitstempel zu versehen. Verwenden Sie [[Special:WitnessPublisher|Domain Snapshot Publisher]] um den generierten Domänen-Schnappschuss in dem bevorzugten Witness-Netzwerk zu veröffentlichen.",
+	"da-specialwitness-error-emptyhash-description": "Keine verifizierten Seitenüberprüfungen verfügbar. Erstellen Sie zuerst eine neue Seitenüberprüfung.",
+	"da-specialwitness-showmerkleproof-text": "Besuchen Sie [[$1]] um den Merkle proof zu sehen.",
+	"da-specialwitnesspublisher-help-text": "Der Domain Snapshot Publisher zeigt eine Liste aller Domänen-Schnappschüssen. Sie können einen Domänen-Schnappschuss von hier im Netzwerk von Ethereum veröffentlichen, um alle Seitenverifikationshashes und die zugehörigen Seitenüberprüfungen, die im Domänen-Schnappschuss enthalten sind, mit einem Zeitstempel zu versehen. Nach Veröffentlichung des Domänen-Schnappschusses wird dies in die Versionsverifikations-Daten geschrieben und in die Versiongeschichte der Seite eingetragen."
+}

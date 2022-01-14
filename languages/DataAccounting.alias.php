@@ -16,7 +16,11 @@ $specialPageAliases['en'] = [
 	'Witness' => [ 'Domain Snapshot Generator' ],
 ];
 
-/** Dutch (Nederlands) */
-$specialPageAliases['nl'] = [
-	'HelloWorld' => [ 'HalloWereld' ],
+/** Deutsch (German) */
+$specialPageAliases['de'] = [
+	'VerifiedExport' => [ 'Verifizierter Export' ],
+	'VerifiedImport' => [ 'Verifizierter Import' ],
+	'WitnessPublisher' => [ 'Witness Publisher' ],
+	'DataAccountingConfig' => [ 'Datenprüfungskonfiguration' ],
+	'Witness' => [ 'Domain Snapshot Generator' ],
 ];
