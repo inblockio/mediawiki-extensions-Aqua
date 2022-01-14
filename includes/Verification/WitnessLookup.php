@@ -78,11 +78,38 @@ class WitnessLookup {
 		return (int)$res->id;
 	}
 
+	function checkIfHashInMerkleTreeDB( ?string $hash, string $side ): bool {
+		if ( !$hash ) {
+			return false;
+		}
+		$db = $this->lb->getConnection( DB_REPLICA );
+		$res = $db->selectRow(
+			'witness_merkle_tree',
+			"witness_event_id",
+			"$side='$hash'",
+			__METHOD__,
+		);
+		if ( !$res ) {
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * @param array $data
 	 * @return int|null
 	 */
-	public function insertMerkleTreeNode( array $data ): ?int {
+	public function insertMerkleTreeNode( ?array $data ): ?int {
+		if ( !$data ) {
+			return null;
+		}
+		if ( $this->checkIfHashInMerkleTreeDB( $data["left_leaf"], "left_leaf" ) ) {
+			return null;
+		}
+		if ( $this->checkIfHashInMerkleTreeDB( $data["right_leaf"], "right_leaf" ) ) {
+			return null;
+		}
+
 		$db = $this->lb->getConnection( DB_PRIMARY );
 		$res = $db->insert(
 			'witness_merkle_tree',
