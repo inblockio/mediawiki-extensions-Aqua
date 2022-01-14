@@ -314,6 +314,14 @@
 				"ui/SinglePageExportDialog.js",
 				"ext.dataAccounting.exportSinglePage.js"
 			],
+			"messages": [
+				"da-ui-singlepageexport-title",
+				"da-ui-singlepageexport-export-label",
+				"da-ui-singlepageexport-cancel-label",
+				"da-export-field-transclusions-label",
+				"da-export-field-depth-label",
+				"da-export-field-latest-label"
+			],
 			"dependencies": [
 				"oojs-ui"
 			]

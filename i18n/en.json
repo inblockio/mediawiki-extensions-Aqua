@@ -75,5 +75,8 @@
 	"da-ui-create-page-create": "Create",
 	"da-ui-create-page-picker": "Page name",
 	"da-ui-new-page-create-label": "New page",
-	"da-ui-new-page-upload-label": "Upload file"
+	"da-ui-new-page-upload-label": "Upload file",
+	"da-ui-singlepageexport-title": "Verified Export",
+	"da-ui-singlepageexport-export-label": "Export",
+	"da-ui-singlepageexport-cancel-label": "Cancel"
 }

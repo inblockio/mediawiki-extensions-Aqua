@@ -5,15 +5,19 @@ da.ui = window.da.ui || {};
 da.ui.SinglePageExportDialog = function ( config ) {
 	da.ui.SinglePageExportDialog.super.call( this, config );
 	this.pageName = config.pageName;
-}
+};
 OO.inheritClass( da.ui.SinglePageExportDialog, OO.ui.ProcessDialog );
 
 da.ui.SinglePageExportDialog.static.name = 'daSinglePageExport';
-da.ui.SinglePageExportDialog.static.title = 'Verified export';
-da.ui.SinglePageExportDialog.static.actions = [
-	{ action: 'export', label: 'Export', flags: 'primary' },
-	{ label: 'Cancel', flags: 'safe' }
-];
+da.ui.SinglePageExportDialog.static.title = mw.message( 'da-ui-singlepageexport-title' ).plain();
+da.ui.SinglePageExportDialog.static.actions = [ {
+	action: 'export',
+	label: mw.message( 'da-ui-singlepageexport-export-label' ).plain(),
+	flags: 'primary'
+}, {
+	label: mw.message( 'da-ui-singlepageexport-cancel-label' ).plain(),
+	flags: 'safe'
+} ];
 
 da.ui.SinglePageExportDialog.prototype.initialize = function () {
 	da.ui.SinglePageExportDialog.super.prototype.initialize.apply( this, arguments );
@@ -34,16 +38,16 @@ da.ui.SinglePageExportDialog.prototype.initialize = function () {
 	} );
 
 	var includeTransLayout = new OO.ui.FieldLayout( this.includeTrans, {
-		label: 'Include transcluded resources',
+		label: mw.message( 'da-export-field-transclusions-label' ).plain(),
 		align: 'top'
 	} );
 	var depthLayout = new OO.ui.FieldLayout( this.depth,  {
-		label: 'Max depth for transcluded resources',
+		label: mw.message( 'da-export-field-depth-label' ).plain(),
 		align: 'top'
 	} );
 	depthLayout.$element.hide();
 	var latestLayout = new OO.ui.FieldLayout( this.onlyLatest, {
-		label: 'Include only latest revision of the page. If checked, only referenced revisions of transcluded resources will be exported',
+		label: mw.message( 'da-export-field-latest-label' ).plain(),
 		align: 'top'
 	} );
 
