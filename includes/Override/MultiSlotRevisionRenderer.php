@@ -264,7 +264,8 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 	 */
 	private function wrapSpecialSlotOutput( array $slots ) {
 		$hasVisible = false;
-		$accordion = Html::openElement( 'div', [ 'id' => 'da-slots-cnt' ] );
+		$accordion = Html::element( 'hr' );
+		$accordion .= Html::openElement( 'div', [ 'id' => 'da-slots-cnt' ] );
 		$accordion .= Html::element(
 			'h5', [],
 			\Message::newFromKey( 'da-revision-renderer-da-data' )->text()
