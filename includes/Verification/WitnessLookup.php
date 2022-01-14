@@ -82,7 +82,7 @@ class WitnessLookup {
 	 * @param array $data
 	 * @return int|null
 	 */
-	public function insertMerkleTree( array $data ): ?int {
+	public function insertMerkleTreeNode( array $data ): ?int {
 		$db = $this->lb->getConnection( DB_PRIMARY );
 		$res = $db->insert(
 			'witness_merkle_tree',

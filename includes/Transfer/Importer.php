@@ -318,7 +318,7 @@
 
 			foreach ( $structuredMerkleProof as $row ) {
 				$row["witness_event_id"] = $lastWitnessEventId;
-				$this->witnessingEngine->getLookup()->insertMerkleTree( $row );
+				$this->witnessingEngine->getLookup()->insertMerkleTreeNode( $row );
 			}
 		}
 	 }
