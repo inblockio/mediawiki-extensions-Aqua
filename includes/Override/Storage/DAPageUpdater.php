@@ -3,6 +3,7 @@
 namespace DataAccounting\Override\Storage;
 
 use CommentStoreComment;
+use Content;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\HookContainer\HookContainer;
@@ -10,6 +11,7 @@ use MediaWiki\Revision\RevisionStore;
 use MediaWiki\Revision\SlotRoleRegistry;
 use MediaWiki\Storage\DerivedPageDataUpdater;
 use MediaWiki\Storage\PageUpdater;
+use MediaWiki\Storage\SlotRecord;
 use MediaWiki\User\UserEditTracker;
 use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentity;
@@ -30,6 +32,8 @@ class DAPageUpdater extends PageUpdater {
 	private $wikiPage;
 	/** @var bool */
 	private $shouldEmit = true;
+	/** @var string|null */
+	private $rawMainRoleText = null;
 
 	/**
 	 * @inheritDoc
@@ -57,10 +61,19 @@ class DAPageUpdater extends PageUpdater {
 		// CUSTOM PART START
 		// We fire a hook to allow subscribers to add their own contents to slots
 		if ( $this->shouldEmit ) {
-			$this->hookContainer->run( 'DASaveRevisionAddSlots', [ $this, $this->wikiPage ] );
+			$this->hookContainer->run( 'DASaveRevisionAddSlots', [ $this, $this->wikiPage, $this->rawMainRoleText ] );
 		}
 		// CUSTOM PART END
 		return parent::saveRevision( $summary, $flags );
+	}
+
+	public function setContent( $role, Content $content ) {
+		// Save raw content of the MAIN slot, so that transclusions
+		// can be pulled on it, on `DASaveRevisionAddSlots` hook
+		if ( $role === SlotRecord::MAIN ) {
+			$this->rawMainRoleText = $content->getText();
+		}
+		return parent::setContent( $role, $content );
 	}
 
 	/**
