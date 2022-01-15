@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_merkle_tree (
     -- witness event verification hash of the related Witness_Event
     `witness_event_verification_hash` VARCHAR(128),
     -- the depth of the node
-    `depth` VARCHAR(64),
+    `depth` INT(32),
     `left_leaf` VARCHAR(128),
     `right_leaf` VARCHAR(128),
     `successor` VARCHAR(128)
