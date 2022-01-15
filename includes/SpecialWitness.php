@@ -219,13 +219,14 @@ class SpecialWitness extends SpecialPage {
 		if ( !$rowDMVH ) {
 			throw new Exception( "Verification hash not found for $title" );
 		}
-		$domainSnapshotVH = $rowDMVH->verification_hash;
+		$domainSnapShotGenesisHash = $rowDMVH->verification_hash;
 
-		return [ $title, $domainSnapshotVH, $merkleTreeHtmlText ];
+		return [ $title, $domainSnapShotGenesisHash, $merkleTreeHtmlText ];
 	}
 
 	public function helperMaybeInsertWitnessEvent(
 		string $domain_snapshot_genesis_hash,
+		string $witnessEventVerificationHash,
 		int $witness_event_id,
 		Title $title,
 		string $merkle_root
@@ -250,8 +251,7 @@ class SpecialWitness extends SpecialPage {
 					'domain_snapshot_title' => $title,
 					'domain_snapshot_genesis_hash' => $domain_snapshot_genesis_hash,
 					'merkle_root' => $merkle_root,
-					'witness_event_verification_hash' => $this->verificationEngine->getHasher()
-						->getHashSum( $domain_snapshot_genesis_hash . $merkle_root ),
+					'witness_event_verification_hash' => $witnessEventVerificationHash,
 					'smart_contract_address' => $SmartContractAddress,
 					'witness_network' => $WitnessNetwork,
 				],
@@ -298,27 +298,30 @@ class SpecialWitness extends SpecialPage {
 
 		$out->addWikiTextAsContent( $output );
 
-		// Store the Merkle tree in the DB
-		$this->storeMerkleTree( $witness_event_id, $treeLayers );
-
 		//Generate the Domain Snapshot as a new page
-		[ $title, $domainSnapshotVH, $merkleTreeHtmlText ] = $this->helperMakeNewDomainSnapshotpage(
+		[ $title, $domainSnapShotGenesisHash, $merkleTreeHtmlText ] = $this->helperMakeNewDomainSnapshotpage(
 			$witness_event_id,
 			$treeLayers,
 			$output
 		);
 
-		//Write results into the witness_events DB
 		$merkle_root = array_keys( $treeLayers )[0];
+		$witnessEventVerificationHash = $this->verificationEngine->getHasher()
+			->getHashSum( $domainSnapShotGenesisHash . $merkle_root );
 
+		//Write results into the witness_events DB
 		// Check if $witness_event_id is already present in the witness_events
 		// table. If not, do insert.
 		$this->helperMaybeInsertWitnessEvent(
-			$domainSnapshotVH,
+			$domainSnapShotGenesisHash,
+			$witnessEventVerificationHash,
 			$witness_event_id,
 			$title,
 			$merkle_root
 		);
+
+		// Store the Merkle tree in the DB
+		$this->storeMerkleTree( $witness_event_id, $witnessEventVerificationHash, $treeLayers );
 
 		$out->addHTML( $merkleTreeHtmlText );
 		$out->addHTML(
@@ -384,7 +387,7 @@ class SpecialWitness extends SpecialPage {
 		return $out;
 	}
 
-	private function storeMerkleTree( $witness_event_id, $treeLayers, $depth = 0 ) {
+	private function storeMerkleTree( $witness_event_id, $witnessEventVerificationHash, $treeLayers, $depth = 0 ) {
 		// TODO: Should be done by a service
 		foreach ( $treeLayers as $parent => $children ) {
 			if ( $children === null ) {
@@ -395,13 +398,14 @@ class SpecialWitness extends SpecialPage {
 				"witness_merkle_tree",
 				[
 					"witness_event_id" => $witness_event_id,
+					"witness_event_verification_hash" => $witnessEventVerificationHash,
 					"depth" => $depth,
 					"left_leaf" => $children_keys[0],
 					"right_leaf" => ( count( $children_keys ) > 1 ) ? $children_keys[1] : null,
 					"successor" => $parent,
 				]
 			);
-			$this->storeMerkleTree( $witness_event_id, $children, $depth + 1 );
+			$this->storeMerkleTree( $witness_event_id, $witnessEventVerificationHash, $children, $depth + 1 );
 		}
 	}
 

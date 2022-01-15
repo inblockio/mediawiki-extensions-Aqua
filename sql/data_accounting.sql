@@ -76,9 +76,11 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_page (
 );
 
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_merkle_tree (
-    `INDEX` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    -- ID of the related Witness_Event
-    `witness_event_id` INT(32),
+    `id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    -- witness event ID of the related Witness_Event
+	`witness_event_id` INT(32),
+    -- witness event verification hash of the related Witness_Event
+    `witness_event_verification_hash` VARCHAR(128),
     -- the depth of the node
     `depth` VARCHAR(64),
     `left_leaf` VARCHAR(128),

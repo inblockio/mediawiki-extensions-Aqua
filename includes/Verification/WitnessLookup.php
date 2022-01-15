@@ -78,15 +78,21 @@ class WitnessLookup {
 		return (int)$res->id;
 	}
 
-	function checkIfHashInMerkleTreeDB( ?string $hash, string $side ): bool {
+	function checkIfHashInMerkleTreeDB( array $data, string $side ): bool {
+		$hash = $data[$side];
 		if ( !$hash ) {
 			return false;
 		}
+
+		$witnessEventVerificationHash = $data["witness_event_verification_hash"];
 		$db = $this->lb->getConnection( DB_REPLICA );
 		$res = $db->selectRow(
 			'witness_merkle_tree',
-			"witness_event_id",
-			"$side='$hash'",
+			"id",
+			[
+				$side => $hash,
+				"witness_event_verification_hash" => $witnessEventVerificationHash,
+			],
 			__METHOD__,
 		);
 		if ( !$res ) {
@@ -103,10 +109,10 @@ class WitnessLookup {
 		if ( !$data ) {
 			return null;
 		}
-		if ( $this->checkIfHashInMerkleTreeDB( $data["left_leaf"], "left_leaf" ) ) {
+		if ( $this->checkIfHashInMerkleTreeDB( $data, "left_leaf" ) ) {
 			return null;
 		}
-		if ( $this->checkIfHashInMerkleTreeDB( $data["right_leaf"], "right_leaf" ) ) {
+		if ( $this->checkIfHashInMerkleTreeDB( $data, "right_leaf" ) ) {
 			return null;
 		}
 
@@ -157,7 +163,7 @@ class WitnessLookup {
 			$res = $this->lb->getConnection( DB_REPLICA )->select(
 				'witness_merkle_tree',
 				[
-					'witness_event_id',
+					'witness_event_verification_hash',
 					'depth',
 					'left_leaf',
 					'right_leaf',
