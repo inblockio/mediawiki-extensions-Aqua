@@ -68,7 +68,8 @@ return [
 			$services->getRevisionStore(),
 			$services->getRepoGroup(),
 			$services->getTitleFactory(),
-			$services->getMovePageFactory()
+			$services->getMovePageFactory(),
+			$services->getDeletePageFactory()
 		);
 	},
 	'DataAccountingExporter' => static function( MediaWikiServices $services ): Exporter {

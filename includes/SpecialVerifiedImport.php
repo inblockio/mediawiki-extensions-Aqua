@@ -125,13 +125,21 @@ class SpecialVerifiedImport extends SpecialPage {
 				unset( $page['revisions'] );
 				$page['site_info'] = $siteInfo;
 				$context = $this->transferEntityFactory->newTransferContextFromData( $page );
-				$collisionResolutionStatus = $this->importer->checkAndFixCollision( $this->getUser(), $context );
+				$collisionResolutionStatus = $this->importer->checkAndFixCollision(
+					$this->getUser(), $context,
+					Importer::COLLISION_AVOIDANCE_STRATEGY_DELETE_SHORTER
+				);
 				if ( !$collisionResolutionStatus->isOK() ) {
 					$this->errorFromStatus( $collisionResolutionStatus );
 					$this->restoreLimits();
 					return;
 				}
-				foreach ( $revisions as $hash => $revision ) {
+				$value = $collisionResolutionStatus->getValue();
+				if ( is_array( $value ) && isset( $value['collision'] ) ) {
+					$collisions[$context->getTitle()->getPrefixedDBkey()] = $value['collision' ];
+				}
+
+ 				foreach ( $revisions as $hash => $revision ) {
 					$entity = $this->transferEntityFactory->newRevisionEntityFromApiData( $revision );
 					if ( !$entity instanceof \DataAccounting\Transfer\TransferRevisionEntity ) {
 						continue;
@@ -141,10 +149,6 @@ class SpecialVerifiedImport extends SpecialPage {
 						$this->errorFromStatus( $status );
 						$this->restoreLimits();
 						return;
-					}
-					$value = $status->getValue();
-					if ( isset( $value['collision_move'] ) ) {
-						$collisions[$value['collision_move']['old']->getPrefixedDBkey()] = $value['collision_move']['new'];
 					}
 					if ( !isset( $stats[$context->getTitle()->getPrefixedDBkey()] ) ) {
 						$stats[$context->getTitle()->getPrefixedDBkey()] = 0;
@@ -169,10 +173,7 @@ class SpecialVerifiedImport extends SpecialPage {
 						'ul', [],
 						Html::rawElement(
 							'li', [],
-							Message::newFromKey( 'da-import-result-collision' )
-								->rawParams(
-									$this->linker->makeLink( $collisions[$pagename] )
-								)->text()
+							$collisions[$pagename]
 						)
 					);
 				}
