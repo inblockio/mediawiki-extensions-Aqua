@@ -19,6 +19,7 @@ class TransclusionManager {
 	public const STATE_NEW_VERSION = 'new-version';
 	public const STATE_UNCHANGED = 'unchanged';
 	public const STATE_INVALID = 'invalid';
+	public const STATE_NO_RECORD = 'no-record';
 
 	/** @var TitleFactory */
 	private TitleFactory $titleFactory;
@@ -70,13 +71,19 @@ class TransclusionManager {
 			];
 			$latestEntity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
 			if ( $transclusion->{VerificationEntity::VERIFICATION_HASH} === null ) {
-				// Title didnt exist at time of transclusion...
+				// No verification entity was available at the time of transclusion...
 				if ( $latestEntity ) {
-					//... but now exists
+					// Now some entity exists...
 					$state['state'] = static::STATE_NEW_VERSION;
 				} else {
 					// ... still does not exist
-					$state['state'] = static::STATE_UNCHANGED;
+					if ( $title->exists() ) {
+						// ... however the title does exist, so this is abnormal
+						$state['state'] = static::STATE_INVALID;
+					} else {
+						// ... title still does not exist
+						$state['state'] = static::STATE_NO_RECORD;
+					}
 				}
 			} else {
 				$recordedEntity = $this->verificationEngine->getLookup()->verificationEntityFromQuery( [

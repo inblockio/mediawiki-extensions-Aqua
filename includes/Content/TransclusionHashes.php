@@ -19,7 +19,7 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 	public const SLOT_ROLE_TRANSCLUSION_HASHES = 'transclusion-hashes';
 
 	/** @var bool */
-	private $needsUpdate = false;
+	private $payAttention = false;
 
 	/**
 	 * @param string $text
@@ -160,13 +160,18 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 		$item .= Html::openElement( 'div', [ 'class'  => 'card-body' ] );
 		$item .= $linkRenderer->makeLink( $title );
 		$badgeClasses = [ 'badge' ];
-		if ( $changeState === TransclusionManager::STATE_NEW_VERSION ) {
+		if (
+			$changeState === TransclusionManager::STATE_NEW_VERSION ||
+			$changeState === TransclusionManager::STATE_NO_RECORD
+		) {
+			$this->payAttention = true;
 			$badgeClasses[] = 'badge-warning';
 		}
 		if ( $changeState === TransclusionManager::STATE_UNCHANGED ) {
 			$badgeClasses[] = 'badge-success';
 		}
 		if ( $changeState === TransclusionManager::STATE_INVALID ) {
+			$this->payAttention = true;
 			$badgeClasses[] = 'badge-danger';
 		}
 		$item .= Html::openElement( 'span', [
@@ -176,7 +181,6 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 		$item .= Message::newFromKey( "da-transclusion-hash-ui-state-{$changeState}" )->text();
 		$item .= Html::closeElement( 'span' );
 		if ( $changeState === TransclusionManager::STATE_NEW_VERSION ) {
-			$this->needsUpdate = true;
 			$item .= Html::element( 'a', [
 				'href' => '#',
 				'class' => 'da-included-resource-update',
@@ -214,7 +218,7 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 	 * @inheritDoc
 	 */
 	public function requiresAction(): bool {
-		return $this->needsUpdate;
+		return $this->payAttention;
 	}
 
 	/**
