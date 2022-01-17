@@ -78,7 +78,7 @@ class WitnessLookup {
 		return (int)$res->id;
 	}
 
-	function checkIfHashInMerkleTreeDB( array $data, string $side ): bool {
+	private function checkIfHashInMerkleTreeDB( array $data, string $side ): bool {
 		$hash = $data[$side];
 		if ( !$hash ) {
 			return false;
