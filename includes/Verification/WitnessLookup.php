@@ -26,7 +26,20 @@ class WitnessLookup {
 	public function witnessEventFromQuery( array $query ): ?WitnessEventEntity {
 		$row = $this->lb->getConnection( DB_REPLICA )->selectRow(
 			'witness_events',
-			[ '*' ],
+			[
+				'witness_event_id',
+				'domain_id',
+				'domain_snapshot_title',
+				'witness_hash',
+				'domain_snapshot_genesis_hash',
+				'merkle_root',
+				'witness_event_verification_hash',
+				'witness_network',
+				'smart_contract_address',
+				'witness_event_transaction_hash',
+				'sender_account_address',
+				'source',
+			],
 			$query,
 			__METHOD__,
 			[
@@ -37,8 +50,10 @@ class WitnessLookup {
 		if ( !$row ) {
 			return null;
 		}
+		$data = (array)$row;
+		$data['witness_event_id'] = (int)$data['witness_event_id'];
 
-		return new WitnessEventEntity( $row );
+		return new WitnessEventEntity( (object)$data );
 	}
 
 	/**
@@ -175,7 +190,10 @@ class WitnessLookup {
 			$output = null;
 			$maxDepth = null;
 			foreach ( $res as $row ) {
-				if ( $maxDepth === null || ( (int)$row->depth > $maxDepth ) ) {
+				$row->id = (int)$row->id;
+				$row->witness_event_id = (int)$row->witness_event_id;
+				$row->depth = (int)$row->depth;
+				if ( $maxDepth === null || $row->depth > $maxDepth ) {
 					$maxDepth = $row->depth;
 					$output = new MerkleTreeEntity( $row );
 				}
@@ -201,7 +219,15 @@ class WitnessLookup {
 	public function merkleTreeFromQuery( array $query ): ?MerkleTreeEntity {
 		$row = $this->lb->getConnection( DB_REPLICA )->selectRow(
 			'witness_merkle_tree',
-			[ '*' ],
+			[
+				'id',
+				'witness_event_id',
+				'witness_event_verification_hash',
+				'depth',
+				'left_leaf',
+				'right_leaf',
+				'successor',
+			],
 			$query,
 			__METHOD__,
 			[
@@ -212,8 +238,12 @@ class WitnessLookup {
 		if ( !$row ) {
 			return null;
 		}
+		$data = (array)$row;
+		$data['id'] = (int)$data['id'];
+		$data['witness_event_id'] = (int)$data['witness_event_id'];
+		$data['depth'] = (int)$data['depth'];
 
-		return new MerkleTreeEntity( $row );
+		return new MerkleTreeEntity( (object)$data );
 	}
 
 	/**
@@ -227,7 +257,20 @@ class WitnessLookup {
 
 		$row = $this->lb->getConnection( DB_REPLICA )->selectRow(
 			'witness_events',
-			[ '*' ],
+			[
+				'witness_event_id',
+				'domain_id',
+				'domain_snapshot_title',
+				'witness_hash',
+				'domain_snapshot_genesis_hash',
+				'merkle_root',
+				'witness_event_verification_hash',
+				'witness_network',
+				'smart_contract_address',
+				'witness_event_transaction_hash',
+				'sender_account_address',
+				'source',
+			],
 			[ 'witness_event_id' => $entity->getWitnessEventId() ],
 			__METHOD__
 		);
@@ -235,20 +278,31 @@ class WitnessLookup {
 		if ( !$row ) {
 			return null;
 		}
+		$data = (array)$row;
+		$data['witness_event_id'] = (int)$data['witness_event_id'];
 
-		return new WitnessEventEntity( $row );
+		return new WitnessEventEntity( (object)$data );
 	}
 
 	public function pageEntitiesFromWitnessId( string $witnessEventId ) {
 		$res = $this->lb->getConnection( DB_REPLICA )->select(
 			'witness_page',
-			[ '*' ],
+			[
+				'id',
+				'witness_event_id',
+				'domain_id',
+				'page_title',
+				'rev_id',
+				'revision_verification_hash',
+			],
 			[ 'witness_event_id' => $witnessEventId ],
 			__METHOD__
 		);
 
 		$entities = [];
 		foreach ( $res as $row ) {
+			$row->id = (int)$row->id;
+			$row->witness_event_id = (int)$row->witness_event_id;
 			$entities[] = new WitnessPageEntity( $row );
 		}
 

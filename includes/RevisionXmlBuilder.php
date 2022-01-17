@@ -51,13 +51,13 @@ class RevisionXmlBuilder {
 		}
 
 		$output = [
-			'domain_id' => $row->domain_id,
+			'domain_id' => (int)$row->domain_id,
 			'genesis_hash' => $row->genesis_hash,
 			'rev_id' => $revId,
 			'verification_hash' => $row->verification_hash,
 			'previous_verification_hash' => $row->previous_verification_hash,
 			'time_stamp' => $row->time_stamp,
-			'witness_event_id' => $row->witness_event_id,
+			'witness_event_id' => (int)$row->witness_event_id,
 			'signature' => $row->signature,
 			'public_key' => $row->public_key,
 			'wallet_address' => $row->wallet_address,

@@ -75,7 +75,25 @@ class VerificationLookup {
 	public function verificationEntityFromQuery( array $query ): ?VerificationEntity {
 		$res = $this->lb->getConnection( DB_REPLICA )->selectRow(
 			static::TABLE,
-			[ '*' ],
+			[
+				'revision_verification_id',
+				'domain_id',
+				'genesis_hash',
+				'page_title',
+				'page_id',
+				'rev_id',
+				'verification_context',
+				'content_hash',
+				'time_stamp',
+				'metadata_hash',
+				'verification_hash',
+				'previous_verification_hashsignature_hash',
+				'signature',
+				'public_key',
+				'wallet_address',
+				'witness_event_id',
+				'source',
+			],
 			$query,
 			__METHOD__,
 			[ 'ORDER BY' => [ 'rev_id DESC' ] ],
@@ -182,7 +200,25 @@ class VerificationLookup {
 	public function getAllEntities(): array {
 		$res = $this->lb->getConnection( DB_REPLICA )->select(
 			static::TABLE,
-			[ '*' ],
+			[
+				'revision_verification_id',
+				'domain_id',
+				'genesis_hash',
+				'page_title',
+				'page_id',
+				'rev_id',
+				'verification_context',
+				'content_hash',
+				'time_stamp',
+				'metadata_hash',
+				'verification_hash',
+				'previous_verification_hashsignature_hash',
+				'signature',
+				'public_key',
+				'wallet_address',
+				'witness_event_id',
+				'source',
+			],
 			[],
 			__METHOD__
 		);

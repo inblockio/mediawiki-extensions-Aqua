@@ -45,7 +45,7 @@ class VerificationEntityFactory {
 		if ( !( $title instanceof Title ) ) {
 			return null;
 		}
-		$revision = $this->revisionStore->getRevisionById( $row->rev_id );
+		$revision = $this->revisionStore->getRevisionById( (int)$row->rev_id );
 		if ( !( $revision instanceof RevisionRecord ) ) {
 			return null;
 		}
