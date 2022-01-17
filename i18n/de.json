@@ -63,7 +63,6 @@
 	"da-specialwitnesspublisher-tableheader-publishingstatus-imported": "Importiert",
 	"da-specialwitnesspublisher-tableheader-publishingstatus-publish": "Veröffentlichen!",
 	"da-specialwitnesspublisher-tableheader-publishingstatus-lookup": "Lookup",
-	"da-import-result-collision": "Eine Kollision wurde entdeckt, der originale Titel wurde zu $1 verschoben",
 	"da-revision-renderer-da-data": "Verifizierungsdaten",
 	"da-file-hash-slot-header": "Hash des Dateiinhalts",
 	"da-signature-slot-header": "Unterschriften",

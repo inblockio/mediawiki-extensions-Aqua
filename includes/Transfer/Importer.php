@@ -9,6 +9,7 @@
  use HashConfig;
  use MediaWiki\Content\IContentHandlerFactory;
  use MediaWiki\MediaWikiServices;
+ use MediaWiki\Page\DeletePageFactory;
  use MediaWiki\Page\MovePageFactory;
  use MediaWiki\Revision\RevisionRecord;
  use MediaWiki\Revision\RevisionStore;
@@ -27,6 +28,9 @@
  use WikiRevision;
 
  class Importer {
+ 	public const COLLISION_AVOIDANCE_STRATEGY_DELETE_SHORTER = 'delete-shorter';
+ 	public const COLLISION_AVOIDANCE_STRATEGY_MOVE_SHORTER = 'move-shorter';
+
 	/** @var VerificationEngine */
 	private VerificationEngine $verificationEngine;
 	/** @var WitnessingEngine */
@@ -45,6 +49,7 @@
 	private TitleFactory $titleFactory;
 	/** @var MovePageFactory */
 	private MovePageFactory $movePageFactory;
+	private DeletePageFactory $deletePageFactory;
 
 	 /**
 	  * @param VerificationEngine $verificationEngine
@@ -56,12 +61,14 @@
 	  * @param RepoGroup $repoGroup
 	  * @param TitleFactory $titleFactory
 	  * @param MovePageFactory $movePageFactory
+	  * @param DeletePageFactory $deletePageFactory
 	  */
 	public function __construct(
 		VerificationEngine $verificationEngine, WitnessingEngine $witnessingEngine,
 		OldRevisionImporter $revisionImporter, UploadRevisionImporter $uploadRevisionImporter,
 		IContentHandlerFactory $contentHandlerFactory, RevisionStore $revisionStore,
-		RepoGroup $repoGroup, TitleFactory $titleFactory, MovePageFactory $movePageFactory
+		RepoGroup $repoGroup, TitleFactory $titleFactory, MovePageFactory $movePageFactory,
+		DeletePageFactory $deletePageFactory
 	) {
 		$this->verificationEngine = $verificationEngine;
 		$this->witnessingEngine = $witnessingEngine;
@@ -72,6 +79,7 @@
 		$this->repoGroup = $repoGroup;
 		$this->titleFactory = $titleFactory;
 		$this->movePageFactory = $movePageFactory;
+		$this->deletePageFactory = $deletePageFactory;
 	}
 
 	 /**
@@ -388,11 +396,15 @@
 	 }
 
 	 /**
+	  * TODO: Separate this out to a new mechanism
 	  * @param User $actor
 	  * @param TransferContext $context
+	  * @param string|null $strategy
 	  * @return Status
 	  */
-	 public function checkAndFixCollision( User $actor, TransferContext $context ): Status {
+	 public function checkAndFixCollision(
+	 	User $actor, TransferContext $context, $strategy = self::COLLISION_AVOIDANCE_STRATEGY_DELETE_SHORTER
+	 ): Status {
 		if ( !$context->getTitle()->exists() ) {
 			return Status::newGood();
 		}
@@ -402,32 +414,85 @@
 			return Status::newGood();
 		}
 
-		if ( $ownChainHeight <= $context->getChainHeight() ) {
-			// Move/rename the existing page on MW, and let the page that is
-			// about to be imported has the original title instead.
-			$now = date( 'Y-m-d-H-i-s', time() );
-			$newTitle = $context->getTitle()->getPrefixedDBkey() . "_Branch_ChainHeight_{$ownChainHeight}_$now";
-			$newTitle = $this->titleFactory->newFromText( $newTitle );
-			$mp = $this->movePageFactory->newMovePage( $context->getTitle(), $newTitle );
-			$reason = "Resolving naming collision because imported page has longer verified chain height.";
-			$createRedirect = false;
-
-			$status = $mp->moveIfAllowed(
-				$actor,
-				$reason,
-				$createRedirect
-			);
-			if ( !$status->isOK() ) {
-				return $status;
-			}
-			return Status::newGood( [
-				'collision_move' => [
-					'old' => $context->getTitle(),
-					'new' => $newTitle
-				]
-			] );
+		switch ( $strategy ) {
+			case static::COLLISION_AVOIDANCE_STRATEGY_DELETE_SHORTER:
+				if ( $ownChainHeight < $context->getChainHeight() ) {
+					return $this->collisionDelete( $context->getTitle(), $actor );
+				}
+				break;
+			case static::COLLISION_AVOIDANCE_STRATEGY_MOVE_SHORTER:
+				if ( $ownChainHeight < $context->getChainHeight() ) {
+					return $this->collisionMove( $context->getTitle(), $ownChainHeight, $actor );
+				}
+				break;
 		}
 
-		return Status::newGood();
+		 return Status::newGood( [
+			 'collision' => Message::newFromKey(
+				 'da-import-collision-skip'
+			 )->params(
+				 $context->getTitle()->getPrefixedDBkey()
+			 )->parse()
+		 ] );
+	 }
+
+	 /**
+	  * @param Title $title
+	  * @param User $actor
+	  * @return Status
+	  */
+	 private function collisionDelete( Title $title, User $actor ): Status {
+		$deletePage = $this->deletePageFactory->newDeletePage(
+			$title->toPageIdentity(), $actor
+		);
+
+		$status = $deletePage->deleteUnsafe(
+			Message::newFromKey( 'da-import-collision-delete-reason' )->text()
+		);
+		if ( !$status->isOK() ) {
+			return $status;
+		}
+
+		 return Status::newGood( [
+			 'collision' => Message::newFromKey(
+				 'da-import-collision-delete'
+			 )->params(
+				 $title->getPrefixedDBkey()
+			 )->parse()
+		 ] );
+	 }
+
+	 /**
+	  * @param Title $title
+	  * @param int $localChainHeight
+	  * @param User $actor
+	  * @return Status
+	  */
+	 private function collisionMove( Title $title, $localChainHeight, User $actor ): Status {
+	 	 // Move/rename the existing page on MW, and let the page that is
+		 // about to be imported has the original title instead.
+		 $now = date( 'Y-m-d-H-i-s', time() );
+		 $newTitle = $title->getPrefixedDBkey() . "_Branch_ChainHeight_{$localChainHeight}_$now";
+		 $newTitle = $this->titleFactory->newFromText( $newTitle );
+		 $mp = $this->movePageFactory->newMovePage( $title, $newTitle );
+		 $reason = Message::newFromKey( 'da-import-collision-move-reason' )->text();
+		 $createRedirect = false;
+
+		 $status = $mp->moveIfAllowed(
+			 $actor,
+			 $reason,
+			 $createRedirect
+		 );
+		 if ( !$status->isOK() ) {
+			 return $status;
+		 }
+		 return Status::newGood( [
+			 'collision' => Message::newFromKey(
+				 'da-import-collision-move'
+			 )->params(
+				 $title->getPrefixedDBkey(),
+				 $newTitle->getPrefixedDBkey()
+			 )->parse()
+		 ] );
 	 }
  }
