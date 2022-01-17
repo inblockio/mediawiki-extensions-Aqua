@@ -124,12 +124,10 @@ class TransclusionHashExtractor {
 			if ( $title->exists() ) {
 				$entity = $this->verifcationEngine->getLookup()
 					->verificationEntityFromRevId( $title->getLatestRevID() );
-				if ( !$entity ) {
-					// this is just for sanity, should never even happen
-					throw new MWException( 'Failed to retrieve entity for revid ' . $title->getLatestRevID() );
+				if ( $entity ) {
+					$transclusion[VerificationEntity::VERIFICATION_HASH] =
+						$entity->getHash( VerificationEntity::VERIFICATION_HASH );
 				}
-				$transclusion[VerificationEntity::VERIFICATION_HASH] =
-					$entity->getHash( VerificationEntity::VERIFICATION_HASH );
 			}
 
 			$this->hashMap[] = $transclusion;

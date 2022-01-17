@@ -75,5 +75,6 @@
 	"da-ui-new-page-upload-label": "Datei hochladen",
 	"da-ui-singlepageexport-title": "Verifizierter Export",
 	"da-ui-singlepageexport-export-label": "Export",
-	"da-ui-singlepageexport-cancel-label": "Abbrechen"
+	"da-ui-singlepageexport-cancel-label": "Abbrechen",
+	"da-transclusion-hash-ui-state-no-record": "Diese Seite existiert nicht"
 }
