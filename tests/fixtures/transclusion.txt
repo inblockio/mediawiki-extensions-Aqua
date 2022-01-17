@@ -1,0 +1,18 @@
+Normal content
+
+{{B}}
+
+{{C|param=1}}
+
+{{
+D
+|param=1
+}}
+
+[[File:Foo.png]]
+
+[[File:Bar.png|200px|border]]
+
+{{B|duplicate}}
+
+{{:FromMain|param}}

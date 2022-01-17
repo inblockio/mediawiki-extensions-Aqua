@@ -159,7 +159,7 @@
 		},
 		"addTransclusionHashes": {
 			"class": "DataAccounting\\Hook\\AddTransclusionHashesOnSave",
-			"services": [ "TitleFactory", "DataAccountingVerificationEngine", "RepoGroup" ]
+			"services": [ "TitleFactory", "DataAccountingVerificationEngine", "RepoGroup", "ParserFactory" ]
 		},
 		"controlTranscludedContent": {
 			"class": "DataAccounting\\Hook\\ControlTranscludedContent",

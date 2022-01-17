@@ -5,9 +5,8 @@ namespace DataAccounting\Util;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\Linker\LinkTarget;
-use MediaWiki\MediaWikiServices;
-use MediaWiki\Storage\SlotRecord;
 use MWException;
+use ParserFactory;
 use ParserOutput;
 use Title;
 use TitleFactory;
@@ -23,6 +22,8 @@ class TransclusionHashExtractor {
 	private $titleFactory;
 	/** @var VerificationEngine */
 	private $verifcationEngine;
+	/** @var ParserFactory */
+	private $parserFactory;
 	/** @var array|null */
 	private $hashMap = null;
 
@@ -32,16 +33,18 @@ class TransclusionHashExtractor {
 	 * @param ParserOutput $po
 	 * @param TitleFactory $titleFactory
 	 * @param VerificationEngine $verificationEngine
+	 * @param ParserFactory $parserFactory
 	 */
 	public function __construct(
-		string $rawText, LinkTarget $subject, ParserOutput $po,
-		TitleFactory $titleFactory, VerificationEngine $verificationEngine
+		string $rawText, LinkTarget $subject, ParserOutput $po, TitleFactory $titleFactory,
+		VerificationEngine $verificationEngine, ParserFactory $parserFactory
 	) {
 		$this->rawText = $rawText;
 		$this->subject = $subject;
 		$this->parserOutput = $po;
 		$this->titleFactory = $titleFactory;
 		$this->verifcationEngine = $verificationEngine;
+		$this->parserFactory = $parserFactory;
 	}
 
 	/**
@@ -90,7 +93,7 @@ class TransclusionHashExtractor {
 		// because we only want direct transclusions, instead of transclusions of transclusions.
 		// Every page handles only its own transclusions
 		$templates = [];
-		$pp = new \Preprocessor_Hash( MediaWikiServices::getInstance()->getParserFactory()->create() );
+		$pp = new \Preprocessor_Hash( $this->parserFactory->create() );
 		$hashTree = $pp->preprocessToObj( $this->rawText );
 		for ( $node = $hashTree->getFirstChild(); $node; $node = $node->getNextSibling() ) {
 			if ( !( $node instanceof \PPNode_Hash_Attr ) && $node->getName() === 'template' ) {

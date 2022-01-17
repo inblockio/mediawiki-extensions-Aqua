@@ -159,7 +159,9 @@ class TransclusionManager {
 	/**
 	 * @param RevisionRecord $revision
 	 * @param string $resourcePage
+	 * @param UserIdentity $user
 	 * @return bool
+	 * @throws \MWException
 	 */
 	public function updateResource( RevisionRecord $revision, $resourcePage, UserIdentity $user ) {
 		$hashContent = $this->getTransclusionHashesContent( $revision );
@@ -203,7 +205,11 @@ class TransclusionManager {
 		$pageUpdater->subscribersOff();
 		$newRevision = $pageUpdater->saveRevision(
 			CommentStoreComment::newUnsavedComment(
-				'Update of resource hash for ' . $resourceTitle->getPrefixedText()
+				\Message::newFromKey(
+					'da-transclusion-hashes-update-comment'
+				)->params(
+					$resourceTitle->getPrefixedText()
+				)->text()
 			)
 		);
 		$pageUpdater->subscribersOn();
