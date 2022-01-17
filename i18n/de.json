@@ -75,5 +75,10 @@
 	"da-ui-singlepageexport-title": "Verifizierter Export",
 	"da-ui-singlepageexport-export-label": "Export",
 	"da-ui-singlepageexport-cancel-label": "Abbrechen",
-	"da-transclusion-hash-ui-state-no-record": "Diese Seite existiert nicht"
+	"da-transclusion-hash-ui-state-no-record": "Diese Seite existiert nicht",
+	"da-import-collision-move-reason": "Auflösen von Namenskollisionen, da die importierte Seite eine längere verifizierte Kettenhöhe hat",
+	"da-import-collision-delete-reason": "Gelöscht aufgrund eines Konflikts beim Seitenimport mit einer längeren Hash-Kette",
+	"da-import-collision-skip": "Die Seite wurde übersprungen. Es existiert bereits eine Seite mit diesem Namen und besitzt die gleiche oder eine längere Hash-Kette",
+	"da-import-collision-delete": "Die lokale Version dieser Seite wurde gelöscht, da die importiere Version eine längere Hash-Kette besitzt",
+	"da-import-collision-move": "Die ursprüngliche Version dieser Seite wurde zu [[$2]] verschoben, da die importiere Version eine längere Hash-Kette besitzt"
 }
