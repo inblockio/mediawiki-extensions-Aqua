@@ -120,6 +120,10 @@ class VerificationEngine {
 			return false;
 		}
 
+		if ( !$this->config->get( 'InjectSignature' ) ) {
+			// skip writing the signatures into the actual page
+			return true;
+		}
 		return $this->storeSignature( $entity, $user, $walletAddress );
 	}
 
