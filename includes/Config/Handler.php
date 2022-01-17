@@ -80,7 +80,7 @@ class Handler {
 			return new HashConfig( $hash );
 		}
 
-		$res = $conn->select( 'da_settings', '*', '', __METHOD__ );
+		$res = $conn->select( 'da_settings', [ 'name', 'value' ], '', __METHOD__ );
 		foreach ( $res as $row ) {
 			$hash[ $row->name ] = FormatJson::decode( $row->value, true );
 		}
