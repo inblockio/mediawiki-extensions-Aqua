@@ -120,7 +120,7 @@ class VerificationEngine {
 			return false;
 		}
 
-		if ( $this->config->get( 'InjectSignature' ) ) {
+		if ( !$this->config->get( 'InjectSignature' ) ) {
 			// skip writing the signatures into the actual page
 			return true;
 		}
