@@ -79,5 +79,6 @@
 	"da-ui-singlepageexport-title": "Verified Export",
 	"da-ui-singlepageexport-export-label": "Export",
 	"da-ui-singlepageexport-cancel-label": "Cancel",
-	"da-transclusion-hash-ui-state-no-record": "Page does not exist"
+	"da-transclusion-hash-ui-state-no-record": "Page does not exist",
+	"da-transclusion-hashes-update-comment": "Update of resource hash for $1"
 }

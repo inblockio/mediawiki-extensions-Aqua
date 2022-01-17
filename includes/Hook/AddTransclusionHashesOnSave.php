@@ -13,6 +13,7 @@ use MediaWiki\Storage\Hook\MultiContentSaveHook;
 use MediaWiki\Storage\PageUpdater;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\User\UserIdentity;
+use ParserFactory;
 use RepoGroup;
 use Status;
 use TitleFactory;
@@ -30,6 +31,8 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	private VerificationEngine $verificationEngine;
 	/** @var RepoGroup */
 	private RepoGroup $repoGroup;
+	/** @var ParserFactory */
+	private ParserFactory $parserFactory;
 	/** @var string */
 	private $rawText;
 
@@ -39,11 +42,13 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	 * @param RepoGroup $repoGroup
 	 */
 	public function __construct(
-		TitleFactory $titleFactory, VerificationEngine $verificationEngine, RepoGroup $repoGroup
+		TitleFactory $titleFactory, VerificationEngine $verificationEngine,
+		RepoGroup $repoGroup, ParserFactory $parserFactory
 	) {
 		$this->titleFactory = $titleFactory;
 		$this->verificationEngine = $verificationEngine;
 		$this->repoGroup = $repoGroup;
+		$this->parserFactory = $parserFactory;
 	}
 
 	/**
@@ -93,7 +98,7 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		$po = $renderedRevision->getSlotParserOutput( SlotRecord::MAIN );
 		$extractor = new TransclusionHashExtractor(
 			$this->rawText, $renderedRevision->getRevision()->getPageAsLinkTarget(),
-			$po, $this->titleFactory, $this->verificationEngine
+			$po, $this->titleFactory, $this->verificationEngine, $this->parserFactory
 		);
 		$hashmap = $extractor->getHashmap();
 		// Now, with access to the PO of the main slot, we can extract included pages/files
