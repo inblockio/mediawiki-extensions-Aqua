@@ -84,7 +84,15 @@ class SpecialWitness extends SpecialPage {
 		}
 
 		$htmlForm = new HTMLForm( [], $this->getContext(), 'daDomainSnapshot' );
-		$htmlForm->setSubmitText( $this->msg( 'da-specialwitness-submit-label' ) );
+		$htmlForm->suppressDefaultSubmit( true );
+		$htmlForm->addButton( [
+			'type' => 'submit',
+			'name' => 'submit',
+			'value' => $this->msg( 'da-specialwitness-submit-label' )->text(),
+			'attribs' => [
+				'class' => 'btn btn-primary btn-lg btn-block',
+			],
+		] );
 		$htmlForm->setSubmitCallback( [ $this, 'generateDomainSnapshot' ] );
 		$htmlForm->show();
 	}
