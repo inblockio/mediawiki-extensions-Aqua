@@ -4,6 +4,7 @@
 
 -- Page verification table
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/revision_verification (
+	-- Add new fields to DataAccounting\Verification\VerificationLookup
 	`revision_verification_id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	`domain_id` VARCHAR(128),
 	`genesis_hash` VARCHAR(128), -- Global unique identifier for Mobile Permissioned Content Blockchain (MPCB), represented as a MediaWiki page.
@@ -37,6 +38,7 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/revision_verification (
 );
 
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_events (
+		-- Add new fields to DataAccounting\Verification\WitnessLookup
         `witness_event_id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
         -- to make page_title unique
         `domain_id` VARCHAR(128),
@@ -62,6 +64,7 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_events (
     );
 
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_page (
+	-- Add new fields to DataAccounting\Verification\WitnessLookup
     `id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
     -- ID of the related Witness_Event
     `witness_event_id` INT(32),
@@ -76,6 +79,7 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_page (
 );
 
 CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/witness_merkle_tree (
+	-- Add new fields to DataAccounting\Verification\WitnessLookup
     `id` INT(32) NOT NULL PRIMARY KEY AUTO_INCREMENT,
     -- witness event ID of the related Witness_Event
 	`witness_event_id` INT(32),

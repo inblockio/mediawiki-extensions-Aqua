@@ -51,7 +51,7 @@ class RevisionXmlBuilder {
 		}
 
 		$output = [
-			'domain_id' => (int)$row->domain_id,
+			'domain_id' => $row->domain_id,
 			'genesis_hash' => $row->genesis_hash,
 			'rev_id' => $revId,
 			'verification_hash' => $row->verification_hash,
