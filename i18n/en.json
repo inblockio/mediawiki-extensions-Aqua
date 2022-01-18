@@ -82,7 +82,7 @@
 	"da-transclusion-hashes-update-comment": "Update of resource hash for $1",
 	"da-import-collision-move-reason": "Resolving naming collision because imported page has longer verified chain height",
 	"da-import-collision-delete-reason": "Deleted due to conflicting page import with a longer hash chain",
-	"da-import-collision-skip": "Page skipped. Page with the name already exists and has a longer or equal hash chain",
+	"da-import-collision-skip": "Page [[:$1]] skipped. Page with the name already exists and has a longer or equal hash chain",
 	"da-import-collision-delete": "Local version this page was deleted, since the imported version has a longer hash chain",
-	"da-import-collision-move": "Original version of this page was moved to [[$2]], since the imported version has a longer hash chain"
+	"da-import-collision-move": "Original version of this page was moved to [[:$2]], since the imported version has a longer hash chain"
 }
