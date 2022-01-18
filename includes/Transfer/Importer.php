@@ -28,8 +28,8 @@
  use WikiRevision;
 
  class Importer {
- 	public const COLLISION_AVOIDANCE_STRATEGY_DELETE_SHORTER = 'delete-shorter';
- 	public const COLLISION_AVOIDANCE_STRATEGY_MOVE_SHORTER = 'move-shorter';
+	public const COLLISION_AVOIDANCE_STRATEGY_DELETE_SHORTER = 'delete-shorter';
+	public const COLLISION_AVOIDANCE_STRATEGY_MOVE_SHORTER = 'move-shorter';
 
 	/** @var VerificationEngine */
 	private VerificationEngine $verificationEngine;
@@ -403,7 +403,7 @@
 	  * @return Status
 	  */
 	 public function checkAndFixCollision(
-	 	User $actor, TransferContext $context, $strategy = self::COLLISION_AVOIDANCE_STRATEGY_DELETE_SHORTER
+		User $actor, TransferContext $context, $strategy = self::COLLISION_AVOIDANCE_STRATEGY_DELETE_SHORTER
 	 ): Status {
 		if ( !$context->getTitle()->exists() ) {
 			return Status::newGood();
@@ -432,7 +432,8 @@
 				 'da-import-collision-skip'
 			 )->params(
 				 $context->getTitle()->getPrefixedDBkey()
-			 )->parse()
+			 )->parse(),
+			 'skip' => true
 		 ] );
 	 }
 
@@ -469,7 +470,7 @@
 	  * @return Status
 	  */
 	 private function collisionMove( Title $title, $localChainHeight, User $actor ): Status {
-	 	 // Move/rename the existing page on MW, and let the page that is
+		 // Move/rename the existing page on MW, and let the page that is
 		 // about to be imported has the original title instead.
 		 $now = date( 'Y-m-d-H-i-s', time() );
 		 $newTitle = $title->getPrefixedDBkey() . "_Branch_ChainHeight_{$localChainHeight}_$now";

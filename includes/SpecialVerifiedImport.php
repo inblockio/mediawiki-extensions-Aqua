@@ -118,13 +118,14 @@ class SpecialVerifiedImport extends SpecialPage {
 				return;
 			}
 
-			$stats = $collisions = [];
+			$processed = $revCount = $collisions = [];
 			$siteInfo = $arrayContent['siteInfo'];
 			foreach ( $arrayContent['pages'] as $page ) {
 				$revisions = $page['revisions'];
 				unset( $page['revisions'] );
 				$page['site_info'] = $siteInfo;
 				$context = $this->transferEntityFactory->newTransferContextFromData( $page );
+				$processed[$context->getTitle()->getPrefixedDBkey()] = $context->getTitle();
 				$collisionResolutionStatus = $this->importer->checkAndFixCollision(
 					$this->getUser(), $context,
 					Importer::COLLISION_AVOIDANCE_STRATEGY_DELETE_SHORTER
@@ -137,9 +138,12 @@ class SpecialVerifiedImport extends SpecialPage {
 				$value = $collisionResolutionStatus->getValue();
 				if ( is_array( $value ) && isset( $value['collision'] ) ) {
 					$collisions[$context->getTitle()->getPrefixedDBkey()] = $value['collision' ];
+					if ( isset( $value['skip'] ) ) {
+						continue;
+					}
 				}
 
- 				foreach ( $revisions as $hash => $revision ) {
+				foreach ( $revisions as $hash => $revision ) {
 					$entity = $this->transferEntityFactory->newRevisionEntityFromApiData( $revision );
 					if ( !$entity instanceof \DataAccounting\Transfer\TransferRevisionEntity ) {
 						continue;
@@ -150,10 +154,10 @@ class SpecialVerifiedImport extends SpecialPage {
 						$this->restoreLimits();
 						return;
 					}
-					if ( !isset( $stats[$context->getTitle()->getPrefixedDBkey()] ) ) {
-						$stats[$context->getTitle()->getPrefixedDBkey()] = 0;
+					if ( !isset( $revCount[$context->getTitle()->getPrefixedDBkey()] ) ) {
+						$revCount[$context->getTitle()->getPrefixedDBkey()] = 0;
 					}
-					$stats[$context->getTitle()->getPrefixedDBkey()]++;
+					$revCount[$context->getTitle()->getPrefixedDBkey()]++;
 
 				}
 			}
@@ -161,21 +165,28 @@ class SpecialVerifiedImport extends SpecialPage {
 			$this->restoreLimits();
 
 			$output = Html::openElement( 'ul' );
-			foreach ( $stats as $pagename => $count ) {
-				$title = $this->titleFactory->newFromText( $pagename );
-				$output .= Html::rawElement(
-					'li', [],
-					Message::newFromKey( 'da-import-result-line' )
-						->rawParams( $this->linker->makeLink( $title ), $count )->text()
-				);
-				if ( isset( $collisions[$pagename] ) ) {
+			foreach ( $processed as $pagename => $titleObject ) {
+				if ( isset( $revCount[$pagename] ) ) {
 					$output .= Html::rawElement(
-						'ul', [],
-						Html::rawElement(
-							'li', [],
-							$collisions[$pagename]
-						)
+						'li', [],
+						Message::newFromKey( 'da-import-result-line' )
+							->rawParams( $this->linker->makeLink( $titleObject ), $revCount[$pagename] )->text()
 					);
+				}
+				if ( isset( $collisions[$pagename] ) ) {
+					$collisionLine = Html::rawElement(
+						'li', [],
+						$collisions[$pagename]
+					);
+					if ( isset( $revCount[$pagename] ) ) {
+						$output .= Html::rawElement(
+							'ul', [],
+							$collisionLine
+						);
+					} else {
+						$output .= $collisionLine;
+					}
+
 				}
 			}
 			$output .= Html::closeElement( 'ul' );
