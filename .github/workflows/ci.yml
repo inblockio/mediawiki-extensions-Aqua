@@ -39,22 +39,6 @@ jobs:
           extensions: mbstring, intl
           tools: composer:1
 
-      - name: Cache MediaWiki
-        id: cache-mediawiki
-        uses: actions/cache@v2
-        with:
-          path: |
-            mediawiki
-            !mediawiki/extensions/
-            !mediawiki/vendor/
-          key: mw_${{ matrix.mw }}-php${{ matrix.php }}-v4
-
-      - name: Cache Composer cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.composer/cache
-          key: composer-php${{ matrix.php }}-v2
-
       - uses: actions/checkout@v2
         with:
           path: EarlyCopy
@@ -82,12 +66,12 @@ jobs:
           php maintenance/update.php --quick
 
       - name: Run PHPUnit
-        run: php tests/phpunit/phpunit.php extensions/DataAccounting/tests/phpunit
+        run: php tests/phpunit/phpunit.php extensions/DataAccounting/tests/phpunit/
         if: ${{ ! matrix.coverage }}
 
       - name: Run PHPUnit with code coverage
         run: |
-          php tests/phpunit/phpunit.php -c extensions/DataAccounting/ --coverage-clover coverage.xml
+          php tests/phpunit/phpunit.php extensions/DataAccounting/tests/phpunit/ --coverage-clover coverage.xml
           bash <(curl -s https://codecov.io/bash)
         if: ${{ matrix.coverage }}
 
