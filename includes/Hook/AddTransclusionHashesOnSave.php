@@ -67,11 +67,16 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 			$updater->setContent( FileHashContent::SLOT_ROLE_FILE_HASH, $this->fileHashContent );
 		}
 
-		// This happens before saving of revision is initiated
-		// We create an empty content for the hashes and store reference to it
-		$this->transclusionHashesContent = new TransclusionHashes( '' );
-		// We set it to the appropriate revision slot
-		$updater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $this->transclusionHashesContent );
+		if ( $this->rawText ) {
+			// Only do this if revision has content in MAIN slot, otherwise, there is no
+			// change in content, so nothing to update in the transclusion hashes
+
+			// This happens before saving of revision is initiated
+			// We create an empty content for the hashes and store reference to it
+			$this->transclusionHashesContent = new TransclusionHashes( '' );
+			// We set it to the appropriate revision slot
+			$updater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $this->transclusionHashesContent );
+		}
 	}
 
 	/**
@@ -93,11 +98,15 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		if ( !$this->transclusionHashesContent ) {
 			return;
 		}
+		if ( !$this->rawText ) {
+			return;
+		}
 		// At this point we are in the middle of saving, all content slots for this edit must already
 		// be inserted, and page was just parsed (but not saved yet)
 		$po = $renderedRevision->getSlotParserOutput( SlotRecord::MAIN );
+
 		$extractor = new TransclusionHashExtractor(
-			$this->rawText, $renderedRevision->getRevision()->getPageAsLinkTarget(),
+			$this->rawText ?? '', $renderedRevision->getRevision()->getPageAsLinkTarget(),
 			$po, $this->titleFactory, $this->verificationEngine, $this->parserFactory
 		);
 		$hashmap = $extractor->getHashmap();
