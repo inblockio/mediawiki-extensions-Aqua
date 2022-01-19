@@ -53,7 +53,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.composer/cache
-          key: composer-php${{ matrix.php }}
+          key: composer-php${{ matrix.php }}-v2
 
       - uses: actions/checkout@v2
         with:
