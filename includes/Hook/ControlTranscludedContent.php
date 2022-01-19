@@ -73,7 +73,19 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 		}
 
 		$transclusionInfo = $hashContent->getTransclusionDetails( $nt );
-		if ( $transclusionInfo === false || $transclusionInfo->{VerificationEntity::VERIFICATION_HASH} === null ) {
+		if ( !$transclusionInfo ) {
+			if ( $this->lastTransclusion && $this->lastTransclusion->getPageAsLinkTarget() !== $page ) {
+				$parser = clone $parser;
+				$parser->setPage( $this->lastTransclusion->getPage() );
+				$this->onBeforeParserFetchFileAndTitle(
+					$parser, $nt, $options, $descQuery
+				);
+			} else {
+				$options['broken'] = true;
+			}
+			return true;
+		}
+		if ( $transclusionInfo->{VerificationEntity::VERIFICATION_HASH} === null ) {
 			// Image did not exist at the time of hashing, or not listed => show broken link
 			$options['broken'] = true;
 			return true;

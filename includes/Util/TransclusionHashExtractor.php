@@ -63,20 +63,27 @@ class TransclusionHashExtractor {
 	private function parsePageResources() {
 		$this->hashMap = [];
 
+		$pp = new \Preprocessor_Hash( $this->parserFactory->create() );
+		$hashTree = $pp->preprocessToObj( $this->rawText );
+
 		$titles = [];
-		$this->parseImages( $titles );
-		$this->parseTemplates( $titles );
+		$this->parseImages( $titles, $hashTree );
+		$this->parseTemplates( $titles, $hashTree );
 		// This is not necessary since it does not change content,
 		// but we might need it in the future
-		$this->parseLinks( $titles );
+		// $this->parseLinks( $titles );
 		$this->retrieveHashes( $titles );
 	}
 
 	/**
 	 * @param array $titles
 	 */
-	private function parseImages( array &$titles ) {
+	private function parseImages( array &$titles, $hashTree ) {
 		foreach ( $this->parserOutput->getImages() as $name => $const ) {
+			// Very rudimentary way of checking if image is directly transcluded
+			if ( !preg_match( '/' . preg_quote( $name ) . '/', $this->rawText ) ) {
+				continue;
+			}
 			$title = $this->titleFactory->makeTitle( NS_FILE, $name );
 			if ( $title->equals( $this->subject ) ) {
 				continue;
@@ -88,13 +95,11 @@ class TransclusionHashExtractor {
 	/**
 	 * @param array $titles
 	 */
-	private function parseTemplates( array &$titles ) {
+	private function parseTemplates( array &$titles, $hashTree ) {
 		// We do this elaborate parsing instead of just calling `ParserOutput::getTemplates`
 		// because we only want direct transclusions, instead of transclusions of transclusions.
 		// Every page handles only its own transclusions
 		$templates = [];
-		$pp = new \Preprocessor_Hash( $this->parserFactory->create() );
-		$hashTree = $pp->preprocessToObj( $this->rawText );
 		for ( $node = $hashTree->getFirstChild(); $node; $node = $node->getNextSibling() ) {
 			if ( !( $node instanceof \PPNode_Hash_Attr ) && $node->getName() === 'template' ) {
 				for ( $templateNode = $node->getFirstChild(); $templateNode; $templateNode = $templateNode->getNextSibling() ) {
