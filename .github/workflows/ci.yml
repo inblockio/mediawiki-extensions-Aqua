@@ -178,13 +178,13 @@ jobs:
             mediawiki
             !mediawiki/extensions/
             !mediawiki/vendor/
-          key: mw_code_style
+          key: mw_code_style_v2
 
       - name: Cache Composer cache
         uses: actions/cache@v2
         with:
           path: ~/.composer/cache
-          key: composer_code_style
+          key: composer_code_style_v2
 
       - uses: actions/checkout@v2
         with:
