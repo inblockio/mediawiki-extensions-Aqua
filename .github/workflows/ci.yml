@@ -82,7 +82,7 @@ jobs:
           php maintenance/update.php --quick
 
       - name: Run PHPUnit
-        run: php tests/phpunit/phpunit.php -c extensions/DataAccounting
+        run: php tests/phpunit/phpunit.php extensions/DataAccounting/tests/phpunit
         if: ${{ ! matrix.coverage }}
 
       - name: Run PHPUnit with code coverage
