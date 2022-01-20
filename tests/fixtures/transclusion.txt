@@ -15,4 +15,8 @@ D
 
 {{B|duplicate}}
 
+[[SomePage]]
+
+[[Help:Foo|My Page]]
+
 {{:FromMain|param}}
