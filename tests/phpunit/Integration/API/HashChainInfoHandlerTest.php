@@ -28,12 +28,16 @@ class HashChainInfoHandlerTest extends API {
 			$this->getServiceContainer()->getService( 'DataAccountingVerificationEngine' ),
 			$this->getServiceContainer()->getService( 'DataAccountingTransferEntityFactory' ),
 		];
-		$requestData = new RequestData( [ 'pathParams' => [ 'id_type' => 'title', 'id' => 'UTPage' ] ] );
+		$requestData = new RequestData( [
+			'pathParams' => [ 'identifier_type' => 'title' ],
+			'queryParams' => [ 'identifier' => 'UTPage' ]
+		] );
 		// Should be denied permission unless the user is authorized.
 		$this->expectContextPermissionDenied(
 			new GetHashChainInfoHandler( ...$services ),
 			$requestData
 		);
+
 		// Let's authorize the user. Because this API endpoint requires 'read'
 		// permission for the title that is related to given rev_id.
 		$services[0] = $this->createMock( PermissionManager::class );
@@ -66,7 +70,10 @@ class HashChainInfoHandlerTest extends API {
 
 		$response = $this->executeHandler(
 			new GetHashChainInfoHandler( ...$services ),
-			new RequestData( [ 'pathParams' => [ 'id_type' => 'title', 'id' => 'Test' ] ] )
+			new RequestData( [
+				'pathParams' => [ 'identifier_type' => 'title' ],
+				'queryParams' => [ 'identifier' => 'Test123' ]
+			] )
 		);
 
 		$response = $this->executeHandler(
@@ -90,21 +97,11 @@ class HashChainInfoHandlerTest extends API {
 			$this->assertArrayHasKey( $key, $data );
 		}
 
-		// Testing the case when the title is not found.
-		$this->expectExceptionObject(
-			new HttpException( "Not found", 404 )
-		);
-
-		$response = $this->executeHandler(
-			new GetHashChainInfoHandler( ...$services ),
-			new RequestData( [ 'pathParams' => [ 'id_type' => 'title', 'id' => 'Test' ] ] )
-		);
-		
 		// --------------------
-		$requestData = new RequestData( [ 'pathParams' => [
-			'id_type' => 'genisis_hash',
-			'id' => '7ed23e2cfaf58e2e9c23a01378f377a09366d52fa262776551ce8221962cd49efbfce462473072c8592e21b3e2d07118e8fd79a37131696d719fe37404cade1b'
-		] ] );
+		$requestData = new RequestData( [
+			'pathParams' => [ 'identifier_type' => 'genisis_hash' ],
+			'queryParams' => [ 'identifier' => '7ed23e2cfaf58e2e9c23a01378f377a09366d52fa262776551ce8221962cd49efbfce462473072c8592e21b3e2d07118e8fd79a37131696d719fe37404cade1b' ]
+		] );
 		$response = $this->executeHandler(
 			new GetHashChainInfoHandler( ...$services ),
 			$requestData
@@ -132,7 +129,10 @@ class HashChainInfoHandlerTest extends API {
 
 		$response = $this->executeHandler(
 			new GetHashChainInfoHandler( ...$services ),
-			new RequestData( [ 'pathParams' => [ 'id_type' => 'genisis_hash', 'id' => '123' ] ] )
+			new RequestData( [
+				'pathParams' => [ 'identifier_type' => 'genisis_hash' ],
+				'queryParams' => [ 'identifier' => '123' ]
+			] )
 		);
 	}
 }
