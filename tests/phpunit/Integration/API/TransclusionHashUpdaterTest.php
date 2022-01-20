@@ -6,9 +6,11 @@ namespace DataAccounting\Tests\Integration\API;
 
 use DataAccounting\API\TransclusionHashUpdater;
 use DataAccounting\Tests\Integration\API;
+use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\RequestData;
 use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
 use MediaWiki\Permissions\PermissionManager;
+use Title;
 
 /**
  * @group Database
@@ -17,9 +19,25 @@ class TransclusionHashUpdaterTest extends API {
 	use HandlerTestTrait;
 
 	/**
+	 * This method is called before each test.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->insertPage( 'TransclusionTest', "TestContent\n{{:UTPage}}" );
+	}
+
+	/**
 	 * @covers \DataAccounting\API\TransclusionHashUpdater
 	 */
 	public function testTransclusionHashUpdater(): void {
+		$vEngine = $this->getServiceContainer()->getService( 'DataAccountingVerificationEngine' );
+		$resource = Title::newFromText( 'UTPage' );
+		$entity1 = $vEngine->getLookup()->verificationEntityFromTitle( $resource );
+		$title = Title::newFromText( 'TransclusionTest' );
+		$entity2 = $vEngine->getLookup()->verificationEntityFromTitle( $title );
+		$this->editPage( 'UTPage', "new testcontent" );
+		#error_log(var_export($entity1,true));
+		#error_log(var_export($entity2,true));
 		// Testing the case when the page is found.
 		$services = [
 			$this->getServiceContainer()->getService( 'DataAccountingTransclusionManager' ),
@@ -31,8 +49,8 @@ class TransclusionHashUpdaterTest extends API {
 			'method' => 'POST',
 			'headers' => [ 'Content-Type' => 'application/json' ],
 			'bodyContents' => \FormatJson::encode( [
-				'page_title' => 'UTPage',
-				'resource' => 'Main_page',
+				'page_title' => 'TransclusionTest',
+				'resource' => 'UTPage',
 			] )
 		] );
 		$this->expectContextPermissionDenied(
@@ -53,6 +71,9 @@ class TransclusionHashUpdaterTest extends API {
 		$this->assertArrayHasKey( 'success', $data );
 		$this->assertSame( true, $data['success'] );
 
+		$this->expectExceptionObject(
+			new HttpException( "Invalid subject title", 500 )
+		);
 		$response = $this->executeHandler(
 			new TransclusionHashUpdater( ...$services ),
 			new RequestData( [
@@ -60,7 +81,7 @@ class TransclusionHashUpdaterTest extends API {
 				'headers' => [ 'Content-Type' => 'application/json' ],
 				'bodyContents' => \FormatJson::encode( [
 					'page_title' => 'Test123',
-					'resource' => 'Main_page',
+					'resource' => 'UTPage',
 				] )
 			] )
 		);

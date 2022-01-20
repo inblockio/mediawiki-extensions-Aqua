@@ -199,6 +199,7 @@ class TransclusionManager {
 		if ( !$updateRes ) {
 			return false;
 		}
+		
 		$pageUpdater = $this->pageUpdaterFactory->newPageUpdater( $wikipage, $user );
 		$pageUpdater->setContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES, $content );
 
