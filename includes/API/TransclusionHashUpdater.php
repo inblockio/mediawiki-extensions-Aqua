@@ -68,7 +68,7 @@ class TransclusionHashUpdater extends SimpleHandler {
 		] );
 	}
 
-/** @inheritDoc */
+	/** @inheritDoc */
 	public function needsWriteAccess() {
 		return true;
 	}

@@ -27,10 +27,14 @@ class TransclusionHashUpdaterTest extends API {
 			$this->getServiceContainer()->getRevisionStore(),
 			$this->getServiceContainer()->getPermissionManager(),
 		];
-		$requestData = new RequestData( [ 'pathParams' => [
-			'page_title' => 'UTPage',
-			'resource' => 'Main_page',
-		] ] );
+		$requestData = new RequestData( [
+			'method' => 'POST',
+			'headers' => [ 'Content-Type' => 'application/json' ],
+			'bodyContents' => \FormatJson::encode( [
+				'page_title' => 'UTPage',
+				'resource' => 'Main_page',
+			] )
+		] );
 		$this->expectContextPermissionDenied(
 			new TransclusionHashUpdater( ...$services ),
 			$requestData
@@ -51,10 +55,14 @@ class TransclusionHashUpdaterTest extends API {
 
 		$response = $this->executeHandler(
 			new TransclusionHashUpdater( ...$services ),
-			new RequestData( [ 'pathParams' => [
-				'page_title' => 'Test',
-				'resource' => 'Main_page',
-			] ] )
+			new RequestData( [
+				'method' => 'POST',
+				'headers' => [ 'Content-Type' => 'application/json' ],
+				'bodyContents' => \FormatJson::encode( [
+					'page_title' => 'Test123',
+					'resource' => 'Main_page',
+				] )
+			] )
 		);
 		$this->assertJsonContentType( $response );
 		$data = $this->getJsonBody( $response );
