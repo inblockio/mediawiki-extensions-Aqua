@@ -133,7 +133,9 @@
 		"DASaveRevisionAddSlots": "addTransclusionHashes",
 		"MultiContentSave": "addTransclusionHashes",
 		"BeforeParserFetchTemplateRevisionRecord": "controlTranscludedContent",
-		"BeforeParserFetchFileAndTitle": "controlTranscludedContent"
+		"BeforeParserFetchFileAndTitle": "controlTranscludedContent",
+		"ArticleRevisionViewCustom": "immutableLinks",
+		"HtmlPageLinkRendererBegin": "immutableLinks"
 	},
 	"HookHandlers": {
 		"handleHooks": {
@@ -173,6 +175,12 @@
             "services": [
 				"PermissionManager"
             ]
+		},
+		"immutableLinks":{
+			"class": "DataAccounting\\Hook\\ImmutableLinks",
+			"services": [
+				"DataAccountingVerificationEngine"
+			]
 		}
 	},
 	"RestRoutes": [

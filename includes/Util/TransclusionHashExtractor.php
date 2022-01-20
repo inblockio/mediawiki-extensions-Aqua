@@ -68,7 +68,7 @@ class TransclusionHashExtractor {
 		$this->parseTemplates( $titles );
 		// This is not necessary since it does not change content,
 		// but we might need it in the future
-		// $this->parseLinks( $titles );
+		$this->parseLinks( $titles );
 		$this->retrieveHashes( $titles );
 	}
 
@@ -96,20 +96,16 @@ class TransclusionHashExtractor {
 	 * @param array $titles
 	 */
 	private function parseLinks( array &$titles ) {
-		$this->parseNested( $this->parserOutput->getLinks(), $titles );
-	}
-
-	/**
-	 * @param array $data
-	 * @param array $titles
-	 */
-	private function parseNested( array $data, array &$titles ) {
-		foreach ( $data as $ns => $links ) {
+		foreach ( $this->parserOutput->getLinks() as $ns => $links ) {
 			foreach ( $links as $name => $id ) {
 				$title = $this->titleFactory->makeTitle( $ns, $name );
 				if ( $title->equals( $this->subject ) ) {
 					continue;
 				}
+				if ( $title->isSpecialPage() ) {
+					return;
+				}
+
 				$titles[$title->getPrefixedDBkey()] = $title;
 			}
 		}

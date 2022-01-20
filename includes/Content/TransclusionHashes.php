@@ -3,6 +3,7 @@
 namespace DataAccounting\Content;
 
 use DataAccounting\TransclusionManager;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use Html;
 use JsonContent;
 use MediaWiki\Linker\LinkTarget;
@@ -158,7 +159,8 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 
 		$item = Html::openElement( 'div', [ 'class' => 'card' ] );
 		$item .= Html::openElement( 'div', [ 'class'  => 'card-body' ] );
-		$item .= $linkRenderer->makeLink( $title );
+		$item .= $title->getPrefixedText();
+
 		$badgeClasses = [ 'badge' ];
 		if (
 			$changeState === TransclusionManager::STATE_NEW_VERSION ||
@@ -180,6 +182,7 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 		] );
 		$item .= Message::newFromKey( "da-transclusion-hash-ui-state-{$changeState}" )->text();
 		$item .= Html::closeElement( 'span' );
+
 		if ( $changeState === TransclusionManager::STATE_NEW_VERSION ) {
 			$item .= Html::element( 'a', [
 				'href' => '#',
@@ -188,6 +191,37 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 				'style' => 'margin-left: 10px;'
 			], Message::newFromKey( 'da-transclusion-hash-ui-update-version' )->text() );
 		}
+
+		$item .= Html::openElement( 'div', [ 'style' => 'width: 100%; display: block' ] );
+		if ( $changeState === TransclusionManager::STATE_NO_RECORD ) {
+			$item .= Html::rawElement(
+				'span', [ 'style' => 'margin-right: 20px' ],
+				$linkRenderer->makeKnownLink(
+					$title, Message::newFromKey( 'da-transclusion-hashes-link-create' )->text(),
+					[ 'action' => 'edit' ]
+				)
+			);
+		}
+		if ( $state[VerificationEntity::VERIFICATION_HASH] !== null ) {
+			$item .= Html::rawElement(
+				'span', [ 'style' => 'margin-right: 20px' ],
+				$linkRenderer->makeLink(
+					$title, Message::newFromKey( 'da-transclusion-hashes-link-included' )->text()
+				)
+			);
+		}
+		if ( $changeState === TransclusionManager::STATE_NEW_VERSION ) {
+			$item .= Html::rawElement(
+				'span', [ 'style' => 'margin-right: 20px' ],
+				$linkRenderer->makeLink(
+					$title,
+					Message::newFromKey( 'da-transclusion-hashes-link-latest' )->text(),
+					[ 'version' => 'latest' ]
+				)
+			);
+		}
+
+		$item .= Html::closeElement( 'div' );
 		$item .= Html::closeElement( 'div' );
 		$item .= Html::closeElement( 'div' );
 

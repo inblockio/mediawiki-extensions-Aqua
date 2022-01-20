@@ -67,6 +67,7 @@ class TransclusionManager {
 			$title = $this->titleFactory->makeTitle( $transclusion->ns, $transclusion->dbkey );
 			$state = [
 				'titleObject' => $title,
+				VerificationEntity::VERIFICATION_HASH => $transclusion->{VerificationEntity::VERIFICATION_HASH},
 				'state' => static::STATE_INVALID,
 			];
 			$latestEntity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
