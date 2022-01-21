@@ -13,6 +13,7 @@ use MediaWiki\Permissions\PermissionManager;
 use Title;
 
 /**
+ * @group Broken
  * @group Database
  */
 class TransclusionHashUpdaterTest extends API {
