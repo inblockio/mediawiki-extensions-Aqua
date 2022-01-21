@@ -99,7 +99,7 @@ class HashChainInfoHandlerTest extends API {
 
 		// --------------------
 		$requestData = new RequestData( [
-			'pathParams' => [ 'identifier_type' => 'genisis_hash' ],
+			'pathParams' => [ 'identifier_type' => 'genesis_hash' ],
 			'queryParams' => [ 'identifier' => '7ed23e2cfaf58e2e9c23a01378f377a09366d52fa262776551ce8221962cd49efbfce462473072c8592e21b3e2d07118e8fd79a37131696d719fe37404cade1b' ]
 		] );
 		$response = $this->executeHandler(
@@ -122,7 +122,7 @@ class HashChainInfoHandlerTest extends API {
 		foreach ( $keys as $key ) {
 			$this->assertArrayHasKey( $key, $data );
 		}
-		// Testing the case when the genisis_hash is not found.
+		// Testing the case when the genesis_hash is not found.
 		$this->expectExceptionObject(
 			new HttpException( "Not found", 404 )
 		);
@@ -130,7 +130,7 @@ class HashChainInfoHandlerTest extends API {
 		$response = $this->executeHandler(
 			new GetHashChainInfoHandler( ...$services ),
 			new RequestData( [
-				'pathParams' => [ 'identifier_type' => 'genisis_hash' ],
+				'pathParams' => [ 'identifier_type' => 'genesis_hash' ],
 				'queryParams' => [ 'identifier' => '123' ]
 			] )
 		);
