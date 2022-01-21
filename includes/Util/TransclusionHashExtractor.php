@@ -93,6 +93,22 @@ class TransclusionHashExtractor {
 	}
 
 	/**
+	 * @param array $data
+	 * @param array $titles
+	 */
+	private function parseNested( array $data, array &$titles ) {
+		foreach ( $data as $ns => $links ) {
+			foreach ( $links as $name => $id ) {
+				$title = $this->titleFactory->makeTitle( $ns, $name );
+				if ( $title->equals( $this->subject ) ) {
+					continue;
+				}
+				$titles[$title->getPrefixedDBkey()] = $title;
+			}
+		}
+	}
+
+	/**
 	 * @param array $titles
 	 */
 	private function parseLinks( array &$titles ) {
