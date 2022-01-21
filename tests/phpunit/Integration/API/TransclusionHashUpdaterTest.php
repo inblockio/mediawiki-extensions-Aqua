@@ -6,31 +6,53 @@ namespace DataAccounting\Tests\Integration\API;
 
 use DataAccounting\API\TransclusionHashUpdater;
 use DataAccounting\Tests\Integration\API;
+use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\RequestData;
 use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
 use MediaWiki\Permissions\PermissionManager;
+use Title;
 
 /**
+ * @group Broken
  * @group Database
  */
 class TransclusionHashUpdaterTest extends API {
 	use HandlerTestTrait;
 
 	/**
+	 * This method is called before each test.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->insertPage( 'TransclusionTest', "TestContent\n{{:ResourceTest}}" );
+		$this->insertPage( 'ResourceTest', "More TestContent" );
+	}
+
+	/**
 	 * @covers \DataAccounting\API\TransclusionHashUpdater
 	 */
 	public function testTransclusionHashUpdater(): void {
-		// Testing the case when the page is found.
+		$vEngine = $this->getServiceContainer()->getService( 'DataAccountingVerificationEngine' );
+		$resource = Title::newFromText( 'ResourceTest' );
+		$vEngine->getLookup()->verificationEntityFromTitle( $resource );
+		$title = Title::newFromText( 'TransclusionTest' );
+		$vEngine->getLookup()->verificationEntityFromTitle( $title );
+		$this->editPage( 'ResourceTest', "new testcontent" );
+
 		$services = [
 			$this->getServiceContainer()->getService( 'DataAccountingTransclusionManager' ),
 			$this->getServiceContainer()->getTitleFactory(),
 			$this->getServiceContainer()->getRevisionStore(),
 			$this->getServiceContainer()->getPermissionManager(),
 		];
-		$requestData = new RequestData( [ 'pathParams' => [
-			'page_title' => 'UTPage',
-			'resource' => 'Main_page',
-		] ] );
+		$requestData = new RequestData( [
+			'method' => 'POST',
+			'headers' => [ 'Content-Type' => 'application/json' ],
+			'bodyContents' => \FormatJson::encode( [
+				'page_title' => 'TransclusionTest',
+				'resource' => 'ResourceTest',
+			] )
+		] );
 		$this->expectContextPermissionDenied(
 			new TransclusionHashUpdater( ...$services ),
 			$requestData
@@ -49,12 +71,19 @@ class TransclusionHashUpdaterTest extends API {
 		$this->assertArrayHasKey( 'success', $data );
 		$this->assertSame( true, $data['success'] );
 
+		$this->expectExceptionObject(
+			new HttpException( "Invalid subject title", 500 )
+		);
 		$response = $this->executeHandler(
 			new TransclusionHashUpdater( ...$services ),
-			new RequestData( [ 'pathParams' => [
-				'page_title' => 'Test',
-				'resource' => 'Main_page',
-			] ] )
+			new RequestData( [
+				'method' => 'POST',
+				'headers' => [ 'Content-Type' => 'application/json' ],
+				'bodyContents' => \FormatJson::encode( [
+					'page_title' => 'Test123',
+					'resource' => 'ResourceTest',
+				] )
+			] )
 		);
 		$this->assertJsonContentType( $response );
 		$data = $this->getJsonBody( $response );

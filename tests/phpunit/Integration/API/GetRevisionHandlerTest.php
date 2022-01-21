@@ -6,10 +6,12 @@ namespace DataAccounting\Tests\Integration\API;
 
 use DataAccounting\API\GetRevisionHandler;
 use DataAccounting\Tests\Integration\API;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\Rest\RequestData;
 use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Permissions\PermissionManager;
+use Title;
 
 /**
  * @group Database
@@ -21,14 +23,18 @@ class GetRevisionHandlerTest extends API {
 	 * @covers \DataAccounting\API\GetRevisionHandler
 	 */
 	public function testGetRevisionHandler(): void {
-		// Testing the case when the page is found.
+		$vEngine = $this->getServiceContainer()->getService( 'DataAccountingVerificationEngine' );
+		$title = Title::newFromText( 'UTPage' );
+		$entity = $vEngine->getLookup()->verificationEntityFromTitle( $title );
 		$services = [
 			$this->getServiceContainer()->getPermissionManager(),
 			$this->getServiceContainer()->getService( 'DataAccountingVerificationEngine' ),
 			$this->getServiceContainer()->getService( 'DataAccountingTransferEntityFactory' ),
 		];
 		$requestData = new RequestData( [ 'pathParams' => [
-			'verification_hash' => '6dc8489cf860aab2bf34a24c366a3c3767e47943bfc2bca6661bb39d2546d2f5a246e5518b7161b61fa5639c767bc551b3845781f1c01ec4988192959a700b94'
+			VerificationEntity::VERIFICATION_HASH => $entity->getHash(
+				VerificationEntity::VERIFICATION_HASH
+			),
 		] ] );
 		$this->expectContextPermissionDenied(
 			new GetRevisionHandler( ...$services ),
