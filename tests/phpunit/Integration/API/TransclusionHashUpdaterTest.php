@@ -23,7 +23,8 @@ class TransclusionHashUpdaterTest extends API {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$this->insertPage( 'TransclusionTest', "TestContent\n{{:UTPage}}" );
+		$this->insertPage( 'TransclusionTest', "TestContent\n{{:ResourceTest}}" );
+		$this->insertPage( 'ResourceTest', "More TestContent" );
 	}
 
 	/**
@@ -31,14 +32,12 @@ class TransclusionHashUpdaterTest extends API {
 	 */
 	public function testTransclusionHashUpdater(): void {
 		$vEngine = $this->getServiceContainer()->getService( 'DataAccountingVerificationEngine' );
-		$resource = Title::newFromText( 'UTPage' );
-		$entity1 = $vEngine->getLookup()->verificationEntityFromTitle( $resource );
+		$resource = Title::newFromText( 'ResourceTest' );
+		$vEngine->getLookup()->verificationEntityFromTitle( $resource );
 		$title = Title::newFromText( 'TransclusionTest' );
-		$entity2 = $vEngine->getLookup()->verificationEntityFromTitle( $title );
-		$this->editPage( 'UTPage', "new testcontent" );
-		#error_log(var_export($entity1,true));
-		#error_log(var_export($entity2,true));
-		// Testing the case when the page is found.
+		$vEngine->getLookup()->verificationEntityFromTitle( $title );
+		$this->editPage( 'ResourceTest', "new testcontent" );
+
 		$services = [
 			$this->getServiceContainer()->getService( 'DataAccountingTransclusionManager' ),
 			$this->getServiceContainer()->getTitleFactory(),
@@ -50,7 +49,7 @@ class TransclusionHashUpdaterTest extends API {
 			'headers' => [ 'Content-Type' => 'application/json' ],
 			'bodyContents' => \FormatJson::encode( [
 				'page_title' => 'TransclusionTest',
-				'resource' => 'UTPage',
+				'resource' => 'ResourceTest',
 			] )
 		] );
 		$this->expectContextPermissionDenied(
@@ -81,7 +80,7 @@ class TransclusionHashUpdaterTest extends API {
 				'headers' => [ 'Content-Type' => 'application/json' ],
 				'bodyContents' => \FormatJson::encode( [
 					'page_title' => 'Test123',
-					'resource' => 'UTPage',
+					'resource' => 'ResourceTest',
 				] )
 			] )
 		);
