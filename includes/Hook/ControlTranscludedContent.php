@@ -21,8 +21,6 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 	private RevisionStore $revisionStore;
 	/** @var RepoGroup */
 	private RepoGroup $repoGroup;
-	/** @var RevisionRecord|null */
-	private $lastTransclusion;
 
 	/**
 	 * @param TransclusionManager $transclusionManager
@@ -74,15 +72,7 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 
 		$transclusionInfo = $hashContent->getTransclusionDetails( $nt );
 		if ( !$transclusionInfo ) {
-			if ( $this->lastTransclusion && $this->lastTransclusion->getPageAsLinkTarget() !== $page ) {
-				$parser = clone $parser;
-				$parser->setPage( $this->lastTransclusion->getPage() );
-				$this->onBeforeParserFetchFileAndTitle(
-					$parser, $nt, $options, $descQuery
-				);
-			} else {
-				$options['broken'] = true;
-			}
+			$options['broken'] = true;
 			return true;
 		}
 		if ( $transclusionInfo->{VerificationEntity::VERIFICATION_HASH} === null ) {
@@ -133,24 +123,13 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 		}
 		$transclusionInfo = $content->getTransclusionDetails( $title );
 		if ( !$transclusionInfo ) {
-			if ( $this->lastTransclusion && $this->lastTransclusion->getPageAsLinkTarget() !== $contextTitle ) {
-				$this->onBeforeParserFetchTemplateRevisionRecord(
-					$this->lastTransclusion->getPageAsLinkTarget(),
-					$title, $skip, $revRecord
-				);
-			} else {
-				$skip = true;
-			}
-
+			$skip = true;
 			return;
 		}
 
 		$revRecord = $this->transclusionManager->getRevisionForResource( $transclusionInfo );
 		if ( $revRecord === null ) {
 			$skip = true;
-		}
-		if ( !$this->lastTransclusion || $this->lastTransclusion->getPageAsLinkTarget() !== $contextTitle ) {
-			$this->lastTransclusion = $revRecord;
 		}
 	}
 
@@ -159,9 +138,6 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 	 * @return RevisionRecord|null
 	 */
 	private function getRevision( $title ): ?RevisionRecord {
-		if ( $this->lastTransclusion !== null && $this->lastTransclusion->getPageAsLinkTarget() === $title ) {
-			return $this->lastTransclusion;
-		}
 		$oldid = \RequestContext::getMain()->getRequest()->getInt( 'oldid', 0 );
 		if ( !$oldid ) {
 			return $this->revisionStore->getRevisionByTitle( $title );
