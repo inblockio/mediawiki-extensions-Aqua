@@ -84,5 +84,9 @@
 	"da-import-collision-delete-reason": "Deleted due to conflicting page import with a longer hash chain",
 	"da-import-collision-skip": "Page [[:$1]] skipped. Page with the name already exists and has a longer or equal hash chain",
 	"da-import-collision-delete": "Local version this page was deleted, since the imported version has a longer hash chain",
-	"da-import-collision-move": "Original version of this page was moved to [[:$2]], since the imported version has a longer hash chain"
+	"da-import-collision-move": "Original version of this page was moved to [[:$2]], since the imported version has a longer hash chain",
+	"da-specialdaconfig-section-transclusion": "Strict Transclusion",
+	"da-specialdaconfig-transclusion-desc": "Configure behavior of transclusions",
+	"da-specialdaconfig-transclusion-help": "TODO: Add description for \"StrictTransclusion\"",
+	"da-specialdaconfig-transclusion-checkbox-label": "Enable or disable strict transclusions:"
 }

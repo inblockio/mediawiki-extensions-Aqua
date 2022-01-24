@@ -80,5 +80,9 @@
 	"da-import-collision-delete-reason": "Gelöscht aufgrund eines Konflikts beim Seitenimport mit einer längeren Hash-Kette",
 	"da-import-collision-skip": "Die Seite [[:$1]] wurde übersprungen. Es existiert bereits eine Seite mit diesem Namen und besitzt die gleiche oder eine längere Hash-Kette",
 	"da-import-collision-delete": "Die lokale Version dieser Seite wurde gelöscht, da die importiere Version eine längere Hash-Kette besitzt",
-	"da-import-collision-move": "Die ursprüngliche Version dieser Seite wurde zu [[:$2]] verschoben, da die importiere Version eine längere Hash-Kette besitzt"
+	"da-import-collision-move": "Die ursprüngliche Version dieser Seite wurde zu [[:$2]] verschoben, da die importiere Version eine längere Hash-Kette besitzt",
+	"da-specialdaconfig-section-transclusion": "Strikte Transklusion",
+	"da-specialdaconfig-transclusion-desc": "Konfiguriert das Verhalten von Transklusionen",
+	"da-specialdaconfig-transclusion-help": "TODO: Add description for \"StrictTransclusion\"",
+	"da-specialdaconfig-transclusion-checkbox-label": "Strikte Transklusion aktivieren oder deaktivieren:"
 }

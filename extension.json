@@ -33,6 +33,10 @@
 		"InjectSignature": {
 			"description": "Whether to inject signature back to the page after signing.",
 			"value": true
+		},
+		"StrictTransclusion": {
+			"description": "Enable strict transclusions",
+			"value": true
 		}
 	},
 	"callback": "\\DataAccounting\\Hooks::onRegistration",
