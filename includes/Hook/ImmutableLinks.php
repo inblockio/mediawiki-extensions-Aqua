@@ -106,9 +106,14 @@ class ImmutableLinks implements ArticleRevisionViewCustomHook, HtmlPageLinkRende
 		if ( !$this->contextTitle || !$this->contextRevision ) {
 			return true;
 		}
-		if ( !$this->hashContent ) {
+		if (
+			!$this->hashContent &&
+			$this->contextRevision->hasSlot( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES )
+		) {
 			/** @var TransclusionHashes $hashContent */
-			$this->hashContent = $this->contextRevision->getContent( TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES );
+			$this->hashContent = $this->contextRevision->getContent(
+				TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES
+			);
 		}
 		if ( !$this->hashContent ) {
 			return true;
