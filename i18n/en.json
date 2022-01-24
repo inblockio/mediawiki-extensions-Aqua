@@ -87,6 +87,6 @@
 	"da-import-collision-move": "Original version of this page was moved to [[:$2]], since the imported version has a longer hash chain",
 	"da-specialdaconfig-section-transclusion": "Strict Transclusion",
 	"da-specialdaconfig-transclusion-desc": "Configure behavior of transclusions",
-	"da-specialdaconfig-transclusion-help": "TODO: Add description for \"StrictTransclusion\"",
-	"da-specialdaconfig-transclusion-checkbox-label": "Enable or disable strict transclusions:"
+	"da-specialdaconfig-transclusion-help": "When disabled, transclusions can become unstable for deeper levels of transclusions, but will allow more advanced syntax in defining transclusions, as well as the full list of all nested transclusions on the page being viewed. When enabled, every page will only show direct transclusions, not the nested ones. This features better ability to control content being transcluded and more predictable behaviour of deeply nested transclusions, but does only allows standard transclusion syntax (full page name specified directly on page)",
+	"da-specialdaconfig-transclusion-checkbox-label": "Enable strict transclusions:"
 }

@@ -3,6 +3,8 @@
 namespace DataAccounting\Hook;
 
 use CommentStoreComment;
+use ConfigFactory;
+use DataAccounting\Config\DataAccountingConfig;
 use DataAccounting\Content\FileHashContent;
 use DataAccounting\Content\TransclusionHashes;
 use DataAccounting\Util\TransclusionHashExtractor;
@@ -33,6 +35,8 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	private RepoGroup $repoGroup;
 	/** @var ParserFactory */
 	private ParserFactory $parserFactory;
+	/** @var DataAccountingConfig */
+	private $config;
 	/** @var string */
 	private $rawText;
 
@@ -40,15 +44,18 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 	 * @param TitleFactory $titleFactory
 	 * @param VerificationEngine $verificationEngine
 	 * @param RepoGroup $repoGroup
+	 * @param ParserFactory $parserFactory
+	 * @param ConfigFactory $configFactory
 	 */
 	public function __construct(
 		TitleFactory $titleFactory, VerificationEngine $verificationEngine,
-		RepoGroup $repoGroup, ParserFactory $parserFactory
+		RepoGroup $repoGroup, ParserFactory $parserFactory, ConfigFactory $configFactory
 	) {
 		$this->titleFactory = $titleFactory;
 		$this->verificationEngine = $verificationEngine;
 		$this->repoGroup = $repoGroup;
 		$this->parserFactory = $parserFactory;
+		$this->config = $configFactory->makeConfig( 'da' );
 	}
 
 	/**
@@ -107,7 +114,7 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 
 		$extractor = new TransclusionHashExtractor(
 			$this->rawText ?? '', $renderedRevision->getRevision()->getPageAsLinkTarget(),
-			$po, $this->titleFactory, $this->verificationEngine, $this->parserFactory
+			$po, $this->titleFactory, $this->verificationEngine, $this->parserFactory, $this->config
 		);
 		$hashmap = $extractor->getHashmap();
 		// Now, with access to the PO of the main slot, we can extract included pages/files

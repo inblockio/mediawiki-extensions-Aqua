@@ -36,7 +36,7 @@
 		},
 		"StrictTransclusion": {
 			"description": "Enable strict transclusions",
-			"value": true
+			"value": false
 		}
 	},
 	"callback": "\\DataAccounting\\Hooks::onRegistration",
@@ -163,11 +163,11 @@
 		},
 		"addTransclusionHashes": {
 			"class": "DataAccounting\\Hook\\AddTransclusionHashesOnSave",
-			"services": [ "TitleFactory", "DataAccountingVerificationEngine", "RepoGroup", "ParserFactory" ]
+			"services": [ "TitleFactory", "DataAccountingVerificationEngine", "RepoGroup", "ParserFactory", "ConfigFactory" ]
 		},
 		"controlTranscludedContent": {
 			"class": "DataAccounting\\Hook\\ControlTranscludedContent",
-			"services": [ "DataAccountingTransclusionManager", "RevisionStore", "RepoGroup" ]
+			"services": [ "DataAccountingTransclusionManager", "RevisionStore", "RepoGroup", "ConfigFactory" ]
 		},
 		"update": {
 			"class": "DataAccounting\\Hook\\Update"
