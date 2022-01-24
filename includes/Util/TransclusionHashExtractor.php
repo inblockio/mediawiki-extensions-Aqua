@@ -80,7 +80,7 @@ class TransclusionHashExtractor {
 	 */
 	private function parseImages( array &$titles ) {
 		foreach ( $this->parserOutput->getImages() as $name => $const ) {
-			if ( $this->isStrict() )  {
+			if ( $this->isStrict() ) {
 				// Very rudimentary way of checking if image is directly transcluded
 				if ( !preg_match( '/' . preg_quote( $name ) . '/', $this->rawText ) ) {
 					continue;
