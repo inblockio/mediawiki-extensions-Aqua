@@ -40,7 +40,10 @@ return [
 	},
 	'DataAccountingVerificationEngine' => static function( MediaWikiServices $services ): VerificationEngine {
 		$entityFactory = new VerificationEntityFactory( $services->getTitleFactory(), $services->getRevisionStore() );
-		$lookup = new VerificationLookup( $services->getDBLoadBalancer(), $services->getRevisionStore(), $entityFactory );
+		$lookup = new VerificationLookup(
+			$services->getDBLoadBalancer(), $services->getRevisionStore(),
+			$entityFactory, $services->getNamespaceInfo()
+		);
 		$config = $services->getConfigFactory()->makeConfig( 'da' );
 
 		return new VerificationEngine(
