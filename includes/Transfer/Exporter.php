@@ -38,6 +38,9 @@ class Exporter {
 
 		foreach ( $map as $dbKey => $data ) {
 			$context = $this->transferEntityFactory->newTransferContextFromTitle( $data['title'] );
+			if ( !$context ) {
+				continue;
+			}
 			$pageData = $context->jsonSerialize();
 			// TODO: Remove site info from context
 			unset( $pageData['site_info'] );
