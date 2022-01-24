@@ -6,6 +6,7 @@ use DataAccounting\Verification\Entity\VerificationEntity;
 use Exception;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
+use NamespaceInfo;
 use Title;
 use Wikimedia\Rdbms\ILoadBalancer;
 
@@ -18,6 +19,8 @@ class VerificationLookup {
 	private $revisionStore;
 	/** @var VerificationEntityFactory */
 	private $verificationEntityFactory;
+	/** @var NamespaceInfo  */
+	private $namespaceInfo;
 
 	/**
 	 * @param ILoadBalancer $loadBalancer
@@ -25,11 +28,13 @@ class VerificationLookup {
 	 * @param VerificationEntityFactory $entityFactory
 	 */
 	public function __construct(
-		ILoadBalancer $loadBalancer, RevisionStore $revisionStore, VerificationEntityFactory $entityFactory
+		ILoadBalancer $loadBalancer, RevisionStore $revisionStore,
+		VerificationEntityFactory $entityFactory, NamespaceInfo $namespaceInfo
 	) {
 		$this->lb = $loadBalancer;
 		$this->revisionStore = $revisionStore;
 		$this->verificationEntityFactory = $entityFactory;
+		$this->namespaceInfo = $namespaceInfo;
 	}
 
 	/**
@@ -61,7 +66,7 @@ class VerificationLookup {
 			return null;
 		}
 		// TODO: Replace with getPrefixedDBkey, once database enties use it
-		return $this->verificationEntityFromQuery( [ 'page_title' => $title->getPrefixedText() ] );
+		return $this->verificationEntityFromQuery( [ 'page_title' => $this->getCanonicalTitle( $title ) ] );
 	}
 
 	/**
@@ -113,8 +118,7 @@ class VerificationLookup {
 	 */
 	public function getAllRevisionIds( $title ): array {
 		if ( $title instanceof Title ) {
-			// TODO: Replace with getPrefixedDBkey, once database enties use it
-			$title = $title->getPrefixedText();
+			$title = $this->getCanonicalTitle( $title );
 		}
 		$res = $this->lb->getConnection( DB_REPLICA )->select(
 			'revision_verification',
@@ -256,7 +260,7 @@ class VerificationLookup {
 		$res = $db->insert(
 			static::TABLE,
 			[
-				'page_title' => $title->getPrefixedText(),
+				'page_title' => $this->getCanonicalTitle( $title ),
 				'page_id' => $revisionRecord->getPageId(),
 				'rev_id' => $revisionRecord->getID(),
 				'time_stamp' => $revisionRecord->getTimestamp(),
@@ -282,10 +286,24 @@ class VerificationLookup {
 		return $this->lb->getConnection( DB_PRIMARY )->delete(
 			static::TABLE,
 			[
-				// TODO: This should be getPrefixedDbKey(), but that wouldnt be B/C
-				'page_title' => $title->getPrefixedText()
+				'page_title' => $this->getCanonicalTitle( $title ),
 			],
 			__METHOD__
 		);
+	}
+
+	/**
+	 * @param Title $title
+	 * @return string
+	 */
+	private function getCanonicalTitle( Title $title ): string {
+		if ( $title->getNamespace() === NS_MAIN ) {
+			return $title->getText();
+		}
+		$canonicalNamespace = $this->namespaceInfo->getCanonicalName( $title->getNamespace() );
+		if ( !$canonicalNamespace ) {
+			return $title->getPrefixedText();
+		}
+		return "$canonicalNamespace:{$title->getText()}";
 	}
 }
