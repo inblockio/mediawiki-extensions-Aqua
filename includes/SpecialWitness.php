@@ -10,6 +10,7 @@
 
 namespace DataAccounting;
 
+use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\Hasher;
 use DataAccounting\Verification\WitnessingEngine;
 use Exception;
@@ -21,6 +22,7 @@ use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\SlotRecord;
+use MWException;
 use PermissionsError;
 use Rht\Merkle\FixedSizeTree;
 use SpecialPage;
@@ -121,6 +123,7 @@ class SpecialWitness extends SpecialPage {
 			'revision_verification',
 			[ 'page_title', 'max(rev_id) as rev_id' ],
 			[
+				"page_title NOT LIKE 'Data_Accounting:%'",
 				"page_title NOT LIKE 'Data Accounting:%'",
 				"page_title NOT LIKE 'MediaWiki:%'",
 			],
@@ -217,17 +220,11 @@ class SpecialWitness extends SpecialPage {
 			$this->getUser()
 		);
 
-		//Get the freshly-generated Domain Snapshot verification hash.
-		$rowDMVH = $this->lb->getConnection( DB_REPLICA )->selectRow(
-			'revision_verification',
-			[ 'verification_hash' ],
-			[ 'page_title' => $title ],
-			__METHOD__,
-		);
-		if ( !$rowDMVH ) {
+		$entity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
+		if ( !$entity ) {
 			throw new Exception( "Verification hash not found for $title" );
 		}
-		$domainSnapShotGenesisHash = $rowDMVH->verification_hash;
+		$domainSnapShotGenesisHash = $entity->getHash( VerificationEntity::VERIFICATION_HASH );
 
 		return [ $title, $domainSnapShotGenesisHash, $merkleTreeHtmlText ];
 	}
