@@ -35,12 +35,7 @@ class GetPageLastRevHandler extends AuthorizedEntityHandler {
 	 * @return VerificationEntity|null
 	 */
 	protected function getEntity(): ?VerificationEntity {
-		$pageTitle = $this->getValidatedParams()['page_title'];
-		// TODO: DB data should hold Db key, not prefixed text (spaces replaced with _)
-		// Once that is done, remove next line
-		$pageTitle = str_replace( '_', ' ', $pageTitle );
-		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
-			'page_title' => $pageTitle
-		] );
+		$title = \Title::newFromText( $this->getValidatedParams()['page_title'] );
+		return $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
 	}
 }
