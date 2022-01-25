@@ -59,15 +59,13 @@ class GetHashChainInfoHandler extends AuthorizedEntityHandler {
 	 */
 	protected function getEntity( string $identifierType ): ?VerificationEntity {
 		$identifier = $this->getValidatedParams()['identifier'];
-		$conds = [];
 		if ( $identifierType === 'title' ) {
-			// TODO: DB data should hold Db key, not prefixed text (spaces replaced with _)
-			// Once that is done, remove next line
-			$identifier = str_replace( '_', ' ', $identifier );
-			$conds['page_title'] = $identifier;
+			$title = \Title::newFromText( $identifier );
+			return $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
 		} else {
-			$conds[VerificationEntity::GENESIS_HASH] = $identifier;
+			return $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
+				VerificationEntity::GENESIS_HASH => $identifier,
+			] );
 		}
-		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( $conds );
 	}
 }

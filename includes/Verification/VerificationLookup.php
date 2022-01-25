@@ -62,7 +62,7 @@ class VerificationLookup {
 	 * @return VerificationEntity|null
 	 */
 	public function verificationEntityFromTitle( Title $title ): ?VerificationEntity {
-		if ( !$title->exists() ) {
+		if ( !( $title instanceof Title ) || !$title->exists() ) {
 			return null;
 		}
 		// TODO: Replace with getPrefixedDBkey, once database enties use it

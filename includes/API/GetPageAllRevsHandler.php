@@ -38,11 +38,7 @@ class GetPageAllRevsHandler extends AuthorizedEntityHandler {
 	 * @return VerificationEntity|null
 	 */
 	protected function getEntity( string $pageTitle ): ?VerificationEntity {
-		// TODO: DB data should hold Db key, not prefixed text (spaces replaced with _)
-		// Once that is done, remove next line
-		$pageTitle = str_replace( '_', ' ', $pageTitle );
-		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
-			'page_title' => $pageTitle
-		] );
+		$title = \Title::newFromText( $pageTitle );
+		return $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
 	}
 }
