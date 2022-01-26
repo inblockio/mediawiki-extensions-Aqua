@@ -65,11 +65,13 @@ class SignatureContent extends JsonContent implements DataAccountingContent {
 		}
 		$linker = MediaWikiServices::getInstance()->getLinkRenderer();
 		$line = $linker->makeLink( $user->getUserPage(), $user->getName() );
-		$line .= "({$linker->makeLink( $user->getTalkPage(), 'talk' )}) ";
 
 		$language = \RequestContext::getMain()->getLanguage();
 		$viewingUser = \RequestContext::getMain()->getUser();
-		$line .= $language->userTimeAndDate( $signature['timestamp'], $viewingUser );
+		$line .= Html::rawElement( 'span', [
+			'class' => 'badge badge-light',
+			'style' => 'margin-left: 10px',
+		], $language->userTimeAndDate( $signature['timestamp'], $viewingUser ) );
 
 		return Html::rawElement( 'span', [ 'class' => 'da-signature-line' ], $line );
 	}
