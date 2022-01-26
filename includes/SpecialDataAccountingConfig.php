@@ -139,6 +139,38 @@ class SpecialDataAccountingConfig extends SpecialPage {
 				'content' => new HtmlSnippet( Html::element(
 					'h2',
 					[],
+					$this->msg( 'da-specialdaconfig-section-transclusion' )->plain()
+				) )
+			] ),
+			new Element( [
+				'content' => new HtmlSnippet( Html::element(
+					'i',
+					[],
+					$this->msg( 'da-specialdaconfig-transclusion-desc' )->plain()
+				) )
+			] ),
+			new Element( [
+				'content' => new HtmlSnippet( Html::element(
+					'i',
+					[],
+					$this->msg( 'da-specialdaconfig-transclusion-help' )->plain()
+				) )
+			] ),
+			new FieldLayout(
+				new CheckboxInputWidget( [
+					'name' => 'StrictTransclusion',
+					'selected' => $this->getConfig()->get( 'StrictTransclusion' ),
+					'indeterminate' => false
+				] ),
+				[
+					'label' => $this->msg( 'da-specialdaconfig-transclusion-checkbox-label' )->plain(),
+					'align' => 'left',
+				]
+			),
+			new Element( [
+				'content' => new HtmlSnippet( Html::element(
+					'h2',
+					[],
 					$this->msg( 'da-specialdaconfig-section-witnessconfiguration' )->plain()
 				) )
 			] ),
@@ -219,6 +251,7 @@ class SpecialDataAccountingConfig extends SpecialPage {
 	private function save( array $values ): array {
 		// because checkbox input widgets are not very smart
 		$values[ 'InjectSignature' ] = isset( $values[ 'InjectSignature' ] ) ? true : false;
+		$values[ 'StrictTransclusion' ] = isset( $values[ 'StrictTransclusion' ] ) ? true : false;
 
 		$errors = [];
 		// TODO: validate user input!

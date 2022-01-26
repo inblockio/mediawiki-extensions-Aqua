@@ -2,6 +2,7 @@
 
 namespace DataAccounting\Util;
 
+use DataAccounting\Config\DataAccountingConfig;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\Linker\LinkTarget;
@@ -24,6 +25,8 @@ class TransclusionHashExtractor {
 	private $verifcationEngine;
 	/** @var ParserFactory */
 	private $parserFactory;
+	/** @var DataAccountingConfig */
+	private $config;
 	/** @var array|null */
 	private $hashMap = null;
 
@@ -37,7 +40,7 @@ class TransclusionHashExtractor {
 	 */
 	public function __construct(
 		string $rawText, LinkTarget $subject, ParserOutput $po, TitleFactory $titleFactory,
-		VerificationEngine $verificationEngine, ParserFactory $parserFactory
+		VerificationEngine $verificationEngine, ParserFactory $parserFactory, DataAccountingConfig $config
 	) {
 		$this->rawText = $rawText;
 		$this->subject = $subject;
@@ -45,6 +48,7 @@ class TransclusionHashExtractor {
 		$this->titleFactory = $titleFactory;
 		$this->verifcationEngine = $verificationEngine;
 		$this->parserFactory = $parserFactory;
+		$this->config = $config;
 	}
 
 	/**
@@ -62,7 +66,6 @@ class TransclusionHashExtractor {
 	 */
 	private function parsePageResources() {
 		$this->hashMap = [];
-
 		$titles = [];
 		$this->parseImages( $titles );
 		$this->parseTemplates( $titles );
@@ -77,6 +80,13 @@ class TransclusionHashExtractor {
 	 */
 	private function parseImages( array &$titles ) {
 		foreach ( $this->parserOutput->getImages() as $name => $const ) {
+			if ( $this->isStrict() ) {
+				// Very rudimentary way of checking if image is directly transcluded
+				if ( !preg_match( '/' . preg_quote( $name ) . '/', $this->rawText ) ) {
+					continue;
+				}
+			}
+
 			$title = $this->titleFactory->makeTitle( NS_FILE, $name );
 			if ( $title->equals( $this->subject ) ) {
 				continue;
@@ -89,7 +99,50 @@ class TransclusionHashExtractor {
 	 * @param array $titles
 	 */
 	private function parseTemplates( array &$titles ) {
-		$this->parseNested( $this->parserOutput->getTemplates(), $titles );
+		if ( $this->isStrict() ) {
+			// We do this elaborate parsing instead of just calling `ParserOutput::getTemplates`
+			// because we only want direct transclusions, instead of transclusions of transclusions.
+			// Every page handles only its own transclusions
+			$pp = new \Preprocessor_Hash( $this->parserFactory->create() );
+			$hashTree = $pp->preprocessToObj( $this->rawText );
+			$templates = [];
+			for ( $node = $hashTree->getFirstChild(); $node; $node = $node->getNextSibling() ) {
+				if ( !( $node instanceof \PPNode_Hash_Attr ) && $node->getName() === 'template' ) {
+					for ( $templateNode = $node->getFirstChild(); $templateNode; $templateNode = $templateNode->getNextSibling() ) {
+						if ( !( $templateNode instanceof \PPNode_Hash_Attr ) && $templateNode->getName() === 'title' ) {
+							$templates[] = $templateNode->getRawChildren()[0];
+						}
+					}
+				}
+			}
+
+			$templates = array_map( function( $templatePage ) {
+				$templatePage = trim( preg_replace( '/\s\s+/', ' ', $templatePage ) );
+				if ( strpos( $templatePage, ':' ) === 0 ) {
+					return $this->titleFactory->newFromText( trim( $templatePage, ':' ) );
+				}
+
+				if ( strpos( $templatePage, ':' ) !== false ) {
+					$title = $this->titleFactory->newFromText( $templatePage );
+					if ( $title->getNamespace() !== NS_MAIN ) {
+						// If name has a colon in the name, it cannot be NS_MAIN. If it is, its invalid NS
+						return $title;
+					}
+				}
+
+				return $this->titleFactory->makeTitle( NS_TEMPLATE, $templatePage );
+			}, $templates );
+
+			$templates = array_filter( $templates, function( $templateTitle ) {
+				return $templateTitle instanceof Title;
+			} );
+
+			foreach ( $templates as $title ) {
+				$titles[$title->getPrefixedDBkey()] = $title;
+			}
+		} else {
+			$this->parseNested( $this->parserOutput->getTemplates(), $titles );
+		}
 	}
 
 	/**
@@ -142,5 +195,12 @@ class TransclusionHashExtractor {
 
 			$this->hashMap[] = $transclusion;
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isStrict(): bool {
+		return (bool)$this->config->get( 'StrictTransclusion' );
 	}
 }

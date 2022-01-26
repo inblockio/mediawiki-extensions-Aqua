@@ -2,6 +2,8 @@
 
 namespace DataAccounting\Hook;
 
+use ConfigFactory;
+use DataAccounting\Config\DataAccountingConfig;
 use DataAccounting\TransclusionManager;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\Hook\BeforeParserFetchFileAndTitleHook;
@@ -21,18 +23,25 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 	private RevisionStore $revisionStore;
 	/** @var RepoGroup */
 	private RepoGroup $repoGroup;
+	/** @var DataAccountingConfig */
+	private $config;
+	/** @var RevisionRecord|null */
+	private $lastTransclusion;
 
 	/**
 	 * @param TransclusionManager $transclusionManager
 	 * @param RevisionStore $revisionStore
 	 * @param RepoGroup $repoGroup
+	 * @param ConfigFactory $configFactory
 	 */
 	public function __construct(
-		TransclusionManager $transclusionManager, RevisionStore $revisionStore, RepoGroup $repoGroup
+		TransclusionManager $transclusionManager, RevisionStore $revisionStore, RepoGroup $repoGroup,
+		ConfigFactory $configFactory
 	) {
 		$this->transclusionManager = $transclusionManager;
 		$this->revisionStore = $revisionStore;
 		$this->repoGroup = $repoGroup;
+		$this->config = $configFactory->makeConfig( 'da' );
 	}
 
 	/**
@@ -72,7 +81,19 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 
 		$transclusionInfo = $hashContent->getTransclusionDetails( $nt );
 		if ( !$transclusionInfo ) {
-			$options['broken'] = true;
+			if (
+				$this->isStrict() &&
+				$this->lastTransclusion &&
+				$this->lastTransclusion->getPageAsLinkTarget() !== $page
+			) {
+				$parser = clone $parser;
+				$parser->setPage( $this->lastTransclusion->getPage() );
+				$this->onBeforeParserFetchFileAndTitle(
+					$parser, $nt, $options, $descQuery
+				);
+			} else {
+				$options['broken'] = true;
+			}
 			return true;
 		}
 		if ( $transclusionInfo->{VerificationEntity::VERIFICATION_HASH} === null ) {
@@ -123,13 +144,28 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 		}
 		$transclusionInfo = $content->getTransclusionDetails( $title );
 		if ( !$transclusionInfo ) {
-			$skip = true;
+			if (
+				$this->isStrict() &&
+				$this->lastTransclusion &&
+				$this->lastTransclusion->getPageAsLinkTarget() !== $contextTitle
+			) {
+				$this->onBeforeParserFetchTemplateRevisionRecord(
+					$this->lastTransclusion->getPageAsLinkTarget(),
+					$title, $skip, $revRecord
+				);
+			} else {
+				$skip = true;
+			}
+
 			return;
 		}
 
 		$revRecord = $this->transclusionManager->getRevisionForResource( $transclusionInfo );
 		if ( $revRecord === null ) {
 			$skip = true;
+		}
+		if ( !$this->lastTransclusion || $this->lastTransclusion->getPageAsLinkTarget() !== $contextTitle ) {
+			$this->lastTransclusion = $revRecord;
 		}
 	}
 
@@ -143,5 +179,12 @@ class ControlTranscludedContent implements BeforeParserFetchTemplateRevisionReco
 			return $this->revisionStore->getRevisionByTitle( $title );
 		}
 		return $this->revisionStore->getRevisionById( $oldid );
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isStrict(): bool {
+		return (bool)$this->config->get( 'StrictTransclusion' );
 	}
 }
