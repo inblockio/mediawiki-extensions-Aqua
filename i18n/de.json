@@ -80,5 +80,11 @@
 	"da-import-collision-delete-reason": "Gelöscht aufgrund eines Konflikts beim Seitenimport mit einer längeren Hash-Kette",
 	"da-import-collision-skip": "Die Seite [[:$1]] wurde übersprungen. Es existiert bereits eine Seite mit diesem Namen und besitzt die gleiche oder eine längere Hash-Kette",
 	"da-import-collision-delete": "Die lokale Version dieser Seite wurde gelöscht, da die importiere Version eine längere Hash-Kette besitzt",
-	"da-import-collision-move": "Die ursprüngliche Version dieser Seite wurde zu [[:$2]] verschoben, da die importiere Version eine längere Hash-Kette besitzt"
+	"da-import-collision-move": "Die ursprüngliche Version dieser Seite wurde zu [[:$2]] verschoben, da die importiere Version eine längere Hash-Kette besitzt",
+	"da-revision-replacer-error-no-entity": "Zu dem bereitgestelltem Verifizierungs-Hash konnte keine Revision gefunden werden",
+	"da-revision-replacer-error-title-mismatch": "Der Verifizierungs-Hash führt zu einer anderen Seite als die Angeforderte",
+	"da-revision-replacer-notice": "Revision $2 anzeigen ($1)",
+	"da-transclusion-hashes-link-included": "Eingebettete Version anzeigen",
+	"da-transclusion-hashes-link-latest": "Neueste Version anzeigen",
+	"da-transclusion-hashes-link-create": "Erstellen"
 }
