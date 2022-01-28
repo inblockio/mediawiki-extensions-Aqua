@@ -1,12 +1,15 @@
-# DataAccounting
-This is a code extension for MediaWiki to implement the basic principles of DataAccounting. This is done by using the following modules:
-* Create a verified revision which is entangled into future revisions (hash-chain)
+# Aqua - Mediawiki Extension
+This is a code extension for MediaWiki to implement the Aqua Protocol. 
+
+This is done by using the following modules:
+* Create a verified revision of pages and files which are entangled into future revisions (hash-chain)
 * Cryptographically sign a verified revision via a wallet
 * Export verified revisions
 * Import verified revisions
 * Witness verified revisions on a witness network (e.g. Ethereum)
- 
-All Modules interface with the javascript frontend and the maria DB backend. To ensure that we have a modular approach, and for ease of maintenance, we use Model-View-Controller to separate functionality clearly.
+
+Revisions can be interlinked by immutable links. This leads to links which are pointing to a revision verification hash. 
+This allows to verify if the data which was linked is exactly the data which is seen from the user or machine visiting the link.
 
 ## Installation
 
@@ -15,23 +18,27 @@ https://www.mediawiki.org/wiki/Manual:Extensions#Installing_an_extension
 
 Requirements:
 
-* MediaWiki 1.35 or later
-* PHP 7.4 or later. (with [Composer](https://getcomposer.org/))
-* [Node.js](https://nodejs.org/en/) 10, or later. (with [npm](https://nodejs.org/en/download/package-manager/))
+* MediaWiki 1.37 or later
+* PHP 7.4 or later versions of PHP 7. (with [Composer](https://getcomposer.org/))
+* [Node.js](https://nodejs.org/en/) 16.x , or later. (with [npm](https://nodejs.org/en/download/package-manager/))
+
+`git clone https://github.com/inblockio/mediawiki-extensions-Aqua` into the mediawiki-extenions folder
+
+Add `wfLoadExtension( 'DataAccounting' );` to the Localsettings.php to load the extension.
+This is subject to change https://github.com/inblockio/mediawiki-extensions-Aqua/issues/343.
+Add `wfLoadExtension( 'mediawiki-extensions-Aqua' );` if it's already the new directory path.
 
 ## Testing
 
 This extension implements the **[recommended entry points](https://www.mediawiki.org/wiki/Continuous_integration/Entry_points)** of Wikimedia CI for PHP and Front-end projects.
 
-TODO: document or remove need to edit a page
-
-Run `composer update` in the `extensions/DataAccounting/` directory. This pulls in code analysis tools.
-You might want to mark `extensions/DataAccounting/vendor/` as excluded in your IDE or tools to avoid
+Run `composer update` in the `extensions/mediawiki-extensions-Aqua/` directory. This pulls in code analysis tools.
+You might want to mark `extensions/mediawiki-extensions-Aqua/vendor/` as excluded in your IDE or tools to avoid
 them loading certain libraries twice.
 
 ### Running tests and CI checks
 
-You can use the `Makefile` by running make commands in the `DataAccounting` directory.
+You can use the `Makefile` by running make commands in the `mediawiki-extensions-Aqua` directory.
 
 * `make ci`: Run everything - TODO: include front-end tests
 * `make test`: Run all tests - TODO: include front-end tests
@@ -39,7 +46,7 @@ You can use the `Makefile` by running make commands in the `DataAccounting` dire
 
 See the `Makefile` contents for all commands and how to run them without Make.
 
-### Front-end
+### Front-end development
 
 To run the checks for JavaScript, JSON, and CSS:
 
