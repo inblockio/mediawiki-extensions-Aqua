@@ -44,7 +44,7 @@
 	"da-import-result-line": "Seite $1 ({{PLURAL:$2|eine Version|$2 Versionen}}) importiert",
 	"da-import-fail-revision": "Import der Versionen $2 des Titels [[$1]] ist fehlgeschlagen",
 	"da-import-fail-title": "'''Import fehlgeschlagen'''",
-	"da-specialwitness-submit-label": "Generiere Domäne-Schnappschuss",
+	"da-specialwitness-submit-label": "Generiere Domänen-Schnappschuss",
 	"da-specialwitness-snapshottable-header-index": "Index",
 	"da-specialwitness-snapshottable-header-pagetitle": "Seitentitel",
 	"da-specialwitness-snapshottable-header-verificationhash": "Verifizierungs-Hash",
