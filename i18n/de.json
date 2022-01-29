@@ -9,7 +9,7 @@
 	"verifiedimport": "Verifizierter Import",
 	"witness": "Domänen-Schnappschuss-Generator",
 	"dataaccountingconfig": "Konfiguration der Datenprüfung",
-	"witnesspublisher": "Witness Publisher",
+	"witnesspublisher": "Domänen-Schnappschuss Veröffentlichen",
 	"da-contentaction-daact": "Unterschreiben 🔑",
 	"da-transclusion-hash-ui-state-unchanged": "Aktuell",
 	"da-transclusion-hash-ui-state-invalid": "Der Hash ist ungültig oder die Verifizierungsdaten fehlen",
