@@ -292,7 +292,7 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 			}
 			if ( $content->requiresAction() ) {
 				$header .= Html::element( 'span', [
-					'class' => 'badge badge-danger'
+					'class' => 'badge badge-warning'
 				], '!' );
 			}
 			$card = Html::rawElement(
