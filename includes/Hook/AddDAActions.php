@@ -2,6 +2,7 @@
 
 namespace DataAccounting\Hook;
 
+use DataAccounting\Verification\VerificationEngine;
 use MediaWiki\Hook\SkinTemplateNavigation__UniversalHook;
 use SkinTemplate;
 use MediaWiki\Permissions\PermissionManager;
@@ -11,9 +12,10 @@ class AddDAActions implements SkinTemplateNavigation__UniversalHook {
 	private PermissionManager $permissionManager;
 
 	public function __construct(
-		PermissionManager $permissionManager
+		PermissionManager $permissionManager, VerificationEngine $verificationEngine
 	) {
 		$this->permissionManager = $permissionManager;
+		$this->verificationEngine = $verificationEngine;
 	}
 
 	/**
@@ -54,5 +56,16 @@ class AddDAActions implements SkinTemplateNavigation__UniversalHook {
 			'text' => 'Export 📦',
 		];
 		$sktemplate->getOutput()->addModules( 'ext.dataAccounting.exportSinglePage' );
+
+		$entity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $sktemplate->getTitle() );
+		if ( $entity->getDomainId() === $this->verificationEngine->getDomainId() ) {
+			// Manipulate revisions, allowed only on local domain
+			$links['actions']['da_delete_revisions'] = [
+				'id' => 'ca-da-delete-revisions',
+				'href' => '#',
+				'text' => 'Delete revisions 🗑️',
+			];
+			$sktemplate->getOutput()->addModules( 'ext.DataAccounting.deleteRevisions' );
+		}
 	}
 }

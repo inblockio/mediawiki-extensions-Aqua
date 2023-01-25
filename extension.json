@@ -170,7 +170,7 @@
 		"addDAActions": {
 			"class": "DataAccounting\\Hook\\AddDAActions",
             "services": [
-				"PermissionManager"
+				"PermissionManager", "DataAccountingVerificationEngine"
             ]
 		},
 		"immutableLinks":{
@@ -297,6 +297,15 @@
 				"DataAccountingTransferEntityFactory",
 				"DataAccountingImporter"
 			]
+		},
+		{
+			"method": "POST",
+			"path": "/data_accounting/delete_revisions",
+			"class": "DataAccounting\\API\\DeleteRevisionsHandler",
+			"services": [
+				"PermissionManager",
+				"DataAccountingVerificationEngine"
+			]
 		}
 	],
 	"ResourceFileModulePaths": {
@@ -354,6 +363,30 @@
 				"da-ui-create-page-title",
 				"da-ui-create-page-create",
 				"da-ui-create-page-picker"
+			]
+		},
+		"ext.DataAccounting.deleteRevisions": {
+			"scripts": [
+				"ui/DeleteRevisionsDialog.js",
+				"ext.DataAccounting.deleteRevisions.js"
+			],
+			"dependencies": [
+				"oojs-ui",
+				"mediawiki.widgets",
+				"ext.DataAccounting.api"
+			],
+			"messages": [
+				"da-ui-delete-revisions-title",
+				"da-ui-delete-revisions-delete",
+				"da-ui-delete-revisions-cancel",
+				"da-ui-delete-revisions-number",
+				"da-ui-delete-revisions-witness-warning",
+				"da-ui-delete-revisions-notice"
+			]
+		},
+		"ext.DataAccounting.api": {
+			"scripts": [
+				"api.js"
 			]
 		}
 	},

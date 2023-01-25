@@ -293,6 +293,21 @@ class VerificationLookup {
 	}
 
 	/**
+	 * @param int $revId
+	 *
+	 * @return bool
+	 */
+	public function deleteForRevId( int $revId ): bool {
+		return $this->lb->getConnection( DB_PRIMARY )->delete(
+			static::TABLE,
+			[
+				'rev_id' => $revId,
+			],
+			__METHOD__
+		);
+	}
+
+	/**
 	 * @param Title $title
 	 * @return string
 	 */

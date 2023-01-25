@@ -18,6 +18,14 @@ class GetPageAllRevsHandler extends AuthorizedEntityHandler {
 			throw new HttpException( 'Not found', 404 );
 		}
 
+		if ( $this->getValidatedParams()['full_entities'] ) {
+			$entities = [];
+			foreach ( $ids as $id ) {
+				$entities[] = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $id );
+			}
+			return array_filter( $entities );
+		}
+
 		return $ids;
 	}
 
@@ -28,6 +36,12 @@ class GetPageAllRevsHandler extends AuthorizedEntityHandler {
 				self::PARAM_SOURCE => 'path',
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'full_entities' => [
+				self::PARAM_SOURCE => 'query',
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_REQUIRED => false,
+				ParamValidator::PARAM_DEFAULT => false,
 			],
 		];
 	}
