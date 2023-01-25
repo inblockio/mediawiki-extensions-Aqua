@@ -284,4 +284,34 @@ class VerificationEngine {
 			'source' => 'default',
 		] );
 	}
+
+	/**
+	 * @param array $revisionIds
+	 *
+	 * @return void
+	 * @throws MWException
+	 */
+	public function deleteRevisions( array $revisionIds )  {
+		$firstToDelete = min( $revisionIds );
+		$firstToDelete = $this->revisionStore->getRevisionById( $firstToDelete );
+		$nowLatest = $this->revisionStore->getPreviousRevision( $firstToDelete );
+		$dbw = $this->lb->getConnection( DB_PRIMARY );
+		// Delete revisions
+		$dbw->delete( 'revision', [ 'rev_id' => $revisionIds ], __METHOD__ );
+		$dbw->delete( 'ip_changes', [ 'ipc_rev_id' => $revisionIds ], __METHOD__ );
+		$dbw->update(
+			'page',
+			[ 'page_latest' => $nowLatest->getId() ],
+			[ 'page_id' => $firstToDelete->getPageId() ],
+			__METHOD__
+		);
+
+		foreach ( $revisionIds as $revisionId ) {
+			$this->getLookup()->deleteForRevId( $revisionId );
+		}
+		$this->buildAndUpdateVerificationData(
+			$this->getLookup()->verificationEntityFromRevId( $nowLatest->getId() ),
+			$nowLatest
+		);
+	}
 }

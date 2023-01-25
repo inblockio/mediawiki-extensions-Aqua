@@ -90,5 +90,11 @@
 	"da-revision-replacer-notice": "Viewing revision $2 ($1)",
 	"da-transclusion-hashes-link-included": "See included version",
 	"da-transclusion-hashes-link-latest": "See latest version",
-	"da-transclusion-hashes-link-create": "Create"
+	"da-transclusion-hashes-link-create": "Create",
+	"da-ui-delete-revisions-title": "Delete revisions",
+	"da-ui-delete-revisions-delete": "Delete",
+	"da-ui-delete-revisions-cancel": "Cancel",
+	"da-ui-delete-revisions-number": "How many previous revisions to delete?",
+	"da-ui-delete-revisions-witness-warning": "One of the revisions that would be deleted has already been witnessed",
+	"da-ui-delete-revisions-notice": "Following revisions will be deleted:"
 }
