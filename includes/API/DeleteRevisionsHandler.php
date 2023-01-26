@@ -2,8 +2,9 @@
 
 namespace DataAccounting\API;
 
+use DataAccounting\RevisionManipulator;
 use DataAccounting\Verification\VerificationEngine;
-use MediaWiki\MediaWikiServices;
+use Exception;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\LocalizedHttpException;
@@ -18,8 +19,10 @@ class DeleteRevisionsHandler extends SimpleHandler {
 
 	/** @var PermissionManager */
 	private $permissionManager;
-	/** @var VerificationEngine */
-	private $verificationEngine;
+
+	/** @var RevisionManipulator */
+	protected $revisionManipulator;
+
 	/** @var User */
 	private $user;
 
@@ -29,10 +32,10 @@ class DeleteRevisionsHandler extends SimpleHandler {
 	 */
 	public function __construct(
 		PermissionManager $permissionManager,
-		VerificationEngine $verificationEngine
+		RevisionManipulator $revisionManipulator
 	) {
 		$this->permissionManager = $permissionManager;
-		$this->verificationEngine = $verificationEngine;
+		$this->revisionManipulator = $revisionManipulator;
 		$this->user = RequestContext::getMain()->getUser();
 	}
 
@@ -48,9 +51,22 @@ class DeleteRevisionsHandler extends SimpleHandler {
 		}
 
 		$revisionIds = $this->getValidatedBody()['ids'];
-		$this->verificationEngine->deleteRevisions( $revisionIds );
-
+		try {
+			$this->executeAction( $revisionIds );
+		} catch ( \Exception $e ) {
+			throw new HttpException( $e->getMessage(), 500 );
+		}
 		return [ 'success' => true ];
+	}
+
+	/**
+	 * @param array $revisionIds
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
+	protected function executeAction( array $revisionIds ) {
+		$this->revisionManipulator->deleteRevisions( $revisionIds );
 	}
 
 	/** @inheritDoc */
