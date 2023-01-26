@@ -57,15 +57,27 @@ class AddDAActions implements SkinTemplateNavigation__UniversalHook {
 		];
 		$sktemplate->getOutput()->addModules( 'ext.dataAccounting.exportSinglePage' );
 
-		$entity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $sktemplate->getTitle() );
-		if ( $entity->getDomainId() === $this->verificationEngine->getDomainId() ) {
-			// Manipulate revisions, allowed only on local domain
-			$links['actions']['da_delete_revisions'] = [
-				'id' => 'ca-da-delete-revisions',
-				'href' => '#',
-				'text' => 'Delete revisions 🗑️',
-			];
-			$sktemplate->getOutput()->addModules( 'ext.DataAccounting.deleteRevisions' );
+		if ( $this->permissionManager->userCan( 'delete', $sktemplate->getUser(), $sktemplate->getTitle() ) ) {
+			$entity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $sktemplate->getTitle() );
+			if ( !$entity ) {
+				return;
+			}
+			if ( $entity->getDomainId() === $this->verificationEngine->getDomainId() ) {
+				// Delete revisions, allowed only on local domain
+				$links['actions']['da_delete_revisions'] = [
+					'id' => 'ca-da-delete-revisions',
+					'href' => '#',
+					'text' => 'Delete revisions 🗑️',
+				];
+				// Squash revisions, allowed only on local domain
+				$links['actions']['da_squash_revisions'] = [
+					'id' => 'ca-da-squash-revisions',
+					'href' => '#',
+					'text' => 'Squash revisions 💥',
+				];$sktemplate->getOutput()->addModules( 'ext.DataAccounting.revisionActions' );
+
+			}
 		}
+
 	}
 }

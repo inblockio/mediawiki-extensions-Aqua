@@ -93,8 +93,17 @@
 	"da-transclusion-hashes-link-create": "Create",
 	"da-ui-delete-revisions-title": "Delete revisions",
 	"da-ui-delete-revisions-delete": "Delete",
-	"da-ui-delete-revisions-cancel": "Cancel",
+	"da-ui-button-cancel": "Cancel",
 	"da-ui-delete-revisions-number": "How many previous revisions to delete?",
 	"da-ui-delete-revisions-witness-warning": "One of the revisions that would be deleted has already been witnessed",
-	"da-ui-delete-revisions-notice": "Following revisions will be deleted:"
+	"da-ui-delete-revisions-notice": "Following revisions will be deleted:",
+	"da-ui-squash-revisions-title": "Squash revisions",
+	"da-ui-squash-revisions-squash": "Squash",
+	"da-ui-squash-revisions-number": "How many previous revisions to squash into one?",
+	"da-ui-squash-revisions-witness-warning": "One of the revisions that would be squashed has already been witnessed",
+	"da-ui-squash-revisions-notice": "Following revisions will be squashed into one:",
+	"da-ui-squash-revisions-no-revisions": "At least two revisions are needed for squashing",
+	"da-ui-delete-revisions-no-revisions": "Only one revision of this page available",
+	"dataaccounting-squash-revisions-comment": "Squashed {{PLURAL:$1|revision $2|revisions: $2}}"
+
 }

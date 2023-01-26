@@ -5,6 +5,7 @@ namespace DataAccounting\Verification;
 use DataAccounting\Config\DataAccountingConfig;
 use DataAccounting\Content\SignatureContent;
 use DataAccounting\Verification\Entity\VerificationEntity;
+use Exception;
 use File;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Page\WikiPageFactory;
@@ -76,7 +77,7 @@ class VerificationEngine {
 
 	/**
 	 * @return string
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function getDomainId(): string {
 		$domainID = (string)$this->config->get( 'DomainID' );
@@ -283,35 +284,5 @@ class VerificationEngine {
 			'wallet_address' => '',
 			'source' => 'default',
 		] );
-	}
-
-	/**
-	 * @param array $revisionIds
-	 *
-	 * @return void
-	 * @throws MWException
-	 */
-	public function deleteRevisions( array $revisionIds )  {
-		$firstToDelete = min( $revisionIds );
-		$firstToDelete = $this->revisionStore->getRevisionById( $firstToDelete );
-		$nowLatest = $this->revisionStore->getPreviousRevision( $firstToDelete );
-		$dbw = $this->lb->getConnection( DB_PRIMARY );
-		// Delete revisions
-		$dbw->delete( 'revision', [ 'rev_id' => $revisionIds ], __METHOD__ );
-		$dbw->delete( 'ip_changes', [ 'ipc_rev_id' => $revisionIds ], __METHOD__ );
-		$dbw->update(
-			'page',
-			[ 'page_latest' => $nowLatest->getId() ],
-			[ 'page_id' => $firstToDelete->getPageId() ],
-			__METHOD__
-		);
-
-		foreach ( $revisionIds as $revisionId ) {
-			$this->getLookup()->deleteForRevId( $revisionId );
-		}
-		$this->buildAndUpdateVerificationData(
-			$this->getLookup()->verificationEntityFromRevId( $nowLatest->getId() ),
-			$nowLatest
-		);
 	}
 }

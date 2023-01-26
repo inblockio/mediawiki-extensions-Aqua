@@ -10,6 +10,9 @@ da.api = {
 	deleteRevisions: function( ids ) {
 		return da.api._internal.post( 'delete_revisions', JSON.stringify( { ids: ids } ) );
 	},
+	squashRevisions: function( ids ) {
+		return da.api._internal.post( 'squash_revisions', JSON.stringify( { ids: ids } ) );
+	},
 	_internal: {
 		get: function( path, params ) {
 			return da.api._internal._ajax( path, params );

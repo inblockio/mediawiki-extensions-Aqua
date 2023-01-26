@@ -303,8 +303,15 @@
 			"path": "/data_accounting/delete_revisions",
 			"class": "DataAccounting\\API\\DeleteRevisionsHandler",
 			"services": [
-				"PermissionManager",
-				"DataAccountingVerificationEngine"
+				"PermissionManager", "DataAccountingRevisionManipulator"
+			]
+		},
+		{
+			"method": "POST",
+			"path": "/data_accounting/squash_revisions",
+			"class": "DataAccounting\\API\\SquashRevisionsHandler",
+			"services": [
+				"PermissionManager", "DataAccountingRevisionManipulator"
 			]
 		}
 	],
@@ -365,10 +372,12 @@
 				"da-ui-create-page-picker"
 			]
 		},
-		"ext.DataAccounting.deleteRevisions": {
+		"ext.DataAccounting.revisionActions": {
 			"scripts": [
+				"ui/RevisionDialog.js",
 				"ui/DeleteRevisionsDialog.js",
-				"ext.DataAccounting.deleteRevisions.js"
+				"ui/SquashRevisionsDialog.js",
+				"ext.DataAccounting.revisionActions.js"
 			],
 			"dependencies": [
 				"oojs-ui",
@@ -378,10 +387,17 @@
 			"messages": [
 				"da-ui-delete-revisions-title",
 				"da-ui-delete-revisions-delete",
-				"da-ui-delete-revisions-cancel",
+				"da-ui-button-cancel",
 				"da-ui-delete-revisions-number",
 				"da-ui-delete-revisions-witness-warning",
-				"da-ui-delete-revisions-notice"
+				"da-ui-delete-revisions-notice",
+				"da-ui-squash-revisions-title",
+				"da-ui-squash-revisions-squash",
+				"da-ui-squash-revisions-number",
+				"da-ui-squash-revisions-witness-warning",
+				"da-ui-squash-revisions-notice",
+				"da-ui-squash-revisions-no-revisions",
+				"da-ui-delete-revisions-no-revisions"
 			]
 		},
 		"ext.DataAccounting.api": {
