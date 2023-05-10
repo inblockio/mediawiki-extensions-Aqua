@@ -53,6 +53,12 @@ class Hasher {
 		foreach ( $slots as $slot ) {
 			$pageContent .= $rev->getContent( $slot )->serialize();
 		}
+		if ( !$pageContent ) {
+			// Empty string hash
+			// https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/examples/sha3-512_msg0.pdf
+			return 'a69f73cca23a9ac5c8b567dc185a756e97c982164fe25859e0d1dcc1475c80a615b2123af1f5f94c11e3e9402c3ac558';
+		}
+
 		return $this->getHashSum( $pageContent );
 	}
 }
