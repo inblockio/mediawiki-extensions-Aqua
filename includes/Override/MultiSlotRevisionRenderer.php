@@ -5,6 +5,7 @@ namespace DataAccounting\Override;
 use DataAccounting\Content\DataAccountingContent;
 use Html;
 use InvalidArgumentException;
+use MediaWiki\Content\Renderer\ContentRenderer;
 use MediaWiki\Permissions\Authority;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
@@ -15,7 +16,6 @@ use ParserOptions;
 use ParserOutput;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Title;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 /**
@@ -47,6 +47,7 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 	public function __construct(
 		ILoadBalancer $loadBalancer,
 		SlotRoleRegistry $roleRegistry,
+		ContentRenderer $contentRenderer,
 		$dbDomain = false
 	) {
 		$this->loadBalancer = $loadBalancer;
@@ -127,12 +128,10 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 			$options->setTimestamp( $rev->getTimestamp() );
 		}
 
-		$title = Title::newFromLinkTarget( $rev->getPageAsLinkTarget() );
-
 		$renderedRevision = new RenderedRevision(
-			$title,
 			$rev,
 			$options,
+			$this->contentRenderer,
 			function ( RenderedRevision $rrev, array $hints ) {
 				return $this->combineSlotOutput( $rrev, $hints );
 			},

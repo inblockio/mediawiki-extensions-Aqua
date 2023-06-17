@@ -9,6 +9,7 @@ use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Content\Transform\ContentTransformer;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\Logger\LoggerFactory;
+use MediaWiki\Page\PageIdentity;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionRenderer;
 use MediaWiki\Revision\RevisionStore;
@@ -198,7 +199,7 @@ class DAPageUpdaterFactory extends PageUpdaterFactory {
 	 * @since 1.37
 	 */
 	public function newPageUpdater(
-		WikiPage $page,
+		PageIdentity $page,
 		UserIdentity $user
 	): PageUpdater {
 		return $this->newPageUpdaterForDerivedPageDataUpdater(

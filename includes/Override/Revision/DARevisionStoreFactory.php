@@ -4,6 +4,7 @@ namespace DataAccounting\Override\Revision;
 
 use ActorMigration;
 use CommentStore;
+use BagOStuff;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\Page\PageStoreFactory;
@@ -78,6 +79,7 @@ class DARevisionStoreFactory extends RevisionStoreFactory {
 		NameTableStoreFactory $nameTables,
 		SlotRoleRegistry $slotRoleRegistry,
 		WANObjectCache $cache,
+		BagOStuff $localCache,
 		CommentStore $commentStore,
 		ActorMigration $actorMigration,
 		ActorStoreFactory $actorStoreFactory,
@@ -89,7 +91,7 @@ class DARevisionStoreFactory extends RevisionStoreFactory {
 	) {
 		parent::__construct(
 			$dbLoadBalancerFactory, $blobStoreFactory, $nameTables, $slotRoleRegistry, $cache,
-			$commentStore, $actorMigration, $actorStoreFactory, $logger, $contentHandlerFactory,
+			$localCache, $commentStore, $actorMigration, $actorStoreFactory, $logger, $contentHandlerFactory,
 			$pageStoreFactory, $titleFactory, $hookContainer
 		);
 
@@ -98,6 +100,7 @@ class DARevisionStoreFactory extends RevisionStoreFactory {
 		$this->slotRoleRegistry = $slotRoleRegistry;
 		$this->nameTables = $nameTables;
 		$this->cache = $cache;
+		$this->localCache = $localCache;
 		$this->commentStore = $commentStore;
 		$this->actorMigration = $actorMigration;
 		$this->actorStoreFactory = $actorStoreFactory;
@@ -121,7 +124,8 @@ class DARevisionStoreFactory extends RevisionStoreFactory {
 		$store = new DARevisionStore(
 			$this->dbLoadBalancerFactory->getMainLB( $dbDomain ),
 			$this->blobStoreFactory->newSqlBlobStore( $dbDomain ),
-			$this->cache, // Pass local cache instance; Leave cache sharing to RevisionStore.
+			$this->cache,
+			$this->localCache,
 			$this->commentStore,
 			$this->nameTables->getContentModels( $dbDomain ),
 			$this->nameTables->getSlotRoles( $dbDomain ),

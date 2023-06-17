@@ -3,6 +3,7 @@
 namespace DataAccounting\Hook;
 
 use ChangeTags;
+use BagOStuff;
 use DataAccounting\Override\MultiSlotRevisionRenderer;
 use DataAccounting\Override\Revision\DARevisionStoreFactory;
 use DataAccounting\Override\Storage\DAPageUpdaterFactory;
@@ -83,6 +84,7 @@ class OverrideServices implements MediaWikiServicesHook {
 					$services->getNameTableStoreFactory(),
 					$services->getSlotRoleRegistry(),
 					$services->getMainWANObjectCache(),
+					$services->getLocalServerObjectCache(),
 					$services->getCommentStore(),
 					$services->getActorMigration(),
 					$services->getActorStoreFactory(),
@@ -104,7 +106,8 @@ class OverrideServices implements MediaWikiServicesHook {
 			function( MediaWikiServices $services ) {
 				$renderer = new MultiSlotRevisionRenderer(
 					$services->getDBLoadBalancer(),
-					$services->getSlotRoleRegistry()
+					$services->getSlotRoleRegistry(),
+					$services->getContentRenderer()
 				);
 				$renderer->setLogger( LoggerFactory::getInstance( 'SaveParse' ) );
 				return $renderer;
