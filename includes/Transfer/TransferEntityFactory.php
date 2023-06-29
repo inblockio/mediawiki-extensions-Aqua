@@ -74,6 +74,20 @@ class TransferEntityFactory {
 		return null;
 	}
 
+	/**
+	 * @param array $data
+	 *
+	 * @return TransferContext|null
+	 */
+	public function newTransferContextForImport( array $data ): ?TransferContext {
+		$title = $this->titleFactory->makeTitle( $data['namespace'], $data['title'] );
+		// NS_INBOX
+		$data['namespace'] = 6900;
+		$data['title'] = $title->getPrefixedDBkey();
+
+		return $this->newTransferContextFromData( $data );
+	}
+
 	public function newTransferContextFromTitle( \Title $title ): ?TransferContext {
 		$entity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
 		if ( !$entity ) {

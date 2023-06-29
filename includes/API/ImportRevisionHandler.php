@@ -42,7 +42,7 @@ class ImportRevisionHandler extends SimpleHandler {
 			// TODO: Enable once user context becomes available
 			// throw new HttpException( 'User must have \"import\" permission', 401 );
 		}
-		$context = $this->transferEntityFactory->newTransferContextFromData(
+		$context = $this->transferEntityFactory->newTransferContextForImport(
 			$this->getBodyData( 'context' )
 		);
 		if ( !( $context instanceof TransferContext ) ) {
