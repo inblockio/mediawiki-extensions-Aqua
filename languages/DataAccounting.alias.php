@@ -14,6 +14,7 @@ $specialPageAliases['en'] = [
 	'WitnessPublisher' => [ 'Witness Publisher' ],
 	'DataAccountingConfig' => [ 'Data Accounting Config' ],
 	'Witness' => [ 'Domain Snapshot Generator' ],
+	'Inbox' => [ 'Inbox' ]
 ];
 
 /** Deutsch (German) */
@@ -23,4 +24,5 @@ $specialPageAliases['de'] = [
 	'WitnessPublisher' => [ 'Witness Publisher' ],
 	'DataAccountingConfig' => [ 'Datenprüfungskonfiguration' ],
 	'Witness' => [ 'Domain Snapshot Generator' ],
+	'Inbox' => [ 'Posteingang' ]
 ];

@@ -78,7 +78,24 @@ class VerificationLookup {
 	 * @return VerificationEntity|null
 	 */
 	public function verificationEntityFromQuery( array $query ): ?VerificationEntity {
-		$res = $this->lb->getConnection( DB_REPLICA )->selectRow(
+		$res = $this->allVerificationEntitiesFromQuery( $query, 1 );
+		return count( $res ) ? $res[0] : null;
+	}
+
+	/**
+	 * @param array $query
+	 * @param int|null $limit
+	 *
+	 * @return VerificationEntity[]
+	 */
+	public function allVerificationEntitiesFromQuery( array $query, int $limit = -1 ): array {
+		$options = [
+			'ORDER BY' => [ 'rev_id DESC' ]
+		];
+		if ( $limit > 0 ) {
+			$options['LIMIT'] = $limit;
+		}
+		$res = $this->lb->getConnection( DB_REPLICA )->select(
 			static::TABLE,
 			[
 				'revision_verification_id',
@@ -102,14 +119,19 @@ class VerificationLookup {
 			],
 			$query,
 			__METHOD__,
-			[ 'ORDER BY' => [ 'rev_id DESC' ] ],
+			$options,
 		);
 
 		if ( !$res ) {
-			return null;
+			return [];
 		}
 
-		return $this->verificationEntityFactory->newFromDbRow( $res );
+		$entities = [];
+		foreach ( $res as $row ) {
+			$entities[] = $this->verificationEntityFactory->newFromDbRow( $row );
+		}
+
+		return $entities;
 	}
 
 	/**

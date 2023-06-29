@@ -93,6 +93,10 @@
 			"services": [
 				"TitleFactory", "RevisionStore", "DataAccountingVerificationEngine", "DataAccountingExporter"
 			]
+		},
+		"Inbox": {
+			"class": "DataAccounting\\SpecialInbox",
+			"services": [ "TitleFactory", "DataAccountingVerificationEngine" ]
 		}
 	},
 
@@ -113,6 +117,22 @@
 			"id": 6943,
 			"constant": "NS_DATAACCOUNTING_TALK",
 			"name": "Data_Accounting_talk",
+			"subpages": true,
+			"content": false,
+			"defaultcontentmodel": "wikitext"
+		},
+		{
+			"id": 6900,
+			"constant": "NS_INBOX",
+			"name": "Inbox",
+			"subpages": true,
+			"content": true,
+			"defaultcontentmodel": "wikitext"
+		},
+		{
+			"id": 6901,
+			"constant": "NS_INBOX_TALK",
+			"name": "Inbox_talk",
 			"subpages": true,
 			"content": false,
 			"defaultcontentmodel": "wikitext"
@@ -403,6 +423,20 @@
 		"ext.DataAccounting.api": {
 			"scripts": [
 				"api.js"
+			]
+		},
+		"ext.DataAccounting.inbox.compare": {
+			"scripts": [
+				"ui/Inbox/ComparePanel.js",
+				"ui/Inbox/TreePanel.js",
+				"ui/Inbox/TreeNode.js",
+				"ext.DataAccounting.inbox.compare.js"
+			],
+			"styles": [
+				"ui/Inbox/style.less"
+			],
+			"dependencies": [
+				"oojs-ui"
 			]
 		}
 	},

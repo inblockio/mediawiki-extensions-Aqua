@@ -45,6 +45,7 @@ class Hooks implements
 		$GLOBALS['wgParserCacheType'] = CACHE_NONE;
 
 		$GLOBALS['wgTweekiSkinSpecialElements']['NEWPAGE'] = static::class . '::createNewPageButton';
+		$GLOBALS['wgTweekiSkinSpecialElements']['INBOX'] = static::class . '::createInboxButton';
 	}
 
 	/**
@@ -98,6 +99,27 @@ class Hooks implements
 		$button .= Html::closeElement( 'div' );
 
 		echo $button;
+	}
+
+	public static function createInboxButton( $skin, $context ) {
+		$pm = MediaWikiServices::getInstance()->getPermissionManager();
+		if ( !$pm->userHasAllRights( RequestContext::getMain()->getUser(), 'createpage', 'edit' ) ) {
+			return;
+		}
+		$specialInbox = MediaWikiServices::getInstance()->getSpecialPageFactory()->getPage( 'Inbox' );
+		$pendingCount = $specialInbox->getInboxCount();
+		$badge = '';
+		if ( $pendingCount > 0 ) {
+			$badge = Html::element( 'span', [
+				'style' => 'position: absolute;background: white;border-radius: 100px;color: black;width: 12px;height: 12px;font-size: 8px;'
+			], $pendingCount );
+		}
+		echo Html::rawElement( 'a', [
+			'class' => 'btn btn-link ',
+			'style' => 'color: white',
+			'id' => 'aqua-inbox-button',
+			'href' => $specialInbox->getPageTitle()->getLocalURL()
+		], Html::element( 'i', [ 'class' => 'fas fa-inbox' ] ) . $badge );
 	}
 
 	/**

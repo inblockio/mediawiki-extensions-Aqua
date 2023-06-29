@@ -104,6 +104,19 @@
 	"da-ui-squash-revisions-notice": "Following revisions will be squashed into one:",
 	"da-ui-squash-revisions-no-revisions": "At least two revisions are needed for squashing",
 	"da-ui-delete-revisions-no-revisions": "Only one revision of this page available",
-	"dataaccounting-squash-revisions-comment": "Squashed {{PLURAL:$1|revision $2|revisions: $2}}"
-
+	"dataaccounting-squash-revisions-comment": "Squashed {{PLURAL:$1|revision $2|revisions: $2}}",
+	"inbox": "Inbox",
+	"da-specialimport-header-domain": "Last change made on domain",
+	"da-specialimport-header-page-title": "Page title",
+	"da-specialimport-action-compare-merge": "Import page",
+	"da-specialinbox-label-own-domain": "own domain",
+	"da-specialinbox-not-found": "Page not found in inbox",
+	"da-specialinbox-direct-merge": "Page \"'''$1'''\" does not exist on the wiki and can therefore be directly imported",
+	"da-specialinbox-compare": "Page \"'''$1'''\" already exists on the wiki. Review and resolve differences before importing.",
+	"da-specialinbox-do-import-title": "Import a page from inbox",
+	"da-specialinbox-merge-submit": "Import page",
+	"da-specialinbox-direct-merge-success": "Page imported to [[$1]]",
+	"da-specialinbox-merge-error-no-subject": "Page selected for import is invalid",
+	"da-specialinbox-merge-error-target-exists": "Attempted a direct import, but the target page already exists",
+	"da-specialinbox-merge-error-invalid target": "Cannot determine import target, or target title invalid"
 }

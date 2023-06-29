@@ -124,7 +124,7 @@ class SpecialVerifiedImport extends SpecialPage {
 				$revisions = $page['revisions'];
 				unset( $page['revisions'] );
 				$page['site_info'] = $siteInfo;
-				$context = $this->transferEntityFactory->newTransferContextFromData( $page );
+				$context = $this->transferEntityFactory->newTransferContextForImport( $page );
 				$processed[$context->getTitle()->getPrefixedDBkey()] = $context->getTitle();
 				$collisionResolutionStatus = $this->importer->checkAndFixCollision(
 					$this->getUser(), $context,
