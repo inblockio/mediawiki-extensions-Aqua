@@ -36,7 +36,7 @@ da.ui.TreePanel.prototype.connect = function () {
 		if ( !this.nodes.hasOwnProperty( hash ) ) {
 			continue;
 		}
-		var node = this.nodes[ hash ];
+		var node = this.nodes[hash];
 		var $relevantNode = node.getRelevantNode();
 		if ( !$relevantNode ) {
 			continue;
@@ -70,7 +70,8 @@ da.ui.TreePanel.prototype.drawConnection = function ( $node1, $node2 ) {
 	var pos = this.getPositionForChild( $node1, $node2 );
 
 	var type1 = $node1.hasClass( 'da-compare-node-graph-local' ) ? 'local' : 'remote',
-		type2 = $node2.hasClass( 'da-compare-node-graph-local' ) ? 'local' : 'remote';
+		type2 = $node2.hasClass( 'da-compare-node-graph-local' ) ? 'local' : 'remote',
+		isIgnored = $node1.hasClass( 'da-compare-node-graph-ignored' ) || $node2.hasClass( 'da-compare-node-graph-ignored' );
 
 	var dStr = '';
 	if ( type1 === 'local' && type2 === 'local' ) {
@@ -91,14 +92,33 @@ da.ui.TreePanel.prototype.drawConnection = function ( $node1, $node2 ) {
 	$connector.setAttribute( 'height', this.$element.outerHeight() + 'px' );
 	$connector.setAttribute( 'style', 'position: absolute;top:0;left:0;z-index:-1' );
 
-	$connector.setAttribute( 'class', 'regeneron-network-connector' );
+	$connector.setAttribute( 'class', 'da-branch-connector' );
 	var $path = document.createElementNS("http://www.w3.org/2000/svg","path");
 	$path.setAttributeNS(null, "d", dStr );
-	$path.setAttributeNS(null, "stroke", "#61636b");
+	$path.setAttributeNS(null, "stroke", isIgnored ? "#d9dbe5" : "#61636b");
 	$path.setAttributeNS(null, "stroke-width", 5);
 	$path.setAttributeNS(null, "opacity", 1);
 	$path.setAttributeNS(null, "fill", "none");
 	$connector.appendChild( $path );
 
-	this.$element.prepend( $connector );
+	this.$element.append( $connector );
+};
+
+da.ui.TreePanel.prototype.selectBranch = function ( branch ) {
+	this.deselectBranches( false );
+	if ( branch === 'remote' ) {
+		this.$element.find( '.da-compare-node-graph-local[diff="true"]' ).addClass( 'da-compare-node-graph-ignored' );
+	} else if ( branch === 'local' ) {
+		this.$element.find( '.da-compare-node-graph-remote' ).addClass( 'da-compare-node-graph-ignored' );
+	}
+	this.connect();
+};
+
+da.ui.TreePanel.prototype.deselectBranches = function ( redraw ) {
+	redraw = typeof redraw === 'undefined' ? true : redraw;
+	this.$element.find( '.da-branch-connector' ).remove();
+	this.$element.find( '.da-compare-node-graph-ignored' ).removeClass( 'da-compare-node-graph-ignored' );
+	if ( redraw ) {
+		this.connect();
+	}
 };

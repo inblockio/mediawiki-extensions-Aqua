@@ -96,7 +96,7 @@
 		},
 		"Inbox": {
 			"class": "DataAccounting\\SpecialInbox",
-			"services": [ "TitleFactory", "DataAccountingVerificationEngine" ]
+			"services": [ "TitleFactory", "DataAccountingVerificationEngine", "RevisionLookup" ]
 		}
 	},
 
@@ -434,6 +434,9 @@
 			],
 			"styles": [
 				"ui/Inbox/style.less"
+			],
+			"messages": [
+				"da-specialimport-confirm"
 			],
 			"dependencies": [
 				"oojs-ui"

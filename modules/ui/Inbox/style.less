@@ -1,4 +1,4 @@
-.da-compare-node {
+.da-compare-node, .da-specialinbox-compare-summary {
   &:hover .da-compare-node-label {
     background-color: #f0f0f0d6;
   }
@@ -8,13 +8,20 @@
     display: inline-block;
     margin: 5px 10px 5px 10px;
     &.da-compare-node-graph-local {
+      &.da-compare-node-graph-ignored {
+        background-color: #d6efe0;
+      }
       background-color: #8ed5a5;
       border-radius: 100px;
     }
     &.da-compare-node-graph-remote {
+      &.da-compare-node-graph-ignored {
+        background-color: #f8dec2;
+      }
       background-color: #e87b0a;
       border-radius: 100px;
     }
+
   }
   .da-compare-node-label {
     vertical-align: top;
@@ -23,5 +30,33 @@
     label {
       margin-bottom: 0 !important;
     }
+    .oo-ui-buttonWidget {
+      margin: 0 !important;
+    }
   }
+}
+
+.da-specialinbox-compare-summary {
+  padding: 10px;
+  background-color: #eeeeee;
+  margin-bottom: 20px;
+  .da-compare-node-graph {
+    margin: 0 10px 0 0;
+  }
+}
+
+.da-compare-button-select-panel {
+  padding: 10px;
+  background-color: #eeeeee;
+  margin: 20px 0 20px 0;
+  .da-compare-button-select {
+    width: 100%;
+    .oo-ui-buttonOptionWidget {
+      width: 100%;
+      a {
+        width: 100%;
+      }
+    }
+  }
+
 }
