@@ -5,6 +5,9 @@ namespace DataAccounting\Inbox;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use Exception;
+use Language;
+use MediaWiki\Revision\RevisionLookup;
+use MediaWiki\User\UserIdentity;
 use Title;
 
 class TreeBuilder {
@@ -12,19 +15,28 @@ class TreeBuilder {
 	/** @var VerificationEngine */
 	private $verificationEngine;
 
+	/** @var RevisionLookup */
+	private $revisionLookup;
+
 	/**
 	 * @param VerificationEngine $verificationEngine
+	 * @param RevisionLookup $revisionLookup
 	 */
-	public function __construct( VerificationEngine $verificationEngine ) {
+	public function __construct( VerificationEngine $verificationEngine, RevisionLookup $revisionLookup ) {
 		$this->verificationEngine = $verificationEngine;
+		$this->revisionLookup = $revisionLookup;
 	}
+
 	/**
-	 * @param Title $source
-	 * @param Title $target
+	 * @param Title $remote
+	 * @param Title $local
+	 * @param Language $language
+	 * @param UserIdentity $user
 	 *
 	 * @return array
+	 * @throws Exception
 	 */
-	public function buildPreImportTree( Title $remote, Title $local ): array {
+	public function buildPreImportTree( Title $remote, Title $local, Language $language, UserIdentity $user ): array {
 		$this->assertSameGenesis( $remote, $local );
 		$remoteEntities = $this->verificationEngine->getLookup()->allVerificationEntitiesFromQuery( [
 			'page_id' => $remote->getArticleID()
@@ -35,39 +47,47 @@ class TreeBuilder {
 		] );
 		$localEntities = $this->verifyAndReduce( $localEntities );
 
-		return $this->combine( $remoteEntities, $localEntities );
+		return $this->combine( $remoteEntities, $localEntities, $language, $user );
 	}
 
+	/**
+	 * @param Title $remote
+	 * @param Title $local
+	 *
+	 * @return void
+	 * @throws Exception
+	 */
 	private function assertSameGenesis( Title $remote, Title $local ) {
 		$remote = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $remote );
 		$local = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $local );
-		assert(
-			$remote && $local &&
-			( $remote->getHash( VerificationEntity::GENESIS_HASH ) ===
-				$local->getHash( VerificationEntity::GENESIS_HASH )
-			),
-			new Exception( 'Source and target pages invalid or have different genesis hashes' )
-		);
+		$good = $remote && $local &&
+			$remote->getHash( VerificationEntity::GENESIS_HASH ) ===
+			$local->getHash( VerificationEntity::GENESIS_HASH );
+		if ( !$good ) {
+			throw new Exception( 'Source and target pages invalid or have different genesis hashes' );
+		}
 	}
 
 	/**
 	 * @param array $remote
 	 * @param array $local
+	 * @param Language $language
+	 * @param UserIdentity $user
 	 *
 	 * @return array
 	 */
-	private function combine( array $remote, array $local ): array {
+	private function combine( array $remote, array $local, Language $language, UserIdentity $user ): array {
 		$hasLocalChange = $hasRemoteChange = false;
 		$combined = [];
 		foreach ( $local as $hash => $data ) {
 			$combined[$hash] = [
-				'revisions' => [ $data['revision'] ],
+				'revision' => $data['revision'],
 				'diff' => true,
 				'source' => 'local',
 				'parent' => $data['parent'],
+				'domain' => $data['domain']
 			];
 			if ( isset( $remote[$hash] ) ) {
-				$combined[$hash]['revisions'][] = $remote[$hash]['revision'];
 				$combined[$hash]['diff'] = false;
 			} else {
 				$hasLocalChange = true;
@@ -76,14 +96,20 @@ class TreeBuilder {
 		foreach ( $remote as $hash => $data ) {
 			if ( !isset( $combined[$hash] ) ) {
 				$combined[$hash] = [
-					'revisions' => [ $data['revision'] ],
+					'revision' => $data['revision'],
 					'diff' => true,
 					'source' => 'remote',
 					'parent' => $data['parent'],
+					'domain' => $data['domain']
 				];
 				$hasRemoteChange = true;
 			}
 		}
+
+		$this->decorateWithRevisionData( $combined, $language, $user );
+		uasort( $combined, static function( array $a, array $b ) {
+			return $a['revisionData']['timestamp_raw'] <=> $b['revisionData']['timestamp_raw'];
+		} );
 
 		return [
 			'tree' => $combined,
@@ -107,7 +133,7 @@ class TreeBuilder {
 		} );
 		foreach ( $entities as $entity ) {
 			//var_dump( [ $entity->getTitle()->getPrefixedText(), $lastHash, $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ) ] );
-			if ( $lastHash !== $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH  ) ){
+			if ( $lastHash !== $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ) ) {
 				throw new Exception( 'Entities are not in order' );
 			}
 			$lastHash = $entity->getHash();
@@ -120,5 +146,20 @@ class TreeBuilder {
 		}
 
 		return $verified;
+	}
+
+	private function decorateWithRevisionData( array &$combined, Language $language, UserIdentity $user ) {
+		foreach ( $combined as &$entry ) {
+			$revision = $this->revisionLookup->getRevisionById( $entry['revision'] );
+			if ( !$revision ) {
+				continue;
+			}
+			$title = Title::newFromLinkTarget( $revision->getPageAsLinkTarget() );
+			$entry['revisionData'] = [
+				'timestamp_raw' => $revision->getTimestamp(),
+				'timestamp' => $language->userTimeAndDate( $revision->getTimestamp(), $user ),
+				'url' => $title->getFullURL( [ 'oldid' => $revision->getId() ] ),
+			];
+		}
 	}
 }

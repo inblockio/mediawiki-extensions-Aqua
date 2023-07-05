@@ -74,10 +74,10 @@ class AddDAActions implements SkinTemplateNavigation__UniversalHook {
 					'id' => 'ca-da-squash-revisions',
 					'href' => '#',
 					'text' => 'Squash revisions 💥',
-				];$sktemplate->getOutput()->addModules( 'ext.DataAccounting.revisionActions' );
+				];
+$sktemplate->getOutput()->addModules( 'ext.DataAccounting.revisionActions' );
 
 			}
 		}
-
 	}
 }

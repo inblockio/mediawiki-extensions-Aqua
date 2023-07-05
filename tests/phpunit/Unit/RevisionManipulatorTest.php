@@ -60,11 +60,11 @@ class RevisionManipulatorTest extends TestCase {
 	 */
 	private function getRevisionStoreMock() {
 		$revisionStoreMock = $this->createMock( RevisionStore::class );
-		$revisionStoreMock->method( 'getRevisionById' )->willReturnCallback( static function ( $id )  {
+		$revisionStoreMock->method( 'getRevisionById' )->willReturnCallback( function ( $id )  {
 			$revMock = $this->createMock( RevisionRecord::class );
 			$revMock->method( 'getId' )->willReturn( $id );
 			$revMock->method( 'getPageId' )->willReturn( 1 );
-			$revMock->method( 'getPage' )->willReturnCallback( static function() {
+			$revMock->method( 'getPage' )->willReturnCallback( function() {
 				$page = $this->createMock( PageIdentity::class );
 				$page->method( 'getId' )->willReturn( 1 );
 			} );

@@ -3,6 +3,7 @@ da.ui = window.da.ui || {};
 
 da.ui.TreeNode = function ( hash, data ) {
 	this.hash = hash;
+	console.log( hash, data );
 	this.nodeData = data;
 
 	da.ui.TreeNode.super.call( this, {} );
@@ -35,18 +36,26 @@ da.ui.TreeNode.prototype.makeRelevantNode = function () {
 	this.$relevantNode = $( '<span>' ).addClass( classes.join( ' ' ) )
 		.attr( 'hash', this.hash )
 		.attr( 'revisions', this.nodeData.revisions )
-		.attr( 'parent', this.nodeData.parent );
-}
+		.attr( 'parent', this.nodeData.parent )
+		.attr( 'diff', this.nodeData.diff )
+};
 
 da.ui.TreeNode.prototype.makeLabel = function () {
 	// Get first 5 chars and last 5 chars of hash
 	var hash = this.hash;
-	hash = hash.substr( 0, 5 ) + '...' + hash.substr( -5 );
+	hash = hash.substr( 0, 10 ) + '...' + hash.substr( -10 );
 	this.$element.append(
 		new OO.ui.HorizontalLayout( {
 			classes: [ 'da-compare-node-label' ],
 			items: [
-				new OO.ui.LabelWidget( { label: hash } )
+				new OO.ui.ButtonWidget( {
+					label: this.nodeData.revisionData.timestamp,
+					href: this.nodeData.revisionData.url,
+					framed: false,
+					flags: [ 'progressive', 'primary' ]
+				} ),
+				new OO.ui.LabelWidget( { label: hash, title: this.hash } ),
+
 			]
 		} ).$element
 	);

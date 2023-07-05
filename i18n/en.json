@@ -112,11 +112,19 @@
 	"da-specialinbox-label-own-domain": "own domain",
 	"da-specialinbox-not-found": "Page not found in inbox",
 	"da-specialinbox-direct-merge": "Page \"'''$1'''\" does not exist on the wiki and can therefore be directly imported",
-	"da-specialinbox-compare": "Page \"'''$1'''\" already exists on the wiki. Review and resolve differences before importing.",
 	"da-specialinbox-do-import-title": "Import a page from inbox",
 	"da-specialinbox-merge-submit": "Import page",
 	"da-specialinbox-direct-merge-success": "Page imported to [[$1]]",
 	"da-specialinbox-merge-error-no-subject": "Page selected for import is invalid",
 	"da-specialinbox-merge-error-target-exists": "Attempted a direct import, but the target page already exists",
-	"da-specialinbox-merge-error-invalid target": "Cannot determine import target, or target title invalid"
+	"da-specialinbox-merge-error-invalid target": "Cannot determine import target, or target title invalid",
+	"da-specialinbox-compare-local": "Page \"'''$1'''\" already exists on the wiki. '''There are no remote changes to import.''' You can safely discard this draft.",
+	"da-specialinbox-compare-remote": "Page \"'''$1'''\" already exists on the wiki. There are remote changes to import.",
+	"da-specialinbox-compare-both": "Page \"'''$1'''\" already exists on the wiki. Local and remote versions of the page have diverged. Compare changes and select a merge strategy.",
+	"da-specialinbox-compare-none": "Page \"'''$1'''\" already exists on the wiki. '''There are no changes to import.''' You can safely discard this draft.",
+	"da-specialinbox-compare-remote-link": "Remote page: ",
+	"da-specialinbox-compare-local-link": "Local page: ",
+	"da-specialinbox-merge-discard": "Discard draft",
+	"da-specialimport-confirm": "Are you sure?"
+
 }
