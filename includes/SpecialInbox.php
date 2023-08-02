@@ -8,11 +8,8 @@ use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use Html;
 use HTMLForm;
-use MediaWiki\MediaWikiServices;
-use MediaWiki\Page\DeletePage;
 use MediaWiki\Revision\RevisionLookup;
 use Message;
-use MWException;
 use SpecialPage;
 use TitleFactory;
 
