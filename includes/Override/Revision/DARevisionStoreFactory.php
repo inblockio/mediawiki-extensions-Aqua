@@ -88,7 +88,7 @@ class DARevisionStoreFactory extends RevisionStoreFactory {
 		HookContainer $hookContainer
 	) {
 		parent::__construct(
-			$dbLoadBalancerFactory, $blobStoreFactory, $nameTables, $slotRoleRegistry, $cache,
+			$dbLoadBalancerFactory, $blobStoreFactory, $nameTables, $slotRoleRegistry, $cache, new \EmptyBagOStuff(),
 			$commentStore, $actorMigration, $actorStoreFactory, $logger, $contentHandlerFactory,
 			$pageStoreFactory, $titleFactory, $hookContainer
 		);
@@ -122,6 +122,7 @@ class DARevisionStoreFactory extends RevisionStoreFactory {
 			$this->dbLoadBalancerFactory->getMainLB( $dbDomain ),
 			$this->blobStoreFactory->newSqlBlobStore( $dbDomain ),
 			$this->cache, // Pass local cache instance; Leave cache sharing to RevisionStore.
+			new \EmptyBagOStuff(),
 			$this->commentStore,
 			$this->nameTables->getContentModels( $dbDomain ),
 			$this->nameTables->getSlotRoles( $dbDomain ),

@@ -15,6 +15,7 @@ use MediaWiki\Storage\PageUpdater;
 use MediaWiki\User\UserEditTracker;
 use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentity;
+use Psr\Log\LoggerInterface;
 use TitleFormatter;
 use Wikimedia\Rdbms\ILoadBalancer;
 use WikiPage;
@@ -43,12 +44,12 @@ class DAPageUpdater extends PageUpdater {
 		ILoadBalancer $loadBalancer, RevisionStore $revisionStore, SlotRoleRegistry $slotRoleRegistry,
 		IContentHandlerFactory $contentHandlerFactory, HookContainer $hookContainer,
 		UserEditTracker $userEditTracker, UserGroupManager $userGroupManager, TitleFormatter $titleFormatter,
-		ServiceOptions $serviceOptions, array $softwareTags
+		ServiceOptions $serviceOptions, array $softwareTags, LoggerInterface $logger
 	) {
 		parent::__construct(
 			$author, $wikiPage, $derivedDataUpdater, $loadBalancer, $revisionStore,
 			$slotRoleRegistry, $contentHandlerFactory, $hookContainer, $userEditTracker,
-			$userGroupManager, $titleFormatter, $serviceOptions, $softwareTags
+			$userGroupManager, $titleFormatter, $serviceOptions, $softwareTags, $logger
 		);
 		$this->hookContainer = $hookContainer;
 		$this->wikiPage = $wikiPage;

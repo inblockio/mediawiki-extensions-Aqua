@@ -7,8 +7,6 @@
 
 namespace DataAccounting;
 
-use DataAccounting\Verification\VerificationEngine;
-use DataAccounting\Verification\WitnessingEngine;
 use FormatJson;
 use Html;
 use IContextSource;
@@ -17,9 +15,6 @@ use MediaWiki\Hook\OutputPageParserOutputHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
-use MediaWiki\Revision\RevisionRecord;
-use MediaWiki\Hook\ImportHandlePageXMLTagHook;
-use MediaWiki\Hook\XmlDumpWriterOpenPageHook;
 use Message;
 use MWException;
 use OutputPage;
@@ -27,9 +22,6 @@ use Parser;
 use PPFrame;
 use RequestContext;
 use Skin;
-use stdClass;
-use TitleFactory;
-use WikiImporter;
 
 class Hooks implements
 	BeforePageDisplayHook,
@@ -38,20 +30,9 @@ class Hooks implements
 {
 
 	private PermissionManager $permissionManager;
-	private TitleFactory $titleFactory;
-	private VerificationEngine $verificationEngine;
-	private WitnessingEngine $witnessingEngine;
 
-	public function __construct(
-		PermissionManager $permissionManager,
-		TitleFactory $titleFactory,
-		VerificationEngine $verificationEngine,
-		WitnessingEngine $witnessingEngine
-	) {
+	public function __construct( PermissionManager $permissionManager ) {
 		$this->permissionManager = $permissionManager;
-		$this->titleFactory = $titleFactory;
-		$this->verificationEngine = $verificationEngine;
-		$this->witnessingEngine = $witnessingEngine;
 	}
 
 	/**

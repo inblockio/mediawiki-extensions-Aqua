@@ -36,6 +36,7 @@ class OverrideServices implements MediaWikiServicesHook {
 					$services->getRevisionRenderer(),
 					$services->getSlotRoleRegistry(),
 					$services->getParserCache(),
+					$services->getParsoidOutputAccess(),
 					$services->getJobQueueGroup(),
 					$services->getMessageCache(),
 					$services->getContentLanguage(),
@@ -57,6 +58,7 @@ class OverrideServices implements MediaWikiServicesHook {
 					$services->getTalkPageNotificationManager(),
 					$services->getMainWANObjectCache(),
 					$services->getPermissionManager(),
+					$services->getWikiPageFactory(),
 					ChangeTags::getSoftwareTags()
 				);
 			}
@@ -77,7 +79,7 @@ class OverrideServices implements MediaWikiServicesHook {
 					}
 				}
 
-				$store = new DARevisionStoreFactory(
+				return new DARevisionStoreFactory(
 					$services->getDBLoadBalancerFactory(),
 					$services->getBlobStoreFactory(),
 					$services->getNameTableStoreFactory(),
@@ -92,8 +94,6 @@ class OverrideServices implements MediaWikiServicesHook {
 					$services->getTitleFactory(),
 					$services->getHookContainer()
 				);
-
-				return $store;
 			}
 		);
 
@@ -104,7 +104,8 @@ class OverrideServices implements MediaWikiServicesHook {
 			function( MediaWikiServices $services ) {
 				$renderer = new MultiSlotRevisionRenderer(
 					$services->getDBLoadBalancer(),
-					$services->getSlotRoleRegistry()
+					$services->getSlotRoleRegistry(),
+					$services->getContentRenderer()
 				);
 				$renderer->setLogger( LoggerFactory::getInstance( 'SaveParse' ) );
 				return $renderer;

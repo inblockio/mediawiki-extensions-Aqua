@@ -5,6 +5,7 @@ namespace DataAccounting\Override;
 use DataAccounting\Content\DataAccountingContent;
 use Html;
 use InvalidArgumentException;
+use MediaWiki\Content\Renderer\ContentRenderer;
 use MediaWiki\Permissions\Authority;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
@@ -36,22 +37,29 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 	/** @var SlotRoleRegistry */
 	private $roleRegistery;
 
+	/** @var ContentRenderer */
+	private $contentRenderer;
+
 	/** @var string|bool */
 	private $dbDomain;
 
 	/**
 	 * @param ILoadBalancer $loadBalancer
 	 * @param SlotRoleRegistry $roleRegistry
+	 * @param ContentRenderer $contentRenderer
 	 * @param bool|string $dbDomain DB domain of the relevant wiki or false for the current one
 	 */
 	public function __construct(
 		ILoadBalancer $loadBalancer,
 		SlotRoleRegistry $roleRegistry,
+		ContentRenderer $contentRenderer,
 		$dbDomain = false
 	) {
+		parent::__construct( $loadBalancer, $roleRegistry, $contentRenderer, $dbDomain );
 		$this->loadBalancer = $loadBalancer;
 		$this->roleRegistery = $roleRegistry;
 		$this->dbDomain = $dbDomain;
+		$this->contentRenderer = $contentRenderer;
 		$this->saveParseLogger = new NullLogger();
 	}
 
@@ -127,12 +135,10 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 			$options->setTimestamp( $rev->getTimestamp() );
 		}
 
-		$title = Title::newFromLinkTarget( $rev->getPageAsLinkTarget() );
-
 		$renderedRevision = new RenderedRevision(
-			$title,
 			$rev,
 			$options,
+			$this->contentRenderer,
 			function ( RenderedRevision $rrev, array $hints ) {
 				return $this->combineSlotOutput( $rrev, $hints );
 			},
