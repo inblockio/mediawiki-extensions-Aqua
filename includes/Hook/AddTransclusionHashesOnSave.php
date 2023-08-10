@@ -94,7 +94,6 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 				$this->fileHashContent->setHashFromFile( $file );
 			}
 		}
-
 		if ( !$this->transclusionHashesContent ) {
 			return;
 		}
@@ -106,7 +105,7 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		$po = $renderedRevision->getSlotParserOutput( SlotRecord::MAIN );
 
 		$extractor = new TransclusionHashExtractor(
-			$this->rawText ?? '', $renderedRevision->getRevision()->getPageAsLinkTarget(),
+			$this->rawText, $renderedRevision->getRevision()->getPageAsLinkTarget(),
 			$po, $this->titleFactory, $this->verificationEngine, $this->parserFactory
 		);
 		$hashmap = $extractor->getHashmap();

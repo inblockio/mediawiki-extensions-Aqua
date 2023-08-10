@@ -110,9 +110,11 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 		}
 
 		if ( !$options ) {
-			$options = ParserOptions::newCanonical(
-				$forPerformer ? $forPerformer->getUser() : 'canonical'
-			);
+			if ( $forPerformer ) {
+				$options = ParserOptions::newFromUser( $forPerformer->getUser() );
+			} else {
+				$options = ParserOptions::newFromAnon();
+			}
 		}
 
 		$usePrimary = $hints['use-master'] ?? false;
@@ -231,7 +233,7 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 			$daSlots = [];
 			/** @var ParserOutput $out */
 			foreach ( $slotOutput as $role => $out ) {
-				if ( !$slots[$role]->getContent() instanceof DataAccountingContent ) {
+				if ( !( $slots[$role]->getContent() instanceof DataAccountingContent ) ) {
 					$html .= $out->getRawText();
 					$combinedOutput->mergeHtmlMetaDataFrom( $out );
 					continue;

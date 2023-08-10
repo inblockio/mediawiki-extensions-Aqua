@@ -5,13 +5,16 @@ namespace DataAccounting\Hook;
 use ChangeTags;
 use DataAccounting\Override\MultiSlotRevisionRenderer;
 use DataAccounting\Override\Revision\DARevisionStoreFactory;
+use DataAccounting\Override\Storage\DAPageEditStash;
 use DataAccounting\Override\Storage\DAPageUpdaterFactory;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Hook\MediaWikiServicesHook;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Storage\EditResultCache;
+use MediaWiki\Storage\PageEditStash;
 use MediaWiki\Storage\PageUpdaterFactory;
+use ObjectCache;
 use UnexpectedValueException;
 
 class OverrideServices implements MediaWikiServicesHook {
@@ -109,6 +112,25 @@ class OverrideServices implements MediaWikiServicesHook {
 				);
 				$renderer->setLogger( LoggerFactory::getInstance( 'SaveParse' ) );
 				return $renderer;
+			}
+		);
+
+		$services->redefineService(
+			'PageEditStash',
+			function( MediaWikiServices $services ) {
+				return new DAPageEditStash(
+					ObjectCache::getLocalClusterInstance(),
+					$services->getDBLoadBalancer(),
+					LoggerFactory::getInstance( 'StashEdit' ),
+					$services->getStatsdDataFactory(),
+					$services->getUserEditTracker(),
+					$services->getUserFactory(),
+					$services->getWikiPageFactory(),
+					$services->getHookContainer(),
+					defined( 'MEDIAWIKI_JOB_RUNNER' ) || $GLOBALS[ 'wgCommandLineMode' ]
+						? PageEditStash::INITIATOR_JOB_OR_CLI
+						: PageEditStash::INITIATOR_USER
+				);
 			}
 		);
 	}

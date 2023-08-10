@@ -8,7 +8,10 @@ use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Content\IContentHandlerFactory;
 use MediaWiki\Content\Transform\ContentTransformer;
 use MediaWiki\HookContainer\HookContainer;
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MainConfigNames;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\PageIdentity;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Parser\Parsoid\ParsoidOutputAccess;
 use MediaWiki\Permissions\PermissionManager;
@@ -26,6 +29,7 @@ use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentity;
 use MediaWiki\User\UserNameUtils;
 use MessageCache;
+use ObjectCache;
 use ParserCache;
 use Psr\Log\LoggerInterface;
 use TitleFormatter;
@@ -56,8 +60,23 @@ class DAPageUpdaterFactory extends PageUpdaterFactory {
 	/** @var RevisionStore */
 	private $revisionStore;
 
+	/** @var RevisionRenderer */
+	private $revisionRenderer;
+
 	/** @var SlotRoleRegistry */
 	private $slotRoleRegistry;
+
+	/** @var ParserCache */
+	private $parserCache;
+
+	/** @var JobQueueGroup */
+	private $jobQueueGroup;
+
+	/** @var MessageCache */
+	private $messageCache;
+
+	/** @var Language */
+	private $contLang;
 
 	/** @var ILBFactory */
 	private $loadbalancerFactory;
@@ -67,6 +86,12 @@ class DAPageUpdaterFactory extends PageUpdaterFactory {
 
 	/** @var HookContainer */
 	private $hookContainer;
+
+	/** @var EditResultCache */
+	private $editResultCache;
+
+	/** @var UserNameUtils */
+	private $userNameUtils;
 
 	/** @var LoggerInterface */
 	private $logger;
@@ -83,11 +108,56 @@ class DAPageUpdaterFactory extends PageUpdaterFactory {
 	/** @var TitleFormatter */
 	private $titleFormatter;
 
+	/** @var ContentTransformer */
+	private $contentTransformer;
+
+	/** @var PageEditStash */
+	private $pageEditStash;
+
+	/** @var TalkPageNotificationManager */
+	private $talkPageNotificationManager;
+
+	/** @var WANObjectCache */
+	private $mainWANObjectCache;
+
+	/** @var PermissionManager */
+	private $permissionManager;
+
+	/** @var WikiPageFactory */
+	private $wikiPageFactory;
+
 	/** @var string[] */
 	private $softwareTags;
 
+	/** @var ParsoidOutputAccess */
+	private $parsoidOutputAccess;
+
 	/**
-	 * @inheritDoc
+	 * @param RevisionStore $revisionStore
+	 * @param RevisionRenderer $revisionRenderer
+	 * @param SlotRoleRegistry $slotRoleRegistry
+	 * @param ParserCache $parserCache
+	 * @param ParsoidOutputAccess $parsoidOutputAccess
+	 * @param JobQueueGroup $jobQueueGroup
+	 * @param MessageCache $messageCache
+	 * @param Language $contLang
+	 * @param ILBFactory $loadbalancerFactory
+	 * @param IContentHandlerFactory $contentHandlerFactory
+	 * @param HookContainer $hookContainer
+	 * @param EditResultCache $editResultCache
+	 * @param UserNameUtils $userNameUtils
+	 * @param LoggerInterface $logger
+	 * @param ServiceOptions $options
+	 * @param UserEditTracker $userEditTracker
+	 * @param UserGroupManager $userGroupManager
+	 * @param TitleFormatter $titleFormatter
+	 * @param ContentTransformer $contentTransformer
+	 * @param PageEditStash $pageEditStash
+	 * @param TalkPageNotificationManager $talkPageNotificationManager
+	 * @param WANObjectCache $mainWANObjectCache
+	 * @param PermissionManager $permissionManager
+	 * @param WikiPageFactory $wikiPageFactory
+	 * @param string[] $softwareTags
 	 */
 	public function __construct(
 		RevisionStore $revisionStore,
@@ -116,26 +186,50 @@ class DAPageUpdaterFactory extends PageUpdaterFactory {
 		WikiPageFactory $wikiPageFactory,
 		array $softwareTags
 	) {
-		parent::__construct(
-			$revisionStore, $revisionRenderer, $slotRoleRegistry, $parserCache,
-			$parsoidOutputAccess, $jobQueueGroup, $messageCache, $contLang, $loadbalancerFactory,
-			$contentHandlerFactory, $hookContainer, $editResultCache, $userNameUtils, $logger,
-			$options, $userEditTracker, $userGroupManager, $titleFormatter, $contentTransformer,
-			$pageEditStash, $talkPageNotificationManager, $mainWANObjectCache, $permissionManager,
-			$wikiPageFactory, $softwareTags
-		);
+		parent::__construct( $revisionStore, $revisionRenderer, $slotRoleRegistry, $parserCache, $parsoidOutputAccess,
+		$jobQueueGroup, $messageCache, $contLang, $loadbalancerFactory, $contentHandlerFactory, $hookContainer,
+		$editResultCache, $userNameUtils, $logger, $options, $userEditTracker, $userGroupManager, $titleFormatter,
+		$contentTransformer, $pageEditStash, $talkPageNotificationManager, $mainWANObjectCache, $permissionManager,
+		$wikiPageFactory, $softwareTags );
 
+		$this->revisionStore = $revisionStore;
+		$this->revisionRenderer = $revisionRenderer;
+		$this->slotRoleRegistry = $slotRoleRegistry;
+		$this->parserCache = $parserCache;
+		$this->parsoidOutputAccess = $parsoidOutputAccess;
+		$this->jobQueueGroup = $jobQueueGroup;
+		$this->messageCache = $messageCache;
+		$this->contLang = $contLang;
 		$this->loadbalancerFactory = $loadbalancerFactory;
 		$this->contentHandlerFactory = $contentHandlerFactory;
 		$this->hookContainer = $hookContainer;
+		$this->editResultCache = $editResultCache;
+		$this->userNameUtils = $userNameUtils;
+		$this->logger = $logger;
 		$this->options = $options;
 		$this->userEditTracker = $userEditTracker;
 		$this->userGroupManager = $userGroupManager;
 		$this->titleFormatter = $titleFormatter;
+		$this->contentTransformer = $contentTransformer;
+		$this->pageEditStash = $pageEditStash;
+		$this->talkPageNotificationManager = $talkPageNotificationManager;
+		$this->mainWANObjectCache = $mainWANObjectCache;
+		$this->permissionManager = $permissionManager;
 		$this->softwareTags = $softwareTags;
-		$this->logger = $logger;
-		$this->slotRoleRegistry = $slotRoleRegistry;
-		$this->revisionStore = $revisionStore;
+		$this->wikiPageFactory = $wikiPageFactory;
+	}
+
+	public function newPageUpdater(
+		PageIdentity $page,
+		UserIdentity $user
+	): PageUpdater {
+		$page = $this->wikiPageFactory->newFromTitle( $page );
+
+		return $this->newPageUpdaterForDerivedPageDataUpdater(
+			$page,
+			$user,
+			$this->newDerivedPageDataUpdater( $page )
+		);
 	}
 
 	/**
@@ -183,5 +277,39 @@ class DAPageUpdaterFactory extends PageUpdaterFactory {
 		);
 
 		return $pageUpdater;
+	}
+
+	public function newDerivedPageDataUpdater( WikiPage $page ): DerivedPageDataUpdater {
+		$derivedDataUpdater = new DerivedPageDataUpdater(
+			$this->options,
+			$page, // NOTE: eventually, PageUpdater should not know about WikiPage
+			$this->revisionStore,
+			$this->revisionRenderer,
+			$this->slotRoleRegistry,
+			$this->parserCache,
+			$this->parsoidOutputAccess,
+			$this->jobQueueGroup,
+			$this->messageCache,
+			$this->contLang,
+			$this->loadbalancerFactory,
+			$this->contentHandlerFactory,
+			$this->hookContainer,
+			$this->editResultCache,
+			$this->userNameUtils,
+			$this->contentTransformer,
+			$this->pageEditStash,
+			$this->talkPageNotificationManager,
+			$this->mainWANObjectCache,
+			$this->permissionManager
+		);
+
+		$derivedDataUpdater->setLogger( $this->logger );
+		$derivedDataUpdater->setArticleCountMethod(
+			$this->options->get( MainConfigNames::ArticleCountMethod ) );
+		$derivedDataUpdater->setRcWatchCategoryMembership(
+			$this->options->get( MainConfigNames::RCWatchCategoryMembership )
+		);
+
+		return $derivedDataUpdater;
 	}
 }

@@ -6,6 +6,8 @@ use JsonContent;
 use MediaWiki\Linker\LinkTarget;
 use MediaWiki\Page\PageReference;
 use Message;
+use ParserOptions;
+use ParserOutput;
 use stdClass;
 use Title;
 
