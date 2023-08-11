@@ -2,7 +2,6 @@
 
 namespace DataAccounting\Override\Storage;
 
-use CommentStoreComment;
 use Content;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Content\IContentHandlerFactory;
@@ -12,6 +11,7 @@ use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\SlotRoleRegistry;
 use MediaWiki\Storage\DerivedPageDataUpdater;
 use MediaWiki\Storage\PageUpdater;
+use MediaWiki\Storage\PreparedUpdate;
 use MediaWiki\User\UserEditTracker;
 use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentity;
@@ -35,6 +35,8 @@ class DAPageUpdater extends PageUpdater {
 	private $shouldEmit = true;
 	/** @var string|null */
 	private $rawMainRoleText = null;
+	/** @var bool */
+	private $alreadyFired = false;
 
 	/**
 	 * @inheritDoc
@@ -56,18 +58,11 @@ class DAPageUpdater extends PageUpdater {
 	}
 
 	/**
-	 * @inheritDoc
+	 * @param string $role
+	 * @param Content $content
+	 *
+	 * @return DAPageUpdater
 	 */
-	public function saveRevision( CommentStoreComment $summary, int $flags = 0 ) {
-		// CUSTOM PART START
-		// We fire a hook to allow subscribers to add their own contents to slots
-		if ( $this->shouldEmit ) {
-			$this->hookContainer->run( 'DASaveRevisionAddSlots', [ $this, $this->wikiPage, $this->rawMainRoleText ] );
-		}
-		// CUSTOM PART END
-		return parent::saveRevision( $summary, $flags );
-	}
-
 	public function setContent( $role, Content $content ) {
 		// Save raw content of the MAIN slot, so that transclusions
 		// can be pulled on it, on `DASaveRevisionAddSlots` hook
@@ -75,6 +70,24 @@ class DAPageUpdater extends PageUpdater {
 			$this->rawMainRoleText = $content->getText();
 		}
 		return parent::setContent( $role, $content );
+	}
+
+	/**
+	 * @param int $flags
+	 *
+	 * @return PreparedUpdate
+	 */
+	public function prepareUpdate( int $flags = 0 ) : PreparedUpdate {
+		// CUSTOM PART START
+		// We fire a hook to allow subscribers to add their own contents to slots
+		if ( $this->shouldEmit && !$this->alreadyFired ) {
+			$this->alreadyFired = true;
+			// Add slots when preparing the content, otherwise the content slots will be locked
+			// (won't be set again). Later, on MultiContentSave hook, we will the actual data to the slots
+			$this->hookContainer->run( 'DASaveRevisionAddSlots', [ $this, $this->wikiPage, $this->rawMainRoleText ] );
+		}
+		// CUSTOM PART END
+		return parent::prepareUpdate( $flags );
 	}
 
 	/**

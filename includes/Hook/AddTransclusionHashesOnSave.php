@@ -7,7 +7,6 @@ use DataAccounting\Content\FileHashContent;
 use DataAccounting\Content\TransclusionHashes;
 use DataAccounting\Util\TransclusionHashExtractor;
 use DataAccounting\Verification\VerificationEngine;
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Storage\Hook\MultiContentSaveHook;
 use MediaWiki\Storage\PageUpdater;
