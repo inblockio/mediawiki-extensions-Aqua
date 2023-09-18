@@ -37,7 +37,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: mbstring, intl
-          tools: composer:1
+          tools: composer
 
       - name: Cache MediaWiki
         id: cache-mediawiki
