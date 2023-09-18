@@ -7,7 +7,6 @@ use DataAccounting\Content\FileHashContent;
 use DataAccounting\Content\TransclusionHashes;
 use DataAccounting\Util\TransclusionHashExtractor;
 use DataAccounting\Verification\VerificationEngine;
-use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Storage\Hook\MultiContentSaveHook;
 use MediaWiki\Storage\PageUpdater;
@@ -94,7 +93,6 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 				$this->fileHashContent->setHashFromFile( $file );
 			}
 		}
-
 		if ( !$this->transclusionHashesContent ) {
 			return;
 		}
@@ -106,7 +104,7 @@ class AddTransclusionHashesOnSave implements MultiContentSaveHook, DASaveRevisio
 		$po = $renderedRevision->getSlotParserOutput( SlotRecord::MAIN );
 
 		$extractor = new TransclusionHashExtractor(
-			$this->rawText ?? '', $renderedRevision->getRevision()->getPageAsLinkTarget(),
+			$this->rawText, $renderedRevision->getRevision()->getPageAsLinkTarget(),
 			$po, $this->titleFactory, $this->verificationEngine, $this->parserFactory
 		);
 		$hashmap = $extractor->getHashmap();

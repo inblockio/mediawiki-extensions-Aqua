@@ -12,3 +12,4 @@ parameters:
 		- ../../vendor
 	ignoreErrors:
 		- '#Constant [a-zA-Z0-9\\_]+ not found#'
+	reportUnmatchedIgnoredErrors: false

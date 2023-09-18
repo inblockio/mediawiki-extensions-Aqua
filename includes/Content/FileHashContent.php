@@ -5,10 +5,7 @@ namespace DataAccounting\Content;
 use DataAccounting\Verification\Hasher;
 use File;
 use Message;
-use ParserOptions;
-use ParserOutput;
 use TextContent;
-use Title;
 
 class FileHashContent extends TextContent implements DataAccountingContent {
 	public const CONTENT_MODEL_FILE_HASH = 'file-hash';
@@ -16,12 +13,6 @@ class FileHashContent extends TextContent implements DataAccountingContent {
 
 	public function __construct( $text ) {
 		parent::__construct( $text, static::CONTENT_MODEL_FILE_HASH );
-	}
-
-	protected function fillParserOutput(
-		Title $title, $revId, ParserOptions $options, $generateHtml, ParserOutput &$output
-	) {
-		$output->setText( trim( $this->getText() ) );
 	}
 
 	/**

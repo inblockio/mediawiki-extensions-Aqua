@@ -5,6 +5,7 @@ namespace DataAccounting\Override;
 use DataAccounting\Content\DataAccountingContent;
 use Html;
 use InvalidArgumentException;
+use MediaWiki\Content\Renderer\ContentRenderer;
 use MediaWiki\Permissions\Authority;
 use MediaWiki\Revision\RenderedRevision;
 use MediaWiki\Revision\RevisionRecord;
@@ -36,22 +37,29 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 	/** @var SlotRoleRegistry */
 	private $roleRegistery;
 
+	/** @var ContentRenderer */
+	private $contentRenderer;
+
 	/** @var string|bool */
 	private $dbDomain;
 
 	/**
 	 * @param ILoadBalancer $loadBalancer
 	 * @param SlotRoleRegistry $roleRegistry
+	 * @param ContentRenderer $contentRenderer
 	 * @param bool|string $dbDomain DB domain of the relevant wiki or false for the current one
 	 */
 	public function __construct(
 		ILoadBalancer $loadBalancer,
 		SlotRoleRegistry $roleRegistry,
+		ContentRenderer $contentRenderer,
 		$dbDomain = false
 	) {
+		parent::__construct( $loadBalancer, $roleRegistry, $contentRenderer, $dbDomain );
 		$this->loadBalancer = $loadBalancer;
 		$this->roleRegistery = $roleRegistry;
 		$this->dbDomain = $dbDomain;
+		$this->contentRenderer = $contentRenderer;
 		$this->saveParseLogger = new NullLogger();
 	}
 
@@ -102,9 +110,11 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 		}
 
 		if ( !$options ) {
-			$options = ParserOptions::newCanonical(
-				$forPerformer ? $forPerformer->getUser() : 'canonical'
-			);
+			if ( $forPerformer ) {
+				$options = ParserOptions::newFromUser( $forPerformer->getUser() );
+			} else {
+				$options = ParserOptions::newFromAnon();
+			}
 		}
 
 		$usePrimary = $hints['use-master'] ?? false;
@@ -127,12 +137,10 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 			$options->setTimestamp( $rev->getTimestamp() );
 		}
 
-		$title = Title::newFromLinkTarget( $rev->getPageAsLinkTarget() );
-
 		$renderedRevision = new RenderedRevision(
-			$title,
 			$rev,
 			$options,
+			$this->contentRenderer,
 			function ( RenderedRevision $rrev, array $hints ) {
 				return $this->combineSlotOutput( $rrev, $hints );
 			},
@@ -225,7 +233,7 @@ class MultiSlotRevisionRenderer extends RevisionRenderer {
 			$daSlots = [];
 			/** @var ParserOutput $out */
 			foreach ( $slotOutput as $role => $out ) {
-				if ( !$slots[$role]->getContent() instanceof DataAccountingContent ) {
+				if ( !( $slots[$role]->getContent() instanceof DataAccountingContent ) ) {
 					$html .= $out->getRawText();
 					$combinedOutput->mergeHtmlMetaDataFrom( $out );
 					continue;

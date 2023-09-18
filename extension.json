@@ -14,7 +14,7 @@
 	"license-name": "GPL-3.0-or-later",
 	"type": "other",
 	"requires": {
-		"MediaWiki": ">= 1.37.0"
+		"MediaWiki": ">= 1.39.0"
 	},
 	"config_prefix": "da",
 	"config": {
@@ -141,10 +141,7 @@
 		"handleHooks": {
 			"class": "DataAccounting\\Hooks",
 			"services": [
-				"PermissionManager",
-				"TitleFactory",
-				"DataAccountingVerificationEngine",
-				"DataAccountingWitnessingEngine"
+				"PermissionManager"
 			]
 		},
 		"handleHashWriterHooks": {

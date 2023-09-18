@@ -4,7 +4,9 @@ namespace DataAccounting\ContentHandler;
 
 use Content;
 use DataAccounting\Content\FileHashContent;
+use MediaWiki\Content\Renderer\ContentParseParams;
 use MediaWiki\Content\Transform\PreSaveTransformParams;
+use ParserOutput;
 use TextContentHandler;
 
 class FileHashHandler extends TextContentHandler {
@@ -61,5 +63,18 @@ class FileHashHandler extends TextContentHandler {
 	 */
 	public function preSaveTransform( Content $content, PreSaveTransformParams $pstParams ): Content {
 		return $content;
+	}
+
+	/**
+	 * @param FileHashContent $content
+	 * @param ContentParseParams $cpoParams
+	 * @param ParserOutput $output
+	 *
+	 * @return void
+	 */
+	protected function fillParserOutput(
+		Content $content, ContentParseParams $cpoParams, ParserOutput &$output
+	) {
+		$output->setText( trim( $content->getText() ) );
 	}
 }

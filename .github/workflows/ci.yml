@@ -15,8 +15,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - mw: 'REL1_37'
-            php: 7.4
+          - mw: 'REL1_39'
+            php: 8.0
             coverage: true
           # Disabled for now because of DB transaction error, e.g.
           # "Cannot execute query from DataAccounting\getMaxWitnessEventId
@@ -37,7 +37,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: mbstring, intl
-          tools: composer:1
+          tools: composer
 
       - name: Cache MediaWiki
         id: cache-mediawiki
@@ -134,7 +134,7 @@ jobs:
       - name: Install MediaWiki
         if: steps.cache-mediawiki.outputs.cache-hit != 'true'
         working-directory: ~
-        run: bash EarlyCopy/.github/workflows/installWiki.sh REL1_37 DataAccounting
+        run: bash EarlyCopy/.github/workflows/installWiki.sh REL1_39 DataAccounting
 
       - uses: actions/checkout@v2
         with:
@@ -194,7 +194,7 @@ jobs:
       - name: Install MediaWiki
         if: steps.cache-mediawiki.outputs.cache-hit != 'true'
         working-directory: ~
-        run: bash EarlyCopy/.github/workflows/installWiki.sh REL1_37 DataAccounting
+        run: bash EarlyCopy/.github/workflows/installWiki.sh REL1_39 DataAccounting
 
       - uses: actions/checkout@v2
         with:
