@@ -77,7 +77,7 @@ class DAPageUpdater extends PageUpdater {
 	 *
 	 * @return PreparedUpdate
 	 */
-	public function prepareUpdate( int $flags = 0 ) : PreparedUpdate {
+	public function prepareUpdate( int $flags = 0 ): PreparedUpdate {
 		// CUSTOM PART START
 		// We fire a hook to allow subscribers to add their own contents to slots
 		if ( $this->shouldEmit && !$this->alreadyFired ) {

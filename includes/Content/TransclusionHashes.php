@@ -120,6 +120,15 @@ class TransclusionHashes extends JsonContent implements DataAccountingContent {
 	}
 
 	/**
+	 * @param bool $payAttention
+	 *
+	 * @return void
+	 */
+	public function setPayAttention( bool $payAttention ) {
+		$this->payAttention = $payAttention;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function getSlotHeader(): string {

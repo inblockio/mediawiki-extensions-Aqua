@@ -102,7 +102,7 @@ class TransclusionHashesHandler extends JsonContentHandler {
 			return;
 		}
 		$states = $transclusionManager->getTransclusionState( $revision );
-		$table = $this->drawTable( $states );
+		$table = $this->drawTable( $states, $content );
 		$parserOutput->addModules( [ 'ext.dataAccounting.updateTransclusionHashes' ] );
 
 		$outputText = $table;
@@ -114,21 +114,21 @@ class TransclusionHashesHandler extends JsonContentHandler {
 		$parserOutput->setText( $outputText );
 	}
 
-	private function drawTable( array $states ): string {
+	private function drawTable( array $states, Content $content ): string {
 		$table = Html::openElement( 'div', [
 			'class' => 'container',
 			'style' => 'width: 100%',
 			'id' => 'transclusionResourceTable'
 		] );
 		foreach ( $states as $state ) {
-			$table .= $this->drawRow( $state );
+			$table .= $this->drawRow( $state, $content );
 		}
 		$table .= Html::closeElement( 'div' );
 
 		return $table;
 	}
 
-	private function drawRow( array $state ): string {
+	private function drawRow( array $state, Content $content ): string {
 		$linkRenderer = MediaWikiServices::getInstance()->getLinkRenderer();
 		$title = $state['titleObject'];
 		$changeState = $state['state'];
@@ -142,14 +142,14 @@ class TransclusionHashesHandler extends JsonContentHandler {
 			$changeState === TransclusionManager::STATE_NEW_VERSION ||
 			$changeState === TransclusionManager::STATE_NO_RECORD
 		) {
-			$this->payAttention = true;
+			$content->setPayAttention( true );
 			$badgeClasses[] = 'badge-warning';
 		}
 		if ( $changeState === TransclusionManager::STATE_UNCHANGED ) {
 			$badgeClasses[] = 'badge-success';
 		}
 		if ( $changeState === TransclusionManager::STATE_INVALID ) {
-			$this->payAttention = true;
+			$content->setPayAttention( true );
 			$badgeClasses[] = 'badge-danger';
 		}
 		$item .= Html::openElement( 'span', [

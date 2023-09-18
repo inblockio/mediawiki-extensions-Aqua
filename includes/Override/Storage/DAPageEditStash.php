@@ -6,7 +6,7 @@ use BagOStuff;
 use Content;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use MediaWiki\HookContainer\HookContainer;
-use MediaWiki\Page\PageIdentity;;
+use MediaWiki\Page\PageIdentity;
 
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Storage\PageEditStash;
@@ -20,7 +20,7 @@ use Wikimedia\Rdbms\ILoadBalancer;
  * Override to prevent stashing edits, because it will mess up
  * with custom slots
  */
-class DAPageEditStash  extends PageEditStash {
+class DAPageEditStash extends PageEditStash {
 	/**
 	 * @param BagOStuff $cache
 	 * @param ILoadBalancer $lb
@@ -55,7 +55,6 @@ class DAPageEditStash  extends PageEditStash {
 			$initiator
 		);
 	}
-
 
 	public function parseAndCache( $pageUpdater, Content $content, UserIdentity $user, string $summary ) {
 		return static::ERROR_UNCACHEABLE;
