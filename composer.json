@@ -27,6 +27,12 @@
 			"phpcbf"
 		]
 	},
+	"config": {
+		"allow-plugins": {
+			"wikimedia/composer-merge-plugin": true,
+			"composer/installers": true
+		}
+	},
 	"extra": {
 		"installer-name": "DataAccounting"
 	}
