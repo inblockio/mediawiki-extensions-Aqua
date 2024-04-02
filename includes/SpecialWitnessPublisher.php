@@ -79,10 +79,9 @@ class SpecialWitnessPublisher extends SpecialPage {
 		$WitnessNetwork = $this->getConfig()->get( 'WitnessNetwork' );
 		$witnessNetworkMap = [
 			'mainnet' => 'https://etherscan.io/tx/',
-			'ropsten' => 'https://ropsten.etherscan.io/tx/',
-			'kovan' => 'https://kovan.etherscan.io/tx/',
-			'rinkeby' => 'https://rinkeby.etherscan.io/tx/',
-			'goerli' => 'https://goerli.etherscan.io/tx/',
+			'sepolia' => 'https://sepolia.etherscan.io/tx/',
+			'holesky' => 'https://holesky.etherscan.io/tx/',
+
 		];
 
 		foreach ( $res as $row ) {

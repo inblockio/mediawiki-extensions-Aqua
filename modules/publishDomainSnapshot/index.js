@@ -3,11 +3,8 @@
 
   var ethChainIdMap = {
     'mainnet': '0x1',
-    'ropsten': '0x3',
-    'rinkeby': '0x4',
-    'goerli': '0x5',
-    'kotti': '0x6',
-    'kovan': '0x42',
+    'sepolia': '0xaa36a7',
+    'holesky': '0x4268',
   }
 
   function storeWitnessTx(txhash, host, witnessEventID, ownAddress, witnessNetwork) {

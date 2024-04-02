@@ -177,24 +177,14 @@ class SpecialDataAccountingConfig extends SpecialPage {
 							'data' => 'mainnet'
 						], [
 							'label' => $this->msg(
-								'da-specialdaconfig-witnessconfiguration-witnessnetwork-option-ropsten'
+								'da-specialdaconfig-witnessconfiguration-witnessnetwork-option-holesky'
 							)->plain(),
-							'data' => 'ropsten'
+							'data' => 'holesky'
 						], [
 							'label' => $this->msg(
-								'da-specialdaconfig-witnessconfiguration-witnessnetwork-option-kovan'
+								'da-specialdaconfig-witnessconfiguration-witnessnetwork-option-sepolia'
 							)->plain(),
-							'data' => 'kovan'
-						], [
-							'label' => $this->msg(
-								'da-specialdaconfig-witnessconfiguration-witnessnetwork-option-rinkeby'
-							)->plain(),
-							'data' => 'rinkeby'
-						], [
-							'label' => $this->msg(
-								'da-specialdaconfig-witnessconfiguration-witnessnetwork-option-goerli'
-							)->plain(),
-							'data' => 'goerli'
+							'data' => 'sepolia'
 						],
 					],
 					'value' => $this->getConfig()->get( 'WitnessNetwork' ),

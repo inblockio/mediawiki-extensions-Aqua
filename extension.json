@@ -24,7 +24,7 @@
 		},
 		"WitnessNetwork": {
 			"description": "The Ethereum blockhain network used for witnessing.",
-			"value": "goerli"
+			"value": "sepolia"
 		},
 		"SmartContractAddress": {
 			"description": "The smart contract address used to publish for witnessing.",
