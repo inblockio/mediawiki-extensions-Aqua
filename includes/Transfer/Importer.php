@@ -364,6 +364,7 @@
 	 private function compileVerificationData(
 		TransferRevisionEntity $revisionEntity, TransferContext $context
 	 ): array {
+		$signature = $revisionEntity->getSignature();
 		return [
 			'domain_id' => $revisionEntity->getMetadata()['domain_id'],
 			'genesis_hash' => $context->getGenesisHash(),
@@ -373,10 +374,10 @@
 			'previous_verification_hash' => $revisionEntity->getMetadata()['previous_verification_hash'],
 			'content_hash' => $revisionEntity->getContent()['content_hash'],
 			'metadata_hash' => $revisionEntity->getMetadata()['metadata_hash'],
-			'signature' => $revisionEntity->getSignature()['signature'],
-			'signature_hash' => $revisionEntity->getSignature()['signature_hash'],
-			'public_key' => $revisionEntity->getSignature()['public_key'],
-			'wallet_address' => $revisionEntity->getSignature()['wallet_address'],
+			'signature' => $signature ? $signature['signature'] : '',
+			'signature_hash' => $signature ? $signature['signature_hash'] : '',
+			'public_key' => $signature ? $signature['public_key'] : '',
+			'wallet_address' => $signature ? $signature['wallet_address'] : '',
 			'source' => 'import'
 		];
 	 }
