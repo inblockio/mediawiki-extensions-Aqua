@@ -225,9 +225,14 @@ class VerificationEngine {
 		);
 
 		// SIGNATURE DATA HASH CALCULATOR
-		$signature = $parentEntity ? $parentEntity->getSignature() : '';
-		$publicKey = $parentEntity ? $parentEntity->getPublicKey() : '';
-		$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
+		$signature = '';
+		$publicKey = '';
+		$signatureHash = '';
+		if ( $parentEntity && $parentEntity->getSignature() !== '') {
+			$signature = $parentEntity->getSignature();
+			$publicKey = $parentEntity->getPublicKey();
+			$signatureHash = $this->getHasher()->getHashSum($signature . $publicKey);
+		}
 
 		$witnessHash = '';
 		if ( $parentEntity && $parentEntity->getWitnessEventId() ) {
@@ -279,9 +284,9 @@ class VerificationEngine {
 			'metadata_hash' => $metadataHash,
 			'verification_hash' => $verificationHash,
 			'previous_verification_hash' => $previousVerificationHash,
-			'signature' => '',
-			'public_key' => '',
-			'wallet_address' => '',
+			'signature' => $signature,
+			'public_key' => $publicKey,
+			// 'wallet_address' => '', // is this needed?
 			'source' => 'default',
 		] );
 	}
