@@ -1,0 +1,760 @@
+openapi: 3.0.3
+info:
+  title: AQUA
+  description: |-
+    This is a description of APIs intentended for interaction with PKCs
+  version: 0.3.0
+externalDocs:
+  description: AQUA extension on Github
+  url: https://github.com/inblockio/mediawiki-extensions-Aqua
+tags:
+  - name: general
+  - name: import/export
+    description: Import export revisions
+  - name: internal
+    description: APIs intented for internal operations
+  - name: pkc_info
+    description: Server information
+paths:
+  /data_accounting/get_server_info:
+    get:
+      tags:
+        - pkc_info
+      summary: Retrieve PKC info
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerInfo'
+  /data_accounting/verify_page/{rev_id}:
+    get:
+      tags:
+        - general
+      summary:  Get verification entity data for a revision
+      parameters:
+        - name: rev_id
+          in: path
+          description: ID of revision for which to return the verification data
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationEntity'
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid ID supplied
+  /data_accounting/get_page_all_revs/{page_title}:
+    get:
+      tags:
+          - general
+      summary: Get all revisions for a page
+      parameters:
+        - name: page_title
+          in: path
+          description: Title of the page for which to return all revisions
+          required: true
+          schema:
+            type: string
+        - name: full_entities
+          in: query
+          description: Whether to return full verification entities or just revision IDs
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: integer
+                      format: int64
+                    example: [ 1, 2, 3 ]
+                  - type: array
+                    items:
+                        $ref: '#/components/schemas/VerificationEntity'
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid ID supplied
+  /data_accounting/get_page_last_rev:
+    get:
+      tags:
+        - general
+      summary: Get ID and verification has of the last revision of the page
+      parameters:
+          - name: page_title
+            in: query
+            description: Title of the page for which to return the last revision
+            required: true
+            example: 'Main_Page'
+            schema:
+                type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LastRevision'
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid page supplied
+  /data_accounting/get_witness_data/{witness_event_id}:
+    get:
+      tags:
+        - general
+      summary: Get witness data for a witness event
+      parameters:
+        - name: witness_event_id
+          in: path
+          description: ID of the witness event for which to return the witness data
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WitnessEntity'
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid ID supplied
+  /data_accounting/request_merkle_proof/{witness_event_id}/{revision_verification_hash}:
+    get:
+      tags:
+        - general
+      summary: Request a Merkle proof for a revision
+      parameters:
+        - name: witness_event_id
+          in: path
+          description: ID of the witness event for which to request the Merkle proof
+          required: true
+          schema:
+            type: string
+        - name: revision_verification_hash
+          in: path
+          description: Verification hash of the revision for which to request the Merkle proof
+          required: true
+          schema:
+            type: string
+        - name: depth
+          in: query
+          description: Depth of the Merkle proof
+          required: false
+          schema:
+              type: integer
+              format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProofNode'
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid ID supplied
+  /data_accounting/request_hash/{rev_id}:
+    get:
+      tags:
+        - internal
+      summary: Retieve hash for signature comment
+      parameters:
+        - name: rev_id
+          in: path
+          description: ID of the revision for which to request the hash
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  value:
+                    type: string
+                    example: 'I sign... [abc....cba]'
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid ID supplied
+  /data_accounting/get_revision/{verification_hash}:
+    get:
+      tags:
+        - import/export
+      summary: Get revision export data
+      parameters:
+        - name: verification_hash
+          in: path
+          description: Verification hash of the revision for which to return the data
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportImportEntity'
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid ID supplied
+  /data_accounting/get_hash_chain_info/{identifier_type}:
+    get:
+      tags:
+        - import/export
+      summary: Get hash chain info
+      parameters:
+        - name: identifier_type
+          in: path
+          description: Type of the identifier for which to return the hash chain info
+          required: true
+          schema:
+            type: string
+            enum: [ 'genesis_hash', 'title' ]
+        - name: identifier
+          in: query
+          description: Identifier for which to return the hash chain info
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HashChainInfo'
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid ID supplied
+  /data_accounting/get_revision_hashes/{verification_hash}:
+    get:
+      tags:
+        - import/export
+      summary: Get revision hashes that are newer than the given revision hash
+      parameters:
+        - name: verification_hash
+          in: path
+          description: Verification hash of the revision for which to return the hashes
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example: [ 'abc...cba', 'abc...cba' ]
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid ID supplied
+  /data_accounting/write/store_signed_tx:
+    post:
+      tags:
+        - internal
+      summary: Store signed transaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rev_id:
+                  type: integer
+                  example: 1
+                signature:
+                  type: string
+                  example: '0xabc...cba'
+                public_key:
+                  type: string
+                  example: '0xabc...cba'
+                wallet_address:
+                  type: string
+                  example: '0xabc...cba'
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Permission error
+        '500':
+          description: Internal server error
+  /data_accounting/write/store_witness_tx:
+    post:
+      tags:
+        - internal
+      summary: Store witness transaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                witness_event_id:
+                  type: integer
+                  example: 1
+                account_address:
+                    type: string
+                    example: '0xabc...cba'
+                transaction_hash:
+                    type: string
+                    example: 'abc...cba'
+                witness_network:
+                    type: string
+                    example: 'goerli'
+      responses:
+        '200':
+          description: successful operation
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid input data
+        '500':
+            description: Internal server error
+  /data_accounting/transclusion/update_hash:
+    post:
+      tags:
+        - internal
+      summary: Update hash for transclusion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                page_title:
+                  type: string
+                  example: 'Main_Page'
+                resource:
+                  type: string
+                  example: 'Template:A'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid input data
+        '500':
+            description: Internal server error
+  /data_accounting/delete_revisions:
+    post:
+      tags:
+        - internal
+      summary: Delete revisions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: IDs of revisions to delete
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  example: [ 1, 2, 3 ]
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid input data
+        '500':
+            description: Internal server error
+  /data_accounting/squash_revisions:
+    post:
+      tags:
+        - internal
+      summary: Squash revisions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: IDs of revisions to squash
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+                  example: [ 1, 2, 3 ]
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid input data
+        '500':
+            description: Internal server error
+  /data_accounting/import:
+    post:
+      tags:
+        - import/export
+      summary: Import revision
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                context:
+                  type: object
+                  properties:
+                      namespace:
+                        type: integer
+                        example: 0
+                      title:
+                        type: string
+                        example: 'Main_Page'
+                revision:
+                  $ref: '#/components/schemas/ExportImportEntity'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: 'ok'
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid input data
+        '500':
+            description: Internal server error
+components:
+  schemas:
+    ServerInfo:
+      type: object
+      properties:
+        api_version:
+          type: string
+          example: 1.0.0
+    VerificationEntity:
+      type: object
+      properties:
+        page_title:
+          type: string
+          example: 'Main_Page'
+        page_id:
+          type: integer
+          format: int64
+          example: 1
+        rev_id:
+            type: integer
+            format: int64
+            example: 1
+        domain_id:
+            type: string
+            example: 'abc123'
+        time_stamp:
+            type: string
+            example: '20240508072948'
+        verification_context:
+          type: object
+          properties:
+            has_previous_signature:
+              type: boolean
+              example: true
+            has_previous_witness:
+              type: boolean
+              example: true
+        signature:
+            type: string
+            nullable: true
+            example: 'abc123'
+        public_key:
+            type: string
+            example: 'abc123'
+        wallet_address:
+            type: string
+            example: 'abc123'
+        witness_event_id:
+            type: string
+            nullable: true
+            example: 'abc123'
+        source:
+            type: string
+            example: 'default'
+        verification_hash:
+            type: string
+            example: 'abc....cba'
+        content_hash:
+            type: string
+            example: 'abc....cba'
+        genesis_hash:
+            type: string
+            example: 'abc....cba'
+        metadata_hash:
+            type: string
+            example: 'abc....cba'
+        signature_hash:
+            type: string
+            example: 'abc....cba'
+        previous_verification_hash:
+            type: string
+            example: 'abc....cba'
+    LastRevision:
+      type: object
+      properties:
+        page_title:
+          type: string
+          example: 'Main_Page'
+        page_id:
+          type: integer
+          format: int64
+          example: 1
+        rev_id:
+            type: integer
+            format: int64
+            example: 1
+        verification_hash:
+            type: string
+            example: 'abc....cba'
+    WitnessEntity:
+        type: object
+        properties:
+            witness_event_id:
+              type: integer
+              example: 1
+            domain_id:
+              type: string
+              example: 'abc123'
+            domain_snapshot_title:
+              type: string
+              example: 'Data Accounting:DomainSnapshot 1'
+            witness_hash:
+              type: string
+              nullable: true
+              example: 'abc123'
+            domain_snapshot_genesis_hash:
+              type: string
+              example: 'abc....cba'
+            merkle_root:
+              type: string
+              example: 'abc....cba'
+            witness_event_verification_hash:
+              type: string
+              example: 'abc....cba'
+            witness_network:
+              type: string
+              example: 'goerli'
+            smart_contract_address:
+              type: string
+              example: '0xabc123'
+            witness_event_transaction_hash:
+              type: string
+              example: 'ABC'
+            sender_account_address:
+              type: string
+              example: 'ABC'
+            source:
+              type: string
+              nullable: true
+              example: 'abc'
+    ProofNode:
+        type: object
+        properties:
+          witness_event_verification_hash:
+            type: string
+            example: 'abc...cba'
+          depth:
+            type: integer
+            format: int64
+            example: 1
+          left_leaf:
+            type: string
+            example: 'abc...cba'
+          right_leaf:
+            type: string
+            example: 'abc...cba'
+          successor:
+            type: string
+            example: 'abc...cba'
+          id:
+            type: integer
+            format: int64
+            example: 1
+          witness_event_id:
+            type: integer
+            example: 1
+    ExportImportEntity:
+        type: object
+        properties:
+          verification_context:
+            type: object
+            properties:
+              has_previous_signature:
+                type: boolean
+                example: true
+              has_previous_witness:
+                type: boolean
+                example: true
+          content:
+            type: object
+            properties:
+              rev_id:
+                type: integer
+                example: 1
+              content:
+                type: object
+                properties:
+                  main:
+                    type: string
+                    example: 'Hello, world!'
+                  content_hash:
+                    type: string
+                    example: 'abc...cba'
+          metadata:
+            type: object
+            properties:
+              domain_id:
+                type: string
+                example: 'abc123'
+              time_stamp:
+                type: string
+                example: '20240508072948'
+              previous_verification_hash:
+                type: string
+                example: 'abc...cba'
+              metadata_hash:
+                type: string
+                example: 'abc...cba'
+              verification_hash:
+                type: string
+                example: 'abc...cba'
+          signature:
+            type: object
+            properties:
+              signature:
+                type: string
+                example: '0xabc...cba'
+              public_key:
+                type: string
+                example: '0xabc...cba'
+              wallet_address:
+                type: string
+                example: '0xabc...cba'
+              signature_hash:
+                type: string
+                example: 'abc...cba'
+    HashChainInfo:
+        type: object
+        properties:
+          genesis_hash:
+            type: string
+            example: 'abc...cba'
+          domain_id:
+            type: string
+            example: 'abc123'
+          latest_verification_hash:
+            type: string
+            example: 'abc...cba'
+          title:
+            type: string
+            example: 'Main_Page'
+          namespace:
+            type: integer
+            example: 0
+          chain_height:
+            type: integer
+            example: 1
+          site_info:
+            $ref: '#/components/schemas/SiteInfo'
+    SiteInfo:
+        type: object
+        properties:
+          site_name:
+            type: string
+            example: 'PKC'
+          dbname:
+            type: string
+            example: 'my_db'
+          base:
+            type: string
+            example: 'https://url/index.php/Main_Page'
+          generator:
+            type: string
+            example: 'MediaWiki 1.36.0'
+          case:
+            type: string
+            example: 'first-letter'
+          version:
+            type: string
+            example: '1'
+          namespaces:
+            type: object
+            properties:
+              0:
+                type: object
+                properties:
+                  case:
+                    type: boolean
+                    example: true
+                  title:
+                    type: string
+                    example: 'MAIN'
