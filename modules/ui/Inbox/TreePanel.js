@@ -5,17 +5,25 @@ da.ui.TreePanel = function ( config ) {
 	config = config || {};
 	this.tree = config.tree || {};
 	this.nodes = {};
+	this.lastParents = { 'local': null, 'remote': null };
 	da.ui.TreePanel.super.call( this, $.extend( { expanded: false }, config ) );
 };
 
 OO.inheritClass( da.ui.TreePanel, OO.ui.PanelLayout );
 
 da.ui.TreePanel.prototype.initialize = function () {
+	this.lastParents = { 'local': null, 'remote': null };
 	for ( var hash in this.tree ) {
 		if ( !this.tree.hasOwnProperty( hash ) ) {
 			continue;
 		}
 		var node = this.makeNode( this.tree[ hash ], hash );
+		if ( node.getType() === 'local' ) {
+			this.lastParents.local = node.getHash();
+		}
+		if ( node.getType() === 'remote' ) {
+			this.lastParents.remote = node.getHash();
+		}
 		this.addNode( node );
 	}
 
@@ -41,13 +49,16 @@ da.ui.TreePanel.prototype.connect = function () {
 		if ( !$relevantNode ) {
 			continue;
 		}
-		var parent = $relevantNode.attr( 'parent' );
-		if (
-			parent &&
-			this.nodes.hasOwnProperty( parent ) &&
-			this.nodes[parent].getRelevantNode()
-		) {
-			this.drawConnection( this.nodes[parent].getRelevantNode(), $relevantNode );
+		var parent = $relevantNode.attr( 'parent' ),
+			parents = parent ? parent.split( ',' ) : [];
+		for ( var i = 0; i < parents.length; i++ ) {
+			parent = parents[i];
+			if ( !parent ) {
+				continue;
+			}
+			if ( this.nodes.hasOwnProperty( parent ) && this.nodes[parent].getRelevantNode() ) {
+				this.drawConnection( this.nodes[parent].getRelevantNode(), $relevantNode );
+			}
 		}
 	}
 };
@@ -110,6 +121,19 @@ da.ui.TreePanel.prototype.selectBranch = function ( branch ) {
 		this.$element.find( '.da-compare-node-graph-local[diff="true"]' ).addClass( 'da-compare-node-graph-ignored' );
 	} else if ( branch === 'local' ) {
 		this.$element.find( '.da-compare-node-graph-remote' ).addClass( 'da-compare-node-graph-ignored' );
+	}
+	this.connect();
+};
+
+da.ui.TreePanel.prototype.showCombinedNode = function ( show ) {
+	this.deselectBranches( false );
+	if ( show ) {
+		this.addNode( new da.ui.CombinedTreeNode( this.lastParents ) );
+	} else {
+		if ( this.nodes.hasOwnProperty( '-1' ) ) {
+			this.nodes[ '-1' ].$element.remove();
+			delete this.nodes[ '-1' ];
+		}
 	}
 	this.connect();
 };

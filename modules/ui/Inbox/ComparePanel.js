@@ -67,12 +67,14 @@ da.ui.ComparePanel.prototype.setFormData = function () {
 
 		buttonSelect.connect( this, {
 			select: function( item ) {
+				this.treePanel.showCombinedNode( false );
+				this.treePanel.deselectBranches();
 				if ( item.getData() === 'remote' ) {
 					this.treePanel.selectBranch( 'remote' );
 				} else if ( item.getData() === 'local' ) {
 					this.treePanel.selectBranch( 'local' );
-				} else {
-					this.treePanel.deselectBranches();
+				} else if ( item.getData() === 'merge' ) {
+					this.treePanel.showCombinedNode( true );
 				}
 			}
 		} );

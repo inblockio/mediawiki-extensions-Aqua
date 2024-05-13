@@ -21,6 +21,10 @@
       background-color: #e87b0a;
       border-radius: 100px;
     }
+    &.da-compare-node-graph-combined {
+      background-color: #2956e8;
+      border-radius: 100px;
+    }
 
   }
   .da-compare-node-label {
@@ -59,4 +63,26 @@
     }
   }
 
+}
+
+#da-specialinbox-compare-diff {
+  width: 100%;
+  background-color: #eeeeee;
+  padding: 20px;
+  .da-diff-change {
+    .da-diff-delete {
+      margin: 0;
+      background-color: #f38993;
+      &:before {
+        content: '-';
+      }
+    }
+    .da-diff-add {
+      margin: 0;
+      background-color: #a9e5a9;
+        &:before {
+            content: '+';
+        }
+    }
+  }
 }

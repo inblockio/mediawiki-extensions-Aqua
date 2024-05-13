@@ -3,7 +3,6 @@ da.ui = window.da.ui || {};
 
 da.ui.TreeNode = function ( hash, data ) {
 	this.hash = hash;
-	console.log( hash, data );
 	this.nodeData = data;
 
 	da.ui.TreeNode.super.call( this, {} );
@@ -37,7 +36,7 @@ da.ui.TreeNode.prototype.makeRelevantNode = function () {
 		.attr( 'hash', this.hash )
 		.attr( 'revisions', this.nodeData.revisions )
 		.attr( 'parent', this.nodeData.parent )
-		.attr( 'diff', this.nodeData.diff )
+		.attr( 'diff', this.nodeData.diff );
 };
 
 da.ui.TreeNode.prototype.makeLabel = function () {

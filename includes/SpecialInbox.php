@@ -2,15 +2,19 @@
 
 namespace DataAccounting;
 
+use DataAccounting\Inbox\HTMLDiffFormatter;
 use DataAccounting\Inbox\InboxImporter;
 use DataAccounting\Inbox\Pager;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use Html;
 use HTMLForm;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionLookup;
 use Message;
 use SpecialPage;
+use TextContent;
+use Title;
 use TitleFactory;
 
 class SpecialInbox extends SpecialPage {
@@ -105,7 +109,6 @@ class SpecialInbox extends SpecialPage {
 			$draft->getTitle(), $target->getTitle(), $this->getLanguage(), $this->getUser()
 		);
 		$this->getOutput()->addHTML( $this->makeSummaryHeader( $tree, $draft, $target ) );
-
 		$this->getOutput()->addHTML(
 			Html::element( 'div', [
 				'id' => 'da-specialinbox-compare',
@@ -114,6 +117,15 @@ class SpecialInbox extends SpecialPage {
 				'data-target' => $target->getTitle()->getArticleID(),
 			] )
 		);
+		if ( $tree['change-type'] === 'both' ) {
+			$diff = $this->makeDiff( $tree );
+			if ( $diff ) {
+				$this->getOutput()->addHTML( Html::rawElement( 'div', [
+					'id' => 'da-specialinbox-compare-diff',
+					'data-diff' => json_encode( $diff['diffData'] ),
+				], $diff['formatted'] ) );
+			}
+		}
 		$this->outputForm( $draft, $tree['change-type'] );
 		$this->getOutput()->addModules( 'ext.DataAccounting.inbox.compare' );
 	}
@@ -287,5 +299,50 @@ class SpecialInbox extends SpecialPage {
 		}
 		$this->getOutput()->redirect( $targetTitle->getFullURL() );
 		return true;
+	}
+
+	/**
+	 * @param array $tree
+	 * @return array|null
+	 * @throws \MediaWiki\Diff\ComplexityException
+	 */
+	private function makeDiff( array $tree ): ?array {
+		$diff = $this->getDiff( $tree['local'], $tree['remote'] );
+		$diffFormatter = new HTMLDiffFormatter();
+
+		if ( empty( $diff ) ) {
+			return null;
+		}
+		return [
+			'formatted' => $diffFormatter->format( $diff ),
+			'diffData' => $diffFormatter->getArrayData(),
+			'count' => $diffFormatter->getChangeCount()
+		];
+	}
+
+	/**
+	 * @param Title $local
+	 * @param Title $remote
+	 * @return \Diff
+	 * @throws \MediaWiki\Diff\ComplexityException
+	 */
+	protected function getDiff( \Title $local, \Title $remote ) {
+		$localContent = $this->getPageContentText( $local );
+		$remoteContent = $this->getPageContentText( $remote );
+
+		return new \Diff(
+			explode( "\n", $localContent ),
+			explode( "\n", $remoteContent )
+		);
+	}
+
+	/**
+	 * @param Title $title
+	 * @return string
+	 */
+	protected function getPageContentText( Title $title ): string {
+		$wikipage = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $title );
+		$content = $wikipage->getContent();
+		return ( $content instanceof TextContent ) ? $content->getText() : '';
 	}
 }

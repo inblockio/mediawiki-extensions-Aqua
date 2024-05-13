@@ -430,6 +430,7 @@
 				"ui/Inbox/ComparePanel.js",
 				"ui/Inbox/TreePanel.js",
 				"ui/Inbox/TreeNode.js",
+				"ui/Inbox/CombinedTreeNode.js",
 				"ext.DataAccounting.inbox.compare.js"
 			],
 			"styles": [

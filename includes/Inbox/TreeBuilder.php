@@ -47,7 +47,10 @@ class TreeBuilder {
 		] );
 		$localEntities = $this->verifyAndReduce( $localEntities );
 
-		return $this->combine( $remoteEntities, $localEntities, $language, $user );
+		$combined = $this->combine( $remoteEntities, $localEntities, $language, $user );
+		$combined['remote'] = $remote;
+		$combined['local'] = $local;
+		return $combined;
 	}
 
 	/**
