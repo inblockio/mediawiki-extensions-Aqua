@@ -106,7 +106,7 @@
                 rev_id: revId,
                 signature: signature,
                 public_key: public_key,
-                wallet_address: window.ethereum.selectedAddress,
+                wallet_address: recAddress,
               }
               fetch(
                 server + '/rest.php/data_accounting/write/store_signed_tx',
