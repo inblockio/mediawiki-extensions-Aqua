@@ -18,6 +18,19 @@ da.ui.ComparePanel.prototype.initialize = function () {
 	this.$element.append( this.treePanel.$element );
 	this.treePanel.initialize();
 
+	var $diff = $( '#da-specialinbox-compare-diff' );
+	if ( $diff.length ) {
+		this.resolution = new da.ui.ConflictResolution( {}, $diff );
+		this.resolution.connect( this, {
+			allResolved: function () {
+				var importSubmitButton = this.$form.find( 'button[name=import]' );
+				importSubmitButton.prop( 'disabled', false );
+				console.log( this.resolution.getFinalText() );
+			}
+		} );
+		this.$element.append( this.resolution.$element );
+	}
+
 	this.setFormData();
 };
 
@@ -52,7 +65,7 @@ da.ui.ComparePanel.prototype.setFormData = function () {
 			} ),
 			option2 = new OO.ui.ButtonOptionWidget( {
 				data: 'remote',
-				label: 'Use remote version (discard local)',
+				label: 'Use remote version (merge remote into local)',
 				flags: [ 'progressive' ]
 			} ),
 			option3 = new OO.ui.ButtonOptionWidget( {
@@ -67,14 +80,21 @@ da.ui.ComparePanel.prototype.setFormData = function () {
 
 		buttonSelect.connect( this, {
 			select: function( item ) {
+				if ( this.resolution ) {
+					this.resolution.setVisibility( false );
+				}
 				this.treePanel.showCombinedNode( false );
 				this.treePanel.deselectBranches();
 				if ( item.getData() === 'remote' ) {
 					this.treePanel.selectBranch( 'remote' );
+					this.treePanel.showCombinedNode( true, 'remote' );
 				} else if ( item.getData() === 'local' ) {
 					this.treePanel.selectBranch( 'local' );
 				} else if ( item.getData() === 'merge' ) {
-					this.treePanel.showCombinedNode( true );
+					this.treePanel.showCombinedNode( true, 'combined' );
+					if ( this.resolution ) {
+						this.resolution.setVisibility( true );
+					}
 				}
 			}
 		} );

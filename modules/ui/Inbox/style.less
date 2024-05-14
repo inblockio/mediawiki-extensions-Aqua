@@ -21,7 +21,7 @@
       background-color: #e87b0a;
       border-radius: 100px;
     }
-    &.da-compare-node-graph-combined {
+    &.da-compare-node-graph-resolution {
       background-color: #2956e8;
       border-radius: 100px;
     }
@@ -65,24 +65,71 @@
 
 }
 
-#da-specialinbox-compare-diff {
+.da-conflict-resolution {
   width: 100%;
-  background-color: #eeeeee;
-  padding: 20px;
-  .da-diff-change {
-    .da-diff-delete {
-      margin: 0;
-      background-color: #f38993;
-      &:before {
-        content: '-';
+
+  .da-conflict-resolution-title {
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  #da-specialinbox-compare-diff {
+    background-color: #eeeeee;
+    padding: 20px;
+    #da-diff {
+      .da-conflict-resolution-buttons {
+        position: absolute;
+        right: 0;
+        top: 0;
+        .oo-ui-buttonElement-active {
+          a span {
+            text-decoration: underline;
+          }
+        }
+      }
+      >.da-diff-change {
+        position: relative;
+        padding: 35px 0 0 0;
+        background-color: #f38993;
+      }
+      >.da-diff-delete,
+      >.da-diff-add {
+        position: relative;
+        padding: 35px 5px 0 5px;
+      }
+      .da-diff-delete {
+        margin: 0;
+        background-color: #f38993;
+      }
+      .da-diff-add {
+          margin: 0;
+          background-color: #cbf5cb;
+        }
+      }
+      .da-diff-resolved {
+        border-right: 1px solid #ddd5d5;
+        background-color: transparent !important;
+        > p {
+          background-color: transparent !important;
+        }
+      }
+      .da-diff-resolved.da-diff-resolution-reject {
+        text-decoration: line-through;
+      }
+      .da-diff-resolved.da-diff-resolution-local .da-diff-add {
+          text-decoration: line-through;
+      }
+      .da-diff-resolved.da-diff-resolution-remote .da-diff-delete {
+          text-decoration: line-through;
+      }
+      .da-diff-resolved.da-diff-resolution-neither {
+        .da-diff-delete, .da-diff-add {
+          text-decoration: line-through;
+        }
       }
     }
-    .da-diff-add {
-      margin: 0;
-      background-color: #a9e5a9;
-        &:before {
-            content: '+';
-        }
+    .empty-line {
+      display: block;
+      height: 14px;
     }
-  }
 }
+

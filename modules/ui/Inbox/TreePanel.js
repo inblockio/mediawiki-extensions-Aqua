@@ -125,10 +125,12 @@ da.ui.TreePanel.prototype.selectBranch = function ( branch ) {
 	this.connect();
 };
 
-da.ui.TreePanel.prototype.showCombinedNode = function ( show ) {
+da.ui.TreePanel.prototype.showCombinedNode = function ( show, type ) {
 	this.deselectBranches( false );
 	if ( show ) {
-		this.addNode( new da.ui.CombinedTreeNode( this.lastParents ) );
+		var parents = type === 'combined' ?
+			this.lastParents : { local: null, remote: this.lastParents.remote };
+		this.addNode( new da.ui.ResolutionNode( parents ) );
 	} else {
 		if ( this.nodes.hasOwnProperty( '-1' ) ) {
 			this.nodes[ '-1' ].$element.remove();

@@ -427,10 +427,11 @@
 		},
 		"ext.DataAccounting.inbox.compare": {
 			"scripts": [
+				"ui/Inbox/ConflictResolution.js",
 				"ui/Inbox/ComparePanel.js",
 				"ui/Inbox/TreePanel.js",
 				"ui/Inbox/TreeNode.js",
-				"ui/Inbox/CombinedTreeNode.js",
+				"ui/Inbox/ResolutionNode.js",
 				"ext.DataAccounting.inbox.compare.js"
 			],
 			"styles": [

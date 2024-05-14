@@ -1,19 +1,19 @@
 da = window.da || {};
 da.ui = window.da.ui || {};
 
-da.ui.CombinedTreeNode = function ( data ) {
-	da.ui.CombinedTreeNode.super.call( this, '-1', { source: 'combined', parents: { local: data.local, remote: data.remote } } );
+da.ui.ResolutionNode = function ( data ) {
+	da.ui.ResolutionNode.super.call( this, '-1', { source: 'combined', parents: { local: data.local, remote: data.remote } } );
 };
 
-OO.inheritClass( da.ui.CombinedTreeNode, da.ui.TreeNode );
+OO.inheritClass( da.ui.ResolutionNode, da.ui.TreeNode );
 
-da.ui.CombinedTreeNode.prototype.makeGraphPart = function () {
+da.ui.ResolutionNode.prototype.makeGraphPart = function () {
 	this.makeRelevantNode();
 	this.$element.append( this.$relevantNode );
 	this.$element.append( $( '<span>' ).addClass( 'da-compare-node-graph da-compare-node-graph-placeholder' ) );
 };
 
-da.ui.CombinedTreeNode.prototype.makeRelevantNode = function () {
+da.ui.ResolutionNode.prototype.makeRelevantNode = function () {
 	var parents = '';
 	console.log( this.nodeData );
 	if ( this.nodeData.parents.local ) {
@@ -27,10 +27,10 @@ da.ui.CombinedTreeNode.prototype.makeRelevantNode = function () {
 		.attr( 'parent', parents );
 };
 
-da.ui.CombinedTreeNode.prototype.makeLabel = function () {
+da.ui.ResolutionNode.prototype.makeLabel = function () {
 	// NOOP
 };
 
-da.ui.CombinedTreeNode.prototype.getType = function () {
-	return 'combined';
+da.ui.ResolutionNode.prototype.getType = function () {
+	return 'resolution';
 };
