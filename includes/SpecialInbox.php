@@ -31,24 +31,28 @@ class SpecialInbox extends SpecialPage {
 	private $inboxImporter = null;
 	/** @var RevisionLookup */
 	private $revisionLookup;
+	/** @var RevisionManipulator */
+	private $revisionManipulator;
 
 	/**
 	 * @param TitleFactory $titleFactory
 	 * @param VerificationEngine $verificationEngine
 	 * @param RevisionLookup $revisionLookup
+	 * @param RevisionManipulator $revisionManipulator
 	 */
 	public function __construct(
-		TitleFactory $titleFactory, VerificationEngine $verificationEngine, RevisionLookup $revisionLookup
+		TitleFactory $titleFactory, VerificationEngine $verificationEngine,
+		RevisionLookup $revisionLookup, RevisionManipulator $revisionManipulator
 	) {
 		parent::__construct( 'Inbox', 'read' );
 		$this->titleFactory = $titleFactory;
 		$this->verificationEngine = $verificationEngine;
 		$this->revisionLookup = $revisionLookup;
+		$this->revisionManipulator = $revisionManipulator;
 	}
 
 	public function execute( $par ) {
 		parent::execute( $par );
-
 		if ( !$par ) {
 			$this->outputList();
 			return;
@@ -56,6 +60,7 @@ class SpecialInbox extends SpecialPage {
 		$this->getOutput()->addBacklinkSubtitle( $this->getPageTitle() );
 		$this->getOutput()->setPageTitle( $this->msg( 'da-specialinbox-do-import-title' ) );
 		$this->tryCompare( $par );
+
 	}
 
 	/**
@@ -135,7 +140,9 @@ class SpecialInbox extends SpecialPage {
 	 */
 	private function getInboxImporter(): InboxImporter {
 		if ( $this->inboxImporter === null ) {
-			$this->inboxImporter = new InboxImporter( $this->verificationEngine, $this->revisionLookup );
+			$this->inboxImporter = new InboxImporter(
+				$this->verificationEngine, $this->revisionLookup, $this->revisionManipulator
+			);
 		}
 		return $this->inboxImporter;
 	}
@@ -199,6 +206,14 @@ class SpecialInbox extends SpecialPage {
 				'action' => [
 					'type' => 'hidden',
 					'default' => $canImport ? 'direct-merge' : 'discard',
+				],
+				'merge-type' => [
+					'type' => 'hidden',
+					'default' => ''
+				],
+				'combined-text' => [
+					'type' => 'hidden',
+					'default' => ''
 				]
 			],
 			$this->getContext()
@@ -239,11 +254,11 @@ class SpecialInbox extends SpecialPage {
 		if ( $action === 'discard' ) {
 			return $this->doDiscard();
 		}
-		if ( $action === 'direct-merge' ) {
+		if ( $action === 'import-remote' ) {
 			return $this->doDirectMerge();
 		}
-		if ( $action === 'merge-remote' ) {
-			return $this->doMergeRemote();
+		if ( $action === 'import-merge' ) {
+			return $this->doImportMerge( $formData );
 		}
 
 		return false;
@@ -285,19 +300,27 @@ class SpecialInbox extends SpecialPage {
 	}
 
 	/**
+	 * @param array $formData
 	 * @return bool|Message
 	 */
-	private function doMergeRemote() {
-		$targetTitle = $this->titleFactory->newFromText( $this->remote->getTitle()->getDBkey() );
-		if ( !$targetTitle ) {
-			return $this->msg( 'da-specialinbox-merge-error-invalid target' );
+	private function doImportMerge( array $formData ) {
+		$mergeType = $formData['merge-type'] ?? null;
+		try {
+			switch ( $mergeType ) {
+				case 'remote':
+					return $this->doDirectMerge();
+				case 'local':
+					return $this->doDiscard();
+				case 'combined':
+					$remoteTitle = $this->remote->getTitle();
+					$text = $formData['combined-text'] ?? '';
+					$this->inboxImporter->mergePages( $this->local->getTitle(), $remoteTitle, $this->getUser(), $text );
+			}
+		} catch ( \Throwable $ex ) {
+			return $this->msg( $ex->getMessage() );
 		}
-		$inboxImporter = $this->getInboxImporter();
-		$status = $inboxImporter->importRemote( $this->remote, $targetTitle, $this->getUser() );
-		if ( !$status->isOK() ) {
-			return $this->msg( $status->getMessage() );
-		}
-		$this->getOutput()->redirect( $targetTitle->getFullURL() );
+
+		$this->getOutput()->redirect( $this->local->getTitle()->getFullURL() );
 		return true;
 	}
 

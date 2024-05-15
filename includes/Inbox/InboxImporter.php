@@ -2,10 +2,13 @@
 
 namespace DataAccounting\Inbox;
 
+use DataAccounting\RevisionManipulator;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionLookup;
+use MediaWiki\User\UserIdentity;
+use MWException;
 use Status;
 use Title;
 use User;
@@ -19,13 +22,20 @@ class InboxImporter {
 	/** @var RevisionLookup */
 	private $revisionLookup;
 
+	/** @var RevisionManipulator */
+	private $revisionManipulator;
+
 	/**
 	 * @param VerificationEngine $verificationEngine
 	 * @param RevisionLookup $revisionLookup
+	 * @param RevisionManipulator $revisionManipulator
 	 */
-	public function __construct( VerificationEngine $verificationEngine, RevisionLookup $revisionLookup ) {
+	public function __construct(
+		VerificationEngine $verificationEngine, RevisionLookup $revisionLookup, RevisionManipulator $revisionManipulator
+	) {
 		$this->verificationEngine = $verificationEngine;
 		$this->revisionLookup = $revisionLookup;
+		$this->revisionManipulator = $revisionManipulator;
 	}
 
 	/**
@@ -78,7 +88,7 @@ class InboxImporter {
 	/**
 	 * @param Title $title
 	 * @param User $user
-	 * @param string|null $comment
+	 * @param string $comment
 	 *
 	 * @return Status
 	 */
@@ -109,4 +119,16 @@ class InboxImporter {
 		return $movePage->move( $user, $comment, false );
 	}
 
+	/**
+	 * @param Title $local
+	 * @param Title $remoteTitle
+	 * @param User $user
+	 * @param string $text
+	 * @return void
+	 * @throws MWException
+	 */
+	public function mergePages( Title $local, Title $remoteTitle, User $user, string $text ) {
+		$this->revisionManipulator->mergePages( $local, $remoteTitle, $user, $text );
+		$this->doDeleteTitle( $remoteTitle, $user );
+	}
 }

@@ -23,9 +23,8 @@ da.ui.ComparePanel.prototype.initialize = function () {
 		this.resolution = new da.ui.ConflictResolution( {}, $diff );
 		this.resolution.connect( this, {
 			allResolved: function () {
-				var importSubmitButton = this.$form.find( 'button[name=import]' );
-				importSubmitButton.prop( 'disabled', false );
-				console.log( this.resolution.getFinalText() );
+				this.$form.find( '#mw-input-wpcombined-text' ).val( this.resolution.getFinalText() );
+				this.$form.find( 'button[name=import]' ).prop( 'disabled', false );
 			}
 		} );
 		this.$element.append( this.resolution.$element );
@@ -86,12 +85,16 @@ da.ui.ComparePanel.prototype.setFormData = function () {
 				this.treePanel.showCombinedNode( false );
 				this.treePanel.deselectBranches();
 				if ( item.getData() === 'remote' ) {
-					this.treePanel.selectBranch( 'remote' );
 					this.treePanel.showCombinedNode( true, 'remote' );
+					this.treePanel.selectBranch( 'remote' );
+					this.$form.find( '#mw-input-wpmerge-type' ).val( 'remote' );
 				} else if ( item.getData() === 'local' ) {
 					this.treePanel.selectBranch( 'local' );
+					this.$form.find( '#mw-input-wpmerge-type' ).val( 'local' );
+
 				} else if ( item.getData() === 'merge' ) {
 					this.treePanel.showCombinedNode( true, 'combined' );
+					this.$form.find( '#mw-input-wpmerge-type' ).val( 'combined' );
 					if ( this.resolution ) {
 						this.resolution.setVisibility( true );
 					}

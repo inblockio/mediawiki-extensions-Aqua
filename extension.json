@@ -96,7 +96,7 @@
 		},
 		"Inbox": {
 			"class": "DataAccounting\\SpecialInbox",
-			"services": [ "TitleFactory", "DataAccountingVerificationEngine", "RevisionLookup" ]
+			"services": [ "TitleFactory", "DataAccountingVerificationEngine", "RevisionLookup", "DataAccountingRevisionManipulator" ]
 		}
 	},
 

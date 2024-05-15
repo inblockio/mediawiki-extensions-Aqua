@@ -3,17 +3,20 @@
 namespace DataAccounting;
 
 use CommentStoreComment;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use Exception;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
+use MediaWiki\Revision\SlotRecord;
 use MediaWiki\User\UserIdentity;
 use Message;
 use MWException;
 use Title;
 use Wikimedia\Rdbms\ILoadBalancer;
+use WikitextContent;
 
 class RevisionManipulator {
 
@@ -177,31 +180,173 @@ class RevisionManipulator {
 	 * @param Title $target
 	 * @param UserIdentity $user
 	 * @param array $revisionParents
-	 * @return void
+	 * @return VerificationEntity[]
 	 * @throws MWException
 	 */
-	private function insertRevisions( array $revisions, Title $target, UserIdentity $user, array $revisionParents ) {
-		$wp = $this->wikipageFactory->newFromTitle( $target );
+	private function insertRevisions(
+		array $revisions, Title $target, UserIdentity $user, array $revisionParents
+	): array {
+		$createdEntities = [];
 		foreach ( $revisions as $revision ) {
-			$updater = $wp->newPageUpdater( $user );
-			$roles = $revision->getSlotRoles();
-			foreach ( $roles as $role ) {
-				$content = $revision->getContent( $role );
-				$updater->setContent( $role, $content );
-			}
-
-			$newRev = $updater->saveRevision(
-				CommentStoreComment::newUnsavedComment( 'Forked from ' . $revision->getId() ),
-				EDIT_SUPPRESS_RC | EDIT_INTERNAL
-			);
+			$newRev = $this->doInsertRevision( $revision, $target, $user );
 			if ( !$newRev ) {
 				throw new Exception( 'Failed to save revision' );
 			}
 			$parentEntity = $revisionParents[$revision->getId()] ?? null;
-			$this->verificationEngine->buildAndUpdateVerificationData(
+			$createdEntities[] = $this->verificationEngine->buildAndUpdateVerificationData(
 				$this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRev->getId() ),
 				$newRev, $parentEntity
 			);
+		}
+		// Remove nulls
+		return array_filter( $createdEntities );
+	}
+
+	/**
+	 * @param RevisionRecord $revision
+	 * @param Title $target
+	 * @param UserIdentity $user
+	 * @return RevisionRecord|null
+	 * @throws MWException
+	 */
+	private function doInsertRevision( RevisionRecord $revision, Title $target, UserIdentity $user ): ?RevisionRecord {
+		$wp = $this->wikipageFactory->newFromTitle( $target );
+		$updater = $wp->newPageUpdater( $user );
+		$roles = $revision->getSlotRoles();
+		foreach ( $roles as $role ) {
+			$content = $revision->getContent( $role );
+			$updater->setContent( $role, $content );
+		}
+
+		return $updater->saveRevision(
+			CommentStoreComment::newUnsavedComment( 'Forked from ' . $revision->getId() ),
+			EDIT_SUPPRESS_RC | EDIT_INTERNAL
+		);
+	}
+
+	/**
+	 * @param Title $local
+	 * @param Title $remote
+	 * @param UserIdentity $user
+	 * @param string $mergedText
+	 * @return void
+	 * @throws MWException
+	 */
+	public function mergePages( Title $local, Title $remote, UserIdentity $user, string $mergedText ) {
+		$localEntities = $this->getVerificationEntitiesForMerge( $local );
+		$remoteEntities = $this->getVerificationEntitiesForMerge( $remote );
+		$commonParent = $this->getCommonParent( $localEntities, $remoteEntities );
+		if ( !$commonParent ) {
+			throw new Exception( 'No common parent found' );
+		}
+		$this->assertSameGenesis( $localEntities, $remoteEntities );
+
+		$wp = $this->wikipageFactory->newFromTitle( $local );
+		$lastInserted = null;
+		foreach ( $remoteEntities as $hash => $remoteEntity ) {
+			if ( isset( $localEntities[$hash] ) ) {
+				error_log( "Skipping $hash" );
+				// Exists locally
+				continue;
+			}
+			error_log( "Inserting $hash" );
+			$newLocalRev = $this->doInsertRevision( $remoteEntity->getRevision(), $local, $user );
+			error_log( "CREATED REV: " . ( $newLocalRev ? $newLocalRev->getId() : 'failed' ) );
+			$remoteEntity = $this->moveVerificationEntity( $remoteEntity, $newLocalRev );
+			if ( !$remoteEntity ) {
+				throw new Exception( 'Failed to move verification entity' );
+			}
+			error_log( "RELOADED ENTITY" );
+			$lastInserted = $remoteEntity;
+		}
+		// Insert merged revision
+		$updater = $wp->newPageUpdater( $user );
+		$updater->setContent( SlotRecord::MAIN, new WikitextContent( $mergedText ) );
+		$mergedRev = $updater->saveRevision(
+			CommentStoreComment::newUnsavedComment( 'Merged from ' . $remote->getPrefixedText() )
+		);
+		if ( !$mergedRev ) {
+			throw new Exception( 'Failed to save merged revision' );
+		}
+		// Last local revision is the official parent, since remote changes are branched-off
+		$lastLocal = array_pop( $localEntities );
+		$this->verificationEngine->buildAndUpdateVerificationData(
+			$this->verificationEngine->getLookup()->verificationEntityFromRevId( $mergedRev->getId() ),
+			$mergedRev, $lastLocal, $lastInserted->getHash()
+		);
+	}
+
+	/**
+	 * @param VerificationEntity $entity
+	 * @param RevisionRecord $newRevision
+	 * @return VerificationEntity|null
+	 * @throws Exception
+	 */
+	private function moveVerificationEntity(
+		VerificationEntity $entity, RevisionRecord $newRevision
+	): ?VerificationEntity {
+		$newVE = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRevision->getId() );
+		error_log( "RETRIEVE ENTITY FOR REV: {$newRevision->getId()}" );
+		if ( !$newVE ) {
+			error_log( "NOT" );
+			throw new Exception( 'Failed to get verification entity for new revision' );
+		}
+		// Do switching, replace newly inserted VE for new revision with old one,
+		// but update data so that it points to the new revision
+		$insertData = [
+			'page_id' => $newVE->getTitle()->getArticleID(),
+			'page_title' => $newVE->getTitle()->getPrefixedDBkey()
+		];
+		error_log( "UPDATING" );
+		error_log( var_export( $insertData, 1 ) );
+		$db = $this->lb->getConnection( DB_PRIMARY );
+		// Delete new one
+		error_log( "DELETE NEW ONE" );
+		$this->verificationEngine->getLookup()->deleteForRevId( $newRevision->getId() );
+		// Update old VE, so that it points to the new revision
+		$db->update(
+			'revision_verification',
+			$insertData,
+			[ 'rev_id' => $entity->getRevision()->getId() ],
+		);
+		error_log( "QUERY: " . $db->lastQuery() );
+
+		// Reload updated VE
+		return $this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRevision->getId() );
+	}
+
+	/**
+	 * @param Title $title
+	 * @return VerificationEntity[]
+	 */
+	private function getVerificationEntitiesForMerge( Title $title ) {
+		$revs = $this->verificationEngine->getLookup()->getAllRevisionIds( $title );
+		$entities = [];
+		foreach ( $revs as $rev ) {
+			$entity = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $rev );
+			if ( !$entity ) {
+				continue;
+			}
+			$entities[$entity->getHash()] = $entity;
+		}
+
+		return $entities;
+	}
+
+	/**
+	 * @param array $local
+	 * @param array $remote
+	 * @return void
+	 * @throws Exception
+	 */
+	private function assertSameGenesis( array $local, array $remote ) {
+		if ( empty( $local ) || empty( $remote ) ) {
+			throw new Exception( 'No revisions found in source or target page' );
+		}
+		$localGenesis = $local[array_key_first( $local )]->getHash( VerificationEntity::GENESIS_HASH );
+		$remoteGenesis = $remote[array_key_first( $remote )]->getHash( VerificationEntity::GENESIS_HASH );
+		if ( $localGenesis !== $remoteGenesis ) {
+			throw new Exception( 'Source and target pages have different genesis hashes' );
 		}
 	}
 
@@ -241,4 +386,21 @@ class RevisionManipulator {
 			}
 		}
 	}
+
+	/**
+	 * @param array $localEntities
+	 * @param array $remoteEntities
+	 * @return VerificationEntity|null
+	 */
+	private function getCommonParent( array $localEntities, array $remoteEntities ): ?VerificationEntity {
+		$localHashes = array_keys( $localEntities );
+		$remoteHashes = array_keys( $remoteEntities );
+		$common = array_intersect( $localHashes, $remoteHashes );
+		if ( empty( $common ) ) {
+			return null;
+		}
+		$last = array_pop( $common );
+		return $localEntities[$last];
+	}
+
 }

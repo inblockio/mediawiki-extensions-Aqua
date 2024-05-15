@@ -13,15 +13,16 @@ OO.inheritClass( da.ui.TreePanel, OO.ui.PanelLayout );
 
 da.ui.TreePanel.prototype.initialize = function () {
 	this.lastParents = { 'local': null, 'remote': null };
+	console.table( this.tree );
 	for ( var hash in this.tree ) {
 		if ( !this.tree.hasOwnProperty( hash ) ) {
 			continue;
 		}
 		var node = this.makeNode( this.tree[ hash ], hash );
-		if ( node.getType() === 'local' ) {
+		if ( node.getType() === 'local' && !this.lastParents.local ) {
 			this.lastParents.local = node.getHash();
 		}
-		if ( node.getType() === 'remote' ) {
+		if ( node.getType() === 'remote' && !this.lastParents.remote ) {
 			this.lastParents.remote = node.getHash();
 		}
 		this.addNode( node );
@@ -34,9 +35,10 @@ da.ui.TreePanel.prototype.makeNode = function ( node, hash ) {
 	return new da.ui.TreeNode( hash, node );
 };
 
-da.ui.TreePanel.prototype.addNode = function ( node ) {
+da.ui.TreePanel.prototype.addNode = function ( node, prepend ) {
 	this.nodes[node.getHash()] = node;
-	this.$element.append( node.$element );
+	prepend ?
+		this.$element.prepend( node.$element ) : this.$element.append( node.$element );
 };
 
 da.ui.TreePanel.prototype.connect = function () {
@@ -73,7 +75,7 @@ da.ui.TreePanel.prototype.getPositionForChild = function( $node1, $node2 ) {
 			x: $node2.position().left + $node2.outerWidth( true ) / 2,
 			y: $node2.position().top + parseInt( $node2.css( 'marginTop' ) )
 		}
-	}
+	};
 };
 
 
@@ -94,7 +96,7 @@ da.ui.TreePanel.prototype.drawConnection = function ( $node1, $node2 ) {
 		// M 100,100, C100 115, 200 100, 200 130
 		dStr =
 			"M " + (pos.start.x ) + "," + (pos.start.y) + " " +
-			"C " + pos.start.x  + " " + ( pos.start.y + 20 ) + "," + pos.end.x + ' ' + pos.start.y + ',' +
+			"C " + pos.start.x  + " " + ( pos.start.y - 40 ) + "," + pos.end.x + ' ' + pos.start.y + ',' +
 			pos.end.x + "," + pos.end.y;
 	}
 
@@ -130,7 +132,7 @@ da.ui.TreePanel.prototype.showCombinedNode = function ( show, type ) {
 	if ( show ) {
 		var parents = type === 'combined' ?
 			this.lastParents : { local: null, remote: this.lastParents.remote };
-		this.addNode( new da.ui.ResolutionNode( parents ) );
+		this.addNode( new da.ui.ResolutionNode( parents ), true );
 	} else {
 		if ( this.nodes.hasOwnProperty( '-1' ) ) {
 			this.nodes[ '-1' ].$element.remove();
