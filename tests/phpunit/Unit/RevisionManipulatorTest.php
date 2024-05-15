@@ -6,6 +6,7 @@ use DataAccounting\RevisionManipulator;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\VerificationLookup;
 use MediaWiki\Page\PageIdentity;
+use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
 use MediaWiki\User\UserIdentity;
@@ -30,7 +31,8 @@ class RevisionManipulatorTest extends TestCase {
 		$manipulator = new RevisionManipulator(
 			$this->getLBMock(),
 			$this->getRevisionStoreMock(),
-			$this->getVerificationEngineMock()
+			$this->getVerificationEngineMock(),
+			$this->createMock( WikiPageFactory::class )
 		);
 		$revisionIds = [ 2, 3, 4 ];
 		$manipulator->deleteRevisions( $revisionIds );
@@ -49,7 +51,8 @@ class RevisionManipulatorTest extends TestCase {
 		$manipulator = new RevisionManipulator(
 			$this->getLBMock(),
 			$revisionStoreMock,
-			$this->getVerificationEngineMock()
+			$this->getVerificationEngineMock(),
+			$this->createMock( WikiPageFactory::class )
 		);
 		$revisionIds = [ 2, 3, 4 ];
 		$manipulator->squashRevisions( $revisionIds );
