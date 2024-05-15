@@ -189,9 +189,7 @@ class RevisionManipulator {
 				$content = $revision->getContent( $role );
 				$updater->setContent( $role, $content );
 			}
-			if ( isset( $revisionParents[$revision->getId()] ) ) {
-				$this->verificationEngine->setForcedParent( $revisionParents[$revision->getId()] );
-			}
+
 			$newRev = $updater->saveRevision(
 				CommentStoreComment::newUnsavedComment( 'Forked from ' . $revision->getId() ),
 				EDIT_SUPPRESS_RC | EDIT_INTERNAL
@@ -199,11 +197,11 @@ class RevisionManipulator {
 			if ( !$newRev ) {
 				throw new Exception( 'Failed to save revision' );
 			}
+			$parentEntity = $revisionParents[$revision->getId()] ?? null;
 			$this->verificationEngine->buildAndUpdateVerificationData(
 				$this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRev->getId() ),
-				$newRev
+				$newRev, $parentEntity
 			);
-			$this->verificationEngine->setForcedParent( null );
 		}
 	}
 
