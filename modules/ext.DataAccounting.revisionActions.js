@@ -16,4 +16,12 @@ $( function() {
 			new da.ui.SquashRevisionsDialog( { pageName: mw.config.get( 'wgPageName' ) } )
 		);
 	} );
+	$( '#ca-da-fork-page' ).on( 'click', function() {
+		openDialog(
+			new da.ui.ForkPageDialog( {
+				revision: mw.config.get( 'wgCurRevisionId' ),
+				source: mw.config.get( 'wgPageName' )
+			} )
+		);
+	} );
 } );

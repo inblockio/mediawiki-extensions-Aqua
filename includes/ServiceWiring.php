@@ -82,11 +82,12 @@ return [
 			$services->getService( 'DataAccountingVerificationEngine' )
 		);
 	},
-	'DataAccountingRevisionManipulator' => static function( MediaWikiServices $services ): RevisionManipulator {
+	'DataAccountingRevisionManipulator' => static function ( MediaWikiServices $services ): RevisionManipulator {
 		return new RevisionManipulator(
 			$services->getDBLoadBalancer(),
 			$services->getRevisionStore(),
-			$services->getService( 'DataAccountingVerificationEngine' )
+			$services->getService( 'DataAccountingVerificationEngine' ),
+			$services->getWikiPageFactory()
 		);
 	}
 ];

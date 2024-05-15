@@ -13,6 +13,11 @@ da.api = {
 	squashRevisions: function( ids ) {
 		return da.api._internal.post( 'squash_revisions', JSON.stringify( { ids: ids } ) );
 	},
+	forkPage: function( source, target, maxRevision ) {
+		return da.api._internal.post( 'fork_page', JSON.stringify( {
+			page: source, target: target, revision: maxRevision
+		} ) );
+	},
 	_internal: {
 		get: function( path, params ) {
 			return da.api._internal._ajax( path, params );
@@ -22,7 +27,7 @@ da.api = {
 		},
 		_requests: {},
 		_ajax: function( path, data, method ) {
-			data = data || {};
+			data = data || '{}';
 			var dfd = $.Deferred();
 
 			da.api._internal._requests[path] = $.ajax( {

@@ -333,6 +333,14 @@
 			"services": [
 				"PermissionManager", "DataAccountingRevisionManipulator"
 			]
+		},
+		{
+			"method": "POST",
+			"path": "/data_accounting/fork_page",
+			"class": "DataAccounting\\API\\ForkPageHandler",
+			"services": [
+				"PermissionManager", "DataAccountingRevisionManipulator", "TitleFactory", "RevisionLookup"
+			]
 		}
 	],
 	"ResourceFileModulePaths": {
@@ -397,6 +405,7 @@
 				"ui/RevisionDialog.js",
 				"ui/DeleteRevisionsDialog.js",
 				"ui/SquashRevisionsDialog.js",
+				"ui/ForkPageDialog.js",
 				"ext.DataAccounting.revisionActions.js"
 			],
 			"dependencies": [
@@ -417,7 +426,11 @@
 				"da-ui-squash-revisions-witness-warning",
 				"da-ui-squash-revisions-notice",
 				"da-ui-squash-revisions-no-revisions",
-				"da-ui-delete-revisions-no-revisions"
+				"da-ui-delete-revisions-no-revisions",
+				"da-ui-forkpage-title",
+				"da-ui-singlepageexport-fork-label",
+				"da-ui-forkpage-newpage-title",
+				"da-ui-forkpage-error"
 			]
 		},
 		"ext.DataAccounting.api": {
