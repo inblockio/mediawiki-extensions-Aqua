@@ -197,6 +197,7 @@ class RevisionManipulator {
 			if ( !$newRev ) {
 				throw new Exception( 'Failed to save revision' );
 			}
+
 			$parentEntity = $revisionParents[$revision->getId()] ?? null;
 			$this->verificationEngine->buildAndUpdateVerificationData(
 				$this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRev->getId() ),

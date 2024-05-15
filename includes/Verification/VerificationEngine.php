@@ -34,6 +34,9 @@ class VerificationEngine {
 	/** @var WitnessingEngine */
 	private $witnessingEngine;
 
+	/** @var VerificationEntity|null */
+	private $forcedParent;
+
 	/**
 	 * @param VerificationLookup $verificationLookup
 	 * @param ILoadBalancer $lb
@@ -59,6 +62,8 @@ class VerificationEngine {
 		$this->pageUpdaterFactory = $pageUpdaterFactory;
 		$this->revisionStore = $revisionStore;
 		$this->witnessingEngine = $witnessingEngine;
+
+		$this->forcedParent = null;
 	}
 
 	/**
@@ -223,9 +228,12 @@ class VerificationEngine {
 		);
 
 		// SIGNATURE DATA HASH CALCULATOR
-		$signature = $parentEntity ? $parentEntity->getSignature() : '';
-		$publicKey = $parentEntity ? $parentEntity->getPublicKey() : '';
-		$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
+		$signatureHash = '';
+		if ( $parentEntity && $parentEntity->getSignature() !== '' ) {
+			$signature = $parentEntity->getSignature();
+			$publicKey = $parentEntity->getPublicKey();
+			$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
+		}
 
 		$witnessHash = '';
 		if ( $parentEntity && $parentEntity->getWitnessEventId() ) {
