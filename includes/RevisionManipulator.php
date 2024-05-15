@@ -5,9 +5,14 @@ namespace DataAccounting;
 use CommentStoreComment;
 use DataAccounting\Verification\VerificationEngine;
 use Exception;
+use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\MutableRevisionRecord;
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
+use MediaWiki\User\UserIdentity;
 use Message;
+use MWException;
+use Title;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 class RevisionManipulator {
@@ -19,17 +24,22 @@ class RevisionManipulator {
 	/** @var VerificationEngine */
 	private $verificationEngine;
 
+	/** @var WikiPageFactory */
+	private $wikipageFactory;
+
 	/**
 	 * @param ILoadBalancer $lb
 	 * @param RevisionStore $revisionStore
 	 * @param VerificationEngine $verificationEngine
+	 * @param WikiPageFactory $wpf
 	 */
 	public function __construct(
-		ILoadBalancer $lb, RevisionStore $revisionStore, VerificationEngine $verificationEngine
+		ILoadBalancer $lb, RevisionStore $revisionStore, VerificationEngine $verificationEngine, WikiPageFactory $wpf
 	) {
 		$this->lb = $lb;
 		$this->revisionStore = $revisionStore;
 		$this->verificationEngine = $verificationEngine;
+		$this->wikipageFactory = $wpf;
 	}
 
 	/**
@@ -130,6 +140,74 @@ class RevisionManipulator {
 	}
 
 	/**
+	 * @param Title $source
+	 * @param Title $target
+	 * @param RevisionRecord $maxRev
+	 * @param UserIdentity $user
+	 * @return void
+	 * @throws MWException
+	 */
+	public function forkPage( Title $source, Title $target, RevisionRecord $maxRev, UserIdentity $user ) {
+		$revision = $this->revisionStore->getFirstRevision( $source );
+		if ( !$revision ) {
+			throw new Exception( 'No revisions found for source page' );
+		}
+		// Set first revision of source as the parent for the first revision of the target
+		$revisionParents = [
+			$revision->getId() =>
+				$this->verificationEngine->getLookup()->verificationEntityFromRevId( $revision->getId() ),
+		];
+		$revisions = [ $revision ];
+		do {
+			$revision = $this->revisionStore->getNextRevision( $revision );
+			if ( !$revision ) {
+				break;
+			}
+			$revisions[] = $revision;
+			if ( $revision->getId() === $maxRev->getId() ) {
+				break;
+			}
+		} while ( true );
+
+		$this->insertRevisions( $revisions, $target, $user, $revisionParents );
+	}
+
+	/**
+	 * @param RevisionRecord[] $revisions
+	 * @param Title $target
+	 * @param UserIdentity $user
+	 * @param array $revisionParents
+	 * @return void
+	 * @throws MWException
+	 */
+	private function insertRevisions( array $revisions, Title $target, UserIdentity $user, array $revisionParents ) {
+		$wp = $this->wikipageFactory->newFromTitle( $target );
+		foreach ( $revisions as $revision ) {
+			$updater = $wp->newPageUpdater( $user );
+			$roles = $revision->getSlotRoles();
+			foreach ( $roles as $role ) {
+				$content = $revision->getContent( $role );
+				$updater->setContent( $role, $content );
+			}
+			if ( isset( $revisionParents[$revision->getId()] ) ) {
+				$this->verificationEngine->setForcedParent( $revisionParents[$revision->getId()] );
+			}
+			$newRev = $updater->saveRevision(
+				CommentStoreComment::newUnsavedComment( 'Forked from ' . $revision->getId() ),
+				EDIT_SUPPRESS_RC | EDIT_INTERNAL
+			);
+			if ( !$newRev ) {
+				throw new Exception( 'Failed to save revision' );
+			}
+			$this->verificationEngine->buildAndUpdateVerificationData(
+				$this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRev->getId() ),
+				$newRev
+			);
+			$this->verificationEngine->setForcedParent( null );
+		}
+	}
+
+	/**
 	 * Execute actual deletion
 	 *
 	 * @param array $revisionIds
@@ -165,5 +243,4 @@ class RevisionManipulator {
 			}
 		}
 	}
-
 }

@@ -34,6 +34,9 @@ class VerificationEngine {
 	/** @var WitnessingEngine */
 	private $witnessingEngine;
 
+	/** @var VerificationEntity|null */
+	private $forcedParent;
+
 	/**
 	 * @param VerificationLookup $verificationLookup
 	 * @param ILoadBalancer $lb
@@ -41,6 +44,7 @@ class VerificationEngine {
 	 * @param WikiPageFactory $wikiPageFactory
 	 * @param RevisionStore $revisionStore
 	 * @param PageUpdaterFactory $pageUpdaterFactory
+	 * @param WitnessingEngine $witnessingEngine
 	 */
 	public function __construct(
 		VerificationLookup $verificationLookup,
@@ -58,6 +62,8 @@ class VerificationEngine {
 		$this->pageUpdaterFactory = $pageUpdaterFactory;
 		$this->revisionStore = $revisionStore;
 		$this->witnessingEngine = $witnessingEngine;
+
+		$this->forcedParent = null;
 	}
 
 	/**
@@ -210,11 +216,7 @@ class VerificationEngine {
 	): ?VerificationEntity {
 		$contentHash = $this->getHasher()->calculateContentHash( $rev );
 
-		$parentRevision = $rev->getParentId();
-		$parentEntity = null;
-		if ( $parentRevision ) {
-			$parentEntity = $this->getLookup()->verificationEntityFromRevId( $parentRevision );
-		}
+		$parentEntity = $this->getParentEntity( $entity, $rev );
 
 		// META DATA HASH CALCULATOR
 		$previousVerificationHash = $parentEntity ?
@@ -228,10 +230,10 @@ class VerificationEngine {
 		$signature = '';
 		$publicKey = '';
 		$signatureHash = '';
-		if ( $parentEntity && $parentEntity->getSignature() !== '') {
+		if ( $parentEntity && $parentEntity->getSignature() !== '' ) {
 			$signature = $parentEntity->getSignature();
 			$publicKey = $parentEntity->getPublicKey();
-			$signatureHash = $this->getHasher()->getHashSum($signature . $publicKey);
+			$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
 		}
 
 		$witnessHash = '';
@@ -289,5 +291,30 @@ class VerificationEngine {
 			// 'wallet_address' => '', // is this needed?
 			'source' => 'default',
 		] );
+	}
+
+	/**
+	 * Set explicit parent for the entity (for common parent verification)
+	 * @param VerificationEntity|null $entity
+	 * @return void
+	 */
+	public function setForcedParent( ?VerificationEntity $entity ) {
+		$this->forcedParent = $entity;
+	}
+
+	/**
+	 * @param VerificationEntity $entity
+	 * @param RevisionRecord $rev
+	 * @return VerificationEntity|null
+	 */
+	private function getParentEntity( VerificationEntity $entity, RevisionRecord $rev ): ?VerificationEntity {
+		if ( $this->forcedParent ) {
+			return $this->forcedParent;
+		}
+		$parentRevision = $rev->getParentId();
+		if ( $parentRevision ) {
+			return $this->getLookup()->verificationEntityFromRevId( $parentRevision );
+		}
+		return null;
 	}
 }

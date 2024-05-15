@@ -123,6 +123,9 @@
 	"da-specialinbox-compare-remote-link": "Remote page: ",
 	"da-specialinbox-compare-local-link": "Local page: ",
 	"da-specialinbox-merge-discard": "Discard draft",
-	"da-specialimport-confirm": "Are you sure?"
-
+	"da-specialimport-confirm": "Are you sure?",
+	"da-ui-forkpage-title": "Fork page",
+	"da-ui-singlepageexport-fork-label": "Fork",
+	"da-ui-forkpage-newpage-title": "Name of the forked page",
+	"da-ui-forkpage-error": "Failed to fork page"
 }
