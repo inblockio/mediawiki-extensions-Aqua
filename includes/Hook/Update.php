@@ -33,5 +33,10 @@ class Update implements LoadExtensionSchemaUpdatesHook {
 		);
 
 		// TODO: Register patches
+		$updater->addExtensionField(
+			'revision_verification',
+			'merge_hash',
+			"$base/sql/migrations/0015_add_merge_hash.sql",
+		);
 	}
 }
