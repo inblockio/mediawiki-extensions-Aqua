@@ -63,7 +63,7 @@ class AuthGuardianProvider extends SessionProvider {
 			return null;
 		}
 
-		$guardianUsername = $this->daConfig->get( 'GuardianUsername' );
+		$guardianUsername = "Guardian";
 		$guardianUser = $this->userFactory->newFromName( $guardianUsername );
 		$sessionId = bin2hex( random_bytes( 32 ) );
 
