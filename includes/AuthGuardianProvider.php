@@ -4,6 +4,7 @@ namespace DataAccounting;
 
 use Config;
 use ConfigFactory;
+use Exception;
 use MediaWiki\MainConfigNames;
 use MediaWiki\Permissions\GrantsInfo;
 use MediaWiki\Session\SessionBackend;
@@ -34,7 +35,7 @@ class AuthGuardianProvider extends SessionProvider {
 
 	/**
 	 * @inheritDoc
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function provideSessionInfo( WebRequest $request ) {
 		// Do nothing if not in the REST API
@@ -48,7 +49,6 @@ class AuthGuardianProvider extends SessionProvider {
 			return null;
 		}
 
-		// Do nothing if there is a valid session
 		$prefix = $this->getConfig()->get( MainConfigNames::CookiePrefix );
 		$sessionId = $request->getCookie( '_session', $prefix );
 
@@ -57,7 +57,7 @@ class AuthGuardianProvider extends SessionProvider {
 			return null;
 		}
 
-		// Compare tokens
+		// Compare tokens; do nothing if they don't match
 		$guardianToken = $this->daConfig->get( 'GuardianToken' );
 		if ( $authToken !== $guardianToken ) {
 			return null;
@@ -80,6 +80,8 @@ class AuthGuardianProvider extends SessionProvider {
 	}
 
 	/**
+	 * @param WebRequest $request
+	 *
 	 * @return string|null
 	 */
 	private function getBearerToken( WebRequest $request ): ?string {
