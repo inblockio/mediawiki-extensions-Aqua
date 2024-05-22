@@ -167,7 +167,7 @@ class VerificationLookup {
 			$output[] = (int)$row->rev_id;
 		}
 
-		return $output;
+		return $output ?? [];
 	}
 
 	/**

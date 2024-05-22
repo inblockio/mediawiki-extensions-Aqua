@@ -455,7 +455,27 @@
 				"da-specialimport-confirm"
 			],
 			"dependencies": [
-				"oojs-ui"
+				"oojs-ui",
+				"ext.DataAccounting.revisionTree"
+			]
+		},
+		"ext.DataAccounting.revisionTree": {
+			"scripts": [
+				"ext.DataAccounting.revisionTree.js"
+			],
+			"styles": [
+				"ui/revisionTree.less"
+			]
+		},
+		"ext.DataAccounting.revisionHistory": {
+			"scripts": [
+				"ext.DataAccounting.revisionHistory.js"
+			],
+			"styles": [
+				"ext.DataAccounting.revisionHistory.less"
+			],
+			"dependencies": [
+				"ext.DataAccounting.revisionTree"
 			]
 		}
 	},
