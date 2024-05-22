@@ -38,5 +38,10 @@ class Update implements LoadExtensionSchemaUpdatesHook {
 			'merge_hash',
 			"$base/sql/migrations/0015_add_merge_hash.sql",
 		);
+		$updater->addExtensionField(
+			'revision_verification',
+			'fork_hash',
+			"$base/sql/migrations/0016_add_fork_hash.sql",
+		);
 	}
 }

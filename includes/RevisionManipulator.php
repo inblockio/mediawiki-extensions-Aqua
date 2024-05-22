@@ -15,6 +15,7 @@ use MediaWiki\User\UserIdentity;
 use Message;
 use MWException;
 use Title;
+use Wikimedia\Rdbms\IDatabase;
 use Wikimedia\Rdbms\ILoadBalancer;
 use WikitextContent;
 
@@ -230,7 +231,7 @@ class RevisionManipulator {
 	 * @param UserIdentity $user
 	 * @param string $mergedText
 	 * @return void
-	 * @throws MWException
+	 * @throws Exception
 	 */
 	public function mergePages( Title $local, Title $remote, UserIdentity $user, string $mergedText ) {
 		$localEntities = $this->getVerificationEntitiesForMerge( $local );
@@ -243,76 +244,84 @@ class RevisionManipulator {
 
 		$wp = $this->wikipageFactory->newFromTitle( $local );
 		$lastInserted = null;
+		$db = $this->lb->getConnection( DB_PRIMARY );
+		$db->startAtomic( __METHOD__ );
+		error_log( "STARTED ATOMIC" );
 		foreach ( $remoteEntities as $hash => $remoteEntity ) {
 			if ( isset( $localEntities[$hash] ) ) {
 				error_log( "Skipping $hash" );
 				// Exists locally
 				continue;
 			}
-			error_log( "Inserting $hash" );
-			$newLocalRev = $this->doInsertRevision( $remoteEntity->getRevision(), $local, $user );
-			error_log( "CREATED REV: " . ( $newLocalRev ? $newLocalRev->getId() : 'failed' ) );
-			$remoteEntity = $this->moveVerificationEntity( $remoteEntity, $newLocalRev );
-			if ( !$remoteEntity ) {
-				throw new Exception( 'Failed to move verification entity' );
-			}
-			error_log( "RELOADED ENTITY" );
+			$parent = $lastInserted ?? $commonParent;
+			$isFork = $parent->getRevision()->getId() === $commonParent->getRevision()->getId();
+			$this->moveRevision( $db, $remoteEntity, $parent, $local, $isFork, __METHOD__ );
 			$lastInserted = $remoteEntity;
 		}
+		$db->endAtomic( __METHOD__ );
+
+		error_log( "INSERTING NEW" );
 		// Insert merged revision
 		$updater = $wp->newPageUpdater( $user );
+		error_log( "MERGED TEXT: $mergedText" );
 		$updater->setContent( SlotRecord::MAIN, new WikitextContent( $mergedText ) );
 		$mergedRev = $updater->saveRevision(
 			CommentStoreComment::newUnsavedComment( 'Merged from ' . $remote->getPrefixedText() )
 		);
 		if ( !$mergedRev ) {
+			error_log( "FAILED TO SAVE MERGED REVISION" );
 			throw new Exception( 'Failed to save merged revision' );
 		}
+		error_log( "MERGED REVISION ID: " . $mergedRev->getId() );
 		// Last local revision is the official parent, since remote changes are branched-off
+		// Set `merge-hash` on it as well, to bring remote chain back to local
 		$lastLocal = array_pop( $localEntities );
+		error_log( "LAST LOCAL: " . $lastLocal->getRevision()->getId() );
 		$this->verificationEngine->buildAndUpdateVerificationData(
 			$this->verificationEngine->getLookup()->verificationEntityFromRevId( $mergedRev->getId() ),
 			$mergedRev, $lastLocal, $lastInserted->getHash()
 		);
+		error_log( "MERGE COMPLETE" );
 	}
 
 	/**
+	 * @param \Database $db
 	 * @param VerificationEntity $entity
-	 * @param RevisionRecord $newRevision
-	 * @return VerificationEntity|null
+	 * @param VerificationEntity $parent
+	 * @param Title $local
+	 * @param bool $isFork
+	 * @param string $mtd
+	 * @return void
 	 * @throws Exception
 	 */
-	private function moveVerificationEntity(
-		VerificationEntity $entity, RevisionRecord $newRevision
-	): ?VerificationEntity {
-		$newVE = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRevision->getId() );
-		error_log( "RETRIEVE ENTITY FOR REV: {$newRevision->getId()}" );
-		if ( !$newVE ) {
-			error_log( "NOT" );
-			throw new Exception( 'Failed to get verification entity for new revision' );
-		}
-		// Do switching, replace newly inserted VE for new revision with old one,
-		// but update data so that it points to the new revision
-		$insertData = [
-			'page_id' => $newVE->getTitle()->getArticleID(),
-			'page_title' => $newVE->getTitle()->getPrefixedDBkey()
-		];
-		error_log( "UPDATING" );
-		error_log( var_export( $insertData, 1 ) );
-		$db = $this->lb->getConnection( DB_PRIMARY );
-		// Delete new one
-		error_log( "DELETE NEW ONE" );
-		$this->verificationEngine->getLookup()->deleteForRevId( $newRevision->getId() );
-		// Update old VE, so that it points to the new revision
-		$db->update(
-			'revision_verification',
-			$insertData,
-			[ 'rev_id' => $entity->getRevision()->getId() ],
-		);
-		error_log( "QUERY: " . $db->lastQuery() );
+	private function moveRevision(
+		IDatabase $db, VerificationEntity $entity, VerificationEntity $parent, Title $local, bool $isFork, string $mtd
+	) {
+		error_log( '________________________' );
+		error_log( "MOVING REVISION " . $entity->getRevision()->getId() . 'to parent ' . $parent->getRevision()->getId() );
+		// Move revision record
 
-		// Reload updated VE
-		return $this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRevision->getId() );
+		$revData = [ 'rev_page' => $local->getArticleID() ];
+		if ( $isFork ) {
+			$revData['rev_parent_id'] = $parent->getRevision()->getId();
+		}
+		$res = $db->update( 'revision', $revData, [ 'rev_id' => $entity->getRevision()->getId() ] );
+		if ( !$res ) {
+			$db->cancelAtomic( $mtd );
+			throw new Exception( 'Failed to move revision' );
+		}
+		// Move verification entity
+		$data = [
+			'page_id' => $local->getArticleID(),
+			'page_title' => $local->getPrefixedDBkey(),
+		];
+		if ( $isFork ) {
+			$data['fork_hash'] = $parent->getHash();
+		}
+		if ( !$db->update( 'revision_verification', $data, [ 'rev_id' => $entity->getRevision()->getId() ] ) ) {
+			$db->cancelAtomic( $mtd );
+			throw new Exception( 'Failed to move verification entity' );
+		}
 	}
 
 	/**
