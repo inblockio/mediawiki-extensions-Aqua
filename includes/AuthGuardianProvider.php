@@ -26,6 +26,11 @@ class AuthGuardianProvider extends SessionProvider {
 	/** @var GrantsInfo */
 	private GrantsInfo $grantsInfo;
 
+	/**
+	 * @param UserFactory $userFactory
+	 * @param ConfigFactory $configFactory
+	 * @param GrantsInfo $grantsInfo
+	 */
 	public function __construct( UserFactory $userFactory, ConfigFactory $configFactory, GrantsInfo $grantsInfo ) {
 		parent::__construct();
 		$this->userFactory = $userFactory;
