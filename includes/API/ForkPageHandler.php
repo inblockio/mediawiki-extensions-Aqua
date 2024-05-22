@@ -80,7 +80,7 @@ class ForkPageHandler extends SimpleHandler {
 		$this->verifyRevision( $revision, $source );
 
 		try {
-			$this->revisionManipulator->forkPage( $source, $target, $revision, $this->user );
+			$this->revisionManipulator->forkPage( $target, $revision, $this->user );
 		} catch ( \Exception $e ) {
 			throw new HttpException( $e->getMessage(), 500 );
 		}

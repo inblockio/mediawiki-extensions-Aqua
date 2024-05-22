@@ -140,70 +140,37 @@ class RevisionManipulator {
 	}
 
 	/**
-	 * @param Title $source
 	 * @param Title $target
-	 * @param RevisionRecord $maxRev
+	 * @param RevisionRecord $revision
 	 * @param UserIdentity $user
 	 * @return void
 	 * @throws MWException
 	 */
-	public function forkPage( Title $source, Title $target, RevisionRecord $maxRev, UserIdentity $user ) {
-		$revision = $this->revisionStore->getFirstRevision( $source );
-		if ( !$revision ) {
-			throw new Exception( 'No revisions found for source page' );
+	public function forkPage( Title $target, RevisionRecord $revision, UserIdentity $user ) {
+		$parentEntity = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $revision->getId() );
+		if ( !$parentEntity ) {
+			throw new Exception( 'Source page has no verification data' );
 		}
-		// Set first revision of source as the parent for the first revision of the target
-		$revisionParents = [
-			$revision->getId() =>
-				$this->verificationEngine->getLookup()->verificationEntityFromRevId( $revision->getId() ),
-		];
-		$revisions = [ $revision ];
-		do {
-			$revision = $this->revisionStore->getNextRevision( $revision );
-			if ( !$revision ) {
-				break;
-			}
-			$revisions[] = $revision;
-			if ( $revision->getId() === $maxRev->getId() ) {
-				break;
-			}
-		} while ( true );
 
-		$this->insertRevisions( $revisions, $target, $user, $revisionParents );
-	}
-
-	/**
-	 * @param RevisionRecord[] $revisions
-	 * @param Title $target
-	 * @param UserIdentity $user
-	 * @param array $revisionParents
-	 * @return void
-	 * @throws MWException
-	 */
-	private function insertRevisions( array $revisions, Title $target, UserIdentity $user, array $revisionParents ) {
+		// Create new page, settings the last source revision as parent
 		$wp = $this->wikipageFactory->newFromTitle( $target );
-		foreach ( $revisions as $revision ) {
-			$updater = $wp->newPageUpdater( $user );
-			$roles = $revision->getSlotRoles();
-			foreach ( $roles as $role ) {
-				$content = $revision->getContent( $role );
-				$updater->setContent( $role, $content );
-			}
-
-			$newRev = $updater->saveRevision(
-				CommentStoreComment::newUnsavedComment( 'Forked from ' . $revision->getId() ),
-				EDIT_SUPPRESS_RC | EDIT_INTERNAL
-			);
-			if ( !$newRev ) {
-				throw new Exception( 'Failed to save revision' );
-			}
-
-			$parentEntity = $revisionParents[$revision->getId()] ?? null;
-			$this->verificationEngine->buildAndUpdateVerificationData(
-				$this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRev->getId() ),
-				$newRev, $parentEntity
-			);
+		$updater = $wp->newPageUpdater( $user );
+		$roles = $revision->getSlotRoles();
+		foreach ( $roles as $role ) {
+			$content = $revision->getContent( $role );
+			$updater->setContent( $role, $content );
 		}
+		$newRev = $updater->saveRevision(
+			CommentStoreComment::newUnsavedComment( 'Forked from ' . $revision->getId() ),
+			EDIT_SUPPRESS_RC | EDIT_INTERNAL
+		);
+		if ( !$newRev ) {
+			throw new Exception( 'Failed to save revision' );
+		}
+		$this->verificationEngine->buildAndUpdateVerificationData(
+			$this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRev->getId() ),
+			$newRev, $parentEntity
+		);
 	}
 
 	/**

@@ -101,7 +101,10 @@
 	},
 
 	"Actions": {
-		"daact": "DataAccounting\\DAAction"
+		"daact": "DataAccounting\\DAAction",
+		"history": {
+			"class": "DataAccounting\\Action\\HistoryAction"
+		}
 	},
 
 	"namespaces": [

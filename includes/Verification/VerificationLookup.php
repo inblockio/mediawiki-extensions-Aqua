@@ -2,6 +2,7 @@
 
 namespace DataAccounting\Verification;
 
+use DataAccounting\ForkChainResolver;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use Exception;
 use MediaWiki\Revision\RevisionRecord;
@@ -144,17 +145,29 @@ class VerificationLookup {
 		}
 		$res = $this->lb->getConnection( DB_REPLICA )->select(
 			'revision_verification',
-			[ 'rev_id' ],
+			[ 'rev_id', 'previous_verification_hash', 'genesis_hash' ],
 			[ 'page_title' => $title ],
 			__METHOD__,
 			[ 'ORDER BY' => 'rev_id' ]
 		);
 
-		$output = [];
+		$output = null;
 		foreach ( $res as $row ) {
+			if ( $output === null ) {
+				$output = [];
+				$firstRev = (int)$row->rev_id;
+				// If page is forked, get all revisions from the fork point
+				$parents = ( new ForkChainResolver( $this ) )->resolveFromRevisionId( $firstRev );
+				if ( $parents ) {
+					$output = array_map( static function ( VerificationEntity $entity ) {
+						return $entity->getRevision()->getId();
+					}, $parents );
+				}
+			}
 			$output[] = (int)$row->rev_id;
 		}
-		return $output;
+
+		return array_reverse( $output );
 	}
 
 	/**
