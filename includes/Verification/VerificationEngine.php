@@ -34,6 +34,9 @@ class VerificationEngine {
 	/** @var WitnessingEngine */
 	private $witnessingEngine;
 
+	/** @var VerificationEntity|null */
+	private $forcedParent;
+
 	/**
 	 * @param VerificationLookup $verificationLookup
 	 * @param ILoadBalancer $lb
@@ -41,6 +44,7 @@ class VerificationEngine {
 	 * @param WikiPageFactory $wikiPageFactory
 	 * @param RevisionStore $revisionStore
 	 * @param PageUpdaterFactory $pageUpdaterFactory
+	 * @param WitnessingEngine $witnessingEngine
 	 */
 	public function __construct(
 		VerificationLookup $verificationLookup,
@@ -58,6 +62,8 @@ class VerificationEngine {
 		$this->pageUpdaterFactory = $pageUpdaterFactory;
 		$this->revisionStore = $revisionStore;
 		$this->witnessingEngine = $witnessingEngine;
+
+		$this->forcedParent = null;
 	}
 
 	/**
@@ -201,20 +207,17 @@ class VerificationEngine {
 
 	/**
 	 * @param VerificationEntity $entity
-	 * @param \MediaWiki\Revision\RevisionRecord $rev
+	 * @param RevisionRecord $rev
+	 * @param VerificationEntity|null $parentEntity
 	 * @return VerificationEntity|null
-	 * @throws MWException
+	 * @throws Exception
 	 */
 	public function buildAndUpdateVerificationData(
-		VerificationEntity $entity, \MediaWiki\Revision\RevisionRecord $rev
+		VerificationEntity $entity, \MediaWiki\Revision\RevisionRecord $rev, ?VerificationEntity $parentEntity = null
 	): ?VerificationEntity {
 		$contentHash = $this->getHasher()->calculateContentHash( $rev );
 
-		$parentRevision = $rev->getParentId();
-		$parentEntity = null;
-		if ( $parentRevision ) {
-			$parentEntity = $this->getLookup()->verificationEntityFromRevId( $parentRevision );
-		}
+		$parentEntity = $parentEntity ?? $this->getParentEntity( $entity, $rev );
 
 		// META DATA HASH CALCULATOR
 		$previousVerificationHash = $parentEntity ?
@@ -284,5 +287,18 @@ class VerificationEngine {
 			'wallet_address' => '',
 			'source' => 'default',
 		] );
+	}
+
+	/**
+	 * @param VerificationEntity $entity
+	 * @param RevisionRecord $rev
+	 * @return VerificationEntity|null
+	 */
+	private function getParentEntity( VerificationEntity $entity, RevisionRecord $rev ): ?VerificationEntity {
+		$parentRevision = $rev->getParentId();
+		if ( $parentRevision ) {
+			return $this->getLookup()->verificationEntityFromRevId( $parentRevision );
+		}
+		return null;
 	}
 }
