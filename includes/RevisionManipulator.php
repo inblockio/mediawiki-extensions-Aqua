@@ -120,7 +120,6 @@ class RevisionManipulator {
 
 		$revRecord = $this->revisionStore->insertRevisionOn( $revRecord, $this->lb->getConnection( DB_PRIMARY ) );
 		$dbw = $this->lb->getConnection( DB_PRIMARY );
-
 		// 4. Set new revision as the latest revision of the page
 		$dbw->update(
 			'page',
