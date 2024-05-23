@@ -101,7 +101,10 @@
 	},
 
 	"Actions": {
-		"daact": "DataAccounting\\DAAction"
+		"daact": "DataAccounting\\DAAction",
+		"history": {
+			"class": "DataAccounting\\Action\\HistoryAction"
+		}
 	},
 
 	"namespaces": [
@@ -333,6 +336,14 @@
 			"services": [
 				"PermissionManager", "DataAccountingRevisionManipulator"
 			]
+		},
+		{
+			"method": "POST",
+			"path": "/data_accounting/fork_page",
+			"class": "DataAccounting\\API\\ForkPageHandler",
+			"services": [
+				"PermissionManager", "DataAccountingRevisionManipulator", "TitleFactory", "RevisionLookup"
+			]
 		}
 	],
 	"ResourceFileModulePaths": {
@@ -397,6 +408,7 @@
 				"ui/RevisionDialog.js",
 				"ui/DeleteRevisionsDialog.js",
 				"ui/SquashRevisionsDialog.js",
+				"ui/ForkPageDialog.js",
 				"ext.DataAccounting.revisionActions.js"
 			],
 			"dependencies": [
@@ -417,7 +429,11 @@
 				"da-ui-squash-revisions-witness-warning",
 				"da-ui-squash-revisions-notice",
 				"da-ui-squash-revisions-no-revisions",
-				"da-ui-delete-revisions-no-revisions"
+				"da-ui-delete-revisions-no-revisions",
+				"da-ui-forkpage-title",
+				"da-ui-singlepageexport-fork-label",
+				"da-ui-forkpage-newpage-title",
+				"da-ui-forkpage-error"
 			]
 		},
 		"ext.DataAccounting.api": {
@@ -439,7 +455,37 @@
 				"da-specialimport-confirm"
 			],
 			"dependencies": [
-				"oojs-ui"
+				"oojs-ui",
+				"ext.DataAccounting.revisionTree"
+			]
+		},
+		"ext.DataAccounting.revisionTree": {
+			"scripts": [
+				"ext.DataAccounting.revisionTree.js"
+			],
+			"styles": [
+				"ui/revisionTree.less"
+			]
+		},
+		"ext.DataAccounting.revisionHistory": {
+			"scripts": [
+				"ext.DataAccounting.revisionHistory.js"
+			],
+			"styles": [
+				"ext.DataAccounting.revisionHistory.less"
+			],
+			"dependencies": [
+				"ext.DataAccounting.revisionTree"
+			]
+		}
+	},
+	"SessionProviders": {
+		"AuthGuardian": {
+			"class": "DataAccounting\\AuthGuardianProvider",
+			"services": [
+				"UserFactory",
+				"ConfigFactory",
+				"GrantsInfo"
 			]
 		}
 	},

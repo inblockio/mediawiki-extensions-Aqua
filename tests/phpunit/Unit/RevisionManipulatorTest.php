@@ -3,9 +3,11 @@
 namespace DataAccounting\Tests;
 
 use DataAccounting\RevisionManipulator;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\VerificationLookup;
 use MediaWiki\Page\PageIdentity;
+use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
 use MediaWiki\User\UserIdentity;
@@ -28,9 +30,12 @@ class RevisionManipulatorTest extends TestCase {
 	public function testDeleteRevisions() {
 		// Just a simple, basic functionality test, no integration test
 		$manipulator = new RevisionManipulator(
-			$this->getLBMock(),
+			$this->getLBMock(
+				[ 'page', [ 'page_latest' => 1 ], [ 'page_id' => 1 ], RevisionManipulator::class . '::deleteRevisions' ]
+			),
 			$this->getRevisionStoreMock(),
-			$this->getVerificationEngineMock()
+			$this->getVerificationEngineMock(),
+			$this->createMock( WikiPageFactory::class )
 		);
 		$revisionIds = [ 2, 3, 4 ];
 		$manipulator->deleteRevisions( $revisionIds );
@@ -41,15 +46,17 @@ class RevisionManipulatorTest extends TestCase {
 	 */
 	public function testSquashRevisions() {
 		$revisionStoreMock = $this->getRevisionStoreMock();
-		$revisionStoreMock->expects( $this->once() )->method( 'insertRevisionOn' );
-		$revisionStoreMock->method( 'insertRevisionOn' )->willReturn(
+		$revisionStoreMock->expects( $this->once() )->method( 'insertRevisionOn' )->willReturn(
 			$revisionStoreMock->getRevisionById( 5 )
 		);
 
 		$manipulator = new RevisionManipulator(
-			$this->getLBMock(),
+			$this->getLBMock(
+				[ 'page', [ 'page_latest' => 5 ], [ 'page_id' => 1 ], RevisionManipulator::class . '::squashRevisions' ]
+			),
 			$revisionStoreMock,
-			$this->getVerificationEngineMock()
+			$this->getVerificationEngineMock(),
+			$this->createMock( WikiPageFactory::class )
 		);
 		$revisionIds = [ 2, 3, 4 ];
 		$manipulator->squashRevisions( $revisionIds );
@@ -64,18 +71,21 @@ class RevisionManipulatorTest extends TestCase {
 			$revMock = $this->createMock( RevisionRecord::class );
 			$revMock->method( 'getId' )->willReturn( $id );
 			$revMock->method( 'getPageId' )->willReturn( 1 );
-			$revMock->method( 'getPage' )->willReturnCallback( function() {
+			$revMock->method( 'getPage' )->willReturnCallback( function () {
 				$page = $this->createMock( PageIdentity::class );
 				$page->method( 'getId' )->willReturn( 1 );
+				return $page;
 			} );
+			$revMock->method( 'isCurrent' )->willReturn( $id === 4 );
 			$revMock->method( 'getTimestamp' )->willReturn( '20220101010101' );
 			$revMock->method( 'getUser' )->willReturn( $this->createMock( UserIdentity::class ) );
 			$revMock->method( 'getSlotRoles' )->willReturn( [ 'main' ] );
 			$revMock->method( 'getContent' )->willReturn( $this->createMock( \Content::class ) );
+			return $revMock;
 		} );
 		$revisionStoreMock->method( 'getPreviousRevision' )->willReturnCallback(
 			static function ( $rev ) use ( $revisionStoreMock ) {
-				$revisionStoreMock->getRevisionById( $rev->getId() - 1 );
+				return $revisionStoreMock->getRevisionById( $rev->getId() - 1 );
 			}
 		);
 		return $revisionStoreMock;
@@ -89,10 +99,13 @@ class RevisionManipulatorTest extends TestCase {
 		$lookupMock->expects( $this->exactly( 3 ) )
 			->method( 'deleteForRevId' )
 			->withConsecutive(
-				[ 1 ],
 				[ 2 ],
 				[ 3 ],
+				[ 4 ],
 			);
+		$lookupMock->method( 'verificationEntityFromRevId' )->willReturn(
+			$this->createMock( VerificationEntity::class )
+		);
 		$verificationEngineMock = $this->createMock( VerificationEngine::class );
 		$verificationEngineMock->method( 'getLookup' )->willReturn( $lookupMock );
 		$verificationEngineMock->expects( $this->once() )->method( 'buildAndUpdateVerificationData' );
@@ -103,26 +116,17 @@ class RevisionManipulatorTest extends TestCase {
 	/**
 	 * @return ILoadBalancer&MockObject
 	 */
-	private function getLBMock() {
+	private function getLBMock( array $updateExpectations ) {
 		$dbMock = $this->createMock( \Database::class );
-		$dbMock->expects( $this->exactly( 6 ) )
+		$dbMock->expects( $this->exactly( 2 ) )
 			->method( 'delete' )
 			->withConsecutive(
-				[ 'revision', [ 'rev_id' => 2 ] ],
-				[ 'ip_changes', [ 'ipc_rev_id' => 2 ] ],
-				[ 'revision', [ 'rev_id' => 3 ] ],
-				[ 'ip_changes', [ 'ipc_rev_id' => 3 ] ],
-				[ 'revision', [ 'rev_id' => 4 ] ],
-				[ 'ip_changes', [ 'ipc_rev_id' => 4 ] ],
+				[ 'revision', [ 'rev_id' => [ 2, 3, 4 ] ] ],
+				[ 'ip_changes', [ 'ipc_rev_id' => [ 2, 3, 4 ] ] ],
 			);
 		$dbMock->expects( $this->once() )
 			->method( 'update' )
-			->with(
-				'page',
-				[ 'page_latest' => 1 ],
-				[ 'page_id' => 1 ],
-				__METHOD__
-			);
+			->with( $updateExpectations[0] );
 		$lbMock = $this->createMock( ILoadBalancer::class );
 		$lbMock->method( 'getConnection' )->willReturn( $dbMock );
 

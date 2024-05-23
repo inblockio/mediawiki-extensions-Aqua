@@ -5,9 +5,14 @@ namespace DataAccounting;
 use CommentStoreComment;
 use DataAccounting\Verification\VerificationEngine;
 use Exception;
+use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\MutableRevisionRecord;
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
+use MediaWiki\User\UserIdentity;
 use Message;
+use MWException;
+use Title;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 class RevisionManipulator {
@@ -19,17 +24,22 @@ class RevisionManipulator {
 	/** @var VerificationEngine */
 	private $verificationEngine;
 
+	/** @var WikiPageFactory */
+	private $wikipageFactory;
+
 	/**
 	 * @param ILoadBalancer $lb
 	 * @param RevisionStore $revisionStore
 	 * @param VerificationEngine $verificationEngine
+	 * @param WikiPageFactory $wpf
 	 */
 	public function __construct(
-		ILoadBalancer $lb, RevisionStore $revisionStore, VerificationEngine $verificationEngine
+		ILoadBalancer $lb, RevisionStore $revisionStore, VerificationEngine $verificationEngine, WikiPageFactory $wpf
 	) {
 		$this->lb = $lb;
 		$this->revisionStore = $revisionStore;
 		$this->verificationEngine = $verificationEngine;
+		$this->wikipageFactory = $wpf;
 	}
 
 	/**
@@ -110,7 +120,6 @@ class RevisionManipulator {
 
 		$revRecord = $this->revisionStore->insertRevisionOn( $revRecord, $this->lb->getConnection( DB_PRIMARY ) );
 		$dbw = $this->lb->getConnection( DB_PRIMARY );
-
 		// 4. Set new revision as the latest revision of the page
 		$dbw->update(
 			'page',
@@ -126,6 +135,40 @@ class RevisionManipulator {
 		$this->verificationEngine->buildAndUpdateVerificationData(
 			$this->verificationEngine->getLookup()->verificationEntityFromRevId( $revRecord->getId() ),
 			$revRecord
+		);
+	}
+
+	/**
+	 * @param Title $target
+	 * @param RevisionRecord $revision
+	 * @param UserIdentity $user
+	 * @return void
+	 * @throws MWException
+	 */
+	public function forkPage( Title $target, RevisionRecord $revision, UserIdentity $user ) {
+		$parentEntity = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $revision->getId() );
+		if ( !$parentEntity ) {
+			throw new Exception( 'Source page has no verification data' );
+		}
+
+		// Create new page, settings the last source revision as parent
+		$wp = $this->wikipageFactory->newFromTitle( $target );
+		$updater = $wp->newPageUpdater( $user );
+		$roles = $revision->getSlotRoles();
+		foreach ( $roles as $role ) {
+			$content = $revision->getContent( $role );
+			$updater->setContent( $role, $content );
+		}
+		$newRev = $updater->saveRevision(
+			CommentStoreComment::newUnsavedComment( 'Forked from ' . $revision->getId() ),
+			EDIT_SUPPRESS_RC | EDIT_INTERNAL
+		);
+		if ( !$newRev ) {
+			throw new Exception( 'Failed to save revision' );
+		}
+		$this->verificationEngine->buildAndUpdateVerificationData(
+			$this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRev->getId() ),
+			$newRev, $parentEntity
 		);
 	}
 
@@ -165,5 +208,4 @@ class RevisionManipulator {
 			}
 		}
 	}
-
 }

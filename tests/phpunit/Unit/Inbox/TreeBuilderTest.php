@@ -20,8 +20,15 @@ class TreeBuilderTest extends TestCase {
 	 * @dataProvider provideData
 	 */
 	public function testBuildPreImportTree( $local, $remote, $expected ) {
+		$linkTarget = $this->createMock( Title::class );
+		$linkTarget->method( 'getFullURL' )->willReturn( '' );
+		$revision = $this->createMock( RevisionRecord::class );
+		$revision->method( 'getPageAsLinkTarget' )->willReturn( $linkTarget );
+		$revisionLookupMock = $this->createMock( RevisionLookup::class );
+		$revisionLookupMock->method( 'getRevisionById' )->willReturn( $revision );
+
 		$builder = new TreeBuilder(
-			$this->getVerificationEngineMock( $local, $remote ), $this->createMock( RevisionLookup::class )
+			$this->getVerificationEngineMock( $local, $remote ), $revisionLookupMock
 		);
 		$data = $builder->buildPreImportTree(
 			$this->makeTitleMock( $remote ),
@@ -137,7 +144,15 @@ class TreeBuilderTest extends TestCase {
 			}
 			return [];
 		} );
-
+		$lookup->method( 'verificationEntityFromTitle' )->willReturnCallback( function( $title ) use ( $local, $remote ) {
+			if ( $title->getArticleID() === $local[0] ) {
+				$entities = $this->makeEntitiesMock( $local );
+			}
+			if ( $title->getArticleID() === $remote[0] ) {
+				$entities = $this->makeEntitiesMock( $remote );
+			}
+			return array_pop( $entities );
+		} );
 		$engineMock = $this->createMock( VerificationEngine::class );
 		$engineMock->method( 'getLookup' )->willReturn( $lookup );
 		return $engineMock;

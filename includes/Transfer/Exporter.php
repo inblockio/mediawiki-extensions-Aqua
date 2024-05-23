@@ -2,12 +2,12 @@
 
 namespace DataAccounting\Transfer;
 
-use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
-use Title;
 
 class Exporter {
+	/** @var TransferEntityFactory */
 	private TransferEntityFactory $transferEntityFactory;
+	/** @var VerificationEngine */
 	private VerificationEngine $verificationEngine;
 
 	/**
@@ -46,9 +46,9 @@ class Exporter {
 			unset( $pageData['site_info'] );
 			if ( empty( $data['revisionIds'] ) ) {
 				$allRevisions = $this->verificationEngine->getLookup()->getAllRevisionIds( $data['title'] );
-				$pageData['revisions'] = $this->getRevisionEntities( $data['title'], $allRevisions );
+				$pageData['revisions'] = $this->getRevisionEntities( $allRevisions );
 			} else {
-				$pageData['revisions'] = $this->getRevisionEntities( $data['title'], $data['revisionIds'] );
+				$pageData['revisions'] = $this->getRevisionEntities( $data['revisionIds'] );
 			}
 
 			$exportData['pages'][] = $pageData;
@@ -58,14 +58,13 @@ class Exporter {
 	}
 
 	/**
-	 * @param Title $title
 	 * @param array $revisionIds
 	 * @return array
 	 */
-	private function getRevisionEntities( Title $title, array $revisionIds ): array {
+	private function getRevisionEntities( array $revisionIds ): array {
 		$data = [];
 		foreach ( $revisionIds as $revId ) {
-			$revisionEntity = $this->getRevisionEntity( $title, $revId );
+			$revisionEntity = $this->getRevisionEntity( $revId );
 			if ( $revisionEntity instanceof TransferRevisionEntity ) {
 				$verificationHash = $revisionEntity->getMetadata()["verification_hash"];
 				$data[$verificationHash] = $revisionEntity;
@@ -75,13 +74,14 @@ class Exporter {
 		return $data;
 	}
 
-	private function getRevisionEntity( Title $title, $revId ): ?TransferRevisionEntity {
+	/**
+	 * @param int $revId
+	 * @return TransferRevisionEntity|null
+	 */
+	private function getRevisionEntity( $revId ): ?TransferRevisionEntity {
 		$verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $revId );
-		if (
-			!( $verificationEntity instanceof VerificationEntity ) ||
-			!$verificationEntity->getTitle()->equals( $title )
-		) {
-			// Does not exist, or not belonging to this title
+		if ( $verificationEntity === null ) {
+			// Does not exist
 			return null;
 		}
 
