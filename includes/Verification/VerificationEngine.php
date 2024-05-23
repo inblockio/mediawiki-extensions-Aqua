@@ -228,12 +228,9 @@ class VerificationEngine {
 		);
 
 		// SIGNATURE DATA HASH CALCULATOR
-		$signatureHash = '';
-		if ( $parentEntity && $parentEntity->getSignature() !== '' ) {
-			$signature = $parentEntity->getSignature();
-			$publicKey = $parentEntity->getPublicKey();
-			$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
-		}
+		$signature = $parentEntity ? $parentEntity->getSignature() : '';
+		$publicKey = $parentEntity ? $parentEntity->getPublicKey() : '';
+		$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
 
 		$witnessHash = '';
 		if ( $parentEntity && $parentEntity->getWitnessEventId() ) {

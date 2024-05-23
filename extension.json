@@ -489,6 +489,16 @@
 			]
 		}
 	},
+	"SessionProviders": {
+		"AuthGuardian": {
+			"class": "DataAccounting\\AuthGuardianProvider",
+			"services": [
+				"UserFactory",
+				"ConfigFactory",
+				"GrantsInfo"
+			]
+		}
+	},
 	"ServiceWiringFiles": [
 		"includes/ServiceWiring.php"
 	],
