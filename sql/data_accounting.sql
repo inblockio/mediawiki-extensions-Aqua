@@ -23,15 +23,15 @@ CREATE TABLE IF NOT EXISTS /*$wgDBprefix*/revision_verification (
 	`metadata_hash` VARCHAR(128) DEFAULT '',
     -- Combined metadata, content hash, optional signature_hash and witness_hash
 	`verification_hash` VARCHAR(128),
-    -- Hash of the revision page was forked from
-    `fork_hash` VARCHAR(128),
-    -- Hash of the revision page was merged from
-    `merge_hash` VARCHAR(128),
     -- Previous verification hash of the previous revious, if the current
     -- revision is a genesis, it will remain empty.
 	`previous_verification_hash` VARCHAR(128) DEFAULT '',
     -- Hash of signature data (signature + public_key)
     `signature_hash` VARCHAR(128) DEFAULT '',
+    -- Hash of the revision that was merged into this revision
+    `merge_hash` VARCHAR(128) DEFAULT '',
+    -- Hash of the revision this one was forked from
+    `fork_hash` VARCHAR(128) DEFAULT '',
 	`signature` VARCHAR(256) DEFAULT '',
 	`public_key` VARCHAR(256) DEFAULT '',
 	`wallet_address` VARCHAR(128) DEFAULT '',

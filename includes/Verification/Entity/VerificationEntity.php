@@ -14,6 +14,8 @@ class VerificationEntity implements JsonSerializable {
 	public const METADATA_HASH = 'metadata_hash';
 	public const SIGNATURE_HASH = 'signature_hash';
 	public const PREVIOUS_VERIFICATION_HASH = 'previous_verification_hash';
+	public const FORK_HASH = 'fork_hash';
+	public const MERGE_HASH = 'merge_hash';
 
 	public const DOMAIN_ID = 'domain_id';
 

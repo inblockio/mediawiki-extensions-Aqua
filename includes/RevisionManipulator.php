@@ -124,7 +124,6 @@ class RevisionManipulator {
 
 		$revRecord = $this->revisionStore->insertRevisionOn( $revRecord, $this->lb->getConnection( DB_PRIMARY ) );
 		$dbw = $this->lb->getConnection( DB_PRIMARY );
-
 		// 4. Set new revision as the latest revision of the page
 		$dbw->update(
 			'page',
@@ -144,36 +143,40 @@ class RevisionManipulator {
 	}
 
 	/**
-	 * @param Title $source
 	 * @param Title $target
-	 * @param RevisionRecord $maxRev
+	 * @param RevisionRecord $revision
 	 * @param UserIdentity $user
 	 * @return void
 	 * @throws MWException
 	 */
-	public function forkPage( Title $source, Title $target, RevisionRecord $maxRev, UserIdentity $user ) {
-		$revision = $this->revisionStore->getFirstRevision( $source );
-		if ( !$revision ) {
-			throw new Exception( 'No revisions found for source page' );
+	public function forkPage( Title $target, RevisionRecord $revision, UserIdentity $user ) {
+		$parentEntity = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $revision->getId() );
+		if ( !$parentEntity ) {
+			throw new Exception( 'Source page has no verification data' );
 		}
-		// Set first revision of source as the parent for the first revision of the target
-		$revisionParents = [
-			$revision->getId() =>
-				$this->verificationEngine->getLookup()->verificationEntityFromRevId( $revision->getId() ),
-		];
-		$revisions = [ $revision ];
-		do {
-			$revision = $this->revisionStore->getNextRevision( $revision );
-			if ( !$revision ) {
-				break;
-			}
-			$revisions[] = $revision;
-			if ( $revision->getId() === $maxRev->getId() ) {
-				break;
-			}
-		} while ( true );
 
-		$this->insertRevisions( $revisions, $target, $user, $revisionParents );
+		// Create new page, settings the last source revision as parent
+		$wp = $this->wikipageFactory->newFromTitle( $target );
+		$updater = $wp->newPageUpdater( $user );
+		$roles = $revision->getSlotRoles();
+		foreach ( $roles as $role ) {
+			$content = $revision->getContent( $role );
+			$updater->setContent( $role, $content );
+		}
+		$newRev = $updater->saveRevision(
+			CommentStoreComment::newUnsavedComment(
+				Message::newFromKey( 'dataaccounting-fork-page-comment' )
+					->params( $this->shortenHash( $parentEntity->getHash() ) )
+			),
+			EDIT_SUPPRESS_RC | EDIT_INTERNAL
+		);
+		if ( !$newRev ) {
+			throw new Exception( 'Failed to save revision' );
+		}
+		$this->verificationEngine->buildAndUpdateVerificationData(
+			$this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRev->getId() ),
+			$newRev, $parentEntity, null, $parentEntity->getHash()
+		);
 	}
 
 	/**
@@ -229,11 +232,14 @@ class RevisionManipulator {
 	 * @param Title $local
 	 * @param Title $remote
 	 * @param UserIdentity $user
-	 * @param string $mergedText
+	 * @param string|null $mergedText
 	 * @return void
-	 * @throws Exception
+	 * @throws MWException
 	 */
-	public function mergePages( Title $local, Title $remote, UserIdentity $user, string $mergedText ) {
+	public function mergePages(
+		Title $local, Title $remote, UserIdentity $user, ?string $mergedText
+	) {
+		define( 'DA_MERGE', 1 );
 		$localEntities = $this->getVerificationEntitiesForMerge( $local );
 		$remoteEntities = $this->getVerificationEntitiesForMerge( $remote );
 		$commonParent = $this->getCommonParent( $localEntities, $remoteEntities );
@@ -241,53 +247,69 @@ class RevisionManipulator {
 			throw new Exception( 'No common parent found' );
 		}
 		$this->assertSameGenesis( $localEntities, $remoteEntities );
+		// Last entry in the local entities is the last revision
+		// that was not forked, and is the parent of the first forked revision
+		$lastLocal = end( $localEntities );
 
 		$wp = $this->wikipageFactory->newFromTitle( $local );
 		$lastInserted = null;
 		$db = $this->lb->getConnection( DB_PRIMARY );
+
 		$db->startAtomic( __METHOD__ );
-		error_log( "STARTED ATOMIC" );
 		foreach ( $remoteEntities as $hash => $remoteEntity ) {
 			if ( isset( $localEntities[$hash] ) ) {
-				error_log( "Skipping $hash" );
 				// Exists locally
 				continue;
 			}
-			$parent = $lastInserted ?? $commonParent;
-			$isFork = $parent->getRevision()->getId() === $commonParent->getRevision()->getId();
-			$this->moveRevision( $db, $remoteEntity, $parent, $local, $isFork, __METHOD__ );
+			$parent = $lastInserted ?? $lastLocal;
+			$isFork = $remoteEntity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ) ===
+				$commonParent->getHash();
+			$this->moveRevision( $db, $remoteEntity, $parent, $commonParent, $local, $isFork, __METHOD__ );
 			$lastInserted = $remoteEntity;
 		}
 		$db->endAtomic( __METHOD__ );
 
-		error_log( "INSERTING NEW" );
 		// Insert merged revision
 		$updater = $wp->newPageUpdater( $user );
-		error_log( "MERGED TEXT: $mergedText" );
-		$updater->setContent( SlotRecord::MAIN, new WikitextContent( $mergedText ) );
+		$text = $mergedText ?? $lastInserted->getRevision()->getContent( SlotRecord::MAIN )->getText();
+		$updater->setContent( SlotRecord::MAIN, new WikitextContent( $text ) );
+		foreach ( $lastInserted->getRevision()->getSlotRoles() as $role ) {
+			if ( $role === SlotRecord::MAIN ) {
+				continue;
+			}
+			// Insert other slots
+			$updater->setContent( $role, $lastInserted->getRevision()->getContent( $role ) );
+		}
 		$mergedRev = $updater->saveRevision(
 			CommentStoreComment::newUnsavedComment( 'Merged from ' . $remote->getPrefixedText() )
 		);
 		if ( !$mergedRev ) {
-			error_log( "FAILED TO SAVE MERGED REVISION" );
 			throw new Exception( 'Failed to save merged revision' );
 		}
-		error_log( "MERGED REVISION ID: " . $mergedRev->getId() );
 		// Last local revision is the official parent, since remote changes are branched-off
 		// Set `merge-hash` on it as well, to bring remote chain back to local
-		$lastLocal = array_pop( $localEntities );
-		error_log( "LAST LOCAL: " . $lastLocal->getRevision()->getId() );
 		$this->verificationEngine->buildAndUpdateVerificationData(
 			$this->verificationEngine->getLookup()->verificationEntityFromRevId( $mergedRev->getId() ),
 			$mergedRev, $lastLocal, $lastInserted->getHash()
 		);
-		error_log( "MERGE COMPLETE" );
+		// Clean up entries from the remote page whose revisions have now been massacred
+		$db->delete(
+			'page',
+			[ 'page_id' => $remote->getArticleID() ],
+			__METHOD__
+		);
+		$db->delete(
+			'revision_verification',
+			[ 'page_id' => $remote->getArticleID() ],
+			__METHOD__
+		);
 	}
 
 	/**
 	 * @param \Database $db
 	 * @param VerificationEntity $entity
 	 * @param VerificationEntity $parent
+	 * @param VerificationEntity $commonParent
 	 * @param Title $local
 	 * @param bool $isFork
 	 * @param string $mtd
@@ -295,12 +317,10 @@ class RevisionManipulator {
 	 * @throws Exception
 	 */
 	private function moveRevision(
-		IDatabase $db, VerificationEntity $entity, VerificationEntity $parent, Title $local, bool $isFork, string $mtd
+		IDatabase $db, VerificationEntity $entity, VerificationEntity $parent, VerificationEntity $commonParent,
+		Title $local, bool $isFork, string $mtd
 	) {
-		error_log( '________________________' );
-		error_log( "MOVING REVISION " . $entity->getRevision()->getId() . 'to parent ' . $parent->getRevision()->getId() );
 		// Move revision record
-
 		$revData = [ 'rev_page' => $local->getArticleID() ];
 		if ( $isFork ) {
 			$revData['rev_parent_id'] = $parent->getRevision()->getId();
@@ -316,7 +336,8 @@ class RevisionManipulator {
 			'page_title' => $local->getPrefixedDBkey(),
 		];
 		if ( $isFork ) {
-			$data['fork_hash'] = $parent->getHash();
+			$data[VerificationEntity::FORK_HASH] = $commonParent->getHash();
+			$data[VerificationEntity::PREVIOUS_VERIFICATION_HASH] = $parent->getHash();
 		}
 		if ( !$db->update( 'revision_verification', $data, [ 'rev_id' => $entity->getRevision()->getId() ] ) ) {
 			$db->cancelAtomic( $mtd );
@@ -410,6 +431,15 @@ class RevisionManipulator {
 		}
 		$last = array_pop( $common );
 		return $localEntities[$last];
+	}
+
+	/**
+	 * @param string $hash
+	 * @return string
+	 */
+	private function shortenHash( string $hash ): string {
+		// Get first 5 and last 5 characters
+		return substr( $hash, 0, 5 ) . '...' . substr( $hash, -5 );
 	}
 
 }

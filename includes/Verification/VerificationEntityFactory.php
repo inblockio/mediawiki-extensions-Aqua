@@ -23,7 +23,8 @@ class VerificationEntityFactory {
 	private array $hashTypes = [
 		VerificationEntity::VERIFICATION_HASH, VerificationEntity::CONTENT_HASH,
 		VerificationEntity::GENESIS_HASH, VerificationEntity::METADATA_HASH,
-		VerificationEntity::SIGNATURE_HASH, VerificationEntity::PREVIOUS_VERIFICATION_HASH
+		VerificationEntity::SIGNATURE_HASH, VerificationEntity::PREVIOUS_VERIFICATION_HASH,
+		VerificationEntity::FORK_HASH, VerificationEntity::MERGE_HASH
 	];
 
 	/**

@@ -205,12 +205,13 @@ class VerificationEngine {
 	 * @param RevisionRecord $rev
 	 * @param VerificationEntity|null $parentEntity
 	 * @param string|null $mergeHash
+	 * @param string|null $forkHash
 	 * @return VerificationEntity|null
 	 * @throws Exception
 	 */
 	public function buildAndUpdateVerificationData(
 		VerificationEntity $entity, \MediaWiki\Revision\RevisionRecord $rev, ?VerificationEntity $parentEntity = null,
-		?string $mergeHash = null
+		?string $mergeHash = null, ?string $forkHash = null
 	): ?VerificationEntity {
 		$contentHash = $this->getHasher()->calculateContentHash( $rev );
 
@@ -231,14 +232,9 @@ class VerificationEngine {
 		$metadataHash = $this->getHasher()->getHashSum( implode( '', $metadataHashParts ) );
 
 		// SIGNATURE DATA HASH CALCULATOR
-		$signature = '';
-		$publicKey = '';
-		$signatureHash = '';
-		if ( $parentEntity && $parentEntity->getSignature() !== '' ) {
-			$signature = $parentEntity->getSignature();
-			$publicKey = $parentEntity->getPublicKey();
-			$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
-		}
+		$signature = $parentEntity ? $parentEntity->getSignature() : '';
+		$publicKey = $parentEntity ? $parentEntity->getPublicKey() : '';
+		$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
 
 		$witnessHash = '';
 		if ( $parentEntity && $parentEntity->getWitnessEventId() ) {
@@ -290,10 +286,11 @@ class VerificationEngine {
 			'metadata_hash' => $metadataHash,
 			'verification_hash' => $verificationHash,
 			'previous_verification_hash' => $previousVerificationHash,
-			'signature' => $signature,
-			'public_key' => $publicKey,
-			// 'wallet_address' => '', // is this needed?
+			'signature' => '',
+			'public_key' => '',
+			'wallet_address' => '',
 			'source' => 'default',
+			'fork_hash' => $forkHash ?? '',
 			'merge_hash' => $mergeHash ?? ''
 		] );
 	}

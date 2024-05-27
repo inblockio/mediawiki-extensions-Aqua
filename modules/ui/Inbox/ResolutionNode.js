@@ -14,17 +14,16 @@ da.ui.ResolutionNode.prototype.makeGraphPart = function () {
 };
 
 da.ui.ResolutionNode.prototype.makeRelevantNode = function () {
-	var parents = '';
-	console.log( this.nodeData );
+	var parents = [];
 	if ( this.nodeData.parents.local ) {
-		parents += this.nodeData.parents.local;
+		parents.push( this.nodeData.parents.local );
 	}
 	if ( this.nodeData.parents.remote ) {
-		parents += ',' + this.nodeData.parents.remote;
+		parents.push( this.nodeData.parents.remote );
 	}
 	var classes = [ 'da-compare-node-graph', 'da-compare-node-graph-' + this.getType() ];
 	this.$relevantNode = $( '<span>' ).addClass( classes.join( ' ' ) )
-		.attr( 'parent', parents );
+		.attr( 'parent', parents.join( ',' ) );
 };
 
 da.ui.ResolutionNode.prototype.makeLabel = function () {

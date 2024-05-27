@@ -34,10 +34,14 @@ da.ui.ComparePanel.prototype.initialize = function () {
 };
 
 da.ui.ComparePanel.prototype.setFormData = function () {
-	this.$form.find( '#mw-input-wpaction' ).val( 'import-remote' );
 	// Prompt before submitting the form
 	var canSubmit = false;
+	this.$form.find( 'button[name=discard]' ).on( 'click', function() {
+		this.$form.find( '#mw-input-wpaction' ).val( 'discard' );
+	}.bind( this ) );
+
 	this.$form.on( 'submit', function ( e ) {
+
 		if ( canSubmit ) {
 			return;
 		}
@@ -50,7 +54,6 @@ da.ui.ComparePanel.prototype.setFormData = function () {
 			}
 		}.bind( this ) );
 	}.bind( this ) );
-
 
 	if ( this.changetype === 'both' ) {
 		var importSubmitButton = this.$form.find( 'button[name=import]' );
@@ -87,12 +90,14 @@ da.ui.ComparePanel.prototype.setFormData = function () {
 				if ( item.getData() === 'remote' ) {
 					this.treePanel.showCombinedNode( true, 'remote' );
 					this.treePanel.selectBranch( 'remote' );
+					importSubmitButton.prop( 'disabled', false );
 					this.$form.find( '#mw-input-wpmerge-type' ).val( 'remote' );
 				} else if ( item.getData() === 'local' ) {
 					this.treePanel.selectBranch( 'local' );
 					this.$form.find( '#mw-input-wpmerge-type' ).val( 'local' );
 
 				} else if ( item.getData() === 'merge' ) {
+					importSubmitButton.prop( 'disabled', true );
 					this.treePanel.showCombinedNode( true, 'combined' );
 					this.$form.find( '#mw-input-wpmerge-type' ).val( 'combined' );
 					if ( this.resolution ) {

@@ -8,9 +8,15 @@ use SkinTemplate;
 use MediaWiki\Permissions\PermissionManager;
 
 class AddDAActions implements SkinTemplateNavigation__UniversalHook {
-
+	/** @var PermissionManager */
 	private PermissionManager $permissionManager;
+	/** @var VerificationEngine */
+	private VerificationEngine $verificationEngine;
 
+	/**
+	 * @param PermissionManager $permissionManager
+	 * @param VerificationEngine $verificationEngine
+	 */
 	public function __construct(
 		PermissionManager $permissionManager, VerificationEngine $verificationEngine
 	) {
@@ -55,13 +61,17 @@ class AddDAActions implements SkinTemplateNavigation__UniversalHook {
 			'href' => '#',
 			'text' => 'Export 📦',
 		];
-		$sktemplate->getOutput()->addModules( 'ext.dataAccounting.exportSinglePage' );
-
-		if ( $this->permissionManager->userCan( 'delete', $sktemplate->getUser(), $sktemplate->getTitle() ) ) {
-			$entity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $sktemplate->getTitle() );
-			if ( !$entity ) {
-				return;
-			}
+		$sktemplate->getOutput()->addModules( [
+			'ext.dataAccounting.exportSinglePage', 'ext.DataAccounting.revisionActions'
+		] );
+		$entity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $sktemplate->getTitle() );
+		if ( !$entity ) {
+			return;
+		}
+		if (
+			$this->permissionManager->userCan( 'delete', $sktemplate->getUser(), $sktemplate->getTitle() ) &&
+			$sktemplate->getTitle()->isContentPage()
+		) {
 			if ( $entity->getDomainId() === $this->verificationEngine->getDomainId() ) {
 				// Delete revisions, allowed only on local domain
 				$links['actions']['da_delete_revisions'] = [
@@ -82,8 +92,18 @@ class AddDAActions implements SkinTemplateNavigation__UniversalHook {
 					'text' => 'Fork page',
 				];
 				$sktemplate->getOutput()->addModules( 'ext.DataAccounting.revisionActions' );
-
 			}
+		}
+		if (
+			$this->permissionManager->userCan( 'edit', $sktemplate->getUser(), $sktemplate->getTitle() ) &&
+			$sktemplate->getTitle()->isContentPage()
+		) {
+			// Fork page
+			$links['actions']['da_fork_page'] = [
+				'id' => 'ca-da-fork-page',
+				'href' => '#',
+				'text' => 'Fork page',
+			];
 		}
 	}
 }

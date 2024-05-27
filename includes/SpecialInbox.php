@@ -60,7 +60,6 @@ class SpecialInbox extends SpecialPage {
 		$this->getOutput()->addBacklinkSubtitle( $this->getPageTitle() );
 		$this->getOutput()->setPageTitle( $this->msg( 'da-specialinbox-do-import-title' ) );
 		$this->tryCompare( $par );
-
 	}
 
 	/**
@@ -75,6 +74,10 @@ class SpecialInbox extends SpecialPage {
 		$this->getOutput()->addParserOutput( $pager->getBodyOutput() );
 	}
 
+	/**
+	 * @param string $pageName
+	 * @return void
+	 */
 	private function tryCompare( $pageName ) {
 		$title = $this->titleFactory->makeTitle( NS_INBOX, $pageName );
 		if ( !$title->exists() ) {
@@ -91,17 +94,25 @@ class SpecialInbox extends SpecialPage {
 		$this->outputCompare( $this->remote, $this->local );
 	}
 
+	/**
+	 * @param VerificationEntity|null $entity
+	 * @return VerificationEntity|null
+	 */
 	private function getTargetEntity( ?VerificationEntity $entity ): ?VerificationEntity {
 		if ( !$entity ) {
 			return null;
 		}
 		$genesis = $entity->getHash( VerificationEntity::GENESIS_HASH );
 		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
-			VerificationEntity::GENESIS_HASH => $genesis,
+			VerificationEntity::VERIFICATION_HASH => $genesis,
 			'page_id != ' . $entity->getTitle()->getArticleID()
 		] );
 	}
 
+	/**
+	 * @param VerificationEntity $draftEntity
+	 * @return void
+	 */
 	private function outputDirectMerge( VerificationEntity $draftEntity ) {
 		$this->getOutput()->addWikiMsg(
 			'da-specialinbox-direct-merge', $draftEntity->getTitle()->getText()
@@ -109,6 +120,12 @@ class SpecialInbox extends SpecialPage {
 		$this->outputForm( $draftEntity );
 	}
 
+	/**
+	 * @param VerificationEntity $draft
+	 * @param VerificationEntity $target
+	 * @return void
+	 * @throws \MediaWiki\Diff\ComplexityException
+	 */
 	private function outputCompare( VerificationEntity $draft, VerificationEntity $target ) {
 		$tree = $this->getInboxImporter()->getTreeBuilder()->buildPreImportTree(
 			$draft->getTitle(), $target->getTitle(), $this->getLanguage(), $this->getUser()
@@ -157,6 +174,12 @@ class SpecialInbox extends SpecialPage {
 		);
 	}
 
+	/**
+	 * @param array $treeData
+	 * @param VerificationEntity $draft
+	 * @param VerificationEntity $target
+	 * @return string
+	 */
 	private function makeSummaryHeader( array $treeData, VerificationEntity $draft, VerificationEntity $target ) {
 		$targetLink = $this->getLinkRenderer()->makeLink(
 			$target->getTitle(),
@@ -195,7 +218,7 @@ class SpecialInbox extends SpecialPage {
 	 * @return void
 	 */
 	private function outputForm( VerificationEntity $remote, ?string $changeType = 'new' ) {
-		$canImport = $changeType !== 'local' && $changeType !== 'none';
+		$somethingToImport = $changeType !== 'local' && $changeType !== 'none';
 		$form = HTMLForm::factory(
 			'ooui',
 			[
@@ -205,7 +228,9 @@ class SpecialInbox extends SpecialPage {
 				],
 				'action' => [
 					'type' => 'hidden',
-					'default' => $canImport ? 'direct-merge' : 'discard',
+					'default' => $somethingToImport ?
+						( $changeType === 'remote' ? 'merge-remote' : 'direct-merge' ) :
+						'discard',
 				],
 				'merge-type' => [
 					'type' => 'hidden',
@@ -220,7 +245,7 @@ class SpecialInbox extends SpecialPage {
 		);
 		$form->setId( 'da-specialinbox-merge-form' );
 		$form->setMethod( 'POST' );
-		if ( !$canImport ) {
+		if ( !$somethingToImport ) {
 			$form->setSubmitTextMsg( $this->msg( 'da-specialinbox-merge-discard' ) );
 			$form->setSubmitName( 'discard' );
 			$form->setSubmitDestructive();
@@ -245,29 +270,56 @@ class SpecialInbox extends SpecialPage {
 	 * @return bool|Message
 	 */
 	public function onAction( $formData ) {
-		$postData = $this->getRequest()->getPostValues();
-		$action = isset( $postData['discard'] ) ? 'discard' : $formData['action'];
-
-		if ( !$this->remote ) {
-			return $this->msg( 'da-specialinbox-merge-error-no-subject' );
-		}
-		if ( $action === 'discard' ) {
+		$shouldDiscard = $formData['action'] === 'discard';
+		if ( $shouldDiscard ) {
 			return $this->doDiscard();
 		}
-		if ( $action === 'import-remote' ) {
-			return $this->doDirectMerge();
+
+		try {
+			$remoteTitle = $this->remote->getTitle();
+			if ( isset( $formData['action'] ) && $formData['action'] === 'merge-remote' ) {
+				$this->inboxImporter->mergePagesForceRemote(
+					$this->local->getTitle(), $remoteTitle, $this->getUser()
+				);
+				return true;
+			}
+			$mergeType = $formData['merge-type'] ?? null;
+			if ( !$mergeType ) {
+				// Merge remote directly to an non-existing target
+				return $this->importRemote();
+			}
+			switch ( $mergeType ) {
+				case 'remote':
+					$this->inboxImporter->mergePagesForceRemote(
+						$this->local->getTitle(), $remoteTitle, $this->getUser()
+					);
+					break;
+				case 'local':
+					return $this->doDiscard();
+				case 'combined':
+					$text = $formData['combined-text'] ?? '';
+					$this->inboxImporter->mergePages( $this->local->getTitle(), $remoteTitle, $this->getUser(), $text );
+			}
+		} catch ( \Throwable $ex ) {
+			return $this->msg( $ex->getMessage() );
 		}
-		if ( $action === 'import-merge' ) {
-			return $this->doImportMerge( $formData );
-		}
+
+		$this->getOutput()->redirect( $this->local->getTitle()->getFullURL() );
 
 		return false;
 	}
 
 	/**
+	 * @return true
+	 */
+	public function doesWrites() {
+		return true;
+	}
+
+	/**
 	 * @return bool|Message
 	 */
-	private function doDirectMerge() {
+	private function importRemote() {
 		if ( $this->local ) {
 			return $this->msg( 'da-specialinbox-merge-error-target-exists' );
 		}
@@ -297,31 +349,6 @@ class SpecialInbox extends SpecialPage {
 			return true;
 		}
 		return $this->msg( $status->getMessage() );
-	}
-
-	/**
-	 * @param array $formData
-	 * @return bool|Message
-	 */
-	private function doImportMerge( array $formData ) {
-		$mergeType = $formData['merge-type'] ?? null;
-		try {
-			switch ( $mergeType ) {
-				case 'remote':
-					return $this->doDirectMerge();
-				case 'local':
-					return $this->doDiscard();
-				case 'combined':
-					$remoteTitle = $this->remote->getTitle();
-					$text = $formData['combined-text'] ?? '';
-					$this->inboxImporter->mergePages( $this->local->getTitle(), $remoteTitle, $this->getUser(), $text );
-			}
-		} catch ( \Throwable $ex ) {
-			return $this->msg( $ex->getMessage() );
-		}
-
-		$this->getOutput()->redirect( $this->local->getTitle()->getFullURL() );
-		return true;
 	}
 
 	/**

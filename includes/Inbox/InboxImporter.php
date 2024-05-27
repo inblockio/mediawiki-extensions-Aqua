@@ -7,7 +7,6 @@ use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionLookup;
-use MediaWiki\User\UserIdentity;
 use MWException;
 use Status;
 use Title;
@@ -60,22 +59,6 @@ class InboxImporter {
 	}
 
 	/**
-	 * @param VerificationEntity $remote
-	 * @param Title $target
-	 * @param User $user
-	 *
-	 * @return Status
-	 */
-	public function importRemote( VerificationEntity $remote, Title $target, User $user ): Status {
-		$status = $this->doDeleteTitle( $target, $user, 'DataAccounting: Merged from import' );
-		$status->merge(
-			$this->doMoveTitle( $remote->getTitle(), $target, $user, 'DataAccounting: Merged from import' )
-		);
-
-		return $status;
-	}
-
-	/**
 	 * @return TreeBuilder
 	 */
 	public function getTreeBuilder(): TreeBuilder {
@@ -123,12 +106,23 @@ class InboxImporter {
 	 * @param Title $local
 	 * @param Title $remoteTitle
 	 * @param User $user
-	 * @param string $text
+	 * @param string|null $text
 	 * @return void
 	 * @throws MWException
 	 */
-	public function mergePages( Title $local, Title $remoteTitle, User $user, string $text ) {
+	public function mergePages( Title $local, Title $remoteTitle, User $user, ?string $text ) {
 		$this->revisionManipulator->mergePages( $local, $remoteTitle, $user, $text );
-		$this->doDeleteTitle( $remoteTitle, $user );
+	}
+
+	/**
+	 * @param Title $local
+	 * @param Title $remoteTitle
+	 * @param User $user
+	 * @return void
+	 * @throws MWException
+	 */
+	public function mergePagesForceRemote( Title $local, Title $remoteTitle, User $user ) {
+		// Merge remote into local, but force the latest text of remote as new content
+		$this->mergePages( $local, $remoteTitle, $user, null );
 	}
 }

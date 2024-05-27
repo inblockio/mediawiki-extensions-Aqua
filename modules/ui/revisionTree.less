@@ -1,0 +1,39 @@
+.da-compare-node {
+  &:hover .da-compare-node-label {
+    background-color: #f0f0f0d6;
+  }
+  .da-compare-node-graph {
+    width: 15px;
+    height: 15px;
+    display: inline-block;
+    margin: 5px 10px 5px 10px;
+    border-radius: 100px;
+    &.da-compare-node-graph-local {
+      &.da-compare-node-graph-ignored {
+        background-color: #d6efe0;
+      }
+      background-color: #8ed5a5;
+    }
+    &.da-compare-node-graph-remote, &.da-compare-node-graph-parent {
+      &.da-compare-node-graph-ignored {
+        background-color: #f8dec2;
+      }
+      background-color: #e87b0a;
+    }
+    &.da-compare-node-graph-resolution {
+      background-color: #0b0080;
+    }
+
+  }
+  .da-compare-node-label {
+    vertical-align: top;
+    display: inline-block !important;
+    width: 80%;
+    label {
+      margin-bottom: 0 !important;
+    }
+    .oo-ui-buttonWidget {
+      margin: 0 !important;
+    }
+  }
+}
