@@ -441,5 +441,4 @@ class RevisionManipulator {
 		// Get first 5 and last 5 characters
 		return substr( $hash, 0, 5 ) . '...' . substr( $hash, -5 );
 	}
-
 }

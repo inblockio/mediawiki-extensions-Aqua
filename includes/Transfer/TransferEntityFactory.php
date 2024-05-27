@@ -143,14 +143,13 @@ class TransferEntityFactory {
 		if (
 			isset( $data['verification_context'] ) && is_array( $data['verification_context'] ) &&
 			isset( $data['content'] ) && is_array( $data['content'] ) &&
-			isset( $data['metadata'] ) && is_array( $data['metadata'] ) &&
-			isset( $data['signature'] ) && is_array( $data['signature'] )
+			isset( $data['metadata'] ) && is_array( $data['metadata'] )
 		) {
 			return new TransferRevisionEntity(
 				$data['verification_context'],
 				$data['content'],
 				$data['metadata'],
-				$data['signature'],
+				$data['signature'] ?? null,
 				$data['witness'] ?? null
 			);
 		}
@@ -197,12 +196,12 @@ class TransferEntityFactory {
 			'verification_hash' => $entity->getHash( VerificationEntity::VERIFICATION_HASH )
 		];
 
-		$signatureOutput = [
+		$signatureOutput = $entity->getSignature() ? [
 			'signature' => $entity->getSignature(),
 			'public_key' => $entity->getPublicKey(),
 			'wallet_address' => $entity->getWalletAddress(),
 			'signature_hash' => $entity->getHash( VerificationEntity::SIGNATURE_HASH ),
-		];
+		] : null;
 
 		$witnessOutput = null;
 		if ( $entity->getWitnessEventId() ) {

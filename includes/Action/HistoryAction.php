@@ -59,6 +59,7 @@ class HistoryAction extends GenericHistoryAction {
 			$lines[] = $this->makeRevisionLine( $entity, !$startingFromLocal );
 		}
 		$html .= implode( '', array_reverse( $lines ) );
+
 		$html .= Html::closeElement( 'div' );
 		$this->getOutput()->addHTML( $html );
 		$this->getOutput()->addModules( [ "ext.DataAccounting.revisionHistory" ] );
@@ -81,6 +82,7 @@ class HistoryAction extends GenericHistoryAction {
 			$this->mergeHash = $entity->getHash( VerificationEntity::MERGE_HASH );
 		}
 		$isLocal = $this->isLocal( $entity );
+
 		$url = $entity->getTitle()->getLocalURL( [ 'oldid' => $entity->getRevision()->getId() ] );
 		if ( $isLocal && $entity->getRevision()->isCurrent() ) {
 			$url = $this->getTitle()->getLocalURL();
@@ -139,6 +141,7 @@ class HistoryAction extends GenericHistoryAction {
 			$node = $this->getNodePlaceholder() . Html::element( 'span', $nodeAttrs );
 		} else {
 			$node = Html::element( 'span', $nodeAttrs ) . $this->getNodePlaceholder();
+
 		}
 
 		$textHtml = Html::rawElement(
@@ -173,6 +176,7 @@ class HistoryAction extends GenericHistoryAction {
 	private function getCheckbox( VerificationEntity $entity, bool $shouldAdd ): string {
 		$html = Html::openElement( 'div', [ 'class' => 'da-revision-checkbox' ] );
 		if ( $shouldAdd ) {
+
 			$html .= Html::check(
 				'da-revision-checkbox',
 				false,
@@ -217,5 +221,4 @@ class HistoryAction extends GenericHistoryAction {
 			$this->mergeHash = false;
 		}
 	}
-
 }

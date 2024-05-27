@@ -34,6 +34,9 @@ class VerificationEngine {
 	/** @var WitnessingEngine */
 	private $witnessingEngine;
 
+	/** @var VerificationEntity|null */
+	private $forcedParent;
+
 	/**
 	 * @param VerificationLookup $verificationLookup
 	 * @param ILoadBalancer $lb
@@ -59,6 +62,8 @@ class VerificationEngine {
 		$this->pageUpdaterFactory = $pageUpdaterFactory;
 		$this->revisionStore = $revisionStore;
 		$this->witnessingEngine = $witnessingEngine;
+
+		$this->forcedParent = null;
 	}
 
 	/**
@@ -209,7 +214,7 @@ class VerificationEngine {
 	 * @return VerificationEntity|null
 	 * @throws Exception
 	 */
-	public function buildAndUpdateVerificationData(
+	public function buildAndUpdateVerificationData
 		VerificationEntity $entity, \MediaWiki\Revision\RevisionRecord $rev, ?VerificationEntity $parentEntity = null,
 		?string $mergeHash = null, ?string $forkHash = null
 	): ?VerificationEntity {

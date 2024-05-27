@@ -128,5 +128,6 @@
 	"da-ui-singlepageexport-fork-label": "Fork",
 	"da-ui-forkpage-newpage-title": "Name of the forked page",
 	"da-ui-forkpage-error": "Failed to fork page",
-	"dataaccounting-fork-page-comment": "Forked from $1"
+	"dataaccounting-fork-page-comment": "Forked from $1",
+	"da-ui-forkpage-error": "Failed to fork page"
 }

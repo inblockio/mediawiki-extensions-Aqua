@@ -22,7 +22,6 @@ da.ui.revisionTree = {
 				"C " + pos.start.x  + " " + ( pos.start.y - 20 ) + "," + ( pos.end.x ) + ' ' + pos.start.y + ',' +
 				pos.end.x + "," + pos.end.y;
 		}
-		console.log( pos, dStr );
 
 		var $connector = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 		$connector.setAttribute( 'width', $element.outerWidth() + 'px' );

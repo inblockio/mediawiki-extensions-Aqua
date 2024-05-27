@@ -71,3 +71,8 @@ If the extension is running and working, you will see entries in revision_verifi
 2. cp -r DataAccounting PKC/mountPoint/extensions
 3. docker exec pkc_mediawiki_1 php /var/www/html/maintenance/update.php
 *if you manually install DataAccounting extension you need to run the maintenance script to load the extension and update the sql database schemas
+
+If you wan't to test a branch by using our current deployment pipe-line (GitHub autobuild actions) use  the following steps:
+* you can mount the mediawiki-extension-aqua repo via a volume to develop directly against it (see https://github.com/inblockio/aqua-pkc
+* if you want to test a specific branch, you can change the branch you are using in the compose files from :master to the branch you want to test. There should be an image available with that branch.
+
