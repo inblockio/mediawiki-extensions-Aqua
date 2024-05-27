@@ -364,14 +364,7 @@
 	 private function compileVerificationData(
 		TransferRevisionEntity $revisionEntity, TransferContext $context
 	 ): array {
-		 $revisionSignature = $revisionEntity->getSignature() ?? [];
-		 $signatureData = [
-			 'signature' => $revisionSignature['signature'] ?? '',
-			 'signature_hash' => $revisionSignature['signature_hash'] ?? '',
-			 'public_key' => $revisionSignature['public_key'] ?? '',
-			 'wallet_address' => $revisionSignature['wallet_address'] ?? '',
-		 ];
-		return array_merge( [
+		return [
 			'domain_id' => $revisionEntity->getMetadata()['domain_id'],
 			'genesis_hash' => $context->getGenesisHash(),
 			'verification_hash' => $revisionEntity->getMetadata()['verification_hash'],
@@ -380,8 +373,12 @@
 			'previous_verification_hash' => $revisionEntity->getMetadata()['previous_verification_hash'],
 			'content_hash' => $revisionEntity->getContent()['content_hash'],
 			'metadata_hash' => $revisionEntity->getMetadata()['metadata_hash'],
+			'signature' => $revisionEntity->getSignature()['signature'],
+			'signature_hash' => $revisionEntity->getSignature()['signature_hash'],
+			'public_key' => $revisionEntity->getSignature()['public_key'],
+			'wallet_address' => $revisionEntity->getSignature()['wallet_address'],
 			'source' => 'import'
-		], $signatureData );
+		];
 	 }
 
 	 private function newRevisionStatus( WikiRevision $revision ) {
