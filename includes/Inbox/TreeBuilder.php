@@ -113,7 +113,6 @@ class TreeBuilder {
 		uasort( $combined, static function ( array $a, array $b ) {
 			// Sort by revision timestamp descending
 			return $b['revisionData']['timestamp_raw'] <=> $a['revisionData']['timestamp_raw'];
-			//return $a['revisionData']['timestamp_raw'] <=> $b['revisionData']['timestamp_raw'];
 		} );
 
 		return [
