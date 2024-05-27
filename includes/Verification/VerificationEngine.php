@@ -214,7 +214,7 @@ class VerificationEngine {
 	 * @return VerificationEntity|null
 	 * @throws Exception
 	 */
-	public function buildAndUpdateVerificationData
+	public function buildAndUpdateVerificationData(
 		VerificationEntity $entity, \MediaWiki\Revision\RevisionRecord $rev, ?VerificationEntity $parentEntity = null,
 		?string $mergeHash = null, ?string $forkHash = null
 	): ?VerificationEntity {
