@@ -166,11 +166,13 @@ class SpecialVerifiedImport extends SpecialPage {
 
 			$output = Html::openElement( 'ul' );
 			foreach ( $processed as $pagename => $titleObject ) {
+				$linkText = $titleObject->getDBkey();
+				$target = SpecialPage::getTitleFor( 'Inbox', $linkText );
 				if ( isset( $revCount[$pagename] ) ) {
 					$output .= Html::rawElement(
 						'li', [],
 						Message::newFromKey( 'da-import-result-line' )
-							->rawParams( $this->linker->makeLink( $titleObject ), $revCount[$pagename] )->text()
+							->rawParams( $this->linker->makeLink( $target, $linkText ), $revCount[$pagename] )->text()
 					);
 				}
 				if ( isset( $collisions[$pagename] ) ) {

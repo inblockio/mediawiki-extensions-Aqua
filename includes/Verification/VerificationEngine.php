@@ -34,9 +34,6 @@ class VerificationEngine {
 	/** @var WitnessingEngine */
 	private $witnessingEngine;
 
-	/** @var VerificationEntity|null */
-	private $forcedParent;
-
 	/**
 	 * @param VerificationLookup $verificationLookup
 	 * @param ILoadBalancer $lb
@@ -226,8 +223,9 @@ class VerificationEngine {
 		$previousVerificationHash = $parentEntity ?
 			$parentEntity->getHash( VerificationEntity::VERIFICATION_HASH ) : '';
 		$timestamp = $rev->getTimestamp();
+
 		$metadataHashParts = [
-			$entity->getDomainId(),
+			$this->getDomainId(),
 			$timestamp,
 			$previousVerificationHash
 		];

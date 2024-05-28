@@ -62,7 +62,7 @@ class Hooks implements
 		if ( !$canCreate && !$canUpload ) {
 			return;
 		}
-		$button = Html::openElement( 'div', [ 'class' => 'dropdown', 'style' => 'margin: 0 10px 0 10px' ] );
+		$button = Html::openElement( 'div', [ 'class' => 'dropdown' ] );
 		$button .= Html::rawElement( 'button', [
 			'class' => 'btn btn-link dropdown-toggle ',
 			'type' => 'button',
