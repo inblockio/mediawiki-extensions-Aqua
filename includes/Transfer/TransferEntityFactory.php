@@ -81,8 +81,13 @@ class TransferEntityFactory {
 	 */
 	public function newTransferContextForImport( array $data ): ?TransferContext {
 		$title = $this->titleFactory->makeTitle( $data['namespace'], $data['title'] );
-		// NS_INBOX
-		$data['namespace'] = 6900;
+		/**
+		 * Use NS_INBOX namespace for inbox pages
+		 * If data represents file use NS_FILE namespace
+		 */
+		if ( $data['namespace'] !== NS_FILE ) {
+			$data['namespace'] = 6900;
+		}
 		$data['title'] = $title->getPrefixedDBkey();
 
 		return $this->newTransferContextFromData( $data );
