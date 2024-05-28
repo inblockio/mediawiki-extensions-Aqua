@@ -4,6 +4,7 @@ namespace DataAccounting;
 
 use DataAccounting\Transfer\Importer;
 use DataAccounting\Transfer\TransferEntityFactory;
+use DataAccounting\Verification\Entity\VerificationEntity;
 use Html;
 use ImportStreamSource;
 use MediaWiki\Linker\LinkRenderer;
@@ -144,6 +145,8 @@ class SpecialVerifiedImport extends SpecialPage {
 				}
 
 				foreach ( $revisions as $hash => $revision ) {
+					$revision['metadata'] = $revision['metadata'] ?? [];
+					$revision['metadata'][VerificationEntity::VERIFICATION_HASH] = $hash;
 					$entity = $this->transferEntityFactory->newRevisionEntityFromApiData( $revision );
 					if ( !$entity instanceof \DataAccounting\Transfer\TransferRevisionEntity ) {
 						continue;

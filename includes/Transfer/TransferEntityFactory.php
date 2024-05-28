@@ -64,7 +64,6 @@ class TransferEntityFactory {
 			return new TransferContext(
 				$data[VerificationEntity::GENESIS_HASH],
 				$data[VerificationEntity::DOMAIN_ID],
-				$data['latest_verification_hash'] ?? '',
 				$data['site_info'],
 				$title,
 				$data['chain_height'] ?? 0
@@ -102,7 +101,6 @@ class TransferEntityFactory {
 		return $this->newTransferContextFromData( [
 			VerificationEntity::GENESIS_HASH => $entity->getHash( VerificationEntity::GENESIS_HASH ),
 			VerificationEntity::DOMAIN_ID => $entity->getDomainId(),
-			'latest_verification_hash' => $entity->getHash( VerificationEntity::VERIFICATION_HASH ),
 			'site_info' => $this->getSiteInfo(),
 			'title' => $entity->getTitle()->getDBkey(),
 			'namespace' => $entity->getTitle()->getNamespace(),
@@ -170,7 +168,6 @@ class TransferEntityFactory {
 		VerificationEntity $entity
 	): TransferRevisionEntity {
 		$contentOutput = [
-			'rev_id' => $entity->getRevision()->getId(),
 			'content' => $this->prepareContent( $entity ),
 			'content_hash' => $entity->getHash( VerificationEntity::CONTENT_HASH ),
 		];
@@ -197,8 +194,7 @@ class TransferEntityFactory {
 			'domain_id' => $entity->getDomainId(),
 			'time_stamp' => $entity->getTime()->format( 'YmdHis' ),
 			'previous_verification_hash' => $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ),
-			'metadata_hash' => $entity->getHash( VerificationEntity::METADATA_HASH ),
-			'verification_hash' => $entity->getHash( VerificationEntity::VERIFICATION_HASH )
+			'metadata_hash' => $entity->getHash( VerificationEntity::METADATA_HASH )
 		];
 
 		$signatureOutput = $entity->getSignature() ? [
