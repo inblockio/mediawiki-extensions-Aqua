@@ -53,22 +53,18 @@ da.ui.ConflictResolution.prototype.addButtons = function ( $element, id, type ) 
 			items: [
 				new OO.ui.ButtonOptionWidget( {
 					label: 'use ours',
-					framed: false,
 					data: { change: id, type: 'local' },
 				} ),
 				new OO.ui.ButtonOptionWidget( {
 					label: 'use theirs',
-					framed: false,
 					data: { change: id, type: 'remote' },
 				} ),
 				new OO.ui.ButtonOptionWidget( {
 					label: 'use both',
-					framed: false,
 					data: { change: id, type: 'both' },
 				} ),
 				new OO.ui.ButtonOptionWidget( {
 					label: 'use neither',
-					framed: false,
 					data: { change: id, type: 'neither' },
 				} )
 			]
@@ -137,7 +133,6 @@ da.ui.ConflictResolution.prototype.getFinalText = function () {
 		throw new Error( 'Not all resolutions have been made' );
 	}
 	var finalText = [];
-	console.log( this.diffData, this.resolved );
 	for ( var id in this.diffData ) {
 		if ( !this.diffData.hasOwnProperty( id ) ) {
 			continue;
@@ -154,7 +149,7 @@ da.ui.ConflictResolution.prototype.getFinalText = function () {
 					finalText.push( this.diffData[id].new );
 				}
 				if ( this.resolved[id] === 'both' ) {
-					finalText.push( this.diffData[id].old )
+					finalText.push( this.diffData[id].old );
 					finalText.push( this.diffData[id].new );
 				}
 			}

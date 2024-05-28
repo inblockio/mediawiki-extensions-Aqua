@@ -180,55 +180,6 @@ class RevisionManipulator {
 	}
 
 	/**
-	 * @param RevisionRecord[] $revisions
-	 * @param Title $target
-	 * @param UserIdentity $user
-	 * @param array $revisionParents
-	 * @return VerificationEntity[]
-	 * @throws MWException
-	 */
-	private function insertRevisions(
-		array $revisions, Title $target, UserIdentity $user, array $revisionParents
-	): array {
-		$createdEntities = [];
-		foreach ( $revisions as $revision ) {
-			$newRev = $this->doInsertRevision( $revision, $target, $user );
-			if ( !$newRev ) {
-				throw new Exception( 'Failed to save revision' );
-			}
-			$parentEntity = $revisionParents[$revision->getId()] ?? null;
-			$createdEntities[] = $this->verificationEngine->buildAndUpdateVerificationData(
-				$this->verificationEngine->getLookup()->verificationEntityFromRevId( $newRev->getId() ),
-				$newRev, $parentEntity
-			);
-		}
-		// Remove nulls
-		return array_filter( $createdEntities );
-	}
-
-	/**
-	 * @param RevisionRecord $revision
-	 * @param Title $target
-	 * @param UserIdentity $user
-	 * @return RevisionRecord|null
-	 * @throws MWException
-	 */
-	private function doInsertRevision( RevisionRecord $revision, Title $target, UserIdentity $user ): ?RevisionRecord {
-		$wp = $this->wikipageFactory->newFromTitle( $target );
-		$updater = $wp->newPageUpdater( $user );
-		$roles = $revision->getSlotRoles();
-		foreach ( $roles as $role ) {
-			$content = $revision->getContent( $role );
-			$updater->setContent( $role, $content );
-		}
-
-		return $updater->saveRevision(
-			CommentStoreComment::newUnsavedComment( 'Forked from ' . $revision->getId() ),
-			EDIT_SUPPRESS_RC | EDIT_INTERNAL
-		);
-	}
-
-	/**
 	 * @param Title $local
 	 * @param Title $remote
 	 * @param UserIdentity $user
