@@ -660,9 +660,60 @@ components:
               content:
                 type: object
                 properties:
-                  main:
-                    type: string
-                    example: 'Hello, world!'
+                  content:
+                    type: object
+                    properties:
+                      main:
+                        type: string
+                        description: Main content of the revision, text of the page
+                        example: 'Hello, world!'
+                      signature-slot:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user:
+                                type: string
+                                example: '0x5975...b3'
+                            timestamp:
+                                type: string
+                                example: '20240508072948'
+                      transclusion-hashes:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            dbkey:
+                              type: string
+                              example: 'MyPage'
+                            ns:
+                              type: integer
+                              example: 10
+                            verification_hash:
+                                type: string
+                                example: 'abc...cba'
+                      file:
+                        type: object
+                        properties:
+                          data:
+                            type: string
+                            description: Base64 encoded file data
+                            example: 'd3an...asd'
+                          filename:
+                            type: string
+                            example: 'MyFile.png'
+                          size:
+                            type: integer
+                            description: Size of the file in bytes
+                            example: 12345
+                          comment:
+                            type: string
+                            description: Comment added when uploading file
+                            example: 'My comment'
+                          archivename:
+                            type: string
+                            description: Name of the archive file, only for import
+                            example: '20240508072948_MyFile.png'
                   content_hash:
                     type: string
                     example: 'abc...cba'

@@ -347,6 +347,9 @@
 				throw new MWException( "Required role \"$role\" is not defined" );
 			}
 			$model = $slotRoleRegistry->getRoleHandler( $role )->getDefaultModel( $title );
+			if ( is_array( $text ) ) {
+				$text = json_encode( $text );
+			}
 			$content = $this->contentHandlerFactory->getContentHandler( $model )->unserializeContent( $text );
 			$contents[$role] = $content;
 		}

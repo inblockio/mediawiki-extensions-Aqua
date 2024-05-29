@@ -248,6 +248,13 @@ class TransferEntityFactory {
 			if ( !$slot->getContent() ) {
 				continue;
 			}
+			if ( $slot->getContent() instanceof \JsonContent ) {
+				$slotStatus = $slot->getContent()->getData();
+				if ( $slotStatus->isOK() ) {
+					$merged[$role] = (array)$slotStatus->getValue();
+				}
+				continue;
+			}
 			$merged[$role] = $slot->getContent()->serialize();
 		}
 
