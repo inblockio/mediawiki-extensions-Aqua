@@ -208,6 +208,9 @@ class RevisionManipulator {
 		// Last entry in the local entities is the last revision
 		// that was not forked, and is the parent of the first forked revision
 		$lastLocal = end( $localEntities );
+		$lastRemote = end( $remoteEntities );
+		$text = $mergedText ? $lastRemote->getRevision()->getContent( SlotRecord::MAIN )->getText();
+		$this->assertMergedContentDifferent( $lastLocal, $text );
 
 		wfDebug( "Last local revision is: " . $lastLocal->getRevision()->getId(), 'da' );
 		$wp = $this->wikipageFactory->newFromTitle( $local );
@@ -229,8 +232,6 @@ class RevisionManipulator {
 		}
 		// Insert merged revision
 		$updater = $wp->newPageUpdater( $user );
-		$text = $mergedText ?? $lastInserted->getRevision()->getContent( SlotRecord::MAIN )->getText();
-		$this->assertMergedContentDifferent( $lastLocal, $text, $db, __METHOD__ );
 		wfDebug( "Creating new revision with text: " . $text, 'da' );
 		$updater->setContent( SlotRecord::MAIN, new WikitextContent( $text ) );
 		foreach ( $lastInserted->getRevision()->getSlotRoles() as $role ) {
@@ -422,16 +423,11 @@ class RevisionManipulator {
 	/**
 	 * @param VerificationEntity $lastLocal
 	 * @param string $text
-	 * @param IDatabase $db
-	 * @param string $mtd
 	 * @return void
 	 * @throws Exception
 	 */
-	private function assertMergedContentDifferent(
-		VerificationEntity $lastLocal, string $text, IDatabase $db, string $mtd
-	) {
+	private function assertMergedContentDifferent( VerificationEntity $lastLocal, string $text ) {
 		if ( $text === $lastLocal->getRevision()->getContent( SlotRecord::MAIN )->getText() ) {
-			$db->cancelAtomic( $mtd );
 			throw new Exception( 'Merged content is the same as the last local revision. Nothing to merge' );
 		}
 	}

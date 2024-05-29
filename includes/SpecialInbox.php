@@ -44,7 +44,7 @@ class SpecialInbox extends SpecialPage {
 		TitleFactory $titleFactory, VerificationEngine $verificationEngine,
 		RevisionLookup $revisionLookup, RevisionManipulator $revisionManipulator
 	) {
-		parent::__construct( 'Inbox', 'read' );
+		parent::__construct( 'Inbox', 'edit' );
 		$this->titleFactory = $titleFactory;
 		$this->verificationEngine = $verificationEngine;
 		$this->revisionLookup = $revisionLookup;
@@ -281,24 +281,24 @@ class SpecialInbox extends SpecialPage {
 				$this->inboxImporter->mergePagesForceRemote(
 					$this->local->getTitle(), $remoteTitle, $this->getUser()
 				);
-				return true;
-			}
-			$mergeType = $formData['merge-type'] ?? null;
-			if ( !$mergeType ) {
-				// Merge remote directly to an non-existing target
-				return $this->importRemote();
-			}
-			switch ( $mergeType ) {
-				case 'remote':
-					$this->inboxImporter->mergePagesForceRemote(
-						$this->local->getTitle(), $remoteTitle, $this->getUser()
-					);
-					break;
-				case 'local':
-					return $this->doDiscard();
-				case 'combined':
-					$text = $formData['combined-text'] ?? '';
-					$this->inboxImporter->mergePages( $this->local->getTitle(), $remoteTitle, $this->getUser(), $text );
+			} else {
+				$mergeType = $formData['merge-type'] ?? null;
+				if ( !$mergeType ) {
+					// Merge remote directly to an non-existing target
+					return $this->importRemote();
+				}
+				switch ( $mergeType ) {
+					case 'remote':
+						$this->inboxImporter->mergePagesForceRemote(
+							$this->local->getTitle(), $remoteTitle, $this->getUser()
+						);
+						break;
+					case 'local':
+						return $this->doDiscard();
+					case 'combined':
+						$text = $formData['combined-text'] ?? '';
+						$this->inboxImporter->mergePages( $this->local->getTitle(), $remoteTitle, $this->getUser(), $text );
+				}
 			}
 		} catch ( \Throwable $ex ) {
 			return $this->msg( $ex->getMessage() );
