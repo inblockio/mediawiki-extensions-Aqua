@@ -149,7 +149,7 @@ class SpecialVerifiedImport extends SpecialPage {
 					$revision['metadata'][VerificationEntity::VERIFICATION_HASH] = $hash;
 					$entity = $this->transferEntityFactory->newRevisionEntityFromApiData( $revision );
 					if ( !$entity instanceof \DataAccounting\Transfer\TransferRevisionEntity ) {
-						continue;
+						throw new \RuntimeException( 'Invalid revision entity: ' . $hash );
 					}
 					$status = $this->importer->importRevision( $entity, $context, $this->getUser() );
 					if ( !$status->isOK() ) {

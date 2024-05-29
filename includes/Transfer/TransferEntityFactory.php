@@ -10,6 +10,7 @@ use DataAccounting\Verification\WitnessingEngine;
 use Language;
 use MediaWiki\MediaWikiServices;
 use NamespaceInfo;
+use RuntimeException;
 use Title;
 use TitleFactory;
 
@@ -50,17 +51,16 @@ class TransferEntityFactory {
 
 	/**
 	 * @param array $data
-	 * @return TransferContext|null
+	 * @return TransferContext
 	 */
-	public function newTransferContextFromData( array $data ): ?TransferContext {
+	public function newTransferContextFromData( array $data ): TransferContext {
 		if (
 			isset( $data['site_info'] ) && is_array( $data['site_info'] ) &&
-			isset( $data['title'] ) && isset( $data['namespace'] )
+			isset( $data['title'] ) && isset( $data['namespace'] ) &&
+			isset( $data[VerificationEntity::GENESIS_HASH] ) &&
+			isset( $data[VerificationEntity::DOMAIN_ID] )
 		) {
 			$title = $this->titleFactory->makeTitle( $data['namespace'], $data['title'] );
-			if ( !( $title instanceof \Title ) ) {
-				return null;
-			}
 			return new TransferContext(
 				$data[VerificationEntity::GENESIS_HASH],
 				$data[VerificationEntity::DOMAIN_ID],
@@ -70,7 +70,7 @@ class TransferEntityFactory {
 			);
 		}
 
-		return null;
+		throw new RuntimeException( 'Invalid input data' );
 	}
 
 	/**
@@ -92,10 +92,14 @@ class TransferEntityFactory {
 		return $this->newTransferContextFromData( $data );
 	}
 
-	public function newTransferContextFromTitle( \Title $title ): ?TransferContext {
+	/**
+	 * @param Title $title
+	 * @return TransferContext
+	 */
+	public function newTransferContextFromTitle( \Title $title ): TransferContext {
 		$entity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
 		if ( !$entity ) {
-			return null;
+			throw new RuntimeException( 'No verification entity found for title: ' . $title->getPrefixedDBkey() );
 		}
 
 		return $this->newTransferContextFromData( [
