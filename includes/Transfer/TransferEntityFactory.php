@@ -194,7 +194,8 @@ class TransferEntityFactory {
 			'domain_id' => $entity->getDomainId(),
 			'time_stamp' => $entity->getTime()->format( 'YmdHis' ),
 			'previous_verification_hash' => $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ),
-			'metadata_hash' => $entity->getHash( VerificationEntity::METADATA_HASH )
+			'metadata_hash' => $entity->getHash( VerificationEntity::METADATA_HASH ),
+			'verification_hash' => $entity->getHash()
 		];
 
 		$signatureOutput = $entity->getSignature() ? [
