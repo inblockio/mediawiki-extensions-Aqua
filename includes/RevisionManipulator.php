@@ -3,6 +3,7 @@
 namespace DataAccounting;
 
 use CommentStoreComment;
+use DataAccounting\Content\SignatureContent;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use Exception;
@@ -78,6 +79,11 @@ class RevisionManipulator {
 		);
 	}
 
+	/**
+	 * @param array $revisionIds
+	 * @return void
+	 * @throws MWException
+	 */
 	public function squashRevisions( array $revisionIds ) {
 		$this->assertRevisionsOfSamePage( $revisionIds );
 		// 1. Get the content of the latest revisions
@@ -191,6 +197,7 @@ class RevisionManipulator {
 		Title $local, Title $remote, UserIdentity $user, ?string $mergedText
 	) {
 		define( 'DA_MERGE', 1 );
+		wfDebug( "Starting page merge: {$remote->getPrefixedText()} => {$local->getPrefixedText()}", 'da' );
 		$localEntities = $this->getVerificationEntitiesForMerge( $local );
 		$remoteEntities = $this->getVerificationEntitiesForMerge( $remote );
 		$commonParent = $this->getCommonParent( $localEntities, $remoteEntities );
@@ -202,6 +209,7 @@ class RevisionManipulator {
 		// that was not forked, and is the parent of the first forked revision
 		$lastLocal = end( $localEntities );
 
+		wfDebug( "Last local revision is: " . $lastLocal->getRevision()->getId(), 'da' );
 		$wp = $this->wikipageFactory->newFromTitle( $local );
 		$lastInserted = null;
 		$db = $this->lb->getConnection( DB_PRIMARY );
@@ -216,16 +224,22 @@ class RevisionManipulator {
 			$isFork = $remoteEntity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ) ===
 				$commonParent->getHash();
 			$this->moveRevision( $db, $remoteEntity, $parent, $commonParent, $local, $isFork, __METHOD__ );
+			wfDebug( "Moving revision " . $remoteEntity->getRevision()->getId() . ',isFork: ' . $isFork, 'da' );
 			$lastInserted = $remoteEntity;
 		}
-		$db->endAtomic( __METHOD__ );
-
 		// Insert merged revision
 		$updater = $wp->newPageUpdater( $user );
 		$text = $mergedText ?? $lastInserted->getRevision()->getContent( SlotRecord::MAIN )->getText();
+		$this->assertMergedContentDifferent( $lastLocal, $text, $db, __METHOD__ );
+		wfDebug( "Creating new revision with text: " . $text, 'da' );
 		$updater->setContent( SlotRecord::MAIN, new WikitextContent( $text ) );
 		foreach ( $lastInserted->getRevision()->getSlotRoles() as $role ) {
 			if ( $role === SlotRecord::MAIN ) {
+				// Main role is already set by setting text
+				continue;
+			}
+			if ( $role === SignatureContent::SLOT_ROLE_SIGNATURE ) {
+				// Do not transfer signatures
 				continue;
 			}
 			// Insert other slots
@@ -235,14 +249,19 @@ class RevisionManipulator {
 			CommentStoreComment::newUnsavedComment( 'Merged from ' . $remote->getPrefixedText() )
 		);
 		if ( !$mergedRev ) {
+			wfDebug( "Failed to create new revision" . $updater->getStatus()->getMessage(), 'da' );
+			$db->cancelAtomic( __METHOD__ );
 			throw new Exception( 'Failed to save merged revision' );
 		}
+
+		wfDebug( "Updating verification data", 'da' );
 		// Last local revision is the official parent, since remote changes are branched-off
 		// Set `merge-hash` on it as well, to bring remote chain back to local
 		$this->verificationEngine->buildAndUpdateVerificationData(
 			$this->verificationEngine->getLookup()->verificationEntityFromRevId( $mergedRev->getId() ),
 			$mergedRev, $lastLocal, $lastInserted->getHash()
 		);
+		wfDebug( "Cleanup", 'da' );
 		// Clean up entries from the remote page whose revisions have now been massacred
 		$db->delete(
 			'page',
@@ -254,6 +273,9 @@ class RevisionManipulator {
 			[ 'page_id' => $remote->getArticleID() ],
 			__METHOD__
 		);
+		wfDebug( 'Merge complete' );
+
+		$db->endAtomic( __METHOD__ );
 	}
 
 	/**
@@ -290,6 +312,7 @@ class RevisionManipulator {
 			$data[VerificationEntity::FORK_HASH] = $commonParent->getHash();
 			$data[VerificationEntity::PREVIOUS_VERIFICATION_HASH] = $parent->getHash();
 		}
+		wfDebug( "Setting verification data on moved revision: " . json_encode( $data ), 'da' );
 		if ( !$db->update( 'revision_verification', $data, [ 'rev_id' => $entity->getRevision()->getId() ] ) ) {
 			$db->cancelAtomic( $mtd );
 			throw new Exception( 'Failed to move verification entity' );
@@ -391,5 +414,22 @@ class RevisionManipulator {
 	private function shortenHash( string $hash ): string {
 		// Get first 5 and last 5 characters
 		return substr( $hash, 0, 5 ) . '...' . substr( $hash, -5 );
+	}
+
+	/**
+	 * @param VerificationEntity $lastLocal
+	 * @param string $text
+	 * @param IDatabase $db
+	 * @param string $mtd
+	 * @return void
+	 * @throws Exception
+	 */
+	private function assertMergedContentDifferent(
+		VerificationEntity $lastLocal, string $text, IDatabase $db, string $mtd
+	) {
+		if ( $text === $lastLocal->getRevision()->getContent( SlotRecord::MAIN )->getText() ) {
+			$db->cancelAtomic( $mtd );
+			throw new Exception( 'Merged content is the same as the last local revision. Nothing to merge' );
+		}
 	}
 }

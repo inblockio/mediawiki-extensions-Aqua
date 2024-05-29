@@ -143,7 +143,7 @@ class VerificationLookup {
 	 * @param bool $includeDiverged
 	 * @return array
 	 */
-	public function getAllRevisionIds( $title, bool $includeDiverged = false ): array {
+	public function getAllRevisionIds( $title, bool $includeDiverged = true ): array {
 		if ( $title instanceof Title ) {
 			$title = $this->getCanonicalTitle( $title );
 		}

@@ -52,19 +52,19 @@ da.ui.ConflictResolution.prototype.addButtons = function ( $element, id, type ) 
 			classes: [ 'da-conflict-resolution-buttons' ],
 			items: [
 				new OO.ui.ButtonOptionWidget( {
-					label: 'use ours',
+					label: mw.msg( 'da-conflict-resolution-ours' ),
 					data: { change: id, type: 'local' },
 				} ),
 				new OO.ui.ButtonOptionWidget( {
-					label: 'use theirs',
+					label: mw.msg( 'da-conflict-resolution-theirs' ),
 					data: { change: id, type: 'remote' },
 				} ),
 				new OO.ui.ButtonOptionWidget( {
-					label: 'use both',
+					label: mw.msg( 'da-conflict-resolution-both' ),
 					data: { change: id, type: 'both' },
 				} ),
 				new OO.ui.ButtonOptionWidget( {
-					label: 'use neither',
+					label: mw.msg( 'da-conflict-resolution-neither' ),
 					data: { change: id, type: 'neither' },
 				} )
 			]

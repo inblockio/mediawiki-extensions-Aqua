@@ -684,6 +684,10 @@ components:
               metadata_hash:
                 type: string
                 example: 'abc...cba'
+              merge_hash:
+                type: string
+                description: If revision was created by merging remote revisions, this shows the hash of the remote revision it was merged from
+                example: 'abc...cba'
               verification_hash:
                 type: string
                 example: 'abc...cba'

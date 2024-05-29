@@ -129,5 +129,12 @@
 	"da-ui-forkpage-newpage-title": "Name of the forked page",
 	"da-ui-forkpage-error": "Failed to fork page",
 	"dataaccounting-fork-page-comment": "Forked from $1",
-	"da-ui-forkpage-error": "Failed to fork page"
+	"da-merge-resolution-local": "Use local version (discard remote changes)",
+	"da-merge-resolution-remote": "Use remote version (merge remote into local)",
+	"da-merge-resolution-both": "Resolve conflict manually and import combined version",
+	"da-merge-resolution-label": "Select conflict resolution method",
+	"da-conflict-resolution-ours": "use ours",
+	"da-conflict-resolution-theirs": "use theirs",
+	"da-conflict-resolution-both": "use both",
+	"da-conflict-resolution-neither": "use neither"
 }

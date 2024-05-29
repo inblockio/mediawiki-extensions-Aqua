@@ -62,17 +62,17 @@ da.ui.ComparePanel.prototype.setFormData = function () {
 
 		var option1 = new OO.ui.ButtonOptionWidget( {
 				data: 'local',
-				label: 'Use local version (discard remote)',
+				label: mw.msg( 'da-merge-resolution-local' ),
 				flags: [ 'progressive' ]
 			} ),
 			option2 = new OO.ui.ButtonOptionWidget( {
 				data: 'remote',
-				label: 'Use remote version (merge remote into local)',
+				label: mw.msg( 'da-merge-resolution-remote' ),
 				flags: [ 'progressive' ]
 			} ),
 			option3 = new OO.ui.ButtonOptionWidget( {
 				data: 'merge',
-				label: 'Resolve conflict manually and import combined version',
+				label: mw.msg( 'da-merge-resolution-both' ),
 				flags: [ 'progressive' ]
 			} ),
 			buttonSelect = new OO.ui.ButtonSelectWidget( {
@@ -113,7 +113,7 @@ da.ui.ComparePanel.prototype.setFormData = function () {
 			classes: [ 'da-compare-button-select-panel' ]
 		} );
 		panel.$element.append( new OO.ui.LabelWidget( {
-			label: 'Select conflict resolution method:'
+			label: mw.msg( 'da-merge-resolution-label' )
 		} ).$element );
 		panel.$element.append( buttonSelect.$element );
 		panel.$element.insertBefore( this.$form );

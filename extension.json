@@ -454,7 +454,15 @@
 				"ui/Inbox/style.less"
 			],
 			"messages": [
-				"da-specialimport-confirm"
+				"da-specialimport-confirm",
+				"da-merge-resolution-local",
+				"da-merge-resolution-remote",
+				"da-merge-resolution-both",
+				"da-merge-resolution-label",
+				"da-conflict-resolution-ours",
+				"da-conflict-resolution-theirs",
+				"da-conflict-resolution-both",
+				"da-conflict-resolution-neither"
 			],
 			"dependencies": [
 				"oojs-ui",

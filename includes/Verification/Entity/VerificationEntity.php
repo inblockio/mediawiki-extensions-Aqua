@@ -60,6 +60,9 @@ class VerificationEntity implements JsonSerializable {
 		array $verificationContext, string $signature, string $publicKey, string $walletAddress,
 		int $witnessEventId, string $source
 	) {
+		if ( isset( $hashes[self::MERGE_HASH] ) ) {
+			error_log( "MERGEHASH: " . $hashes[self::MERGE_HASH] . '#' . $revision->getId() );
+		}
 		$this->title = $title;
 		$this->revision = $revision;
 		$this->domainId = $domainId;
