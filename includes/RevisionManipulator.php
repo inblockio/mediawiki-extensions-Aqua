@@ -220,7 +220,7 @@ class RevisionManipulator {
 				// Exists locally
 				continue;
 			}
-			$parent = $lastInserted ?? $lastLocal;
+			$parent = $lastInserted ?? $commonParent;
 			$isFork = $remoteEntity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ) ===
 				$commonParent->getHash();
 			$this->moveRevision( $db, $remoteEntity, $parent, $commonParent, $local, $isFork, __METHOD__ );
@@ -311,6 +311,9 @@ class RevisionManipulator {
 		if ( $isFork ) {
 			$data[VerificationEntity::FORK_HASH] = $commonParent->getHash();
 			$data[VerificationEntity::PREVIOUS_VERIFICATION_HASH] = $parent->getHash();
+			$data[VerificationEntity::METADATA_HASH] = $this->verificationEngine->getHasher()->getHashSum(
+				$entity->getDomainId() . $entity->getRevision()->getTimestamp() . $parent->getHash()
+			);
 		}
 		wfDebug( "Setting verification data on moved revision: " . json_encode( $data ), 'da' );
 		if ( !$db->update( 'revision_verification', $data, [ 'rev_id' => $entity->getRevision()->getId() ] ) ) {

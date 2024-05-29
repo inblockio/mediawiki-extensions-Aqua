@@ -113,7 +113,7 @@ class HistoryAction extends GenericHistoryAction {
 		}
 
 		$checkbox = $this->getCheckbox( $entity, $isForked ? $isLocal : true );
-		if ( !$isLocal || ( !$isForked && $this->isDiverged ) ) {
+		if ( !$isLocal ) {
 			$source = 'other';
 			$sourceClass = 'local';
 		} else {
@@ -156,9 +156,11 @@ class HistoryAction extends GenericHistoryAction {
 	/**
 	 * @param VerificationEntity $entity
 	 * @return bool
+	 * @throws \Exception
 	 */
 	private function isLocal( VerificationEntity $entity ): bool {
-		return $entity->getTitle()->getArticleID() === $this->getTitle()->getArticleID();
+		return $entity->getTitle()->getArticleID() === $this->getTitle()->getArticleID()
+			&& $entity->getDomainId() === $this->verificationEngine->getDomainId();
 	}
 
 	/**

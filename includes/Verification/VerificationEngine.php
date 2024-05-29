@@ -219,13 +219,17 @@ class VerificationEngine {
 
 		$parentEntity = $parentEntity ?? $this->getParentEntity( $entity, $rev );
 
+		$entityDomain = $entity->getDomainId();
+		if ( !$entityDomain ) {
+			$entityDomain = $this->getDomainId();
+		}
 		// META DATA HASH CALCULATOR
 		$previousVerificationHash = $parentEntity ?
 			$parentEntity->getHash( VerificationEntity::VERIFICATION_HASH ) : '';
 		$timestamp = $rev->getTimestamp();
 
 		$metadataHashParts = [
-			$this->getDomainId(),
+			$entityDomain,
 			$timestamp,
 			$previousVerificationHash
 		];
