@@ -306,7 +306,7 @@ class RevisionManipulator {
 		// Move verification entity
 		$data = [
 			'page_id' => $local->getArticleID(),
-			'page_title' => $local->getPrefixedDBkey(),
+			'page_title' => $local->getPrefixedText(),
 		];
 		if ( $isFork ) {
 			$data[VerificationEntity::FORK_HASH] = $commonParent->getHash();
