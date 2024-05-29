@@ -129,9 +129,8 @@ class Hooks implements
 	 * @param Skin $skin
 	 */
 	public function onBeforePageDisplay( $out, $skin ): void {
-		$wgServer = $GLOBALS['wgServer'];
 		$apiVersion = ServerInfo::DA_API_VERSION;
-		$out->addMeta( "data-accounting-mediawiki", $wgServer );
+		$out->addMeta( "data-accounting-mediawiki", $GLOBALS['wgServer'] );
 		$out->addMeta( "data-accounting-api-version", $apiVersion );
 
 		if ( $this->permissionManager->userCan( 'read', $out->getUser(), $out->getTitle() ) ) {
