@@ -209,7 +209,7 @@ class RevisionManipulator {
 		// that was not forked, and is the parent of the first forked revision
 		$lastLocal = end( $localEntities );
 		$lastRemote = end( $remoteEntities );
-		$text = $mergedText ? $lastRemote->getRevision()->getContent( SlotRecord::MAIN )->getText();
+		$text = $mergedText ?? $lastRemote->getRevision()->getContent( SlotRecord::MAIN )->getText();
 		$this->assertMergedContentDifferent( $lastLocal, $text );
 
 		wfDebug( "Last local revision is: " . $lastLocal->getRevision()->getId(), 'da' );
