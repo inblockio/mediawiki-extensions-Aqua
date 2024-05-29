@@ -146,7 +146,6 @@
 		"ParserFirstCallInit": "handleHooks",
 		"ParserGetVariableValueSwitch": "handleHooks",
 		"SkinTemplateNavigation::Universal": "addDAActions",
-		"OutputPageParserOutput": "handleHooks",
 		"RevisionFromEditComplete": "handleHashWriterHooks",
 		"RevisionRecordInserted": "handleHashWriterHooks",
 		"ArticleDeleteComplete": "handleHashWriterHooks",
