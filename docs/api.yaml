@@ -657,9 +657,6 @@ components:
           content:
             type: object
             properties:
-              rev_id:
-                type: integer
-                example: 1
               content:
                 type: object
                 properties:
@@ -682,9 +679,6 @@ components:
                 type: string
                 example: 'abc...cba'
               metadata_hash:
-                type: string
-                example: 'abc...cba'
-              verification_hash:
                 type: string
                 example: 'abc...cba'
           signature:
@@ -711,9 +705,6 @@ components:
           domain_id:
             type: string
             example: 'abc123'
-          latest_verification_hash:
-            type: string
-            example: 'abc...cba'
           title:
             type: string
             example: 'Main_Page'
