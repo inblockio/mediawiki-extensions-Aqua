@@ -9,7 +9,7 @@ class CreateSysopUser extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 		$this->addDescription( 'Create user with admin rights' );
-		$this->addArg( 'username', 'Username of sysop user', true );
+		$this->addArg( 'username', 'Username of sysop user' );
 	}
 
 	public function execute() {
@@ -20,10 +20,15 @@ class CreateSysopUser extends Maintenance {
 		$userGroupManager = $services->getUserGroupManager();
 
 		$user = $userFactory->newFromName( $username );
-		$user->addToDatabase();
+		if ( !$user->isRegistered() ) {
+			$this->output( "User $username does not exist, adding...\n" );
+			$user->addToDatabase();
+		} else {
+			$this->output( "User $username already exists, promoting... \n" );
+		}
 		$userGroupManager->addUserToGroup( $user, 'sysop' );
 
-		$this->output( "Created user $user\n" );
+		$this->output( "Done\n" );
 	}
 }
 
