@@ -16,13 +16,10 @@ use MediaWiki\Revision\RevisionStore;
 use MWException;
 use Title;
 use User;
-use Wikimedia\Rdbms\ILoadBalancer;
 
 class VerificationEngine {
 	/** @var VerificationLookup */
 	private $verificationLookup;
-	/** @var ILoadBalancer */
-	private $lb;
 	/** @var DataAccountingConfig */
 	private $config;
 	/** @var WikiPageFactory */
@@ -34,12 +31,8 @@ class VerificationEngine {
 	/** @var WitnessingEngine */
 	private $witnessingEngine;
 
-	/** @var VerificationEntity|null */
-	private $forcedParent;
-
 	/**
 	 * @param VerificationLookup $verificationLookup
-	 * @param ILoadBalancer $lb
 	 * @param DataAccountingConfig $config
 	 * @param WikiPageFactory $wikiPageFactory
 	 * @param RevisionStore $revisionStore
@@ -48,7 +41,6 @@ class VerificationEngine {
 	 */
 	public function __construct(
 		VerificationLookup $verificationLookup,
-		ILoadBalancer $lb,
 		DataAccountingConfig $config,
 		WikiPageFactory $wikiPageFactory,
 		RevisionStore $revisionStore,
@@ -56,14 +48,11 @@ class VerificationEngine {
 		WitnessingEngine $witnessingEngine
 	) {
 		$this->verificationLookup = $verificationLookup;
-		$this->lb = $lb;
 		$this->config = $config;
 		$this->wikiPageFactory = $wikiPageFactory;
 		$this->pageUpdaterFactory = $pageUpdaterFactory;
 		$this->revisionStore = $revisionStore;
 		$this->witnessingEngine = $witnessingEngine;
-
-		$this->forcedParent = null;
 	}
 
 	/**
@@ -209,23 +198,37 @@ class VerificationEngine {
 	 * @param VerificationEntity $entity
 	 * @param RevisionRecord $rev
 	 * @param VerificationEntity|null $parentEntity
+	 * @param string|null $mergeHash
+	 * @param string|null $forkHash
 	 * @return VerificationEntity|null
 	 * @throws Exception
 	 */
 	public function buildAndUpdateVerificationData(
-		VerificationEntity $entity, \MediaWiki\Revision\RevisionRecord $rev, ?VerificationEntity $parentEntity = null
+		VerificationEntity $entity, \MediaWiki\Revision\RevisionRecord $rev, ?VerificationEntity $parentEntity = null,
+		?string $mergeHash = null, ?string $forkHash = null
 	): ?VerificationEntity {
 		$contentHash = $this->getHasher()->calculateContentHash( $rev );
 
 		$parentEntity = $parentEntity ?? $this->getParentEntity( $entity, $rev );
 
+		$entityDomain = $entity->getDomainId();
+		if ( !$entityDomain ) {
+			$entityDomain = $this->getDomainId();
+		}
 		// META DATA HASH CALCULATOR
 		$previousVerificationHash = $parentEntity ?
 			$parentEntity->getHash( VerificationEntity::VERIFICATION_HASH ) : '';
 		$timestamp = $rev->getTimestamp();
-		$metadataHash = $this->getHasher()->getHashSum(
-			$this->getDomainId() . $timestamp . $previousVerificationHash
-		);
+
+		$metadataHashParts = [
+			$entityDomain,
+			$timestamp,
+			$previousVerificationHash
+		];
+		if ( $mergeHash ) {
+			$metadataHashParts[] = $mergeHash;
+		}
+		$metadataHash = $this->getHasher()->getHashSum( implode( '', $metadataHashParts ) );
 
 		// SIGNATURE DATA HASH CALCULATOR
 		$signature = $parentEntity ? $parentEntity->getSignature() : '';
@@ -286,6 +289,8 @@ class VerificationEngine {
 			'public_key' => '',
 			'wallet_address' => '',
 			'source' => 'default',
+			'fork_hash' => $forkHash ?? '',
+			'merge_hash' => $mergeHash ?? ''
 		] );
 	}
 

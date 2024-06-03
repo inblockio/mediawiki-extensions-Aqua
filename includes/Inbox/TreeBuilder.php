@@ -47,7 +47,10 @@ class TreeBuilder {
 		] );
 		$localEntities = $this->verifyAndReduce( $localEntities );
 
-		return $this->combine( $remoteEntities, $localEntities, $language, $user );
+		$combined = $this->combine( $remoteEntities, $localEntities, $language, $user );
+		$combined['remote'] = $remote;
+		$combined['local'] = $local;
+		return $combined;
 	}
 
 	/**
@@ -107,8 +110,9 @@ class TreeBuilder {
 		}
 
 		$this->decorateWithRevisionData( $combined, $language, $user );
-		uasort( $combined, static function( array $a, array $b ) {
-			return $a['revisionData']['timestamp_raw'] <=> $b['revisionData']['timestamp_raw'];
+		uasort( $combined, static function ( array $a, array $b ) {
+			// Sort by revision timestamp descending
+			return $b['revisionData']['timestamp_raw'] <=> $a['revisionData']['timestamp_raw'];
 		} );
 
 		return [
@@ -132,7 +136,6 @@ class TreeBuilder {
 			return $a->getRevision()->getId() <=> $b->getRevision()->getId();
 		} );
 		foreach ( $entities as $entity ) {
-			//var_dump( [ $entity->getTitle()->getPrefixedText(), $lastHash, $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ) ] );
 			if ( $lastHash !== $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ) ) {
 				throw new Exception( 'Entities are not in order' );
 			}

@@ -2,15 +2,19 @@
 
 namespace DataAccounting;
 
+use DataAccounting\Inbox\HTMLDiffFormatter;
 use DataAccounting\Inbox\InboxImporter;
 use DataAccounting\Inbox\Pager;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use Html;
 use HTMLForm;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionLookup;
 use Message;
 use SpecialPage;
+use TextContent;
+use Title;
 use TitleFactory;
 
 class SpecialInbox extends SpecialPage {
@@ -27,24 +31,28 @@ class SpecialInbox extends SpecialPage {
 	private $inboxImporter = null;
 	/** @var RevisionLookup */
 	private $revisionLookup;
+	/** @var RevisionManipulator */
+	private $revisionManipulator;
 
 	/**
 	 * @param TitleFactory $titleFactory
 	 * @param VerificationEngine $verificationEngine
 	 * @param RevisionLookup $revisionLookup
+	 * @param RevisionManipulator $revisionManipulator
 	 */
 	public function __construct(
-		TitleFactory $titleFactory, VerificationEngine $verificationEngine, RevisionLookup $revisionLookup
+		TitleFactory $titleFactory, VerificationEngine $verificationEngine,
+		RevisionLookup $revisionLookup, RevisionManipulator $revisionManipulator
 	) {
-		parent::__construct( 'Inbox', 'read' );
+		parent::__construct( 'Inbox', 'edit' );
 		$this->titleFactory = $titleFactory;
 		$this->verificationEngine = $verificationEngine;
 		$this->revisionLookup = $revisionLookup;
+		$this->revisionManipulator = $revisionManipulator;
 	}
 
 	public function execute( $par ) {
 		parent::execute( $par );
-
 		if ( !$par ) {
 			$this->outputList();
 			return;
@@ -66,6 +74,10 @@ class SpecialInbox extends SpecialPage {
 		$this->getOutput()->addParserOutput( $pager->getBodyOutput() );
 	}
 
+	/**
+	 * @param string $pageName
+	 * @return void
+	 */
 	private function tryCompare( $pageName ) {
 		$title = $this->titleFactory->makeTitle( NS_INBOX, $pageName );
 		if ( !$title->exists() ) {
@@ -82,17 +94,25 @@ class SpecialInbox extends SpecialPage {
 		$this->outputCompare( $this->remote, $this->local );
 	}
 
+	/**
+	 * @param VerificationEntity|null $entity
+	 * @return VerificationEntity|null
+	 */
 	private function getTargetEntity( ?VerificationEntity $entity ): ?VerificationEntity {
 		if ( !$entity ) {
 			return null;
 		}
 		$genesis = $entity->getHash( VerificationEntity::GENESIS_HASH );
 		return $this->verificationEngine->getLookup()->verificationEntityFromQuery( [
-			VerificationEntity::GENESIS_HASH => $genesis,
+			VerificationEntity::VERIFICATION_HASH => $genesis,
 			'page_id != ' . $entity->getTitle()->getArticleID()
 		] );
 	}
 
+	/**
+	 * @param VerificationEntity $draftEntity
+	 * @return void
+	 */
 	private function outputDirectMerge( VerificationEntity $draftEntity ) {
 		$this->getOutput()->addWikiMsg(
 			'da-specialinbox-direct-merge', $draftEntity->getTitle()->getText()
@@ -100,12 +120,17 @@ class SpecialInbox extends SpecialPage {
 		$this->outputForm( $draftEntity );
 	}
 
+	/**
+	 * @param VerificationEntity $draft
+	 * @param VerificationEntity $target
+	 * @return void
+	 * @throws \MediaWiki\Diff\ComplexityException
+	 */
 	private function outputCompare( VerificationEntity $draft, VerificationEntity $target ) {
 		$tree = $this->getInboxImporter()->getTreeBuilder()->buildPreImportTree(
 			$draft->getTitle(), $target->getTitle(), $this->getLanguage(), $this->getUser()
 		);
 		$this->getOutput()->addHTML( $this->makeSummaryHeader( $tree, $draft, $target ) );
-
 		$this->getOutput()->addHTML(
 			Html::element( 'div', [
 				'id' => 'da-specialinbox-compare',
@@ -114,6 +139,15 @@ class SpecialInbox extends SpecialPage {
 				'data-target' => $target->getTitle()->getArticleID(),
 			] )
 		);
+		if ( $tree['change-type'] === 'both' ) {
+			$diff = $this->makeDiff( $tree );
+			if ( $diff ) {
+				$this->getOutput()->addHTML( Html::rawElement( 'div', [
+					'id' => 'da-specialinbox-compare-diff',
+					'data-diff' => json_encode( $diff['diffData'] ),
+				], $diff['formatted'] ) );
+			}
+		}
 		$this->outputForm( $draft, $tree['change-type'] );
 		$this->getOutput()->addModules( 'ext.DataAccounting.inbox.compare' );
 	}
@@ -123,7 +157,9 @@ class SpecialInbox extends SpecialPage {
 	 */
 	private function getInboxImporter(): InboxImporter {
 		if ( $this->inboxImporter === null ) {
-			$this->inboxImporter = new InboxImporter( $this->verificationEngine, $this->revisionLookup );
+			$this->inboxImporter = new InboxImporter(
+				$this->verificationEngine, $this->revisionLookup, $this->revisionManipulator
+			);
 		}
 		return $this->inboxImporter;
 	}
@@ -138,6 +174,12 @@ class SpecialInbox extends SpecialPage {
 		);
 	}
 
+	/**
+	 * @param array $treeData
+	 * @param VerificationEntity $draft
+	 * @param VerificationEntity $target
+	 * @return string
+	 */
 	private function makeSummaryHeader( array $treeData, VerificationEntity $draft, VerificationEntity $target ) {
 		$targetLink = $this->getLinkRenderer()->makeLink(
 			$target->getTitle(),
@@ -176,7 +218,7 @@ class SpecialInbox extends SpecialPage {
 	 * @return void
 	 */
 	private function outputForm( VerificationEntity $remote, ?string $changeType = 'new' ) {
-		$canImport = $changeType !== 'local' && $changeType !== 'none';
+		$somethingToImport = $changeType !== 'local' && $changeType !== 'none';
 		$form = HTMLForm::factory(
 			'ooui',
 			[
@@ -186,14 +228,24 @@ class SpecialInbox extends SpecialPage {
 				],
 				'action' => [
 					'type' => 'hidden',
-					'default' => $canImport ? 'direct-merge' : 'discard',
+					'default' => $somethingToImport ?
+						( $changeType === 'remote' ? 'merge-remote' : 'direct-merge' ) :
+						'discard',
+				],
+				'merge-type' => [
+					'type' => 'hidden',
+					'default' => ''
+				],
+				'combined-text' => [
+					'type' => 'hidden',
+					'default' => ''
 				]
 			],
 			$this->getContext()
 		);
 		$form->setId( 'da-specialinbox-merge-form' );
 		$form->setMethod( 'POST' );
-		if ( !$canImport ) {
+		if ( !$somethingToImport ) {
 			$form->setSubmitTextMsg( $this->msg( 'da-specialinbox-merge-discard' ) );
 			$form->setSubmitName( 'discard' );
 			$form->setSubmitDestructive();
@@ -218,29 +270,56 @@ class SpecialInbox extends SpecialPage {
 	 * @return bool|Message
 	 */
 	public function onAction( $formData ) {
-		$postData = $this->getRequest()->getPostValues();
-		$action = isset( $postData['discard'] ) ? 'discard' : $formData['action'];
-
-		if ( !$this->remote ) {
-			return $this->msg( 'da-specialinbox-merge-error-no-subject' );
-		}
-		if ( $action === 'discard' ) {
+		$shouldDiscard = $formData['action'] === 'discard';
+		if ( $shouldDiscard ) {
 			return $this->doDiscard();
 		}
-		if ( $action === 'direct-merge' ) {
-			return $this->doDirectMerge();
+
+		try {
+			$remoteTitle = $this->remote->getTitle();
+			if ( isset( $formData['action'] ) && $formData['action'] === 'merge-remote' ) {
+				$this->inboxImporter->mergePagesForceRemote(
+					$this->local->getTitle(), $remoteTitle, $this->getUser()
+				);
+			} else {
+				$mergeType = $formData['merge-type'] ?? null;
+				if ( !$mergeType ) {
+					// Merge remote directly to an non-existing target
+					return $this->importRemote();
+				}
+				switch ( $mergeType ) {
+					case 'remote':
+						$this->inboxImporter->mergePagesForceRemote(
+							$this->local->getTitle(), $remoteTitle, $this->getUser()
+						);
+						break;
+					case 'local':
+						return $this->doDiscard();
+					case 'combined':
+						$text = $formData['combined-text'] ?? '';
+						$this->inboxImporter->mergePages( $this->local->getTitle(), $remoteTitle, $this->getUser(), $text );
+				}
+			}
+		} catch ( \Throwable $ex ) {
+			return $this->msg( $ex->getMessage() );
 		}
-		if ( $action === 'merge-remote' ) {
-			return $this->doMergeRemote();
-		}
+
+		$this->getOutput()->redirect( $this->local->getTitle()->getFullURL() );
 
 		return false;
 	}
 
 	/**
+	 * @return true
+	 */
+	public function doesWrites() {
+		return true;
+	}
+
+	/**
 	 * @return bool|Message
 	 */
-	private function doDirectMerge() {
+	private function importRemote() {
 		if ( $this->local ) {
 			return $this->msg( 'da-specialinbox-merge-error-target-exists' );
 		}
@@ -273,19 +352,47 @@ class SpecialInbox extends SpecialPage {
 	}
 
 	/**
-	 * @return bool|Message
+	 * @param array $tree
+	 * @return array|null
+	 * @throws \MediaWiki\Diff\ComplexityException
 	 */
-	private function doMergeRemote() {
-		$targetTitle = $this->titleFactory->newFromText( $this->remote->getTitle()->getDBkey() );
-		if ( !$targetTitle ) {
-			return $this->msg( 'da-specialinbox-merge-error-invalid target' );
+	private function makeDiff( array $tree ): ?array {
+		$diff = $this->getDiff( $tree['local'], $tree['remote'] );
+		$diffFormatter = new HTMLDiffFormatter();
+
+		if ( empty( $diff->getEdits() ) ) {
+			return null;
 		}
-		$inboxImporter = $this->getInboxImporter();
-		$status = $inboxImporter->importRemote( $this->remote, $targetTitle, $this->getUser() );
-		if ( !$status->isOK() ) {
-			return $this->msg( $status->getMessage() );
-		}
-		$this->getOutput()->redirect( $targetTitle->getFullURL() );
-		return true;
+		return [
+			'formatted' => $diffFormatter->format( $diff ),
+			'diffData' => $diffFormatter->getArrayData(),
+			'count' => $diffFormatter->getChangeCount()
+		];
+	}
+
+	/**
+	 * @param Title $local
+	 * @param Title $remote
+	 * @return \Diff
+	 * @throws \MediaWiki\Diff\ComplexityException
+	 */
+	protected function getDiff( \Title $local, \Title $remote ) {
+		$localContent = $this->getPageContentText( $local );
+		$remoteContent = $this->getPageContentText( $remote );
+
+		return new \Diff(
+			explode( "\n", $localContent ),
+			explode( "\n", $remoteContent )
+		);
+	}
+
+	/**
+	 * @param Title $title
+	 * @return string
+	 */
+	protected function getPageContentText( Title $title ): string {
+		$wikipage = MediaWikiServices::getInstance()->getWikiPageFactory()->newFromTitle( $title );
+		$content = $wikipage->getContent();
+		return ( $content instanceof TextContent ) ? $content->getText() : '';
 	}
 }

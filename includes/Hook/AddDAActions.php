@@ -85,6 +85,13 @@ class AddDAActions implements SkinTemplateNavigation__UniversalHook {
 					'href' => '#',
 					'text' => 'Squash revisions 💥',
 				];
+				// Fork page
+				$links['actions']['da_fork_page'] = [
+					'id' => 'ca-da-fork-page',
+					'href' => '#',
+					'text' => 'Fork page',
+				];
+				$sktemplate->getOutput()->addModules( 'ext.DataAccounting.revisionActions' );
 			}
 		}
 		if (

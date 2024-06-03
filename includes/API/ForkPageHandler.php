@@ -3,8 +3,6 @@
 namespace DataAccounting\API;
 
 use DataAccounting\RevisionManipulator;
-use DataAccounting\Verification\VerificationEngine;
-use Exception;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\LocalizedHttpException;

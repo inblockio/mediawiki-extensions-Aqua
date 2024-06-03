@@ -82,7 +82,7 @@ class TransclusionHashesHandler extends JsonContentHandler {
 	protected function fillParserOutput(
 		Content $content, ContentParseParams $cpoParams, ParserOutput &$parserOutput
 	) {
-		if ( $cpoParams->getPage()->getLatestRevID() !== $cpoParams->getRevId() ) {
+		if ( $cpoParams->getPage()->getLatestRevID() !== $cpoParams->getRevId() && !defined( 'DA_MERGE' ) ) {
 			$parserOutput->setText(
 				Message::newFromKey( "da-transclusion-hash-ui-visit-latest" )->parseAsBlock()
 			);

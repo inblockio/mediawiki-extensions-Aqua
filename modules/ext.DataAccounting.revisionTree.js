@@ -4,13 +4,13 @@ da.ui = window.da.ui || {};
 da.ui.revisionTree = {
 	drawConnection: function( $node1, $node2, $element ) {
 		var pos = da.ui.revisionTree.getPositionForChild( $node1, $node2 );
-console.log( pos );
-		var type1 = $node1.hasClass( 'da-compare-node-graph-local' ) ? 'local' : 'remote',
-			type2 = $node2.hasClass( 'da-compare-node-graph-local' ) ? 'local' : 'remote',
+
+		var type1 = da.ui.revisionTree.getTypeForNode( $node1 ),
+			type2 = da.ui.revisionTree.getTypeForNode( $node2 ),
 			isIgnored = $node1.hasClass( 'da-compare-node-graph-ignored' ) || $node2.hasClass( 'da-compare-node-graph-ignored' );
 
 		var dStr = '';
-		if ( type1 === 'local' && type2 === 'local' ) {
+		if ( type1 === type2 ) {
 			// M 100, 100, L 200, 100
 			dStr =
 				"M " + (pos.start.x ) + "," + (pos.start.y) + " " +
@@ -18,8 +18,8 @@ console.log( pos );
 		} else {
 			// M 100,100, C100 115, 200 100, 200 130
 			dStr =
-				"M " + (pos.start.x ) + "," + (pos.start.y) + " " +
-				"C " + pos.start.x  + " " + ( pos.start.y + 20 ) + "," + pos.end.x + ' ' + pos.start.y + ',' +
+				"M " + (pos.start.x ) + "," + (pos.start.y ) + " " +
+				"C " + pos.start.x  + " " + ( pos.start.y - 20 ) + "," + ( pos.end.x ) + ' ' + pos.start.y + ',' +
 				pos.end.x + "," + pos.end.y;
 		}
 
@@ -43,11 +43,11 @@ console.log( pos );
 		return {
 			start: {
 				x: $node1.position().left + $node1.outerWidth( true ) / 2,
-				y: $node1.position().top + $node1.outerHeight( true ) - parseInt( $node1.css( 'marginBottom' ) )
+				y: $node1.position().top + $node1.outerHeight( true ) - parseInt( $node1.css( 'marginBottom' ) ) - 10
 			},
 			end: {
 				x: $node2.position().left + $node2.outerWidth( true ) / 2,
-				y: $node2.position().top + parseInt( $node2.css( 'marginTop' ) )
+				y: $node2.position().top + parseInt( $node2.css( 'marginTop' ) ) + 10
 			}
 		};
 	},
@@ -61,13 +61,16 @@ console.log( pos );
 			if ( !$relevantNode ) {
 				continue;
 			}
-			var parent = $relevantNode.attr( 'parent' );
-			if (
-				parent &&
-				nodes.hasOwnProperty( parent ) &&
-				nodes[parent].getRelevantNode()
-			) {
-				da.ui.revisionTree.drawConnection( nodes[parent].getRelevantNode(), $relevantNode, $container );
+			var parent = $relevantNode.attr( 'parent' ),
+				parents = parent ? parent.split( ',' ) : [];
+			for ( var i = 0; i < parents.length; i++ ) {
+				parent = parents[i];
+				if ( !parent ) {
+					continue;
+				}
+				if ( nodes.hasOwnProperty( parent ) && nodes[parent].getRelevantNode() ) {
+					da.ui.revisionTree.drawConnection( nodes[parent].getRelevantNode(), $relevantNode, $container );
+				}
 			}
 		}
 	},
@@ -80,13 +83,21 @@ console.log( pos );
 			if ( $relevant.length === 0 ) {
 				return;
 			}
-			var parent = $relevant.data( 'parent' );
-			if ( parent ) {
+			var parent =  $relevant.data( 'parent' ),
+				parents = parent ? parent.split( ',' ) : [];
+			for ( var i = 0; i < parents.length; i++ ) {
+				parent = parents[i];
+				if ( !parent ) {
+					continue;
+				}
 				var $parent = $element.find( '.da-compare-node-graph[data-hash="' + parent + '"]' );
 				if ( $parent.length ) {
 					da.ui.revisionTree.drawConnection( $parent, $relevant, $element );
 				}
 			}
 		} );
+	},
+	getTypeForNode: function( $node ) {
+		return $node.hasClass( 'da-compare-node-graph-remote' ) ? 'remote' : 'local';
 	}
 };

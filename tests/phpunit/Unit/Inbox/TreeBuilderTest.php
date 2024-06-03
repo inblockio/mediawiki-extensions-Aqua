@@ -36,6 +36,8 @@ class TreeBuilderTest extends TestCase {
 			$this->createMock( Language::class ),
 			$this->createMock( UserIdentity::class )
 		);
+		unset( $data['remote'] );
+		unset( $data['local'] );
 		foreach ( $data['tree'] as &$entry ) {
 			// This is just for display purposes, not tested
 			$entry['revisionData'] = [];

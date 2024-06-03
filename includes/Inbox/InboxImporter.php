@@ -2,11 +2,14 @@
 
 namespace DataAccounting\Inbox;
 
+use DataAccounting\RevisionManipulator;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionLookup;
+use MWException;
 use Status;
+use Throwable;
 use Title;
 use User;
 
@@ -19,13 +22,20 @@ class InboxImporter {
 	/** @var RevisionLookup */
 	private $revisionLookup;
 
+	/** @var RevisionManipulator */
+	private $revisionManipulator;
+
 	/**
 	 * @param VerificationEngine $verificationEngine
 	 * @param RevisionLookup $revisionLookup
+	 * @param RevisionManipulator $revisionManipulator
 	 */
-	public function __construct( VerificationEngine $verificationEngine, RevisionLookup $revisionLookup ) {
+	public function __construct(
+		VerificationEngine $verificationEngine, RevisionLookup $revisionLookup, RevisionManipulator $revisionManipulator
+	) {
 		$this->verificationEngine = $verificationEngine;
 		$this->revisionLookup = $revisionLookup;
+		$this->revisionManipulator = $revisionManipulator;
 	}
 
 	/**
@@ -36,7 +46,12 @@ class InboxImporter {
 	 * @return Status
 	 */
 	public function importDirect( VerificationEntity $source, Title $target, User $actor ): Status {
-		return $this->doMoveTitle( $source->getTitle(), $target, $actor, 'DataAccounting: Importing from inbox' );
+		try {
+			$this->revisionManipulator->movePage( $source->getTitle(), $target );
+			return Status::newGood();
+		} catch ( Throwable $ex ) {
+			return Status::newFatal( $ex->getMessage() );
+		}
 	}
 
 	/**
@@ -47,22 +62,6 @@ class InboxImporter {
 	 */
 	public function discard( Title $subjectTitle, User $user ): Status {
 		return $this->doDeleteTitle( $subjectTitle, $user, 'Discarded' );
-	}
-
-	/**
-	 * @param VerificationEntity $remote
-	 * @param Title $target
-	 * @param User $user
-	 *
-	 * @return Status
-	 */
-	public function importRemote( VerificationEntity $remote, Title $target, User $user ): Status {
-		$status = $this->doDeleteTitle( $target, $user, 'DataAccounting: Merged from import' );
-		$status->merge(
-			$this->doMoveTitle( $remote->getTitle(), $target, $user, 'DataAccounting: Merged from import' )
-		);
-
-		return $status;
 	}
 
 	/**
@@ -78,7 +77,7 @@ class InboxImporter {
 	/**
 	 * @param Title $title
 	 * @param User $user
-	 * @param string|null $comment
+	 * @param string $comment
 	 *
 	 * @return Status
 	 */
@@ -93,20 +92,26 @@ class InboxImporter {
 	}
 
 	/**
-	 * @param Title $from
-	 * @param Title $to
+	 * @param Title $local
+	 * @param Title $remoteTitle
 	 * @param User $user
-	 * @param string|null $comment
-	 *
-	 * @return Status
-	 *
+	 * @param string|null $text
+	 * @return void
+	 * @throws MWException
 	 */
-	private function doMoveTitle( Title $from, Title $to, User $user, string $comment = '' ): Status {
-		$movePage = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage(
-			$from,
-			$to
-		);
-		return $movePage->move( $user, $comment, false );
+	public function mergePages( Title $local, Title $remoteTitle, User $user, ?string $text ) {
+		$this->revisionManipulator->mergePages( $local, $remoteTitle, $user, $text );
 	}
 
+	/**
+	 * @param Title $local
+	 * @param Title $remoteTitle
+	 * @param User $user
+	 * @return void
+	 * @throws MWException
+	 */
+	public function mergePagesForceRemote( Title $local, Title $remoteTitle, User $user ) {
+		// Merge remote into local, but force the latest text of remote as new content
+		$this->mergePages( $local, $remoteTitle, $user, null );
+	}
 }

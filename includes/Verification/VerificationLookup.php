@@ -27,6 +27,7 @@ class VerificationLookup {
 	 * @param ILoadBalancer $loadBalancer
 	 * @param RevisionStore $revisionStore
 	 * @param VerificationEntityFactory $entityFactory
+	 * @param NamespaceInfo $namespaceInfo
 	 */
 	public function __construct(
 		ILoadBalancer $loadBalancer, RevisionStore $revisionStore,
@@ -117,6 +118,8 @@ class VerificationLookup {
 				'wallet_address',
 				'witness_event_id',
 				'source',
+				'fork_hash',
+				'merge_hash'
 			],
 			$query,
 			__METHOD__,
@@ -137,37 +140,67 @@ class VerificationLookup {
 
 	/**
 	 * @param string|Title $title
+	 * @param bool $includeDiverged
 	 * @return array
 	 */
-	public function getAllRevisionIds( $title ): array {
+	public function getAllRevisionIds( $title, bool $includeDiverged = true ): array {
 		if ( $title instanceof Title ) {
 			$title = $this->getCanonicalTitle( $title );
 		}
-		$res = $this->lb->getConnection( DB_REPLICA )->select(
-			'revision_verification',
-			[ 'rev_id', 'previous_verification_hash', 'genesis_hash' ],
-			[ 'page_title' => $title ],
-			__METHOD__,
-			[ 'ORDER BY' => 'rev_id' ]
-		);
+		if ( $includeDiverged ) {
+			$res = $this->lb->getConnection( DB_REPLICA )->select(
+				'revision_verification',
+				[ 'rev_id', 'previous_verification_hash', 'genesis_hash' ],
+				[ 'page_title' => $title ],
+				__METHOD__,
+				[ 'ORDER BY' => 'rev_id' ]
+			);
 
-		$output = null;
-		foreach ( $res as $row ) {
-			if ( $output === null ) {
-				$output = [];
-				$firstRev = (int)$row->rev_id;
-				// If page is forked, get all revisions from the fork point
-				$parents = ( new ForkChainResolver( $this ) )->resolveFromRevisionId( $firstRev );
-				if ( $parents ) {
-					$output = array_map( static function ( VerificationEntity $entity ) {
-						return $entity->getRevision()->getId();
-					}, $parents );
+			$output = null;
+			foreach ( $res as $row ) {
+				if ( $output === null ) {
+					$output = [];
+					$firstRev = (int)$row->rev_id;
+					// If page is forked, get all revisions from the fork point
+					$parents = ( new ForkChainResolver( $this ) )->resolveFromRevisionId( $firstRev );
+					if ( $parents ) {
+						$output = array_map( static function ( VerificationEntity $entity ) {
+							return $entity->getRevision()->getId();
+						}, $parents );
+					}
 				}
+				$output[] = (int)$row->rev_id;
 			}
-			$output[] = (int)$row->rev_id;
+
+			return $output ?? [];
 		}
 
-		return $output ?? [];
+		$latest = $this->lb->getConnection( DB_REPLICA )->selectRow(
+			'revision_verification',
+			[ 'rev_id', 'genesis_hash' ],
+			[ 'page_title' => $title ],
+			__METHOD__,
+			[ 'ORDER BY' => 'rev_id DESC' ]
+		);
+
+		if ( !$latest ) {
+			return [];
+		}
+
+		$genesis = $latest->genesis_hash;
+		$output = [];
+		$entity = $this->verificationEntityFromRevId( (int)$latest->rev_id );
+		while ( $entity ) {
+			$output[] = $entity->getRevision()->getId();
+			if ( $genesis !== $entity->getHash() ) {
+				$entity = $this->verificationEntityFromHash(
+					$entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH )
+				);
+			} else {
+				break;
+			}
+		}
+		return array_reverse( $output );
 	}
 
 	/**
@@ -259,6 +292,8 @@ class VerificationLookup {
 				'wallet_address',
 				'witness_event_id',
 				'source',
+				'fork_hash',
+				'merge_hash'
 			],
 			[],
 			__METHOD__

@@ -17,6 +17,10 @@ class HistoryAction extends GenericHistoryAction {
 	 * @var VerificationEngine
 	 */
 	private $verificationEngine;
+	/** @var bool */
+	private $isDiverged = false;
+	/** @var bool */
+	private $mergeHash = false;
 
 	/**
 	 * @param Page $page
@@ -41,22 +45,21 @@ class HistoryAction extends GenericHistoryAction {
 
 		$html = Html::openElement( 'div', [ 'id' => 'da-revision-history' ] );
 		$html .= $this->getCompareButton();
-		$revisions = $this->verificationEngine->getLookup()->getAllRevisionIds( $this->getTitle() );
-		$firstRevId = array_key_last( $revisions );
+		$revisions = $this->verificationEngine->getLookup()->getAllRevisionIds( $this->getTitle(), true );
+		$firstRevId = $revisions[0] ?? null;
 		$firstEntity = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $firstRevId );
 		$startingFromLocal = $firstEntity && $this->isLocal( $firstEntity );
-		// Show newest first
-		$revisions = array_reverse( $revisions );
-		$parent = null;
 
+		$lines = [];
 		foreach ( $revisions as $revId ) {
 			$entity = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $revId );
 			if ( !$entity ) {
 				continue;
 			}
-			$html .= $this->makeRevisionLine( $entity, $parent, !$startingFromLocal );
-			$parent = $entity;
+			$lines[] = $this->makeRevisionLine( $entity, !$startingFromLocal );
 		}
+		$html .= implode( '', array_reverse( $lines ) );
+
 		$html .= Html::closeElement( 'div' );
 		$this->getOutput()->addHTML( $html );
 		$this->getOutput()->addModules( [ "ext.DataAccounting.revisionHistory" ] );
@@ -64,13 +67,20 @@ class HistoryAction extends GenericHistoryAction {
 
 	/**
 	 * @param VerificationEntity $entity
-	 * @param VerificationEntity|null $parent
 	 * @param bool $isForked
 	 * @return string
 	 */
 	private function makeRevisionLine(
-		VerificationEntity $entity, ?VerificationEntity $parent, bool $isForked
+		VerificationEntity $entity, bool $isForked
 	): string {
+		$parent = $this->verificationEngine->getLookup()->verificationEntityFromHash(
+			$entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH )
+		);
+		$this->checkDivergance( $entity );
+		if ( $entity->getHash( VerificationEntity::MERGE_HASH ) ) {
+			$this->isDiverged = false;
+			$this->mergeHash = $entity->getHash( VerificationEntity::MERGE_HASH );
+		}
 		$isLocal = $this->isLocal( $entity );
 
 		$url = $entity->getTitle()->getLocalURL( [ 'oldid' => $entity->getRevision()->getId() ] );
@@ -102,26 +112,36 @@ class HistoryAction extends GenericHistoryAction {
 			);
 		}
 
-		$node = '';
-		$checkbox = $this->getCheckbox( $entity, $isLocal );
-		if ( $isForked ) {
-			if ( !$isLocal ) {
-				$source = 'parent';
-			} else {
-				$source = 'local';
-			}
-			// In order for the graph to work, branches must be named differently
-			$sourceClass = $source === 'parent' ? 'local' : 'remote';
-			$nodeAttrs = [
-				'data-hash' => $entity->getHash(),
-				'data-parent' => $parent ? $parent->getHash() : '',
-				'class' => 'da-compare-node-graph da-compare-node-graph-' . $sourceClass,
-			];
-			if ( $source === 'local' ) {
-				$node = $this->getNodePlaceholder() . Html::element( 'span', $nodeAttrs );
-			} else {
-				$node = Html::element( 'span', $nodeAttrs ) . $this->getNodePlaceholder();
-			}
+		$checkbox = $this->getCheckbox( $entity, $isForked ? $isLocal : true );
+		if ( !$isLocal ) {
+			$source = 'other';
+			$sourceClass = 'local';
+		} else {
+			$source = 'local';
+			$sourceClass = 'remote';
+		}
+		if ( !$isForked ) {
+			// Reverse columns of tree
+			$source = $this->flip( $source );
+			$sourceClass = $this->flip( $sourceClass );
+		}
+		$parentHash = [];
+		if ( $parent ) {
+			$parentHash[] = $parent->getHash();
+		}
+		if ( $this->mergeHash ) {
+			$parentHash[] = $this->mergeHash;
+		}
+		$nodeAttrs = [
+			'data-hash' => $entity->getHash(),
+			'data-parent' => implode( ',', $parentHash ),
+			'class' => 'da-compare-node-graph da-compare-node-graph-' . $sourceClass,
+		];
+		if ( $source === 'local' ) {
+			$node = $this->getNodePlaceholder() . Html::element( 'span', $nodeAttrs );
+		} else {
+			$node = Html::element( 'span', $nodeAttrs ) . $this->getNodePlaceholder();
+
 		}
 
 		$textHtml = Html::rawElement(
@@ -136,9 +156,11 @@ class HistoryAction extends GenericHistoryAction {
 	/**
 	 * @param VerificationEntity $entity
 	 * @return bool
+	 * @throws \Exception
 	 */
 	private function isLocal( VerificationEntity $entity ): bool {
-		return $entity->getTitle()->getArticleID() === $this->getTitle()->getArticleID();
+		return $entity->getTitle()->getArticleID() === $this->getTitle()->getArticleID()
+			&& $entity->getDomainId() === $this->verificationEngine->getDomainId();
 	}
 
 	/**
@@ -150,12 +172,13 @@ class HistoryAction extends GenericHistoryAction {
 
 	/**
 	 * @param VerificationEntity $entity
-	 * @param bool $isLocal
+	 * @param bool $shouldAdd
 	 * @return string
 	 */
-	private function getCheckbox( VerificationEntity $entity, bool $isLocal ): string {
+	private function getCheckbox( VerificationEntity $entity, bool $shouldAdd ): string {
 		$html = Html::openElement( 'div', [ 'class' => 'da-revision-checkbox' ] );
-		if ( $isLocal ) {
+		if ( $shouldAdd ) {
+
 			$html .= Html::check(
 				'da-revision-checkbox',
 				false,
@@ -182,4 +205,22 @@ class HistoryAction extends GenericHistoryAction {
 		return Html::rawElement( 'div', [ 'class' => 'da-header-buttons' ], $btn->toString() );
 	}
 
+	/**
+	 * @param string $type
+	 * @return string
+	 */
+	private function flip( string $type ): string {
+		return $type === 'local' ? 'remote' : 'local';
+	}
+
+	/**
+	 * @param VerificationEntity $entity
+	 * @return void
+	 */
+	private function checkDivergance( VerificationEntity $entity ) {
+		if ( !empty( $entity->getHash( VerificationEntity::FORK_HASH ) ) ) {
+			$this->isDiverged = true;
+			$this->mergeHash = false;
+		}
+	}
 }
