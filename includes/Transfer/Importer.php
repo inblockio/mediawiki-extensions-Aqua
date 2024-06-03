@@ -223,13 +223,6 @@
 		 if ( isset( $revisionEntity->getContent()['comment'] ) ) {
 			 $revision->setComment( $revisionEntity->getContent()['comment'] );
 		 }
-		 // TODO: This needs fixing. Question is which user will be attributed with edit.
-		 // If its actual user who created the revision in the first place, that info needs to
-		 // be passed in `get_revision` and that user must exist in target wiki
-		 // If its some "admin" user on the target, that username needs to be defined somewhere
-		 // For the moment, take first user created on wiki (which is admin)
-		 $user = MediaWikiServices::getInstance()->getUserFactory()->newFromId( 1 );
-		 $revision->setUserObj( $user );
 
 		 return $revision;
 	 }

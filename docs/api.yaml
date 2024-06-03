@@ -773,30 +773,12 @@ components:
           site_name:
             type: string
             example: 'PKC'
-          dbname:
-            type: string
-            example: 'my_db'
           base:
             type: string
             example: 'https://url/index.php/Main_Page'
           generator:
             type: string
             example: 'MediaWiki 1.36.0'
-          case:
-            type: string
-            example: 'first-letter'
           version:
             type: string
             example: '1'
-          namespaces:
-            type: object
-            properties:
-              0:
-                type: object
-                properties:
-                  case:
-                    type: boolean
-                    example: true
-                  title:
-                    type: string
-                    example: 'MAIN'

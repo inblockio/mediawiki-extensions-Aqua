@@ -130,11 +130,8 @@ class TransferEntityFactory {
 			}
 			$this->siteInfo = [
 				'sitename' => $config->get( 'Sitename' ),
-				'dbname' => $config->get( 'DBname' ),
 				'base' => Title::newMainPage()->getCanonicalURL(),
 				'generator' => 'MediaWiki ' . MW_VERSION,
-				'case' => $config->get( 'CapitalLinks' ) ? 'first-letter' : 'case-sensitive',
-				'namespaces' => $nsList,
 				'version' => ServerInfo::DA_API_VERSION
 			];
 		}
