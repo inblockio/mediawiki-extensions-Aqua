@@ -120,7 +120,7 @@ class SpecialVerifiedImport extends SpecialPage {
 			}
 
 			$processed = $revCount = $collisions = [];
-			$siteInfo = $arrayContent['siteInfo'];
+			$siteInfo = $arrayContent['site_info'];
 			foreach ( $arrayContent['pages'] as $page ) {
 				$revisions = $page['revisions'];
 				unset( $page['revisions'] );
