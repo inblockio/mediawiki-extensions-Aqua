@@ -84,10 +84,15 @@ class TransferEntityFactory {
 		 * Use NS_INBOX namespace for inbox pages
 		 * If data represents file use NS_FILE namespace
 		 */
-		if ( $data['namespace'] !== NS_FILE ) {
+		if ( $title->getNamespace() !== NS_FILE ) {
 			$data['namespace'] = 6900;
 		}
-		$data['title'] = $title->getPrefixedDBkey();
+		if ( $title->getNamespace() !== 6900 && $title->getNamespace() !== NS_FILE ) {
+			// Avoid double namespace prefix for NS_INBOX and NS_FILE
+			$data['title'] = $title->getPrefixedDBkey();
+		} else {
+			$data['title'] = $title->getDBkey();
+		}
 
 		return $this->newTransferContextFromData( $data );
 	}

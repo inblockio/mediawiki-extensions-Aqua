@@ -223,6 +223,13 @@
 		 if ( isset( $revisionEntity->getContent()['comment'] ) ) {
 			 $revision->setComment( $revisionEntity->getContent()['comment'] );
 		 }
+		 $user = \RequestContext::getMain()->getUser();
+		 if ( !$user ) {
+			 $user = \User::newSystemUser( 'Mediawiki default', [ 'steal' => true ] );
+		 }
+		 if ( $user ) {
+			 $revision->setUsername( $user->getName() );
+		 }
 
 		 return $revision;
 	 }
