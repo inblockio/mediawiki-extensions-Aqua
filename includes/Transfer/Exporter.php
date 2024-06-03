@@ -84,7 +84,6 @@ class Exporter {
 			// Does not exist
 			return null;
 		}
-
 		return $this->transferEntityFactory->newRevisionEntityFromVerificationEntity( $verificationEntity );
 	}
 
