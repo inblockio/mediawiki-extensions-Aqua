@@ -34,7 +34,7 @@ class Exporter {
 		$exportData = [
 			'pages' => [],
 		];
-		$exportData['siteInfo'] = $this->transferEntityFactory->getSiteInfo();
+		$exportData['site_info'] = $this->transferEntityFactory->getSiteInfo();
 
 		foreach ( $map as $dbKey => $data ) {
 			$context = $this->transferEntityFactory->newTransferContextFromTitle( $data['title'] );
