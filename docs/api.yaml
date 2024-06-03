@@ -514,15 +514,6 @@ components:
         time_stamp:
           type: string
           example: '20240508072948'
-        verification_context:
-          type: object
-          properties:
-            has_previous_signature:
-              type: boolean
-              example: true
-            has_previous_witness:
-              type: boolean
-              example: true
         signature:
           type: string
           nullable: true
@@ -645,15 +636,6 @@ components:
     ExportImportEntity:
       type: object
       properties:
-        verification_context:
-          type: object
-          properties:
-            has_previous_signature:
-              type: boolean
-              example: true
-            has_previous_witness:
-              type: boolean
-              example: true
         content:
           type: object
           properties:
