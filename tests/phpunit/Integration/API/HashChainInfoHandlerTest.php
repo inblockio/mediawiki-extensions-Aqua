@@ -53,7 +53,6 @@ class HashChainInfoHandlerTest extends API {
 		$keys = [
 			VerificationEntity::GENESIS_HASH,
 			VerificationEntity::DOMAIN_ID,
-			'latest_verification_hash',
 			'site_info',
 			'title',
 			'namespace',

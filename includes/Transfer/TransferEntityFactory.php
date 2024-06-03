@@ -10,6 +10,7 @@ use DataAccounting\Verification\WitnessingEngine;
 use Language;
 use MediaWiki\MediaWikiServices;
 use NamespaceInfo;
+use RuntimeException;
 use Title;
 use TitleFactory;
 
@@ -50,28 +51,26 @@ class TransferEntityFactory {
 
 	/**
 	 * @param array $data
-	 * @return TransferContext|null
+	 * @return TransferContext
 	 */
-	public function newTransferContextFromData( array $data ): ?TransferContext {
+	public function newTransferContextFromData( array $data ): TransferContext {
 		if (
 			isset( $data['site_info'] ) && is_array( $data['site_info'] ) &&
-			isset( $data['title'] ) && isset( $data['namespace'] )
+			isset( $data['title'] ) && isset( $data['namespace'] ) &&
+			isset( $data[VerificationEntity::GENESIS_HASH] ) &&
+			isset( $data[VerificationEntity::DOMAIN_ID] )
 		) {
 			$title = $this->titleFactory->makeTitle( $data['namespace'], $data['title'] );
-			if ( !( $title instanceof \Title ) ) {
-				return null;
-			}
 			return new TransferContext(
 				$data[VerificationEntity::GENESIS_HASH],
 				$data[VerificationEntity::DOMAIN_ID],
-				$data['latest_verification_hash'] ?? '',
 				$data['site_info'],
 				$title,
 				$data['chain_height'] ?? 0
 			);
 		}
 
-		return null;
+		throw new RuntimeException( 'Invalid input data' );
 	}
 
 	/**
@@ -81,23 +80,36 @@ class TransferEntityFactory {
 	 */
 	public function newTransferContextForImport( array $data ): ?TransferContext {
 		$title = $this->titleFactory->makeTitle( $data['namespace'], $data['title'] );
-		// NS_INBOX
-		$data['namespace'] = 6900;
-		$data['title'] = $title->getPrefixedDBkey();
+		/**
+		 * Use NS_INBOX namespace for inbox pages
+		 * If data represents file use NS_FILE namespace
+		 */
+		if ( $title->getNamespace() !== NS_FILE ) {
+			$data['namespace'] = 6900;
+		}
+		if ( $title->getNamespace() !== 6900 && $title->getNamespace() !== NS_FILE ) {
+			// Avoid double namespace prefix for NS_INBOX and NS_FILE
+			$data['title'] = $title->getPrefixedDBkey();
+		} else {
+			$data['title'] = $title->getDBkey();
+		}
 
 		return $this->newTransferContextFromData( $data );
 	}
 
-	public function newTransferContextFromTitle( \Title $title ): ?TransferContext {
+	/**
+	 * @param Title $title
+	 * @return TransferContext
+	 */
+	public function newTransferContextFromTitle( \Title $title ): TransferContext {
 		$entity = $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
 		if ( !$entity ) {
-			return null;
+			throw new RuntimeException( 'No verification entity found for title: ' . $title->getPrefixedDBkey() );
 		}
 
 		return $this->newTransferContextFromData( [
 			VerificationEntity::GENESIS_HASH => $entity->getHash( VerificationEntity::GENESIS_HASH ),
 			VerificationEntity::DOMAIN_ID => $entity->getDomainId(),
-			'latest_verification_hash' => $entity->getHash( VerificationEntity::VERIFICATION_HASH ),
 			'site_info' => $this->getSiteInfo(),
 			'title' => $entity->getTitle()->getDBkey(),
 			'namespace' => $entity->getTitle()->getNamespace(),
@@ -123,11 +135,8 @@ class TransferEntityFactory {
 			}
 			$this->siteInfo = [
 				'sitename' => $config->get( 'Sitename' ),
-				'dbname' => $config->get( 'DBname' ),
 				'base' => Title::newMainPage()->getCanonicalURL(),
 				'generator' => 'MediaWiki ' . MW_VERSION,
-				'case' => $config->get( 'CapitalLinks' ) ? 'first-letter' : 'case-sensitive',
-				'namespaces' => $nsList,
 				'version' => ServerInfo::DA_API_VERSION
 			];
 		}
@@ -165,7 +174,6 @@ class TransferEntityFactory {
 		VerificationEntity $entity
 	): TransferRevisionEntity {
 		$contentOutput = [
-			'rev_id' => $entity->getRevision()->getId(),
 			'content' => $this->prepareContent( $entity ),
 			'content_hash' => $entity->getHash( VerificationEntity::CONTENT_HASH ),
 		];
@@ -194,7 +202,7 @@ class TransferEntityFactory {
 			'previous_verification_hash' => $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ),
 			'metadata_hash' => $entity->getHash( VerificationEntity::METADATA_HASH ),
 			VerificationEntity::MERGE_HASH => $entity->getHash( VerificationEntity::MERGE_HASH ),
-			'verification_hash' => $entity->getHash( VerificationEntity::VERIFICATION_HASH )
+			'verification_hash' => $entity->getHash()
 		];
 
 		$signatureOutput = $entity->getSignature() ? [
@@ -245,6 +253,13 @@ class TransferEntityFactory {
 		foreach ( $slots as $role ) {
 			$slot = $entity->getRevision()->getSlot( $role );
 			if ( !$slot->getContent() ) {
+				continue;
+			}
+			if ( $slot->getContent() instanceof \JsonContent ) {
+				$slotStatus = $slot->getContent()->getData();
+				if ( $slotStatus->isOK() ) {
+					$merged[$role] = (array)$slotStatus->getValue();
+				}
 				continue;
 			}
 			$merged[$role] = $slot->getContent()->serialize();

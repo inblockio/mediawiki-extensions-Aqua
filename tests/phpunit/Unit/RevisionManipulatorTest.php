@@ -13,6 +13,7 @@ use MediaWiki\Revision\RevisionStore;
 use MediaWiki\User\UserIdentity;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Rdbms\IDatabase;
 use Wikimedia\Rdbms\ILoadBalancer;
 
 /**
@@ -117,7 +118,7 @@ class RevisionManipulatorTest extends TestCase {
 	 * @return ILoadBalancer&MockObject
 	 */
 	private function getLBMock( array $updateExpectations ) {
-		$dbMock = $this->createMock( \Database::class );
+		$dbMock = $this->createMock( IDatabase::class );
 		$dbMock->expects( $this->exactly( 2 ) )
 			->method( 'delete' )
 			->withConsecutive(

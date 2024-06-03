@@ -657,15 +657,63 @@ components:
           content:
             type: object
             properties:
-              rev_id:
-                type: integer
-                example: 1
               content:
                 type: object
                 properties:
-                  main:
-                    type: string
-                    example: 'Hello, world!'
+                  content:
+                    type: object
+                    properties:
+                      main:
+                        type: string
+                        description: Main content of the revision, text of the page
+                        example: 'Hello, world!'
+                      signature-slot:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            user:
+                                type: string
+                                example: '0x5975...b3'
+                            timestamp:
+                                type: string
+                                example: '20240508072948'
+                      transclusion-hashes:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            dbkey:
+                              type: string
+                              example: 'MyPage'
+                            ns:
+                              type: integer
+                              example: 10
+                            verification_hash:
+                                type: string
+                                example: 'abc...cba'
+                      file:
+                        type: object
+                        properties:
+                          data:
+                            type: string
+                            description: Base64 encoded file data
+                            example: 'd3an...asd'
+                          filename:
+                            type: string
+                            example: 'MyFile.png'
+                          size:
+                            type: integer
+                            description: Size of the file in bytes
+                            example: 12345
+                          comment:
+                            type: string
+                            description: Comment added when uploading file
+                            example: 'My comment'
+                          archivename:
+                            type: string
+                            description: Name of the archive file, only for import
+                            example: '20240508072948_MyFile.png'
                   content_hash:
                     type: string
                     example: 'abc...cba'
@@ -681,14 +729,11 @@ components:
               previous_verification_hash:
                 type: string
                 example: 'abc...cba'
-              metadata_hash:
-                type: string
-                example: 'abc...cba'
-              merge_hash:
+             merge_hash:
                 type: string
                 description: If revision was created by merging remote revisions, this shows the hash of the remote revision it was merged from
-                example: 'abc...cba'
-              verification_hash:
+                example: 'abc...cba'                
+              metadata_hash:
                 type: string
                 example: 'abc...cba'
           signature:
@@ -715,9 +760,6 @@ components:
           domain_id:
             type: string
             example: 'abc123'
-          latest_verification_hash:
-            type: string
-            example: 'abc...cba'
           title:
             type: string
             example: 'Main_Page'
@@ -735,30 +777,12 @@ components:
           site_name:
             type: string
             example: 'PKC'
-          dbname:
-            type: string
-            example: 'my_db'
           base:
             type: string
             example: 'https://url/index.php/Main_Page'
           generator:
             type: string
             example: 'MediaWiki 1.36.0'
-          case:
-            type: string
-            example: 'first-letter'
           version:
             type: string
             example: '1'
-          namespaces:
-            type: object
-            properties:
-              0:
-                type: object
-                properties:
-                  case:
-                    type: boolean
-                    example: true
-                  title:
-                    type: string
-                    example: 'MAIN'

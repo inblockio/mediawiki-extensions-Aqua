@@ -11,7 +11,6 @@ use FormatJson;
 use Html;
 use IContextSource;
 use MediaWiki\Hook\BeforePageDisplayHook;
-use MediaWiki\Hook\OutputPageParserOutputHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Permissions\PermissionManager;
@@ -25,8 +24,7 @@ use Skin;
 
 class Hooks implements
 	BeforePageDisplayHook,
-	ParserFirstCallInitHook,
-	OutputPageParserOutputHook
+	ParserFirstCallInitHook
 {
 
 	private PermissionManager $permissionManager;
@@ -131,6 +129,10 @@ class Hooks implements
 	 * @param Skin $skin
 	 */
 	public function onBeforePageDisplay( $out, $skin ): void {
+		$apiVersion = ServerInfo::DA_API_VERSION;
+		$out->addMeta( "data-accounting-mediawiki", $GLOBALS['wgServer'] );
+		$out->addMeta( "data-accounting-api-version", $apiVersion );
+
 		if ( $this->permissionManager->userCan( 'read', $out->getUser(), $out->getTitle() ) ) {
 			// Load our module on all pages
 			$out->addModules( 'ext.DataAccounting.signMessage' );
@@ -139,13 +141,6 @@ class Hooks implements
 		if ( $this->permissionManager->userHasRight( $out->getUser(), 'createpage' ) ) {
 			$out->addModules( 'ext.DataAccounting.createPage' );
 		}
-	}
-
-	public function onOutputPageParserOutput( $out, $parserOutput ): void {
-		global $wgServer;
-		$apiVersion = ServerInfo::DA_API_VERSION;
-		$out->addMeta( "data-accounting-mediawiki", $wgServer );
-		$out->addMeta( "data-accounting-api-version", $apiVersion );
 	}
 
 	/**

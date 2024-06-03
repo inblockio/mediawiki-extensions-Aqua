@@ -147,11 +147,15 @@ class TreeBuilderTest extends TestCase {
 			return [];
 		} );
 		$lookup->method( 'verificationEntityFromTitle' )->willReturnCallback( function( $title ) use ( $local, $remote ) {
+			$entities = [];
 			if ( $title->getArticleID() === $local[0] ) {
 				$entities = $this->makeEntitiesMock( $local );
 			}
 			if ( $title->getArticleID() === $remote[0] ) {
 				$entities = $this->makeEntitiesMock( $remote );
+			}
+			if ( !$entities ) {
+				return [];
 			}
 			return array_pop( $entities );
 		} );

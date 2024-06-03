@@ -75,7 +75,7 @@ class SpecialVerifiedExport extends SpecialPage {
 			return;
 		}
 		$tf = $this->titleFactory;
-		$titles = array_map( static function( $title ) use ( $tf ) {
+		$titles = array_map( static function ( $title ) use ( $tf ) {
 			$title = trim( $title );
 			$object = $tf->newFromText( $title );
 			if ( !( $object instanceof \Title ) ) {

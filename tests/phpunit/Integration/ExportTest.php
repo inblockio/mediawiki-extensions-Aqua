@@ -36,7 +36,6 @@ class ExportTest extends MediaWikiIntegrationTestCase {
 		$this->assertArrayHasKey( 'revisions', $page, 'Exported page must have \"revisions\"' );
 		$this->assertArrayHasKey( VerificationEntity::GENESIS_HASH, $page );
 		$this->assertArrayHasKey( VerificationEntity::DOMAIN_ID, $page );
-		$this->assertArrayHasKey( 'latest_verification_hash', $page );
 		$this->assertArrayHasKey( 'title', $page );
 		$this->assertArrayHasKey( 'namespace', $page );
 		$this->assertArrayHasKey( 'chain_height', $page );
@@ -53,7 +52,6 @@ class ExportTest extends MediaWikiIntegrationTestCase {
 			$this->assertArrayHasKey( 'witness', $revision );
 
 			$this->assertArrayHasKey( VerificationEntity::CONTENT_HASH, $revision['content'] );
-			$this->assertArrayHasKey( VerificationEntity::VERIFICATION_HASH, $revision['metadata'] );
 			$this->assertArrayHasKey( VerificationEntity::METADATA_HASH, $revision['metadata'] );
 			$this->assertArrayHasKey( 'time_stamp', $revision['metadata'] );
 			$this->assertArrayHasKey( 'previous_verification_hash', $revision['metadata'] );
