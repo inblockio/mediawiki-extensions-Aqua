@@ -668,16 +668,9 @@ components:
                         description: Main content of the revision, text of the page
                         example: 'Hello, world!'
                       signature-slot:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            user:
-                                type: string
-                                example: '0x5975...b3'
-                            timestamp:
-                                type: string
-                                example: '20240508072948'
+                        type: string
+                        description: JSON string of an array of signatures
+                        example: "[{\"signature\": \"0x..¸\", \"timestamp\": \"20240101101010\"}...]"
                       transclusion-hashes:
                         type: array
                         items:
@@ -729,7 +722,7 @@ components:
               previous_verification_hash:
                 type: string
                 example: 'abc...cba'
-             merge_hash:
+              merge_hash:
                 type: string
                 description: If revision was created by merging remote revisions, this shows the hash of the remote revision it was merged from
                 example: 'abc...cba'                

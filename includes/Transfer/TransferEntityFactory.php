@@ -174,6 +174,7 @@ class TransferEntityFactory {
 		VerificationEntity $entity
 	): TransferRevisionEntity {
 		$contentOutput = [
+			'rev_id' => $entity->getRevision()->getId(),
 			'content' => $this->prepareContent( $entity ),
 			'content_hash' => $entity->getHash( VerificationEntity::CONTENT_HASH ),
 		];
@@ -253,13 +254,6 @@ class TransferEntityFactory {
 		foreach ( $slots as $role ) {
 			$slot = $entity->getRevision()->getSlot( $role );
 			if ( !$slot->getContent() ) {
-				continue;
-			}
-			if ( $slot->getContent() instanceof \JsonContent ) {
-				$slotStatus = $slot->getContent()->getData();
-				if ( $slotStatus->isOK() ) {
-					$merged[$role] = (array)$slotStatus->getValue();
-				}
 				continue;
 			}
 			$merged[$role] = $slot->getContent()->serialize();
