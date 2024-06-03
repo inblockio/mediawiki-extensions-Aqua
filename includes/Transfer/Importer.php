@@ -16,9 +16,12 @@
  use Message;
  use MWContentSerializationException;
  use MWException;
+ use MWTimestamp;
  use MWUnknownContentModelException;
  use OldRevisionImporter;
+ use RecentChange;
  use RepoGroup;
+ use RequestContext;
  use Status;
  use StatusValue;
  use Title;
@@ -50,6 +53,8 @@
 	/** @var MovePageFactory */
 	private MovePageFactory $movePageFactory;
 	private DeletePageFactory $deletePageFactory;
+	/** @var array */
+	private $recentChangeUpdates = [];
 
 	 /**
 	  * @param VerificationEngine $verificationEngine
@@ -124,6 +129,7 @@
 
 		 $status = $this->newRevisionStatus( $revision );
 		 if ( $status->isOK() ) {
+			 $this->notifyRecentChange( $revision );
 			 return $this->buildVerification( $revisionEntity, $context );
 		 }
 
@@ -167,6 +173,7 @@
 		 if ( !$status->isOK() ) {
 			return $status;
 		 }
+		 $this->notifyRecentChange( $revision );
 		 $dbw = $this->repoGroup->getRepo( 'local' )->getPrimaryDB();
 		 $importer = $this;
 		 $verificationUpdate = new \AutoCommitUpdate(
@@ -190,6 +197,26 @@
 		 );
 
 		 return $this->doImportRevision( $revisionEntity, $context );
+	 }
+
+	 /**
+	  * @param WikiRevision $rev
+	  * @return void
+	  */
+	 private function notifyRecentChange( WikiRevision $rev ) {
+		$page = $rev->getTitle();
+		if ( in_array( $page->getPrefixedDBkey(), $this->recentChangeUpdates ) ) {
+			return;
+		}
+		$this->recentChangeUpdates[] = $page->getPrefixedDBkey();
+		$user = RequestContext::getMain()->getUser();
+		if ( !$user ) {
+			$user = User::newSystemUser( 'Mediawiki default', [ 'steal' => true ] );
+		}
+
+		$rc = RecentChange::notifyNew(
+			MWTimestamp::now(), $page, false, $user, $rev->getComment(), false
+		);
 	 }
 
 	 /**
@@ -218,14 +245,14 @@
 		 }
 
 		 $revision->setTimestamp(
-			 $revisionEntity->getMetadata()['time_stamp'] ?? \MWTimestamp::now( TS_MW )
+			 $revisionEntity->getMetadata()['time_stamp'] ?? MWTimestamp::now( TS_MW )
 		 );
 		 if ( isset( $revisionEntity->getContent()['comment'] ) ) {
 			 $revision->setComment( $revisionEntity->getContent()['comment'] );
 		 }
-		 $user = \RequestContext::getMain()->getUser();
+		 $user = RequestContext::getMain()->getUser();
 		 if ( !$user ) {
-			 $user = \User::newSystemUser( 'Mediawiki default', [ 'steal' => true ] );
+			 $user = User::newSystemUser( 'Mediawiki default', [ 'steal' => true ] );
 		 }
 		 if ( $user ) {
 			 $revision->setUsername( $user->getName() );

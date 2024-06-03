@@ -7,7 +7,6 @@
 
 namespace DataAccounting\Hook;
 
-use DataAccounting\Content\SignatureContent;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use MediaWiki\Hook\PageMoveCompletingHook;
