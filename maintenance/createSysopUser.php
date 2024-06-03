@@ -2,7 +2,7 @@
 
 use MediaWiki\MediaWikiServices;
 
-require_once dirname( __DIR__, 4 ) . '/maintenance/Maintenance.php';
+require_once __DIR__ . '/../../../maintenance/Maintenance.php';
 
 class CreateSysopUser extends Maintenance {
 
