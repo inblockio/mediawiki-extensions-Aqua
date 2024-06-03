@@ -379,7 +379,7 @@
 			'genesis_hash' => $context->getGenesisHash(),
 			'verification_hash' => $revisionEntity->getMetadata()['verification_hash'],
 			'time_stamp' => $revisionEntity->getMetadata()['time_stamp'],
-			'verification_context' => json_encode( $revisionEntity->getVerificationContext() ),
+			// 'verification_context' => json_encode( $revisionEntity->getVerificationContext() ),
 			'previous_verification_hash' => $revisionEntity->getMetadata()['previous_verification_hash'],
 			'content_hash' => $revisionEntity->getContent()['content_hash'],
 			'metadata_hash' => $revisionEntity->getMetadata()['metadata_hash'],

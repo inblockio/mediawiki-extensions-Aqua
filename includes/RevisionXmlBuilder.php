@@ -37,7 +37,7 @@ class RevisionXmlBuilder {
 				'signature',
 				'public_key',
 				'wallet_address',
-				'verification_context',
+				// 'verification_context',
 				'content_hash',
 				'metadata_hash',
 				'signature_hash'
@@ -61,7 +61,7 @@ class RevisionXmlBuilder {
 			'signature' => $row->signature,
 			'public_key' => $row->public_key,
 			'wallet_address' => $row->wallet_address,
-			'verification_context' => $row->verification_context,
+			// 'verification_context' => $row->verification_context,
 			'content_hash' => $row->content_hash,
 			'metadata_hash' => $row->metadata_hash,
 			'signature_hash' => $row->signature_hash,

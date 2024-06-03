@@ -54,17 +54,18 @@ class VerificationEntityFactory {
 		if ( !( $time instanceof DateTime ) ) {
 			return null;
 		}
-		$verificationContext = $row->verification_context;
-		if ( !$verificationContext ) {
-			$verificationContext = [];
-		}
-		if ( is_string( $verificationContext ) ) {
-			$verificationContext = json_decode( $verificationContext, 1 );
-		}
+		// $verificationContext = $row->verification_context;
+		// if ( !$verificationContext ) {
+		// 	$verificationContext = [];
+		// }
+		// if ( is_string( $verificationContext ) ) {
+		// 	$verificationContext = json_decode( $verificationContext, 1 );
+		// }
 
 		return new VerificationEntity(
 			$title, $revision, $row->domain_id ?? '', $hashes, $time,
-			$verificationContext, $row->signature, $row->public_key, $row->wallet_address,
+			// $verificationContext,
+			$row->signature, $row->public_key, $row->wallet_address,
 			(int)$row->witness_event_id, $row->source ?? 'default'
 		);
 	}

@@ -45,7 +45,7 @@ class ExportTest extends MediaWikiIntegrationTestCase {
 
 		foreach ( $page['revisions'] as $vh => $revision ) {
 			$revision = $revision->jsonSerialize();
-			$this->assertArrayHasKey( 'verification_context', $revision );
+			// $this->assertArrayHasKey( 'verification_context', $revision );
 			$this->assertArrayHasKey( 'content', $revision );
 			$this->assertArrayHasKey( 'metadata', $revision );
 			$this->assertArrayHasKey( 'signature', $revision );

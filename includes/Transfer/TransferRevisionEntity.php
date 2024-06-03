@@ -5,8 +5,8 @@ namespace DataAccounting\Transfer;
 use DataAccounting\Verification\Entity\VerificationEntity;
 
 class TransferRevisionEntity implements \JsonSerializable {
-	/** @var array */
-	private $verificationContext;
+	// /** @var array */
+	// private $verificationContext;
 	/** @var array */
 	private $content;
 	/** @var array */
@@ -24,21 +24,22 @@ class TransferRevisionEntity implements \JsonSerializable {
 	 * @param array|null $witness
 	 */
 	public function __construct(
-		array $verificationContext, array $content, array $metadata, $signature, $witness
+		// array $verificationContext,
+		array $content, array $metadata, $signature, $witness
 	) {
-		$this->verificationContext = $verificationContext;
+		// $this->verificationContext = $verificationContext;
 		$this->content = $content;
 		$this->metadata = $metadata;
 		$this->signature = $signature;
 		$this->witness = $witness;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getVerificationContext(): array {
-		return $this->verificationContext;
-	}
+	// /**
+	//  * @return array
+	//  */
+	// public function getVerificationContext(): array {
+	// 	return $this->verificationContext;
+	// }
 
 	/**
 	 * @return array
@@ -77,7 +78,7 @@ class TransferRevisionEntity implements \JsonSerializable {
 			unset( $metadata[VerificationEntity::VERIFICATION_HASH] );
 		}
 		return [
-			'verification_context' => $this->getVerificationContext(),
+			// 'verification_context' => $this->getVerificationContext(),
 			'content' => $this->getContent(),
 			'metadata' => $metadata,
 			'signature' => $this->getSignature(),

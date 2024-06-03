@@ -267,16 +267,16 @@ class VerificationEngine {
 			$genesisHash = $verificationHash;
 		}
 
-		$verificationContext = [
-			"has_previous_signature" => !empty( $signatureHash ),
-			"has_previous_witness" => !empty( $witnessHash )
-		];
+		// $verificationContext = [
+		// 	"has_previous_signature" => !empty( $signatureHash ),
+		// 	"has_previous_witness" => !empty( $witnessHash )
+		// ];
 
 		return $this->getLookup()->updateEntity( $entity, [
 			'domain_id' => $this->getDomainId(),
 			'genesis_hash' => $genesisHash,
 			'rev_id' => $rev->getId(),
-			'verification_context' => json_encode( $verificationContext ),
+			// 'verification_context' => json_encode( $verificationContext ),
 			'content_hash' => $contentHash,
 			'time_stamp' => $timestamp,
 			'metadata_hash' => $metadataHash,

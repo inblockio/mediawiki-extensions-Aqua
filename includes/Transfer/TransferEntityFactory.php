@@ -150,12 +150,12 @@ class TransferEntityFactory {
 	 */
 	public function newRevisionEntityFromApiData( array $data ): ?TransferRevisionEntity {
 		if (
-			isset( $data['verification_context'] ) && is_array( $data['verification_context'] ) &&
+			// isset( $data['verification_context'] ) && is_array( $data['verification_context'] ) &&
 			isset( $data['content'] ) && is_array( $data['content'] ) &&
 			isset( $data['metadata'] ) && is_array( $data['metadata'] )
 		) {
 			return new TransferRevisionEntity(
-				$data['verification_context'],
+				// $data['verification_context'],
 				$data['content'],
 				$data['metadata'],
 				$data['signature'] ?? null,
@@ -226,7 +226,7 @@ class TransferEntityFactory {
 		}
 
 		return new TransferRevisionEntity(
-			$entity->getVerificationContext(),
+			// $entity->getVerificationContext(),
 			$contentOutput,
 			$metadataOutput,
 			$signatureOutput,
