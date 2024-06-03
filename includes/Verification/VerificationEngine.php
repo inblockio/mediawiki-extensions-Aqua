@@ -16,13 +16,10 @@ use MediaWiki\Revision\RevisionStore;
 use MWException;
 use Title;
 use User;
-use Wikimedia\Rdbms\ILoadBalancer;
 
 class VerificationEngine {
 	/** @var VerificationLookup */
 	private $verificationLookup;
-	/** @var ILoadBalancer */
-	private $lb;
 	/** @var DataAccountingConfig */
 	private $config;
 	/** @var WikiPageFactory */
@@ -36,7 +33,6 @@ class VerificationEngine {
 
 	/**
 	 * @param VerificationLookup $verificationLookup
-	 * @param ILoadBalancer $lb
 	 * @param DataAccountingConfig $config
 	 * @param WikiPageFactory $wikiPageFactory
 	 * @param RevisionStore $revisionStore
@@ -45,7 +41,6 @@ class VerificationEngine {
 	 */
 	public function __construct(
 		VerificationLookup $verificationLookup,
-		ILoadBalancer $lb,
 		DataAccountingConfig $config,
 		WikiPageFactory $wikiPageFactory,
 		RevisionStore $revisionStore,
@@ -53,14 +48,11 @@ class VerificationEngine {
 		WitnessingEngine $witnessingEngine
 	) {
 		$this->verificationLookup = $verificationLookup;
-		$this->lb = $lb;
 		$this->config = $config;
 		$this->wikiPageFactory = $wikiPageFactory;
 		$this->pageUpdaterFactory = $pageUpdaterFactory;
 		$this->revisionStore = $revisionStore;
 		$this->witnessingEngine = $witnessingEngine;
-
-		$this->forcedParent = null;
 	}
 
 	/**

@@ -360,7 +360,7 @@ class SpecialInbox extends SpecialPage {
 		$diff = $this->getDiff( $tree['local'], $tree['remote'] );
 		$diffFormatter = new HTMLDiffFormatter();
 
-		if ( empty( $diff ) ) {
+		if ( empty( $diff->getEdits() ) ) {
 			return null;
 		}
 		return [
