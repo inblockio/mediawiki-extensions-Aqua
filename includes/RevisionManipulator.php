@@ -280,10 +280,36 @@ class RevisionManipulator {
 	}
 
 	/**
+	 * @param Title $source
+	 * @param Title $target
+	 * @return void
+	 * @throws Exception
+	 */
+	public function movePage( Title $source, Title $target ) {
+		wfDebug( "Starting page move: {$source->getPrefixedText()} => {$target->getPrefixedText()}", 'da' );
+		$db = $this->lb->getConnection( DB_PRIMARY );
+		$db->startAtomic( __METHOD__ );
+		$db->update(
+			'page',
+			[ 'page_title' => $target->getDBkey(), 'page_namespace' => $target->getNamespace() ],
+			[ 'page_id' => $source->getArticleID() ],
+			__METHOD__
+		);
+		$db->update(
+			'revision_verification',
+			[ 'page_title' => $target->getPrefixedText() ],
+			[ 'page_id' => $source->getArticleID() ],
+			__METHOD__
+		);
+
+		$db->endAtomic( __METHOD__ );
+	}
+
+	/**
 	 * @param \Database $db
 	 * @param VerificationEntity $entity
-	 * @param VerificationEntity $parent
-	 * @param VerificationEntity $commonParent
+	 * @param VerificationEntity|null $parent
+	 * @param VerificationEntity|null $commonParent
 	 * @param Title $local
 	 * @param bool $isFork
 	 * @param string $mtd
@@ -291,7 +317,7 @@ class RevisionManipulator {
 	 * @throws Exception
 	 */
 	private function moveRevision(
-		IDatabase $db, VerificationEntity $entity, VerificationEntity $parent, VerificationEntity $commonParent,
+		IDatabase $db, VerificationEntity $entity, ?VerificationEntity $parent, ?VerificationEntity $commonParent,
 		Title $local, bool $isFork, string $mtd
 	) {
 		// Move revision record

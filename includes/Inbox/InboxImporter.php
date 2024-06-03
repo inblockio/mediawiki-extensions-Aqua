@@ -9,6 +9,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionLookup;
 use MWException;
 use Status;
+use Throwable;
 use Title;
 use User;
 
@@ -45,7 +46,12 @@ class InboxImporter {
 	 * @return Status
 	 */
 	public function importDirect( VerificationEntity $source, Title $target, User $actor ): Status {
-		return $this->doMoveTitle( $source->getTitle(), $target, $actor, 'DataAccounting: Importing from inbox' );
+		try {
+			$this->revisionManipulator->movePage( $source->getTitle(), $target );
+			return Status::newGood();
+		} catch ( Throwable $ex ) {
+			return Status::newFatal( $ex->getMessage() );
+		}
 	}
 
 	/**
@@ -83,23 +89,6 @@ class InboxImporter {
 		$deletePage->setSuppress( true );
 
 		return $deletePage->deleteUnsafe( $comment );
-	}
-
-	/**
-	 * @param Title $from
-	 * @param Title $to
-	 * @param User $user
-	 * @param string|null $comment
-	 *
-	 * @return Status
-	 *
-	 */
-	private function doMoveTitle( Title $from, Title $to, User $user, string $comment = '' ): Status {
-		$movePage = MediaWikiServices::getInstance()->getMovePageFactory()->newMovePage(
-			$from,
-			$to
-		);
-		return $movePage->move( $user, $comment, false );
 	}
 
 	/**
