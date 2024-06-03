@@ -6,6 +6,8 @@ parameters:
 	paths:
 		- includes
 		- tests/phpunit
+	excludePaths:
+	    - includes/maintenance
 	scanDirectories:
 		- ../../includes
 		- ../../tests/phpunit
