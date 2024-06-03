@@ -10,8 +10,6 @@ class TransferContext implements \JsonSerializable {
 	private $genesisHash;
 	/** @var string */
 	private $domainId;
-	/** @var string */
-	private $latestVerificationHash;
 	/** @var array */
 	private $siteInfo;
 	/** @var Title */
@@ -22,18 +20,16 @@ class TransferContext implements \JsonSerializable {
 	/**
 	 * @param string $genesisHash
 	 * @param string $domainId
-	 * @param string $latestVerificationHash
 	 * @param array $siteInfo
 	 * @param Title $title
 	 * @param int $chainHeight
 	 */
 	public function __construct(
-		$genesisHash, $domainId, $latestVerificationHash,
+		$genesisHash, $domainId,
 		array $siteInfo, Title $title, int $chainHeight
 	) {
 		$this->genesisHash = $genesisHash;
 		$this->domainId = $domainId;
-		$this->latestVerificationHash = $latestVerificationHash;
 		$this->siteInfo = $siteInfo;
 		$this->title = $title;
 		$this->chainHeight = $chainHeight;
@@ -51,13 +47,6 @@ class TransferContext implements \JsonSerializable {
 	 */
 	public function getDomainId(): string {
 		return $this->domainId;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getLatestVerificationHash(): string {
-		return $this->latestVerificationHash;
 	}
 
 	/**
@@ -88,7 +77,6 @@ class TransferContext implements \JsonSerializable {
 		return [
 			VerificationEntity::GENESIS_HASH => $this->genesisHash,
 			VerificationEntity::DOMAIN_ID => $this->domainId,
-			'latest_verification_hash' => $this->latestVerificationHash,
 			'site_info' => $this->siteInfo,
 			'title' => $this->title->getDBkey(),
 			'namespace' => $this->title->getNamespace(),

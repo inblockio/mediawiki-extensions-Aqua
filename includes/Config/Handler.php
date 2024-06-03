@@ -8,6 +8,7 @@ use FormatJson;
 use GlobalVarConfig;
 use HashConfig;
 use MediaWiki\MediaWikiServices;
+use RawMessage;
 use Status;
 use Wikimedia\Rdbms\ILoadBalancer;
 
@@ -98,7 +99,7 @@ class Handler {
 		$dsConfig = new GlobalVarConfig( 'da' );
 		if ( !$dsConfig->has( $name ) ) {
 			$status->fatal(
-				"The config '$name' does not exist within the da config prefix"
+				new RawMessage( "The config '$name' does not exist within the da config prefix" )
 			);
 			return $status;
 		}

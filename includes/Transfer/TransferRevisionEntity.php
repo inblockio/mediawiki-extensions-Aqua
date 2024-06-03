@@ -72,10 +72,14 @@ class TransferRevisionEntity implements \JsonSerializable {
 	 * @return array
 	 */
 	public function jsonSerialize() {
+		$metadata = $this->getMetadata();
+		if ( isset( $metadata[VerificationEntity::VERIFICATION_HASH] ) ) {
+			unset( $metadata[VerificationEntity::VERIFICATION_HASH] );
+		}
 		return [
 			'verification_context' => $this->getVerificationContext(),
 			'content' => $this->getContent(),
-			'metadata' => $this->getMetadata(),
+			'metadata' => $metadata,
 			'signature' => $this->getSignature(),
 			'witness' => $this->getWitness(),
 		];
