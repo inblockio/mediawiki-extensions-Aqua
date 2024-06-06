@@ -4,6 +4,7 @@ namespace DataAccounting\API;
 
 use DataAccounting\Verification\Entity\VerificationEntity;
 use MediaWiki\Rest\HttpException;
+use Title;
 use Wikimedia\ParamValidator\ParamValidator;
 
 class GetPageAllRevsHandler extends AuthorizedEntityHandler {
@@ -32,10 +33,10 @@ class GetPageAllRevsHandler extends AuthorizedEntityHandler {
 	/** @inheritDoc */
 	public function getParamSettings() {
 		return [
-			'page_title' => [
+			'title_or_hash' => [
 				self::PARAM_SOURCE => 'path',
 				ParamValidator::PARAM_TYPE => 'string',
-				ParamValidator::PARAM_REQUIRED => true,
+				ParamValidator::PARAM_REQUIRED => false,
 			],
 			'full_entities' => [
 				self::PARAM_SOURCE => 'query',
@@ -47,12 +48,17 @@ class GetPageAllRevsHandler extends AuthorizedEntityHandler {
 	}
 
 	/**
-	 * @param string $idType
-	 * @param string $id
+	 * @param string $pageOrHash
 	 * @return VerificationEntity|null
 	 */
-	protected function getEntity( string $pageTitle ): ?VerificationEntity {
-		$title = \Title::newFromText( $pageTitle );
+	protected function getEntity( string $pageOrHash ): ?VerificationEntity {
+		if ( strlen( $pageOrHash ) === 128 ) {
+			return $this->verificationEngine->getLookup()->verificationEntityFromHash( $pageOrHash );
+		}
+		$title = Title::newFromText( $pageOrHash );
+		if ( !$title ) {
+			return null;
+		}
 		return $this->verificationEngine->getLookup()->verificationEntityFromTitle( $title );
 	}
 }

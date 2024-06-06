@@ -216,7 +216,7 @@
 			]
 		},
 		{
-			"path": "/data_accounting/get_page_all_revs/{page_title}",
+			"path": "/data_accounting/get_page_all_revs/{title_or_hash}",
 			"class": "DataAccounting\\API\\GetPageAllRevsHandler",
 			"services": [
 				"PermissionManager",
