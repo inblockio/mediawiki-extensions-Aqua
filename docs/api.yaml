@@ -52,15 +52,15 @@ paths:
           description: Permission error
         '404':
           description: Invalid ID supplied
-  /data_accounting/get_page_all_revs/{page_title}:
+  /data_accounting/get_page_all_revs/{page_or_hash}:
     get:
       tags:
           - general
       summary: Get all revisions for a page
       parameters:
-        - name: page_title
+        - name: page_or_hash
           in: path
-          description: Title of the page for which to return all revisions
+          description: Title of the page or latest verification hash for which to return all revisions
           required: true
           schema:
             type: string
