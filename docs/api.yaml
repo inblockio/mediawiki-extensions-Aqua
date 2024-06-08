@@ -89,6 +89,42 @@ paths:
           description: Permission error
         '404':
           description: Invalid ID supplied
+  /data_accounting/get_branch/{revision_hash}:
+    get:
+      tags:
+          - general
+      summary: Get all revisions for branch
+      parameters:
+        - name: revision_hash
+          in: path
+          description: verification_hash of a Revision
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: 'Main_Page'
+                  namespace:
+                    type: integer
+                    format: int64
+                    example: 0
+                  branch:
+                    type: array
+                    items:
+                      type: string
+                      example: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid Hash supplied
   /data_accounting/get_page_last_rev:
     get:
       tags:
