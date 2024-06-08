@@ -224,6 +224,14 @@
 			]
 		},
 		{
+			"path": "/data_accounting/get_branch/{revision_hash}",
+			"class": "DataAccounting\\API\\GetBranchHandler",
+			"services": [
+				"PermissionManager",
+				"DataAccountingVerificationEngine"
+			]
+		},
+		{
 			"path": "/data_accounting/get_page_last_rev",
 			"class": "DataAccounting\\API\\GetPageLastRevHandler",
 			"services": [
