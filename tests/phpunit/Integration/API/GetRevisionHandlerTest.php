@@ -52,7 +52,7 @@ class GetRevisionHandlerTest extends API {
 		$data = $this->getJsonBody( $response );
 		$this->assertIsArray( $data, 'Body must be a JSON array' );
 		$keys = [
-			'verification_context',
+			// 'verification_context',
 			'content',
 			'metadata',
 			'signature',

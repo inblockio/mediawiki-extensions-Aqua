@@ -29,8 +29,8 @@ class VerificationEntity implements JsonSerializable {
 	private $hashes;
 	/** @var DateTime */
 	private $time;
-	/** @var array */
-	private $verificationContext;
+	// /** @var array */
+	// private $verificationContext;
 	/** @var string */
 	private $signature;
 	/** @var string */
@@ -48,7 +48,7 @@ class VerificationEntity implements JsonSerializable {
 	 * @param string $domainId
 	 * @param array $hashes
 	 * @param DateTime $time
-	 * @param array $verificationContext
+	//  * @param array $verificationContext
 	 * @param string $signature
 	 * @param string $publicKey
 	 * @param string $walletAddress
@@ -57,7 +57,8 @@ class VerificationEntity implements JsonSerializable {
 	 */
 	public function __construct(
 		Title $title, RevisionRecord $revision, string $domainId, array $hashes, DateTime $time,
-		array $verificationContext, string $signature, string $publicKey, string $walletAddress,
+		// array $verificationContext,
+		string $signature, string $publicKey, string $walletAddress,
 		int $witnessEventId, string $source
 	) {
 		$this->title = $title;
@@ -65,7 +66,7 @@ class VerificationEntity implements JsonSerializable {
 		$this->domainId = $domainId;
 		$this->hashes = $hashes;
 		$this->time = $time;
-		$this->verificationContext = $verificationContext;
+		// $this->verificationContext = $verificationContext;
 		$this->signature = $signature;
 		$this->publicKey = $publicKey;
 		$this->walletAddress = $walletAddress;
@@ -120,12 +121,12 @@ class VerificationEntity implements JsonSerializable {
 		return $this->time;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getVerificationContext(): array {
-		return $this->verificationContext;
-	}
+	// /**
+	//  * @return array
+	//  */
+	// public function getVerificationContext(): array {
+	// 	return $this->verificationContext;
+	// }
 
 	/**
 	 * @return string
@@ -172,7 +173,7 @@ class VerificationEntity implements JsonSerializable {
 			'rev_id' => $this->revision->getId(),
 			'domain_id' => $this->domainId,
 			'time_stamp' => $this->time->format( 'YmdHis' ),
-			'verification_context' => $this->verificationContext,
+			// 'verification_context' => $this->verificationContext,
 			'signature' => $this->signature,
 			'public_key' => $this->publicKey,
 			'wallet_address' => $this->walletAddress,

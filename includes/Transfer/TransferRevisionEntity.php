@@ -5,8 +5,8 @@ namespace DataAccounting\Transfer;
 use DataAccounting\Verification\Entity\VerificationEntity;
 
 class TransferRevisionEntity implements \JsonSerializable {
-	/** @var array */
-	private $verificationContext;
+	// /** @var array */
+	// private $verificationContext;
 	/** @var array */
 	private $content;
 	/** @var array */
@@ -17,28 +17,29 @@ class TransferRevisionEntity implements \JsonSerializable {
 	private $witness;
 
 	/**
-	 * @param array $verificationContext
+	//  * @param array $verificationContext
 	 * @param array $content
 	 * @param array $metadata
 	 * @param array|null $signature
 	 * @param array|null $witness
 	 */
 	public function __construct(
-		array $verificationContext, array $content, array $metadata, $signature, $witness
+		// array $verificationContext,
+		array $content, array $metadata, $signature, $witness
 	) {
-		$this->verificationContext = $verificationContext;
+		// $this->verificationContext = $verificationContext;
 		$this->content = $content;
 		$this->metadata = $metadata;
 		$this->signature = $signature;
 		$this->witness = $witness;
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getVerificationContext(): array {
-		return $this->verificationContext;
-	}
+	// /**
+	//  * @return array
+	//  */
+	// public function getVerificationContext(): array {
+	// 	return $this->verificationContext;
+	// }
 
 	/**
 	 * @return array
@@ -72,14 +73,10 @@ class TransferRevisionEntity implements \JsonSerializable {
 	 * @return array
 	 */
 	public function jsonSerialize() {
-		$metadata = $this->getMetadata();
-		if ( isset( $metadata[VerificationEntity::VERIFICATION_HASH] ) ) {
-			unset( $metadata[VerificationEntity::VERIFICATION_HASH] );
-		}
 		return [
-			'verification_context' => $this->getVerificationContext(),
+			// 'verification_context' => $this->getVerificationContext(),
 			'content' => $this->getContent(),
-			'metadata' => $metadata,
+			'metadata' => $this->getMetadata(),
 			'signature' => $this->getSignature(),
 			'witness' => $this->getWitness(),
 		];

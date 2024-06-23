@@ -61,13 +61,15 @@ class TransferEntityFactory {
 			isset( $data[VerificationEntity::DOMAIN_ID] )
 		) {
 			$title = $this->titleFactory->makeTitle( $data['namespace'], $data['title'] );
-			return new TransferContext(
-				$data[VerificationEntity::GENESIS_HASH],
-				$data[VerificationEntity::DOMAIN_ID],
-				$data['site_info'],
-				$title,
-				$data['chain_height'] ?? 0
-			);
+			if ( $title instanceof \Title ) {
+				return new TransferContext(
+					$data[VerificationEntity::GENESIS_HASH],
+					$data[VerificationEntity::DOMAIN_ID],
+					$data['site_info'],
+					$title,
+					$data['chain_height'] ?? 0
+				);
+			}
 		}
 
 		throw new RuntimeException( 'Invalid input data' );
@@ -150,12 +152,12 @@ class TransferEntityFactory {
 	 */
 	public function newRevisionEntityFromApiData( array $data ): ?TransferRevisionEntity {
 		if (
-			isset( $data['verification_context'] ) && is_array( $data['verification_context'] ) &&
+			// isset( $data['verification_context'] ) && is_array( $data['verification_context'] ) &&
 			isset( $data['content'] ) && is_array( $data['content'] ) &&
 			isset( $data['metadata'] ) && is_array( $data['metadata'] )
 		) {
 			return new TransferRevisionEntity(
-				$data['verification_context'],
+				// $data['verification_context'],
 				$data['content'],
 				$data['metadata'],
 				$data['signature'] ?? null,
@@ -203,7 +205,7 @@ class TransferEntityFactory {
 			'previous_verification_hash' => $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ),
 			VerificationEntity::MERGE_HASH => $entity->getHash( VerificationEntity::MERGE_HASH ),
 			'metadata_hash' => $entity->getHash( VerificationEntity::METADATA_HASH ),
-			'verification_hash' => $entity->getHash()
+			'verification_hash' => $entity->getHash( VerificationEntity::VERIFICATION_HASH )
 		];
 
 		$signatureOutput = $entity->getSignature() ? [
@@ -227,7 +229,7 @@ class TransferEntityFactory {
 		}
 
 		return new TransferRevisionEntity(
-			$entity->getVerificationContext(),
+			// $entity->getVerificationContext(),
 			$contentOutput,
 			$metadataOutput,
 			$signatureOutput,

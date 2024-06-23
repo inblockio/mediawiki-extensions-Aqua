@@ -706,7 +706,7 @@ components:
                       signature-slot:
                         type: string
                         description: JSON string of an array of signatures
-                        example: "[{\"signature\": \"0x..¸\", \"timestamp\": \"20240101101010\"}...]"
+                        example: "[{\"signature\": \"0x..,\", \"timestamp\": \"20240101101010\"}...]"
                       transclusion-hashes:
                         type: array
                         items:
@@ -721,28 +721,28 @@ components:
                             verification_hash:
                                 type: string
                                 example: 'abc...cba'
-                      file:
-                        type: object
-                        properties:
-                          data:
-                            type: string
-                            description: Base64 encoded file data
-                            example: 'd3an...asd'
-                          filename:
-                            type: string
-                            example: 'MyFile.png'
-                          size:
-                            type: integer
-                            description: Size of the file in bytes
-                            example: 12345
-                          comment:
-                            type: string
-                            description: Comment added when uploading file
-                            example: 'My comment'
-                          archivename:
-                            type: string
-                            description: Name of the archive file, only for import
-                            example: '20240508072948_MyFile.png'
+                    file:
+                      type: object
+                      properties:
+                        data:
+                          type: string
+                          description: Base64 encoded file data
+                          example: 'd3an...asd'
+                        filename:
+                          type: string
+                          example: 'MyFile.png'
+                        size:
+                          type: integer
+                          description: Size of the file in bytes
+                          example: 12345
+                        comment:
+                          type: string
+                          description: Comment added when uploading file
+                          example: 'My comment'
+                        archivename:
+                          type: string
+                          description: Name of the archive file, only for import
+                          example: '20240508072948_MyFile.png'
                   content_hash:
                     type: string
                     example: 'abc...cba'
@@ -763,6 +763,9 @@ components:
                 description: If revision was created by merging remote revisions, this shows the hash of the remote revision it was merged from
                 example: 'abc...cba'                
               metadata_hash:
+                type: string
+                example: 'abc...cba'
+              verification_hash:
                 type: string
                 example: 'abc...cba'
           signature:
