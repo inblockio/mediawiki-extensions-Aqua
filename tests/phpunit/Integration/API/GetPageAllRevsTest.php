@@ -27,7 +27,7 @@ class GetPageAllRevsTest extends API {
 			$this->getServiceContainer()->getService( 'DataAccountingVerificationEngine' ),
 		];
 		$requestData = new RequestData( [
-			'pathParams' => [ 'page_title' => 'UTPage' ]
+			'pathParams' => [ 'title_or_hash' => 'UTPage' ]
 		] );
 		$this->expectContextPermissionDenied(
 			new GetPageAllRevsHandler( ...$services ),
@@ -53,7 +53,7 @@ class GetPageAllRevsTest extends API {
 		);
 		$response = $this->executeHandler(
 			new GetPageAllRevsHandler( ...$services ),
-			new RequestData( [ 'pathParams' => [ 'page_title' => $title ] ] )
+			new RequestData( [ 'pathParams' => [ 'title_or_hash' => $title ] ] )
 		);
 	}
 }
