@@ -11,23 +11,23 @@ class GetBranchHandler extends AuthorizedEntityHandler {
 
 	/** @inheritDoc */
 	public function run() {
-        $currentEntity = $this->verificationEntity;
-        $title = $currentEntity->getTitle();
-        $hashes = [$currentEntity->getHashes()[VerificationEntity::VERIFICATION_HASH]];
-        while ( true ) {
-            $prev_hash = $currentEntity->getHashes()[VerificationEntity::PREVIOUS_VERIFICATION_HASH];
-            if ( !$prev_hash || $prev_hash == '' ) {
-                break;
-            }
-            $hashes[] = $prev_hash;
-            $currentEntity = $this->verificationEngine->getLookup()->verificationEntityFromHash($prev_hash);
-        }
+		$currentEntity = $this->verificationEntity;
+		$title = $currentEntity->getTitle();
+		$hashes = [ $currentEntity->getHashes()[VerificationEntity::VERIFICATION_HASH] ];
+		while ( true ) {
+			$prev_hash = $currentEntity->getHashes()[VerificationEntity::PREVIOUS_VERIFICATION_HASH];
+			if ( !$prev_hash || $prev_hash == '' ) {
+				break;
+			}
+			$hashes[] = $prev_hash;
+			$currentEntity = $this->verificationEngine->getLookup()->verificationEntityFromHash( $prev_hash );
+		}
 
 		return [
-            "title" => $title->getDBkey(),
-            "namespace" => $title->getNamespace(),
-            "hashes" => $hashes,
-        ];
+			"title" => $title->getDBkey(),
+			"namespace" => $title->getNamespace(),
+			"hashes" => $hashes,
+		];
 	}
 
 	/** @inheritDoc */
@@ -46,6 +46,6 @@ class GetBranchHandler extends AuthorizedEntityHandler {
 	 * @return VerificationEntity|null
 	 */
 	protected function getEntity( string $revision_hash ): ?VerificationEntity {
-        return $this->verificationEngine->getLookup()->verificationEntityFromHash( $revision_hash );
+		return $this->verificationEngine->getLookup()->verificationEntityFromHash( $revision_hash );
 	}
 }

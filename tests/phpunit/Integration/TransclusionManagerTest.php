@@ -8,6 +8,7 @@ use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\VerificationLookup;
 use MediaWiki\Revision\RevisionRecord;
+use Title;
 
 /**
  * @covers \DataAccounting\TransclusionManager
@@ -47,7 +48,7 @@ class TransclusionManagerTest extends \MediaWikiIntegrationTestCase {
 		$revisionMock = $this->createMock( RevisionRecord::class );
 		$revisionMock->method( 'hasSlot' )->willReturn( true );
 		$revisionMock->method( 'getContent' )->will(
-			$this->returnCallback( function( $role ) use( $content ) {
+			$this->returnCallback( static function ( $role ) use ( $content ) {
 				if ( $role === TransclusionHashes::SLOT_ROLE_TRANSCLUSION_HASHES ) {
 					return $content;
 				}
@@ -58,7 +59,7 @@ class TransclusionManagerTest extends \MediaWikiIntegrationTestCase {
 
 		$lookupMock = $this->createMock( VerificationLookup::class );
 		$lookupMock->method( 'verificationEntityFromTitle' )
-			->willReturnCallback( function( \Title $title ) {
+			->willReturnCallback( function ( Title $title ) {
 				if ( $title->getDBkey() === 'B' ) {
 					$rev = $this->createMock( RevisionRecord::class );
 					$rev->method( 'getId' )->willReturn( 2 );
@@ -69,7 +70,7 @@ class TransclusionManagerTest extends \MediaWikiIntegrationTestCase {
 						[
 							VerificationEntity::VERIFICATION_HASH => '000'
 						],
-						new \DateTime(), [], '', '', '', 0, ''
+						new \DateTime(), '', '', '', 0, ''
 					);
 				}
 				if ( $title->getDBkey() === 'C' ) {
@@ -82,38 +83,38 @@ class TransclusionManagerTest extends \MediaWikiIntegrationTestCase {
 						[
 							VerificationEntity::VERIFICATION_HASH => '456'
 						],
-						new \DateTime(), [], '', '', '', 0, ''
+						new \DateTime(), '', '', '', 0, ''
 					);
 				}
 
 				return null;
 			} );
 		$lookupMock->method( 'verificationEntityFromQuery' )
-			->willReturnCallback( function( $query ) {
+			->willReturnCallback( function ( $query ) {
 				if ( $query[VerificationEntity::VERIFICATION_HASH] === '123' ) {
 					$rev = $this->createMock( RevisionRecord::class );
 					$rev->method( 'getId' )->willReturn( 1 );
 					return new VerificationEntity(
-						$this->createMock( \Title::class ),
+						$this->createMock( Title::class ),
 						$rev,
 						'',
 						[
 							VerificationEntity::VERIFICATION_HASH => '123'
 						],
-						new \DateTime(), [], '', '', '', 0, ''
+						new \DateTime(), '', '', '', 0, ''
 					);
 				}
 				if ( $query[VerificationEntity::VERIFICATION_HASH] === '456' ) {
 					$rev = $this->createMock( RevisionRecord::class );
 					$rev->method( 'getId' )->willReturn( 4 );
 					return new VerificationEntity(
-						$this->createMock( \Title::class ),
+						$this->createMock( Title::class ),
 						$rev,
 						'',
 						[
 							VerificationEntity::VERIFICATION_HASH => '456'
 						],
-						new \DateTime(), [], '', '', '', 0, ''
+						new \DateTime(), '', '', '', 0, ''
 					);
 				}
 
@@ -123,25 +124,25 @@ class TransclusionManagerTest extends \MediaWikiIntegrationTestCase {
 		$verificationEngineMock->method( 'getLookup' )->willReturn( $lookupMock );
 
 		$titleFactoryMock = $this->createMock( \TitleFactory::class );
-		$titleFactoryMock->method( 'makeTitle' )->willReturnCallback( function( $ns, $dbkey ) {
+		$titleFactoryMock->method( 'makeTitle' )->willReturnCallback( function ( $ns, $dbkey ) {
 			switch ( $dbkey ) {
 				case 'A':
-					$title = $this->createMock( \Title::class );
+					$title = $this->createMock( Title::class );
 					$title->method( 'getDBkey' )->willReturn( 'A' );
 					$title->method( 'exists' )->willReturn( false );
 					return $title;
 				case 'B':
-					$title = $this->createMock( \Title::class );
+					$title = $this->createMock( Title::class );
 					$title->method( 'getDBkey' )->willReturn( 'B' );
 					$title->method( 'exists' )->willReturn( true );
 					return $title;
 				case 'C':
-					$title = $this->createMock( \Title::class );
+					$title = $this->createMock( Title::class );
 					$title->method( 'getDBkey' )->willReturn( 'C' );
 					$title->method( 'exists' )->willReturn( true );
 					return $title;
 				case 'D':
-					$title = $this->createMock( \Title::class );
+					$title = $this->createMock( Title::class );
 					$title->method( 'getDBkey' )->willReturn( 'D' );
 					$title->method( 'exists' )->willReturn( true );
 					return $title;
@@ -162,7 +163,7 @@ class TransclusionManagerTest extends \MediaWikiIntegrationTestCase {
 			[ 'B', TransclusionManager::STATE_NEW_VERSION ],
 			[ 'C', TransclusionManager::STATE_UNCHANGED ],
 			[ 'D', TransclusionManager::STATE_INVALID ],
-		], array_map( function( $stateItem ) {
+		], array_map( static function ( $stateItem ) {
 			return [ $stateItem['titleObject']->getDBkey(), $stateItem['state'] ];
 		}, $state ) );
 	}

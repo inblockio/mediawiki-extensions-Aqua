@@ -721,6 +721,10 @@ components:
                             verification_hash:
                                 type: string
                                 example: 'abc...cba'
+                      witness-slot:
+                        type: string
+                        description: JSON represenation of the witness data
+                        example: "{"witness_event_id":1,"domain_id":2,...}"
                     file:
                       type: object
                       properties:

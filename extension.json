@@ -29,10 +29,6 @@
 		"SmartContractAddress": {
 			"description": "The smart contract address used to publish for witnessing.",
 			"value": "0x45f59310ADD88E6d23ca58A0Fa7A55BEE6d2a611"
-		},
-		"InjectSignature": {
-			"description": "Whether to inject signature back to the page after signing.",
-			"value": true
 		}
 	},
 	"callback": "\\DataAccounting\\Hooks::onRegistration",
@@ -506,23 +502,14 @@
 			]
 		}
 	},
-	"SessionProviders": {
-		"AuthGuardian": {
-			"class": "DataAccounting\\AuthGuardianProvider",
-			"services": [
-				"UserFactory",
-				"ConfigFactory",
-				"GrantsInfo"
-			]
-		}
-	},
 	"ServiceWiringFiles": [
 		"includes/ServiceWiring.php"
 	],
 	"ContentHandlers": {
 		"signature": "DataAccounting\\ContentHandler\\SignatureHandler",
 		"transclusion-hashes": "DataAccounting\\ContentHandler\\TransclusionHashesHandler",
-		"file-hash": "DataAccounting\\ContentHandler\\FileHashHandler"
+		"file-hash": "DataAccounting\\ContentHandler\\FileHashHandler",
+		"witness": "DataAccounting\\ContentHandler\\WitnessHandler"
 	},
 	"manifest_version": 2,
 	"load_composer_autoloader": true
