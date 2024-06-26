@@ -55,7 +55,7 @@ paths:
   /data_accounting/get_page_all_revs/{page_or_hash}:
     get:
       tags:
-          - general
+        - general
       summary: Get all revisions for a page
       parameters:
         - name: page_or_hash
@@ -84,15 +84,42 @@ paths:
                     example: [ 1, 2, 3 ]
                   - type: array
                     items:
-                        $ref: '#/components/schemas/VerificationEntity'
+                      $ref: '#/components/schemas/VerificationEntity'
         '401':
           description: Permission error
         '404':
           description: Invalid ID supplied
+  /data_accounting/recent_changes:
+    get:
+      tags:
+        - general
+      summary: "Get recent changes in PKC"
+      parameters:
+        - name: count
+          in: query
+          description: Number of latest changes to retrive
+          required: false
+          schema:
+            type: integer
+        - name: since
+          in: query
+          description: Timestamp, return changes newer that this, in format YmdHis (20240101090000)
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecentChange'
   /data_accounting/get_branch/{revision_hash}:
     get:
       tags:
-          - general
+        - general
       summary: Get all revisions for branch
       parameters:
         - name: revision_hash
@@ -131,13 +158,13 @@ paths:
         - general
       summary: Get ID and verification has of the last revision of the page
       parameters:
-          - name: page_title
-            in: query
-            description: Title of the page for which to return the last revision
-            required: true
-            example: 'Main_Page'
-            schema:
-                type: string
+        - name: page_title
+          in: query
+          description: Title of the page for which to return the last revision
+          required: true
+          example: 'Main_Page'
+          schema:
+            type: string
       responses:
         '200':
           description: successful operation
@@ -195,8 +222,8 @@ paths:
           description: Depth of the Merkle proof
           required: false
           schema:
-              type: integer
-              format: int64
+            type: integer
+            format: int64
       responses:
         '200':
           description: successful operation
@@ -362,14 +389,14 @@ paths:
                   type: integer
                   example: 1
                 account_address:
-                    type: string
-                    example: '0xabc...cba'
+                  type: string
+                  example: '0xabc...cba'
                 transaction_hash:
-                    type: string
-                    example: 'abc...cba'
+                  type: string
+                  example: 'abc...cba'
                 witness_network:
-                    type: string
-                    example: 'goerli'
+                  type: string
+                  example: 'goerli'
       responses:
         '200':
           description: successful operation
@@ -378,7 +405,7 @@ paths:
         '404':
           description: Invalid input data
         '500':
-            description: Internal server error
+          description: Internal server error
   /data_accounting/transclusion/update_hash:
     post:
       tags:
@@ -412,7 +439,7 @@ paths:
         '404':
           description: Invalid input data
         '500':
-            description: Internal server error
+          description: Internal server error
   /data_accounting/delete_revisions:
     post:
       tags:
@@ -447,7 +474,7 @@ paths:
         '404':
           description: Invalid input data
         '500':
-            description: Internal server error
+          description: Internal server error
   /data_accounting/squash_revisions:
     post:
       tags:
@@ -482,7 +509,7 @@ paths:
         '404':
           description: Invalid input data
         '500':
-            description: Internal server error
+          description: Internal server error
   /data_accounting/import:
     post:
       tags:
@@ -497,12 +524,12 @@ paths:
                 context:
                   type: object
                   properties:
-                      namespace:
-                        type: integer
-                        example: 0
-                      title:
-                        type: string
-                        example: 'Main_Page'
+                    namespace:
+                      type: integer
+                      example: 0
+                    title:
+                      type: string
+                      example: 'Main_Page'
                 revision:
                   $ref: '#/components/schemas/ExportImportEntity'
       responses:
@@ -521,7 +548,7 @@ paths:
         '404':
           description: Invalid input data
         '500':
-            description: Internal server error
+          description: Internal server error
 components:
   schemas:
     ServerInfo:
@@ -541,15 +568,15 @@ components:
           format: int64
           example: 1
         rev_id:
-            type: integer
-            format: int64
-            example: 1
+          type: integer
+          format: int64
+          example: 1
         domain_id:
-            type: string
-            example: 'abc123'
+          type: string
+          example: 'abc123'
         time_stamp:
-            type: string
-            example: '20240508072948'
+          type: string
+          example: '20240508072948'
         verification_context:
           type: object
           properties:
@@ -560,40 +587,40 @@ components:
               type: boolean
               example: true
         signature:
-            type: string
-            nullable: true
-            example: 'abc123'
+          type: string
+          nullable: true
+          example: 'abc123'
         public_key:
-            type: string
-            example: 'abc123'
+          type: string
+          example: 'abc123'
         wallet_address:
-            type: string
-            example: 'abc123'
+          type: string
+          example: 'abc123'
         witness_event_id:
-            type: string
-            nullable: true
-            example: 'abc123'
+          type: string
+          nullable: true
+          example: 'abc123'
         source:
-            type: string
-            example: 'default'
+          type: string
+          example: 'default'
         verification_hash:
-            type: string
-            example: 'abc....cba'
+          type: string
+          example: 'abc....cba'
         content_hash:
-            type: string
-            example: 'abc....cba'
+          type: string
+          example: 'abc....cba'
         genesis_hash:
-            type: string
-            example: 'abc....cba'
+          type: string
+          example: 'abc....cba'
         metadata_hash:
-            type: string
-            example: 'abc....cba'
+          type: string
+          example: 'abc....cba'
         signature_hash:
-            type: string
-            example: 'abc....cba'
+          type: string
+          example: 'abc....cba'
         previous_verification_hash:
-            type: string
-            example: 'abc....cba'
+          type: string
+          example: 'abc....cba'
     LastRevision:
       type: object
       properties:
@@ -605,216 +632,231 @@ components:
           format: int64
           example: 1
         rev_id:
-            type: integer
-            format: int64
-            example: 1
+          type: integer
+          format: int64
+          example: 1
         verification_hash:
-            type: string
-            example: 'abc....cba'
+          type: string
+          example: 'abc....cba'
     WitnessEntity:
-        type: object
-        properties:
-            witness_event_id:
-              type: integer
-              example: 1
+      type: object
+      properties:
+        witness_event_id:
+          type: integer
+          example: 1
+        domain_id:
+          type: string
+          example: 'abc123'
+        domain_snapshot_title:
+          type: string
+          example: 'Data Accounting:DomainSnapshot 1'
+        witness_hash:
+          type: string
+          nullable: true
+          example: 'abc123'
+        domain_snapshot_genesis_hash:
+          type: string
+          example: 'abc....cba'
+        merkle_root:
+          type: string
+          example: 'abc....cba'
+        witness_event_verification_hash:
+          type: string
+          example: 'abc....cba'
+        witness_network:
+          type: string
+          example: 'goerli'
+        smart_contract_address:
+          type: string
+          example: '0xabc123'
+        witness_event_transaction_hash:
+          type: string
+          example: 'ABC'
+        sender_account_address:
+          type: string
+          example: 'ABC'
+        source:
+          type: string
+          nullable: true
+          example: 'abc'
+    ProofNode:
+      type: object
+      properties:
+        witness_event_verification_hash:
+          type: string
+          example: 'abc...cba'
+        depth:
+          type: integer
+          format: int64
+          example: 1
+        left_leaf:
+          type: string
+          example: 'abc...cba'
+        right_leaf:
+          type: string
+          example: 'abc...cba'
+        successor:
+          type: string
+          example: 'abc...cba'
+        id:
+          type: integer
+          format: int64
+          example: 1
+        witness_event_id:
+          type: integer
+          example: 1
+    ExportImportEntity:
+      type: object
+      properties:
+        verification_context:
+          type: object
+          properties:
+            has_previous_signature:
+              type: boolean
+              example: true
+            has_previous_witness:
+              type: boolean
+              example: true
+        content:
+          type: object
+          properties:
+            content:
+              type: object
+              properties:
+                content:
+                  type: object
+                  properties:
+                    main:
+                      type: string
+                      description: Main content of the revision, text of the page
+                      example: 'Hello, world!'
+                    signature-slot:
+                      type: string
+                      description: JSON string of an array of signatures
+                      example: "[{\"signature\": \"0x..,\", \"timestamp\": \"20240101101010\"}...]"
+                    transclusion-hashes:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          dbkey:
+                            type: string
+                            example: 'MyPage'
+                          ns:
+                            type: integer
+                            example: 10
+                          verification_hash:
+                            type: string
+                            example: 'abc...cba'
+                file:
+                  type: object
+                  properties:
+                    data:
+                      type: string
+                      description: Base64 encoded file data
+                      example: 'd3an...asd'
+                    filename:
+                      type: string
+                      example: 'MyFile.png'
+                    size:
+                      type: integer
+                      description: Size of the file in bytes
+                      example: 12345
+                    comment:
+                      type: string
+                      description: Comment added when uploading file
+                      example: 'My comment'
+                    archivename:
+                      type: string
+                      description: Name of the archive file, only for import
+                      example: '20240508072948_MyFile.png'
+                content_hash:
+                  type: string
+                  example: 'abc...cba'
+        metadata:
+          type: object
+          properties:
             domain_id:
               type: string
               example: 'abc123'
-            domain_snapshot_title:
+            time_stamp:
               type: string
-              example: 'Data Accounting:DomainSnapshot 1'
-            witness_hash:
+              example: '20240508072948'
+            previous_verification_hash:
               type: string
-              nullable: true
-              example: 'abc123'
-            domain_snapshot_genesis_hash:
+              example: 'abc...cba'
+            merge_hash:
               type: string
-              example: 'abc....cba'
-            merkle_root:
+              description: If revision was created by merging remote revisions, this shows the hash of the remote revision it was merged from
+              example: 'abc...cba'
+            metadata_hash:
               type: string
-              example: 'abc....cba'
-            witness_event_verification_hash:
+              example: 'abc...cba'
+            verification_hash:
               type: string
-              example: 'abc....cba'
-            witness_network:
+              example: 'abc...cba'
+        signature:
+          type: object
+          properties:
+            signature:
               type: string
-              example: 'goerli'
-            smart_contract_address:
+              example: '0xabc...cba'
+            public_key:
               type: string
-              example: '0xabc123'
-            witness_event_transaction_hash:
+              example: '0xabc...cba'
+            wallet_address:
               type: string
-              example: 'ABC'
-            sender_account_address:
+              example: '0xabc...cba'
+            signature_hash:
               type: string
-              example: 'ABC'
-            source:
-              type: string
-              nullable: true
-              example: 'abc'
-    ProofNode:
-        type: object
-        properties:
-          witness_event_verification_hash:
-            type: string
-            example: 'abc...cba'
-          depth:
-            type: integer
-            format: int64
-            example: 1
-          left_leaf:
-            type: string
-            example: 'abc...cba'
-          right_leaf:
-            type: string
-            example: 'abc...cba'
-          successor:
-            type: string
-            example: 'abc...cba'
-          id:
-            type: integer
-            format: int64
-            example: 1
-          witness_event_id:
-            type: integer
-            example: 1
-    ExportImportEntity:
-        type: object
-        properties:
-          verification_context:
-            type: object
-            properties:
-              has_previous_signature:
-                type: boolean
-                example: true
-              has_previous_witness:
-                type: boolean
-                example: true
-          content:
-            type: object
-            properties:
-              content:
-                type: object
-                properties:
-                  content:
-                    type: object
-                    properties:
-                      main:
-                        type: string
-                        description: Main content of the revision, text of the page
-                        example: 'Hello, world!'
-                      signature-slot:
-                        type: string
-                        description: JSON string of an array of signatures
-                        example: "[{\"signature\": \"0x..,\", \"timestamp\": \"20240101101010\"}...]"
-                      transclusion-hashes:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            dbkey:
-                              type: string
-                              example: 'MyPage'
-                            ns:
-                              type: integer
-                              example: 10
-                            verification_hash:
-                                type: string
-                                example: 'abc...cba'
-                    file:
-                      type: object
-                      properties:
-                        data:
-                          type: string
-                          description: Base64 encoded file data
-                          example: 'd3an...asd'
-                        filename:
-                          type: string
-                          example: 'MyFile.png'
-                        size:
-                          type: integer
-                          description: Size of the file in bytes
-                          example: 12345
-                        comment:
-                          type: string
-                          description: Comment added when uploading file
-                          example: 'My comment'
-                        archivename:
-                          type: string
-                          description: Name of the archive file, only for import
-                          example: '20240508072948_MyFile.png'
-                  content_hash:
-                    type: string
-                    example: 'abc...cba'
-          metadata:
-            type: object
-            properties:
-              domain_id:
-                type: string
-                example: 'abc123'
-              time_stamp:
-                type: string
-                example: '20240508072948'
-              previous_verification_hash:
-                type: string
-                example: 'abc...cba'
-              merge_hash:
-                type: string
-                description: If revision was created by merging remote revisions, this shows the hash of the remote revision it was merged from
-                example: 'abc...cba'                
-              metadata_hash:
-                type: string
-                example: 'abc...cba'
-              verification_hash:
-                type: string
-                example: 'abc...cba'
-          signature:
-            type: object
-            properties:
-              signature:
-                type: string
-                example: '0xabc...cba'
-              public_key:
-                type: string
-                example: '0xabc...cba'
-              wallet_address:
-                type: string
-                example: '0xabc...cba'
-              signature_hash:
-                type: string
-                example: 'abc...cba'
+              example: 'abc...cba'
     HashChainInfo:
-        type: object
-        properties:
-          genesis_hash:
-            type: string
-            example: 'abc...cba'
-          domain_id:
-            type: string
-            example: 'abc123'
-          title:
-            type: string
-            example: 'Main_Page'
-          namespace:
-            type: integer
-            example: 0
-          chain_height:
-            type: integer
-            example: 1
-          site_info:
-            $ref: '#/components/schemas/SiteInfo'
+      type: object
+      properties:
+        genesis_hash:
+          type: string
+          example: 'abc...cba'
+        domain_id:
+          type: string
+          example: 'abc123'
+        title:
+          type: string
+          example: 'Main_Page'
+        namespace:
+          type: integer
+          example: 0
+        chain_height:
+          type: integer
+          example: 1
+        site_info:
+          $ref: '#/components/schemas/SiteInfo'
     SiteInfo:
-        type: object
-        properties:
-          site_name:
-            type: string
-            example: 'PKC'
-          base:
-            type: string
-            example: 'https://url/index.php/Main_Page'
-          generator:
-            type: string
-            example: 'MediaWiki 1.36.0'
-          version:
-            type: string
-            example: '1'
+      type: object
+      properties:
+        site_name:
+          type: string
+          example: 'PKC'
+        base:
+          type: string
+          example: 'https://url/index.php/Main_Page'
+        generator:
+          type: string
+          example: 'MediaWiki 1.36.0'
+        version:
+          type: string
+          example: '1'
+    RecentChange:
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'Main_Page'
+        revision:
+          type: integer
+          example: 1
+        hash:
+          type: string
+          example: 'abc...cba'
+        touched:
+          type: string
+          example: '20240508072948'
