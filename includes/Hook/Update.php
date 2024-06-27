@@ -43,5 +43,10 @@ class Update implements LoadExtensionSchemaUpdatesHook {
 			'fork_hash',
 			"$base/sql/migrations/0016_add_fork_hash.sql",
 		);
+
+		$updater->addExtensionTable(
+			'revision_verification_archive',
+			"$base/sql/revision_verification_archive.sql"
+		);
 	}
 }
