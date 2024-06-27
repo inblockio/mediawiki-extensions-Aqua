@@ -269,11 +269,7 @@ class RevisionManipulator {
 			[ 'page_id' => $remote->getArticleID() ],
 			__METHOD__
 		);
-		$db->delete(
-			'revision_verification',
-			[ 'page_id' => $remote->getArticleID() ],
-			__METHOD__
-		);
+		$this->verificationEngine->getLookup()->clearEntriesForPage( $remote );
 		wfDebug( 'Merge complete' );
 
 		$db->endAtomic( __METHOD__ );

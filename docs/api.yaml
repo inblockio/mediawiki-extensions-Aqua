@@ -107,6 +107,12 @@ paths:
           required: false
           schema:
             type: string
+        - name: include_deleted
+          in: query
+          description: Whether to include deleted revision, boolean
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: successful operation
@@ -857,6 +863,9 @@ components:
         hash:
           type: string
           example: 'abc...cba'
-        touched:
+        type:
+          type: string
+          example: 'edit'
+        timestamp:
           type: string
           example: '20240508072948'

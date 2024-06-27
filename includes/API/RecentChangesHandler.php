@@ -45,9 +45,10 @@ class RecentChangesHandler extends SimpleHandler {
 	public function run() {
 		$db = $this->loadBalancer->getConnection( DB_REPLICA );
 		$params = $this->getValidatedParams();
-		$limit = $params['count'];
+		$limit = (int)$params['count'];
 		$since = $params['since'] ?? null;
 
+		$time = null;
 		$conds = [];
 		if ( $since ) {
 			$time = DateTime::createFromFormat( 'YmdHis', $since );
@@ -82,9 +83,24 @@ class RecentChangesHandler extends SimpleHandler {
 				'title' => $title->getPrefixedText(),
 				'revision' => (int)$row->page_latest,
 				'hash' => $row->verification_hash,
-				'touched' => $row->page_touched,
+				'type' => 'edit',
+				'timestamp' => $row->page_touched,
 			];
 		}
+
+		if ( !$params['include_deleted'] ) {
+			return $this->getResponseFactory()->createJson( $changes );
+		}
+		$deleted = $this->getDeleted( $time, $limit );
+
+		// Combine
+		$changes = array_merge( $changes, $deleted );
+		// Sort by timestamp desc
+		usort( $changes, static function ( $a, $b ) {
+			return $b['timestamp'] <=> $a['timestamp'];
+		} );
+		// trim to count
+		$changes = array_slice( $changes, 0, $limit );
 
 		return $this->getResponseFactory()->createJson( $changes );
 	}
@@ -103,6 +119,47 @@ class RecentChangesHandler extends SimpleHandler {
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => false,
 			],
+			'include_deleted' => [
+				self::PARAM_SOURCE => 'query',
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_REQUIRED => false,
+				ParamValidator::PARAM_DEFAULT => false,
+			]
 		];
 	}
+
+	/**
+	 * @param DateTime|null $time
+	 * @param int $limit
+	 * @return array
+	 */
+	private function getDeleted( ?DateTime $time, int $limit ): array {
+		$db = $this->loadBalancer->getConnection( DB_REPLICA );
+		$conds = [];
+		if ( $time ) {
+			$conds[] = 'timestamp >= ' . $db->addQuotes( $time->format( 'YmdHis' ) );
+		}
+
+		$res = $db->select(
+			'revision_verification_archive',
+			[ 'rev_id', 'timestamp', 'page_title', 'verification_hash' ],
+			$conds,
+			__METHOD__,
+			[ 'LIMIT' => $limit, 'ORDER BY' => 'timestamp DESC' ]
+		);
+
+		$changes = [];
+		foreach ( $res as $row ) {
+			$changes[] = [
+				'title' => $row->page_title,
+				'revision' => (int)$row->rev_id,
+				'hash' => $row->verification_hash,
+				'type' => 'delete',
+				'timestamp' => $row->timestamp,
+			];
+		}
+
+		return $changes;
+	}
+
 }
