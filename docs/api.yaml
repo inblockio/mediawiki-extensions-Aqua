@@ -89,33 +89,6 @@ paths:
           description: Permission error
         '404':
           description: Invalid ID supplied
-  /data_accounting/recent_changes:
-    get:
-      tags:
-        - general
-      summary: "Get recent changes in PKC"
-      parameters:
-        - name: count
-          in: query
-          description: Number of latest changes to retrive
-          required: false
-          schema:
-            type: integer
-        - name: since
-          in: query
-          description: Timestamp, return changes newer that this, in format YmdHis (20240101090000)
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RecentChange'
   /data_accounting/get_branch/{revision_hash}:
     get:
       tags:
@@ -524,12 +497,24 @@ paths:
                 context:
                   type: object
                   properties:
+                    genesis_hash:
+                      type: string
+                      example: 'abc...cba'
+                    domain_id:
+                      type: string
+                      example: 'abc123'
+                    site_info:
+                      $ref: '#/components/schemas/SiteInfo'
                     namespace:
                       type: integer
                       example: 0
                     title:
                       type: string
                       example: 'Main_Page'
+                direct:
+                  type: boolean
+                  example: true
+                  description: Whether to import the revision directly or put it to inbox (default false)
                 revision:
                   $ref: '#/components/schemas/ExportImportEntity'
       responses:
@@ -748,6 +733,10 @@ components:
                           verification_hash:
                             type: string
                             example: 'abc...cba'
+                    witness-slot:
+                      type: string
+                      description: JSON represenation of the witness data
+                      example: "{\"witness_event_id\":1,\"domain_id\":2,...}"
                 file:
                   type: object
                   properties:
@@ -845,18 +834,3 @@ components:
         version:
           type: string
           example: '1'
-    RecentChange:
-      type: object
-      properties:
-        title:
-          type: string
-          example: 'Main_Page'
-        revision:
-          type: integer
-          example: 1
-        hash:
-          type: string
-          example: 'abc...cba'
-        touched:
-          type: string
-          example: '20240508072948'
