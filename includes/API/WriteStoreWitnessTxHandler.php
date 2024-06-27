@@ -95,6 +95,20 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 			throw new HttpException( "Could not update witness event", 500 );
 		}
 
+		// Patch witness data into domain snapshot page.
+		$domainSnapshotPage = $this->verificationEngine->getLookup()->verificationEntityFromHash(
+			$witnessEvent->get( 'domain_snapshot_genesis_hash' )
+		);
+		if ( !$domainSnapshotPage ) {
+			throw new HttpException( "No Domain Snapshot page found", 404 );
+		}
+		$this->verificationEngine->getLookup()->updateEntity( $domainSnapshotPage, [
+			'witness_event_id' => $witness_event_id,
+		] );
+
+		// Add receipt to the domain snapshot
+		$this->witnessingEngine->addReceiptToDomainSnapshot( $this->user, $witnessEvent );
+
 		// Witness ID update rules:
 		// - Newer mainnet witness takes precedence over existing testnet witness.
 		// - If witness ID exists, don't write the witness_id. If it doesn't
@@ -139,20 +153,6 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 				}
 			}
 		}
-
-		// Patch witness data into domain snapshot page.
-		$domainSnapshotPage = $this->verificationEngine->getLookup()->verificationEntityFromHash(
-			$witnessEvent->get( 'domain_snapshot_genesis_hash' )
-		);
-		if ( !$domainSnapshotPage ) {
-			throw new HttpException( "No Domain Snapshot page found", 404 );
-		}
-		$this->verificationEngine->getLookup()->updateEntity( $domainSnapshotPage, [
-			'witness_event_id' => $witness_event_id,
-		] );
-
-		// Add receipt to the domain snapshot
-		$this->witnessingEngine->addReceiptToDomainSnapshot( $this->user, $witnessEvent );
 
 		return true;
 	}

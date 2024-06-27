@@ -178,11 +178,13 @@ class WitnessLookup {
 			$res = $this->lb->getConnection( DB_REPLICA )->select(
 				'witness_merkle_tree',
 				[
+					'id',
 					'witness_event_verification_hash',
 					'depth',
 					'left_leaf',
 					'right_leaf',
-					'successor'
+					'successor',
+					'witness_event_id'
 				],
 				$conds,
 			);

@@ -114,12 +114,20 @@ class VerificationEngine {
 			throw new MWException( "Revision not found", 404 );
 		}
 		$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
-		return $this->verificationLookup->updateEntity( $entity, [
+		$updated = $this->verificationLookup->updateEntity( $entity, [
 			'signature' => $signature,
 			'public_key' => $publicKey,
 			'wallet_address' => $walletAddress,
 			'signature_hash' => $signatureHash
 		] ) instanceof VerificationEntity;
+
+		if ( $updated ) {
+			// Reload entity, in order to have all the updated fields
+			$entity = $this->getLookup()->verificationEntityFromRevId( $revision->getId() );
+			$this->buildAndUpdateVerificationData( $entity, $revision );
+		}
+
+		return true;
 	}
 
 	/**
@@ -233,9 +241,9 @@ class VerificationEngine {
 		$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
 
 		$witnessHash = '';
-		if ( $parentEntity && $parentEntity->getWitnessEventId() ) {
+		if ( $entity->getWitnessEventId() ) {
 			$witnessEntity = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
-				'witness_event_id' => $parentEntity->getWitnessEventId()
+				'witness_event_id' => $entity->getWitnessEventId()
 			] );
 			if ( $witnessEntity ) {
 				$witnessHash = $this->getHasher()->getHashSum(
@@ -282,10 +290,10 @@ class VerificationEngine {
 			'metadata_hash' => $metadataHash,
 			'verification_hash' => $verificationHash,
 			'previous_verification_hash' => $previousVerificationHash,
-			'signature' => '',
-			'public_key' => '',
-			'wallet_address' => '',
-			'source' => 'default',
+			'signature' => $signature,
+			'public_key' => $publicKey,
+			'wallet_address' => $entity->getWalletAddress(),
+			'source' => $entity->getSource() ?? 'default',
 			'fork_hash' => $forkHash ?? '',
 			'merge_hash' => $mergeHash ?? ''
 		] );
@@ -321,8 +329,14 @@ class VerificationEngine {
 		if ( !( $witnessEntity instanceof GenericDatabaseEntity ) ) {
 			throw new MWException( "Witness event not found, or type unknown" );
 		}
+		$witnessData = $witnessEntity->jsonSerialize();
+		$witnessData['structured_merkle_proof'] =
+			$this->witnessingEngine->getLookup()->requestMerkleProof(
+				$witnessEventId,
+				$verificationEntity->getHash( VerificationEntity::VERIFICATION_HASH )
+			);
 
-		$content = new WitnessContent( json_encode( $witnessEntity ) );
+		$content = new WitnessContent( json_encode( $witnessData ) );
 		$updater->setContent( WitnessContent::SLOT_ROLE_WITNESS, $content );
 		$revision = $updater->saveRevision(
 			\CommentStoreComment::newUnsavedComment( "Page witnessed" ),
@@ -341,5 +355,10 @@ class VerificationEngine {
 		$this->getLookup()->updateEntity( $verificationEntity, [
 			'witness_event_id' => $witnessEventId,
 		] );
+
+		$verificationEntity = $this->getLookup()->verificationEntityFromRevId( $revision->getId() );
+		if ( $verificationEntity ) {
+			$this->buildAndUpdateVerificationData( $verificationEntity, $revision );
+		}
 	}
 }
