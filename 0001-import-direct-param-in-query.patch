@@ -1,0 +1,85 @@
+From 77e95822e85a6fdc61aa2ee007e9083e8531379c Mon Sep 17 00:00:00 2001
+From: Rob9315 <dev.robk@gmail.com>
+Date: Sat, 29 Jun 2024 15:24:29 +0200
+Subject: [PATCH] import direct param in query
+
+---
+ docs/api.yaml                          | 12 ++++++++----
+ includes/API/ImportRevisionHandler.php | 20 ++++++++++++++------
+ 2 files changed, 22 insertions(+), 10 deletions(-)
+
+diff --git a/docs/api.yaml b/docs/api.yaml
+index fed41f4..dbb3701 100644
+--- a/docs/api.yaml
++++ b/docs/api.yaml
+@@ -515,6 +515,14 @@ paths:
+       tags:
+         - import/export
+       summary: Import revision
++      parameters:
++        - name: direct
++          in: query
++          description: Whether to import the revision directly or put it to inbox (default false)
++          required: false
++          schema:
++            type: boolean
++            example: true
+       requestBody:
+         content:
+           application/json:
+@@ -538,10 +546,6 @@ paths:
+                     title:
+                       type: string
+                       example: 'Main_Page'
+-                direct:
+-                  type: boolean
+-                  example: true
+-                  description: Whether to import the revision directly or put it to inbox (default false)
+                 revision:
+                   $ref: '#/components/schemas/ExportImportEntity'
+       responses:
+diff --git a/includes/API/ImportRevisionHandler.php b/includes/API/ImportRevisionHandler.php
+index 008dafe..ac1e6b6 100644
+--- a/includes/API/ImportRevisionHandler.php
++++ b/includes/API/ImportRevisionHandler.php
+@@ -42,9 +42,10 @@ class ImportRevisionHandler extends SimpleHandler {
+ 			// TODO: Enable once user context becomes available
+ 			// throw new HttpException( 'User must have \"import\" permission', 401 );
+ 		}
+-		$isDirect = $this->getBodyData( 'direct' );
++		$params = $this->getValidatedParams();
++
+ 		$context = $this->transferEntityFactory->newTransferContextForImport(
+-			$this->getBodyData( 'context' ), $isDirect
++			$this->getBodyData( 'context' ), $params['direct']
+ 		);
+ 		if ( !( $context instanceof TransferContext ) ) {
+ 			throw new HttpException( 'Context not valid' );
+@@ -92,13 +93,20 @@ class ImportRevisionHandler extends SimpleHandler {
+ 				],
+ 				'revision' => [
+ 					ParamValidator::PARAM_REQUIRED => false,
+-				],
+-				'direct' => [
+-					ParamValidator::PARAM_REQUIRED => false,
+-					ParamValidator::PARAM_DEFAULT => false,
+ 				]
+ 			] );
+ 		}
+ 		return null;
+ 	}
++
++	/** @inheritDoc */
++	public function getParamSettings() {
++		return [
++			'direct' => [
++				self::PARAM_SOURCE => 'query',
++				ParamValidator::PARAM_TYPE => 'boolean',
++				ParamValidator::PARAM_REQUIRED => false,
++			],
++		];
++	}
+ }
+-- 
+2.45.2
+

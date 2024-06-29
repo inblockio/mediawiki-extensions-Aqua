@@ -515,6 +515,14 @@ paths:
       tags:
         - import/export
       summary: Import revision
+      parameters:
+        - name: direct
+          in: query
+          description: Whether to import the revision directly or put it to inbox (default false)
+          required: false
+          schema:
+            type: boolean
+            example: true
       requestBody:
         content:
           application/json:
@@ -538,10 +546,6 @@ paths:
                     title:
                       type: string
                       example: 'Main_Page'
-                direct:
-                  type: boolean
-                  example: true
-                  description: Whether to import the revision directly or put it to inbox (default false)
                 revision:
                   $ref: '#/components/schemas/ExportImportEntity'
       responses:
