@@ -42,8 +42,10 @@ class ImportRevisionHandler extends SimpleHandler {
 			// TODO: Enable once user context becomes available
 			// throw new HttpException( 'User must have \"import\" permission', 401 );
 		}
+		$params = $this->getValidatedParams();
+
 		$context = $this->transferEntityFactory->newTransferContextForImport(
-			$this->getBodyData( 'context' )
+			$this->getBodyData( 'context' ), $params['direct']
 		);
 		if ( !( $context instanceof TransferContext ) ) {
 			throw new HttpException( 'Context not valid' );
@@ -95,5 +97,16 @@ class ImportRevisionHandler extends SimpleHandler {
 			] );
 		}
 		return null;
+	}
+
+	/** @inheritDoc */
+	public function getParamSettings() {
+		return [
+			'direct' => [
+				self::PARAM_SOURCE => 'query',
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_REQUIRED => false,
+			],
+		];
 	}
 }

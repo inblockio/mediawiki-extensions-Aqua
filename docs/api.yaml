@@ -521,6 +521,14 @@ paths:
       tags:
         - import/export
       summary: Import revision
+      parameters:
+        - name: direct
+          in: query
+          description: Whether to import the revision directly or put it to inbox (default false)
+          required: false
+          schema:
+            type: boolean
+            example: true
       requestBody:
         content:
           application/json:
@@ -530,6 +538,14 @@ paths:
                 context:
                   type: object
                   properties:
+                    genesis_hash:
+                      type: string
+                      example: 'abc...cba'
+                    domain_id:
+                      type: string
+                      example: 'abc123'
+                    site_info:
+                      $ref: '#/components/schemas/SiteInfo'
                     namespace:
                       type: integer
                       example: 0
