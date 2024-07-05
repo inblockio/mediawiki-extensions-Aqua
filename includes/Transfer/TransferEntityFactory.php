@@ -89,8 +89,11 @@ class TransferEntityFactory {
 		if ( $title->getNamespace() !== NS_FILE && !$directImport ) {
 			$data['namespace'] = 6900;
 		}
-		if ( $title->getNamespace() !== 6900 && $title->getNamespace() !== NS_FILE ) {
-			// Avoid double namespace prefix for NS_INBOX and NS_FILE
+		if ( $title->getNamespace() !== 6900
+			&& $title->getNamespace() !== NS_FILE
+			&& $title->getNamespace() !== NS_TEMPLATE
+		) {
+			// Avoid double namespace prefix for NS_INBOX, NS_FILE and NS_TEMPLATE
 			$data['title'] = $title->getPrefixedDBkey();
 		} else {
 			$data['title'] = $title->getDBkey();
