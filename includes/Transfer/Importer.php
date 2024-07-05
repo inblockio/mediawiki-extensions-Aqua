@@ -173,7 +173,6 @@
 		 if ( !$status->isOK() ) {
 			return $status;
 		 }
-		 $this->notifyRecentChange( $revision );
 		 $dbw = $this->repoGroup->getRepo( 'local' )->getPrimaryDB();
 		 $importer = $this;
 		 $verificationUpdate = new \AutoCommitUpdate(
