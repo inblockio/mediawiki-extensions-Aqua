@@ -347,6 +347,13 @@
 			"services": [
 				"PermissionManager", "DataAccountingRevisionManipulator", "TitleFactory", "RevisionLookup"
 			]
+		},
+		{
+			"path": "/data_accounting/recent_changes",
+			"class": "DataAccounting\\API\\RecentChangesHandler",
+			"services": [
+				"PermissionManager", "DBLoadBalancer", "TitleFactory"
+			]
 		}
 	],
 	"ResourceFileModulePaths": {

@@ -126,7 +126,7 @@
 		 }
 
 		 $this->revisionImporter->import( $revision );
-
+		 $this->updatePageTouched( $revision->getTitle() );
 		 $status = $this->newRevisionStatus( $revision );
 		 if ( $status->isOK() ) {
 			 $this->notifyRecentChange( $revision );
@@ -529,4 +529,22 @@
 			 )->parse()
 		 ] );
 	 }
+
+	 /**
+	  * @param Title|null $title
+	  * @return void
+	  */
+	 private function updatePageTouched( ?Title $title ) {
+		 if ( !$title ) {
+			 return;
+		 }
+		 $db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_PRIMARY );
+		 $db->update(
+			 'page',
+			 [ 'page_touched' => $db->timestamp( MWTimestamp::now( TS_MW ) ) ],
+			 [ 'page_id' => $title->getArticleID() ],
+			 __METHOD__
+		 );
+	 }
+
  }

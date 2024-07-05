@@ -270,7 +270,8 @@ class SpecialInbox extends SpecialPage {
 	 * @return bool|Message
 	 */
 	public function onAction( $formData ) {
-		$shouldDiscard = $formData['action'] === 'discard';
+		$postValues = $this->getRequest()->getPostValues();
+		$shouldDiscard = $formData['action'] === 'discard' || $postValues['discard'] === 'Discard';
 		if ( $shouldDiscard ) {
 			return $this->doDiscard();
 		}
