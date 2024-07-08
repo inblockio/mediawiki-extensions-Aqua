@@ -335,6 +335,7 @@ class VerificationEngine {
 				$witnessEventId,
 				$verificationEntity->getHash( VerificationEntity::VERIFICATION_HASH )
 			);
+		$witnessData['timestamp'] = \MWTimestamp::now( TS_MW );
 
 		$content = new WitnessContent( json_encode( $witnessData ) );
 		$updater->setContent( WitnessContent::SLOT_ROLE_WITNESS, $content );

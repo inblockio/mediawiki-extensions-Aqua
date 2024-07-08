@@ -67,7 +67,7 @@ class RegisterRevisionSlots implements MediaWikiServicesHook {
 		$registry->defineRoleWithModel(
 			WitnessContent::SLOT_ROLE_WITNESS,
 			WitnessContent::CONTENT_MODEL_WITNESS,
-			[ 'display' => 'none' ]
+			[ 'display' => 'section' ]
 		);
 	}
 }

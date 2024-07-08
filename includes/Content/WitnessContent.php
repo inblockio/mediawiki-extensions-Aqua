@@ -2,7 +2,10 @@
 
 namespace DataAccounting\Content;
 
-class WitnessContent extends \JsonContent {
+use JsonContent;
+use Message;
+
+class WitnessContent extends JsonContent implements DataAccountingContent {
 	public const CONTENT_MODEL_WITNESS = 'witness';
 	public const SLOT_ROLE_WITNESS = 'witness-slot';
 
@@ -15,5 +18,35 @@ class WitnessContent extends \JsonContent {
 
 	public function isValid() {
 		return $this->getText() === '' || parent::isValid();
+	}
+
+	/**
+	 * There is always only one witness slot.
+	 *
+	 * @inheritDoc
+	 */
+	public function getItemCount(): int {
+		return $this->isValid() ? 1 : 0;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function requiresAction(): bool {
+		return false;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getSlotHeader(): string {
+		return Message::newFromKey( 'da-witness-slot-header' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function shouldShow(): bool {
+		return $this->mText !== '';
 	}
 }

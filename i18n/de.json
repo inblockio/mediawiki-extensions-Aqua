@@ -64,6 +64,8 @@
 	"da-revision-renderer-da-data": "Verifizierungsdaten",
 	"da-file-hash-slot-header": "Hash des Dateiinhalts",
 	"da-signature-slot-header": "Unterschriften",
+	"da-witness-slot-header": "Zeugen",
+	"da-witness-network-label": "Netzwerk",
 	"da-transclusion-hashes-slot-header": "Eingebettete Ressourcen",
 	"da-ui-create-page-title": "Seite erstellen",
 	"da-ui-create-page-create": "Erstellen",
