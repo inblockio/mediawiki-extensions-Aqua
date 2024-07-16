@@ -77,16 +77,16 @@ class TransferEntityFactory {
 
 	/**
 	 * @param array $data
-	 *
+	 * @param bool $directImport
 	 * @return TransferContext|null
 	 */
-	public function newTransferContextForImport( array $data ): ?TransferContext {
+	public function newTransferContextForImport( array $data, bool $directImport = false ): ?TransferContext {
 		$title = $this->titleFactory->makeTitle( $data['namespace'], $data['title'] );
 		/**
 		 * Use NS_INBOX namespace for inbox pages
 		 * If data represents file use NS_FILE namespace
 		 */
-		if ( $title->getNamespace() !== NS_FILE ) {
+		if ( $title->getNamespace() !== NS_FILE && !$directImport ) {
 			$data['namespace'] = 6900;
 		}
 		if ( $title->getNamespace() !== 6900 && $title->getNamespace() !== NS_FILE ) {
