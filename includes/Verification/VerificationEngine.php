@@ -330,14 +330,10 @@ class VerificationEngine {
 			throw new MWException( "Witness event not found, or type unknown" );
 		}
 		$witnessData = $witnessEntity->jsonSerialize();
-		$witnessData['structured_merkle_proof'] =
-			$this->witnessingEngine->getLookup()->requestMerkleProof(
-				$witnessEventId,
-				$verificationEntity->getHash( VerificationEntity::VERIFICATION_HASH )
-			);
-		$witnessData['timestamp'] = \MWTimestamp::now( TS_MW );
-
-		$content = new WitnessContent( json_encode( $witnessData ) );
+		$content = new WitnessContent( json_encode( [
+			'domain_snapshot_title' => $witnessData['domain_snapshot_title'],
+			'timestamp' => \MWTimestamp::now( TS_MW )
+		] ) );
 		$updater->setContent( WitnessContent::SLOT_ROLE_WITNESS, $content );
 		$revision = $updater->saveRevision(
 			\CommentStoreComment::newUnsavedComment( "Page witnessed" ),

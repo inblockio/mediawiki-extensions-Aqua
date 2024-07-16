@@ -223,7 +223,7 @@ class TransferEntityFactory {
 				$witnessOutput['structured_merkle_proof'] =
 					$this->witnessingEngine->getLookup()->requestMerkleProof(
 						$entity->getWitnessEventId(),
-						$entity->getHash( VerificationEntity::VERIFICATION_HASH )
+						$entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH )
 					);
 			}
 		}

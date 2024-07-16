@@ -8,14 +8,20 @@ use DataAccounting\Content\WitnessContent;
 use Html;
 use MediaWiki\Content\Renderer\ContentParseParams;
 use MediaWiki\Content\Transform\PreSaveTransformParams;
+use MediaWiki\MediaWikiServices;
 use ParserOutput;
 use TextContentHandler;
+use Wikimedia\Rdbms\IDatabase;
 
 class WitnessHandler extends TextContentHandler {
 	private const LINK_TO_ETHERSCAN = 'https://sepolia.etherscan.io/tx/';
 
+	/** @var IDatabase */
+	private IDatabase $db;
+
 	public function __construct() {
 		parent::__construct( WitnessContent::CONTENT_MODEL_WITNESS );
+		$this->db = MediaWikiServices::getInstance()->getDBLoadBalancer()->getConnection( DB_REPLICA );
 	}
 
 	/**
@@ -63,6 +69,7 @@ class WitnessHandler extends TextContentHandler {
 	/**
 	 * @param Content $content
 	 * @param PreSaveTransformParams $pstParams
+	 *
 	 * @return Content
 	 */
 	public function preSaveTransform( Content $content, PreSaveTransformParams $pstParams ): Content {
@@ -77,25 +84,43 @@ class WitnessHandler extends TextContentHandler {
 	 * @return void
 	 */
 	protected function fillParserOutput(
-		Content $content, ContentParseParams $cpoParams, ParserOutput &$parserOutput
+		Content $content,
+		ContentParseParams $cpoParams,
+		ParserOutput &$parserOutput
 	) {
 		if ( !$content->isValid() ) {
 			return;
 		}
 		$data = json_decode( $content->getText(), 1 );
+		$domainSnapshotTitle = $data['domain_snapshot_title'];
+		$timestamp = $data['timestamp'];
 
-		$parserOutput->setText( $this->getWitnessContent( $data ) );
+		$parserOutput->setText( $this->getWitnessContent( $domainSnapshotTitle, $timestamp ) );
 	}
 
 	/**
-	 * @param array $data
+	 * @param string $domainSnapshotTitle
+	 * @param string $timestamp
 	 *
 	 * @return string
 	 */
-	private function getWitnessContent( array $data ) {
-		$witnessNetwork = $data['witness_network'];
-		$transactionHash = $data['witness_event_transaction_hash'];
-		$timestamp = $data['timestamp'];
+	private function getWitnessContent( string $domainSnapshotTitle, string $timestamp ) {
+		$row = $this->db->selectRow(
+			'witness_events',
+			[
+				'witness_network',
+				'witness_event_transaction_hash'
+			],
+			[ 'domain_snapshot_title' => $domainSnapshotTitle ],
+			__METHOD__
+		);
+
+		if ( !$row ) {
+			return Html::rawElement( 'div', [], 'Invalid witness' );
+		}
+
+		$witnessNetwork = $row->witness_network;
+		$transactionHash = $row->witness_event_transaction_hash;
 		if ( !$witnessNetwork || !$transactionHash ) {
 			return Html::rawElement( 'div', [], 'Invalid witness' );
 		}
@@ -105,6 +130,15 @@ class WitnessHandler extends TextContentHandler {
 
 		$lineContent = \Message::newFromKey( 'da-witness-network-label' )->text() . ': ' . ucfirst( $witnessNetwork );
 		$lineContent .= Html::rawElement( 'br' );
+
+		$linkToDomainSnapshot = \Title::newFromDBkey( $domainSnapshotTitle )->getFullURL();
+		$lineContent .= Html::rawElement(
+			'a',
+			[ 'href' => $linkToDomainSnapshot ],
+			\Message::newFromKey( 'da-witness-domain-snapshot-label' )->text()
+		);
+		$lineContent .= Html::rawElement( 'br' );
+
 		$linkToEtherscan = self::LINK_TO_ETHERSCAN . $transactionHash;
 		$lineContent .= Html::rawElement( 'a', [ 'href' => $linkToEtherscan ], $transactionHash );
 

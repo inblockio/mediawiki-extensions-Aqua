@@ -63,10 +63,18 @@ class TransferRevisionEntity implements \JsonSerializable {
 	}
 
 	/**
+	 * Filter witness_event_id from witness array
+	 *
 	 * @return array|null
 	 */
 	public function getWitness(): ?array {
-		return $this->witness;
+		if ( $this->witness === null ) {
+			return null;
+		}
+
+		return array_filter( $this->witness, function ( $key ) {
+			return $key !== 'witness_event_id';
+		}, ARRAY_FILTER_USE_KEY );
 	}
 
 	/**
