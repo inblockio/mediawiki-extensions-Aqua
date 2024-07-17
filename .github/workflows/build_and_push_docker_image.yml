@@ -2,6 +2,7 @@ name: "Bild and Push Docker-Image"
 
 on:
   push:
+  workflow_dispatch:
 
 
 env:

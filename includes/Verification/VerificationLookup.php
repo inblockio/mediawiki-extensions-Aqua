@@ -8,6 +8,7 @@ use Exception;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
 use NamespaceInfo;
+use Throwable;
 use Title;
 use Wikimedia\Rdbms\ILoadBalancer;
 
@@ -353,6 +354,12 @@ class VerificationLookup {
 	 * @return bool
 	 */
 	public function clearEntriesForPage( Title $title ): bool {
+		$dbw = $this->lb->getConnection( DB_PRIMARY );
+		$res = $dbw->select( static::TABLE, [ 'rev_id' ], [
+			'page_title' => $this->getCanonicalTitle( $title ) ], __METHOD__ );
+		foreach ( $res as $row ) {
+			$this->archive( $row->rev_id );
+		}
 		return $this->lb->getConnection( DB_PRIMARY )->delete(
 			static::TABLE,
 			[
@@ -368,6 +375,7 @@ class VerificationLookup {
 	 * @return bool
 	 */
 	public function deleteForRevId( int $revId ): bool {
+		$this->archive( $revId );
 		return $this->lb->getConnection( DB_PRIMARY )->delete(
 			static::TABLE,
 			[
@@ -390,5 +398,69 @@ class VerificationLookup {
 			return $title->getPrefixedText();
 		}
 		return "$canonicalNamespace:{$title->getText()}";
+	}
+
+	/**
+	 * @param int|string $revId
+	 * @return void
+	 */
+	public function archive( $revId ) {
+		$dbw = $this->lb->getConnection( DB_PRIMARY );
+		try {
+			$row = $dbw->selectRow(
+				static::TABLE,
+				[
+					'domain_id',
+					'genesis_hash',
+					'page_title',
+					'rev_id',
+					'verification_hash',
+					'witness_event_id',
+				],
+				[ 'rev_id' => $revId ],
+				__METHOD__
+			);
+			if ( !$row ) {
+				return;
+			}
+			$has = $dbw->selectField(
+				'revision_verification_archive',
+				'1',
+				[ 'rev_id' => $revId ],
+				__METHOD__
+			);
+			if ( $has ) {
+				$dbw->update(
+					'revision_verification_archive',
+					[
+						'domain_id' => $row->domain_id,
+						'genesis_hash' => $row->genesis_hash,
+						'page_title' => $row->page_title,
+						'verification_hash' => $row->verification_hash,
+						'witness_event_id' => $row->witness_event_id,
+						'timestamp' => $dbw->timestamp(),
+					],
+					[ 'rev_id' => $revId ],
+					__METHOD__
+				);
+			} else {
+				$dbw->insert(
+					'revision_verification_archive',
+					[
+						'rev_id' => $revId,
+						'domain_id' => $row->domain_id,
+						'genesis_hash' => $row->genesis_hash,
+						'page_title' => $row->page_title,
+						'verification_hash' => $row->verification_hash,
+						'witness_event_id' => $row->witness_event_id,
+						'timestamp' => $dbw->timestamp(),
+					],
+					__METHOD__
+				);
+			}
+
+		} catch ( Throwable $ex ) {
+			wfWarn( "ARCHIVE VERIFICATION RECORD: " . $ex->getMessage() );
+		}
 	}
 }

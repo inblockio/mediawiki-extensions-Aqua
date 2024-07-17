@@ -10,6 +10,7 @@ use MediaWiki\Rest\LocalizedHttpException;
 use MediaWiki\Rest\SimpleHandler;
 use MediaWiki\Rest\Validator\JsonBodyValidator;
 use RequestContext;
+use Throwable;
 use User;
 use Wikimedia\Message\MessageValue;
 use Wikimedia\ParamValidator\ParamValidator;
@@ -68,45 +69,6 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 			throw new HttpException( "No revisions are witnessed by given id", 404 );
 		}
 
-		/*$lb = MediaWikiServices::getInstance()->getDBLoadBalancer();
-		$dbw = $lb->getConnectionRef( DB_PRIMARY );
-		$table = 'witness_events';*/
-
-		// Witness ID update rules:
-		// - Newer mainnet witness takes precedence over existing testnet witness.
-		// - If witness ID exists, don't write the witness_id. If it doesn't
-		//   exist, insert the witness_id. This is because the oldest witness has
-		//   the biggest value. This proves that the revision has existed earlier.
-		foreach ( $witnessPages as $page ) {
-			$verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromHash(
-				$page->get( 'revision_verification_hash' )
-			);
-			if ( $verificationEntity === null ) {
-				continue;
-			}
-			if ( $verificationEntity->getWitnessEventID() === 0 ) {
-				// If this revisin of the page has been aggregated in the
-				// witness_page table, but has never been witnessed before, we
-				// expect it to be 0.
-				$this->verificationEngine->getLookup()->updateEntity( $verificationEntity, [
-					'witness_event_id' => $witness_event_id,
-				] );
-			} else {
-				$pageWitnessEvent = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
-					'witness_event_id' => $verificationEntity->getWitnessEventId(),
-				] );
-				$previousWitnessNetwork = 'corrupted';
-				if ( $pageWitnessEvent ) {
-					$previousWitnessNetwork = $pageWitnessEvent->get( 'witness_network' );
-				}
-				if ( $previousWitnessNetwork !== 'mainnet' && $witnessNetwork === 'mainnet' ) {
-					$this->verificationEngine->getLookup()->updateEntity( $verificationEntity, [
-						'witness_event_id' => $witness_event_id,
-					] );
-				}
-			}
-		}
-
 		$witnessEvent = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
 			'witness_event_id' => $witness_event_id
 		] );
@@ -146,6 +108,51 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 
 		// Add receipt to the domain snapshot
 		$this->witnessingEngine->addReceiptToDomainSnapshot( $this->user, $witnessEvent );
+
+		// Witness ID update rules:
+		// - Newer mainnet witness takes precedence over existing testnet witness.
+		// - If witness ID exists, don't write the witness_id. If it doesn't
+		//   exist, insert the witness_id. This is because the oldest witness has
+		//   the biggest value. This proves that the revision has existed earlier.
+		foreach ( $witnessPages as $page ) {
+			$verificationEntity = $this->verificationEngine->getLookup()->verificationEntityFromHash(
+				$page->get( 'revision_verification_hash' )
+			);
+			if ( $verificationEntity === null ) {
+				continue;
+			}
+			if ( $verificationEntity->getWitnessEventID() === 0 ) {
+				// Revision not witnessed yet, if it is, skip
+				try {
+					$this->verificationEngine->witnessPage( $verificationEntity, $this->user, $witness_event_id );
+				} catch ( Throwable $ex ) {
+					// Mute exceptions
+					wfWarn(
+						"Failed to witness page {$verificationEntity->getTitle()->getPrefixedDBkey()} " .
+						$ex->getMessage()
+					);
+				}
+			} else {
+				$pageWitnessEvent = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
+					'witness_event_id' => $verificationEntity->getWitnessEventId(),
+				] );
+				$previousWitnessNetwork = 'corrupted';
+				if ( $pageWitnessEvent ) {
+					$previousWitnessNetwork = $pageWitnessEvent->get( 'witness_network' );
+				}
+				if ( $previousWitnessNetwork !== 'mainnet' && $witnessNetwork === 'mainnet' ) {
+					try {
+						$this->verificationEngine->witnessPage( $verificationEntity, $this->user, $witness_event_id );
+					} catch ( Throwable $ex ) {
+						// Mute exceptions
+						wfWarn(
+							"Failed to witness page {$verificationEntity->getTitle()->getPrefixedDBkey()} " .
+							$ex->getMessage()
+						);
+					}
+				}
+			}
+		}
 
 		return true;
 	}

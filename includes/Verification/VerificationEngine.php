@@ -4,6 +4,8 @@ namespace DataAccounting\Verification;
 
 use DataAccounting\Config\DataAccountingConfig;
 use DataAccounting\Content\SignatureContent;
+use DataAccounting\Content\WitnessContent;
+use DataAccounting\Verification\Entity\GenericDatabaseEntity;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use Exception;
 use File;
@@ -13,6 +15,7 @@ use MediaWiki\Rest\HttpException;
 use MediaWiki\Storage\PageUpdaterFactory;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
+use MediaWiki\User\UserIdentity;
 use MWException;
 use Title;
 use User;
@@ -97,30 +100,34 @@ class VerificationEngine {
 	public function signRevision(
 		RevisionRecord $revision, User $user, $walletAddress, $signature, $publicKey
 	) {
-		$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
-
-		// TODO: Should it even be possible to sign old revision (not current)?
+		$oldRevEntity = $this->getLookup()->verificationEntityFromRevId( $revision->getId() );
+		if ( !$oldRevEntity ) {
+			// Revision is already signed
+			throw new HttpException( 'No revision entity to sign' );
+		}
+		$revision = $this->storeSignature( $oldRevEntity->getTitle(), $user, $walletAddress );
+		if ( !$revision ) {
+			throw new MWException( "Failed to store signature", 500 );
+		}
 		$entity = $this->getLookup()->verificationEntityFromRevId( $revision->getId() );
 		if ( $entity === null ) {
 			throw new MWException( "Revision not found", 404 );
 		}
-
-		$updateRes = $this->verificationLookup->updateEntity( $entity, [
+		$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
+		$updated = $this->verificationLookup->updateEntity( $entity, [
 			'signature' => $signature,
 			'public_key' => $publicKey,
 			'wallet_address' => $walletAddress,
 			'signature_hash' => $signatureHash
-		] );
+		] ) instanceof VerificationEntity;
 
-		if ( !$updateRes ) {
-			return false;
+		if ( $updated ) {
+			// Reload entity, in order to have all the updated fields
+			$entity = $this->getLookup()->verificationEntityFromRevId( $revision->getId() );
+			$this->buildAndUpdateVerificationData( $entity, $revision );
 		}
 
-		if ( !$this->config->get( 'InjectSignature' ) ) {
-			// skip writing the signatures into the actual page
-			return true;
-		}
-		return $this->storeSignature( $entity, $user, $walletAddress );
+		return true;
 	}
 
 	/**
@@ -163,16 +170,16 @@ class VerificationEngine {
 	}
 
 	/**
-	 * @param VerificationEntity $entity
+	 * @param Title $title
 	 * @param User $user
 	 * @param string $walletAddress
-	 * @return bool
+	 * @return RevisionRecord|null
 	 * @throws MWException
 	 */
-	private function storeSignature( VerificationEntity $entity, User $user, $walletAddress ) {
-		$wikipage = $this->wikiPageFactory->newFromTitle( $entity->getTitle() );
+	private function storeSignature( Title $title, User $user, $walletAddress ): ?RevisionRecord {
+		$wikipage = $this->wikiPageFactory->newFromTitle( $title );
 		$updater = $this->pageUpdaterFactory->newPageUpdater( $wikipage, $user );
-		$lastRevision = $this->revisionStore->getRevisionByTitle( $entity->getTitle() );
+		$lastRevision = $this->revisionStore->getRevisionByTitle( $title );
 		$data = [];
 		if ( $lastRevision->hasSlot( SignatureContent::SLOT_ROLE_SIGNATURE ) ) {
 			$content = $lastRevision->getContent( SignatureContent::SLOT_ROLE_SIGNATURE );
@@ -186,12 +193,10 @@ class VerificationEngine {
 		];
 		$content = new SignatureContent( json_encode( $data ) );
 		$updater->setContent( SignatureContent::SLOT_ROLE_SIGNATURE, $content );
-		$newRevision = $updater->saveRevision(
+		return $updater->saveRevision(
 			\CommentStoreComment::newUnsavedComment( "Page signed by wallet: $walletAddress" ),
 			EDIT_SUPPRESS_RC
 		);
-
-		return $newRevision instanceof \MediaWiki\Revision\RevisionRecord;
 	}
 
 	/**
@@ -231,14 +236,14 @@ class VerificationEngine {
 		$metadataHash = $this->getHasher()->getHashSum( implode( '', $metadataHashParts ) );
 
 		// SIGNATURE DATA HASH CALCULATOR
-		$signature = $parentEntity ? $parentEntity->getSignature() : '';
-		$publicKey = $parentEntity ? $parentEntity->getPublicKey() : '';
+		$signature = $entity->getSignature() ?: '';
+		$publicKey = $entity->getPublicKey() ?: '';
 		$signatureHash = $this->getHasher()->getHashSum( $signature . $publicKey );
 
 		$witnessHash = '';
-		if ( $parentEntity && $parentEntity->getWitnessEventId() ) {
+		if ( $entity->getWitnessEventId() ) {
 			$witnessEntity = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
-				'witness_event_id' => $parentEntity->getWitnessEventId()
+				'witness_event_id' => $entity->getWitnessEventId()
 			] );
 			if ( $witnessEntity ) {
 				$witnessHash = $this->getHasher()->getHashSum(
@@ -285,10 +290,10 @@ class VerificationEngine {
 			'metadata_hash' => $metadataHash,
 			'verification_hash' => $verificationHash,
 			'previous_verification_hash' => $previousVerificationHash,
-			'signature' => '',
-			'public_key' => '',
-			'wallet_address' => '',
-			'source' => 'default',
+			'signature' => $signature,
+			'public_key' => $publicKey,
+			'wallet_address' => $entity->getWalletAddress(),
+			'source' => $entity->getSource() ?? 'default',
 			'fork_hash' => $forkHash ?? '',
 			'merge_hash' => $mergeHash ?? ''
 		] );
@@ -305,5 +310,52 @@ class VerificationEngine {
 			return $this->getLookup()->verificationEntityFromRevId( $parentRevision );
 		}
 		return null;
+	}
+
+	/**
+	 * @param VerificationEntity $verificationEntity
+	 * @param UserIdentity $user
+	 * @param int $witnessEventId
+	 * @return void
+	 */
+	public function witnessPage( VerificationEntity $verificationEntity, UserIdentity $user, int $witnessEventId ) {
+		// Inject witness event ID
+		$wikipage = $this->wikiPageFactory->newFromTitle( $verificationEntity->getTitle() );
+		$updater = $this->pageUpdaterFactory->newPageUpdater( $wikipage, $user );
+
+		$witnessEntity = $this->witnessingEngine->getLookup()->witnessEventFromQuery( [
+			'witness_event_id' => $witnessEventId
+		] );
+		if ( !( $witnessEntity instanceof GenericDatabaseEntity ) ) {
+			throw new MWException( "Witness event not found, or type unknown" );
+		}
+		$witnessData = $witnessEntity->jsonSerialize();
+		$content = new WitnessContent( json_encode( [
+			'domain_snapshot_title' => $witnessData['domain_snapshot_title'],
+			'timestamp' => \MWTimestamp::now( TS_MW )
+		] ) );
+		$updater->setContent( WitnessContent::SLOT_ROLE_WITNESS, $content );
+		$revision = $updater->saveRevision(
+			\CommentStoreComment::newUnsavedComment( "Page witnessed" ),
+			EDIT_SUPPRESS_RC
+		);
+
+		if ( !$revision ) {
+			throw new MWException( "Failed to store witness event" );
+		}
+		$verificationEntity = $this->getLookup()->verificationEntityFromRevId( $revision->getId() );
+		if ( !$verificationEntity ) {
+			throw new MWException( "Could not find verification entity" );
+		}
+
+		// For B/C
+		$this->getLookup()->updateEntity( $verificationEntity, [
+			'witness_event_id' => $witnessEventId,
+		] );
+
+		$verificationEntity = $this->getLookup()->verificationEntityFromRevId( $revision->getId() );
+		if ( $verificationEntity ) {
+			$this->buildAndUpdateVerificationData( $verificationEntity, $revision );
+		}
 	}
 }
