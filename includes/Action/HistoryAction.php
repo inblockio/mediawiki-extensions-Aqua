@@ -45,7 +45,7 @@ class HistoryAction extends GenericHistoryAction {
 
 		$html = Html::openElement( 'div', [ 'id' => 'da-revision-history' ] );
 		$html .= $this->getCompareButton();
-		$revisions = $this->verificationEngine->getLookup()->getAllRevisionIds( $this->getTitle(), true );
+		$revisions = $this->verificationEngine->getLookup()->getAllRevisionIds( $this->getTitle(), false );
 		$firstRevId = $revisions[0] ?? null;
 		$firstEntity = $this->verificationEngine->getLookup()->verificationEntityFromRevId( $firstRevId );
 		$startingFromLocal = $firstEntity && $this->isLocal( $firstEntity );

@@ -70,7 +70,7 @@ class VerificationEngine {
 	 * @return int
 	 */
 	public function getPageChainHeight( $title ): int {
-		return count( $this->getLookup()->getAllRevisionIds( $title ) );
+		return count( $this->getLookup()->getAllRevisionIds( $title, false ) );
 	}
 
 	/**
