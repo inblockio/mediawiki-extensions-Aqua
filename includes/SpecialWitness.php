@@ -1,9 +1,10 @@
 <?php
 /**
  * This Special Page is used to Generate Domain Snapshots for Witness events
- * Input is the list of all verified pages with the latest revision id and verification hashes which are stored in the table page_list which are printed in section 1 of the Domain Snapshot. This is used as input for generating and populating the table witness_merkle_tree.
- * The witness_merkle_tree is printed out on section 2 of the Domain Snapshot.
- * Output is a Domain Snapshot # as well as a redirect link to the SpecialPage:WitnessPublisher
+ * Input is the list of all verified pages with the latest revision id and verification hashes which are stored in the
+ * table page_list which are printed in section 1 of the Domain Snapshot. This is used as input for generating and
+ * populating the table witness_merkle_tree. The witness_merkle_tree is printed out on section 2 of the Domain
+ * Snapshot. Output is a Domain Snapshot # as well as a redirect link to the SpecialPage:WitnessPublisher
  *
  * @file
  */
@@ -30,6 +31,7 @@ use Title;
 use TitleFactory;
 use User;
 use OutputPage;
+use Wikimedia\Rdbms\IResultWrapper;
 use WikiPage;
 use WikitextContent;
 use Wikimedia\Rdbms\LoadBalancer;
@@ -101,6 +103,7 @@ class SpecialWitness extends SpecialPage {
 
 	public function helperGenerateDomainSnapshotTable(
 		OutputPage $out,
+		IResultWrapper $db_revisions,
 		int $witness_event_id,
 		string $output
 	): array {
@@ -116,24 +119,9 @@ class SpecialWitness extends SpecialPage {
 
 		EOD;
 
-		// We include all pages which have a verification_hash and take the
-		// last one of each page-object. Excluding the Domain Snapshot pages
-		// identified by 'Data Accounting:%'.
-		$res = $this->lb->getConnection( DB_REPLICA )->select(
-			'revision_verification',
-			[ 'page_title', 'max(rev_id) as rev_id' ],
-			[
-				"page_title NOT LIKE 'Data_Accounting:%'",
-				"page_title NOT LIKE 'Data Accounting:%'",
-				"page_title NOT LIKE 'MediaWiki:%'",
-			],
-			__METHOD__,
-			[ 'GROUP BY' => 'page_title' ]
-		);
-
 		$tableIndexCount = 1;
 		$verification_hashes = [];
-		foreach ( $res as $row ) {
+		foreach ( $db_revisions as $row ) {
 			$row3 = $this->lb->getConnection( DB_REPLICA )->selectRow(
 				'revision_verification',
 				[ 'verification_hash', 'domain_id' ],
@@ -284,8 +272,10 @@ class SpecialWitness extends SpecialPage {
 		$output = $this->msg( 'da-specialwitness-snapshot-help' )->plain() . '<br><br>';
 
 		$out = $this->getOutput();
+
 		[ $is_valid, $verification_hashes, $output ] = $this->helperGenerateDomainSnapshotTable(
 			$out,
+			$this->fetchVerificationPages(),
 			$witness_event_id,
 			$output
 		);
@@ -431,5 +421,85 @@ class SpecialWitness extends SpecialPage {
 		$updater = $page->newPageUpdater( $user );
 		$updater->setContent( SlotRecord::MAIN, $newContent );
 		$updater->saveRevision( $signatureComment );
+	}
+
+	/**
+	 * We include pages which have a verification_hash and take the
+	 * last one of each page-object.
+	 * Excluding the Domain Snapshot pages
+	 * identified by 'Data Accounting:%'.
+	 *
+	 * Filterable by
+	 * 	- titles
+	 *  - namespaces
+	 *
+	 * @param array $filter
+	 *
+	 * @return IResultWrapper
+	 */
+	private function fetchVerificationPages( $filter = [] ): IResultWrapper {
+		$pageIdRows = $this->fetchPageIds( $filter );
+
+		// Return empty row set if no pages are found
+		if ( $pageIdRows->count() === 0 ) {
+			return $pageIdRows;
+		}
+
+		$pageIds = [];
+		foreach ( $pageIdRows as $row ) {
+			$pageIds[] = $row->page_id;
+		}
+		$conds = 'page_id IN (' . implode( ',', $pageIds ) . ')';
+
+		return $this->lb->getConnection( DB_REPLICA )->select(
+			'revision_verification', [
+			'page_title',
+			'max(rev_id) as rev_id'
+		], $conds, __METHOD__, [ 'GROUP BY' => 'page_title' ]
+		);
+	}
+
+	/**
+	 * Filterable by
+	 * 	- page_titles
+	 *  - namespaces
+	 *
+	 * Exclude MediaWiki and Data Accounting namespaces
+	 *
+	 * @param array $filter
+	 *
+	 * @return IResultWrapper
+	 */
+	private function fetchPageIds( array $filter ): IResultWrapper {
+		$db = $this->lb->getConnection( DB_REPLICA );
+
+		$excludeNamespaces = [
+			NS_MEDIAWIKI,
+			NS_DATAACCOUNTING,
+		];
+
+		$conds = [
+			'page_namespace NOT IN (' . implode( ',', $excludeNamespaces ) . ')'
+		];
+
+		// Add page title filter
+		if ( isset( $filter['titles'] ) ) {
+			// Wrap titles in quotes
+			$titles = array_map( fn ( $title ) => $db->addQuotes( str_replace( $title, "_", " ") ), $filter['titles'] );
+
+			$conds[] = 'page_title IN (' . implode( ',', $titles ) . ')';
+		}
+
+		// Add namespace filter
+		if ( isset( $filter['namespaces'] ) ) {
+			$conds[] = 'page_namespace IN (' . implode( ',', $filter['namespaces'] ) . ')';
+		}
+
+		return $this->lb->getConnection( DB_REPLICA )->select(
+			'page',
+			[ 'page_id' ],
+			$conds,
+			__METHOD__
+		);
 	}
 }
