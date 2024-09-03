@@ -7,15 +7,23 @@ use DataAccounting\Content\SignatureContent;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use Exception;
+use MediaWiki\Extension\SecurePoll\User\Auth;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\Page\DeletePageFactory;
+use MediaWiki\Page\PageIdentity;
 use MediaWiki\Page\WikiPageFactory;
+use MediaWiki\Permissions\Authority;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Status\StatusFormatter;
+use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserIdentity;
 use Message;
 use MWException;
 use Title;
+use User;
 use Wikimedia\Rdbms\IDatabase;
 use Wikimedia\Rdbms\ILoadBalancer;
 use WikitextContent;
@@ -32,19 +40,36 @@ class RevisionManipulator {
 	/** @var WikiPageFactory */
 	private $wikipageFactory;
 
+	/** @var DeletePageFactory */
+	private $deletePageFactory;
+
+	/** @var \TitleFactory */
+	private $titleFactory;
+
+	/** @var UserFactory */
+	private $userFactory;
+
 	/**
 	 * @param ILoadBalancer $lb
 	 * @param RevisionStore $revisionStore
 	 * @param VerificationEngine $verificationEngine
 	 * @param WikiPageFactory $wpf
+	 * @param DeletePageFactory $deletePageFactory
+	 * @param \TitleFactory $titleFactory
+	 * @param UserFactory $userFactory
 	 */
 	public function __construct(
-		ILoadBalancer $lb, RevisionStore $revisionStore, VerificationEngine $verificationEngine, WikiPageFactory $wpf
+		ILoadBalancer $lb, RevisionStore $revisionStore,
+		VerificationEngine $verificationEngine, WikiPageFactory $wpf,
+		DeletePageFactory $deletePageFactory, \TitleFactory $titleFactory, UserFactory $userFactory
 	) {
 		$this->lb = $lb;
 		$this->revisionStore = $revisionStore;
 		$this->verificationEngine = $verificationEngine;
 		$this->wikipageFactory = $wpf;
+		$this->deletePageFactory = $deletePageFactory;
+		$this->titleFactory = $titleFactory;
+		$this->userFactory = $userFactory;
 	}
 
 	/**
@@ -77,6 +102,51 @@ class RevisionManipulator {
 			$this->verificationEngine->getLookup()->verificationEntityFromRevId( $nowLatest->getId() ),
 			$nowLatest
 		);
+	}
+
+	/**
+	 * @param string $hash
+	 * @param Authority $user
+	 * @return void
+	 * @throws Exception
+	 */
+	public function deleteFromHash( string $hash, Authority $user ) {
+		$entity = $this->verificationEngine->getLookup()->verificationEntityFromHash( $hash );
+		if ( !$entity ) {
+			throw new Exception( 'No revision found with the given hash', 404 );
+		}
+		$isFirst = $entity->getHash( VerificationEntity::GENESIS_HASH ) === $hash;
+		if ( $isFirst ) {
+			$this->deletePage( $entity->getRevision()->getPage(), $user );
+			return;
+		}
+		$revision = $entity->getRevision();
+		$revisionsToDelete = [];
+		while ( $revision ) {
+			$revisionsToDelete[] = $revision->getId();
+			$revision = $this->revisionStore->getNextRevision( $revision );
+		}
+		$this->deleteRevisions( $revisionsToDelete );
+	}
+
+	/**
+	 * @param PageIdentity $page
+	 * @param Authority $user
+	 * @return void
+	 * @throws Exception
+	 */
+	private function deletePage( PageIdentity $page, Authority $user ) {
+		$title = $this->titleFactory->castFromPageIdentity( $page );
+		if ( !$title ) {
+			throw new Exception( 'Failed to get title from page identity' );
+		}
+		$deletePage = $this->deletePageFactory->newDeletePage( $title->toPageIdentity(), $user );
+		$status = $deletePage->deleteUnsafe( 'Deleted by Guardian' );
+		if ( !$status->isOK() ) {
+			throw new Exception(
+				'Tried to delete first revision of the page, therefore deleting whole page, which failed', 500
+			);
+		}
 	}
 
 	/**
