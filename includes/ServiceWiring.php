@@ -87,7 +87,10 @@ return [
 			$services->getDBLoadBalancer(),
 			$services->getRevisionStore(),
 			$services->getService( 'DataAccountingVerificationEngine' ),
-			$services->getWikiPageFactory()
+			$services->getWikiPageFactory(),
+			$services->getDeletePageFactory(),
+			$services->getTitleFactory(),
+			$services->getUserFactory()
 		);
 	}
 ];
