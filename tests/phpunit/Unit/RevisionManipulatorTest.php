@@ -6,10 +6,12 @@ use DataAccounting\RevisionManipulator;
 use DataAccounting\Verification\Entity\VerificationEntity;
 use DataAccounting\Verification\VerificationEngine;
 use DataAccounting\Verification\VerificationLookup;
+use MediaWiki\Page\DeletePageFactory;
 use MediaWiki\Page\PageIdentity;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
+use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserIdentity;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +38,10 @@ class RevisionManipulatorTest extends TestCase {
 			),
 			$this->getRevisionStoreMock(),
 			$this->getVerificationEngineMock(),
-			$this->createMock( WikiPageFactory::class )
+			$this->createMock( WikiPageFactory::class ),
+			$this->createMock( DeletePageFactory::class ),
+			$this->createMock( \TitleFactory::class ),
+			$this->createMock( UserFactory::class )
 		);
 		$revisionIds = [ 2, 3, 4 ];
 		$manipulator->deleteRevisions( $revisionIds );
@@ -57,7 +62,10 @@ class RevisionManipulatorTest extends TestCase {
 			),
 			$revisionStoreMock,
 			$this->getVerificationEngineMock(),
-			$this->createMock( WikiPageFactory::class )
+			$this->createMock( WikiPageFactory::class ),
+			$this->createMock( DeletePageFactory::class ),
+			$this->createMock( \TitleFactory::class ),
+			$this->createMock( UserFactory::class )
 		);
 		$revisionIds = [ 2, 3, 4 ];
 		$manipulator->squashRevisions( $revisionIds );
