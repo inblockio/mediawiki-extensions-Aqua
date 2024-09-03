@@ -88,7 +88,10 @@ class SpecialWitness extends SpecialPage {
 		}
 
 		$htmlForm = new HTMLForm( [], $this->getContext(), 'daDomainSnapshot' );
+		$htmlForm->setId( 'daDomainSnapshot' );
 		$htmlForm->suppressDefaultSubmit( true );
+		$htmlForm->addHiddenField( 'filterType', 'all' );
+		$htmlForm->addHiddenField( 'filterValue', '' );
 		$htmlForm->addButton( [
 			'type' => 'submit',
 			'name' => 'submit',
@@ -98,6 +101,8 @@ class SpecialWitness extends SpecialPage {
 			],
 		] );
 		$htmlForm->setSubmitCallback( [ $this, 'generateDomainSnapshot' ] );
+		$this->getOutput()->addModules( [ 'ext.DataAccounting.snapshotGeneratorFilter' ] );
+		$this->getOutput()->addHTML( \Html::element( 'div', [ 'id' => 'daDomainSnapshotFilters' ] ) );
 		$htmlForm->show();
 	}
 
@@ -264,6 +269,8 @@ class SpecialWitness extends SpecialPage {
 	 *       params) or strings (message keys)
 	 */
 	public function generateDomainSnapshot( array $formData ) {
+		$postVars = $this->getRequest()->getPostValues();
+		$filter = $this->getFilterData( $postVars );
 		$old_max_witness_event_id = $this->witnessingEngine->getLookup()->getLastWitnessEventId();
 		// Set to 0 if null.
 		$old_max_witness_event_id = $old_max_witness_event_id === null ? 0 : $old_max_witness_event_id;
@@ -275,7 +282,7 @@ class SpecialWitness extends SpecialPage {
 
 		[ $is_valid, $verification_hashes, $output ] = $this->helperGenerateDomainSnapshotTable(
 			$out,
-			$this->fetchVerificationPages(),
+			$this->fetchVerificationPages( $filter ),
 			$witness_event_id,
 			$output
 		);
@@ -438,12 +445,7 @@ class SpecialWitness extends SpecialPage {
 	 * @return IResultWrapper
 	 */
 	private function fetchVerificationPages( $filter = [] ): IResultWrapper {
-		$pageIdRows = $this->fetchPageIds( $filter );
-
-		// Return empty row set if no pages are found
-		if ( $pageIdRows->count() === 0 ) {
-			return $pageIdRows;
-		}
+		if
 
 		$pageIds = [];
 		foreach ( $pageIdRows as $row ) {
@@ -502,4 +504,30 @@ class SpecialWitness extends SpecialPage {
 			__METHOD__
 		);
 	}
+
+	/**
+	 * @param array $postVars
+	 * @return array
+	 */
+	private function getFilterData( array $postVars ): array {
+		$type = $postVars['filterType'] ?? 'all';
+		$value = $postVars['filterValue'] ?? '';
+		if ( $type === 'all' ) {
+			return [];
+		}
+		$value = explode( '|', $value );
+		if ( $type === 'pages' ) {
+			$value = array_map( function ( $v ) {
+				$title = $this->titleFactory->newFromText( $v );
+				if ( $title && $title->exists() ) {
+					return $title->getId();
+				}
+				return null;
+			}, $value );
+			$value = array_unique( array_filter( $value ) );
+		}
+
+		return [ $type => $value ];
+	}
+
 }

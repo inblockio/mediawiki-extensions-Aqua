@@ -497,6 +497,24 @@
 			"dependencies": [
 				"ext.DataAccounting.revisionTree"
 			]
+		},
+		"ext.DataAccounting.snapshotGeneratorFilter": {
+			"scripts": [
+				"ui/SnapshotGeneratorFilterPanel.js",
+				"ext.DataAccounting.snapshotGeneratorFilter.js"
+			],
+			"styles": [
+			],
+			"dependencies": [
+				"oojs-ui",
+				"mediawiki.widgets",
+				"mediawiki.widgets.TitlesMultiselectWidget",
+				"mediawiki.widgets.NamespacesMultiselectWidget"
+			],
+			"messages": [
+				"da-snapshotgenerator-filter-namespace-placeholder",
+				"da-snapshotgenerator-filter-page-placeholder"
+			]
 		}
 	},
 	"SessionProviders": {

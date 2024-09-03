@@ -139,5 +139,7 @@
 	"da-conflict-resolution-ours": "use ours",
 	"da-conflict-resolution-theirs": "use theirs",
 	"da-conflict-resolution-both": "use both",
-	"da-conflict-resolution-neither": "use neither"
+	"da-conflict-resolution-neither": "use neither",
+	"da-snapshotgenerator-filter-namespace-placeholder": "Select namespace(s) from list of type to search",
+	"da-snapshotgenerator-filter-page-placeholder": "Type page title to search"
 }
