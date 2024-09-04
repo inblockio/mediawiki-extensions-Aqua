@@ -233,11 +233,12 @@ class SpecialInbox extends SpecialPage {
 	/**
 	 * @param VerificationEntity $remote
 	 * @param string|null $changeType
+	 * @param bool $hasTitleCollision
 	 *
 	 * @return void
 	 */
-	private function outputForm( VerificationEntity $remote, ?string $changeType = 'new', bool $disableSubmit = false ) {
-		$somethingToImport = $changeType !== 'local' && $changeType !== 'none';
+	private function outputForm( VerificationEntity $remote, ?string $changeType = 'new', bool $hasTitleCollision = false ) {
+		$somethingToImport = $changeType !== 'local' && $changeType !== 'none'  && !$hasTitleCollision;
 		$form = HTMLForm::factory(
 			'ooui',
 			[
@@ -264,7 +265,7 @@ class SpecialInbox extends SpecialPage {
 		);
 		$form->setId( 'da-specialinbox-merge-form' );
 		$form->setMethod( 'POST' );
-		if ( !$somethingToImport || $disableSubmit ) {
+		if ( !$somethingToImport ) {
 			$form->setSubmitTextMsg( $this->msg( 'da-specialinbox-merge-discard' ) );
 			$form->setSubmitName( 'discard' );
 			$form->setSubmitDestructive();
@@ -317,7 +318,10 @@ class SpecialInbox extends SpecialPage {
 	 */
 	public function onAction( $formData ) {
 		$postValues = $this->getRequest()->getPostValues();
-		$shouldDiscard = $formData['action'] === 'discard' || $postValues['discard'] === 'Discard';
+		$shouldDiscard = $formData['action'] === 'discard'
+			|| $postValues['discard'] === 'Discard'
+			|| $postValues['discard'] === $this->msg( 'da-specialinbox-merge-discard' )->plain();
+
 		if ( $shouldDiscard ) {
 			return $this->doDiscard();
 		}
