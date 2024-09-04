@@ -233,6 +233,7 @@
 
 		 $revId = $revisionEntity->getContent()['rev_id'] ?? 0;
 		 if ( $revId ) {
+
 			 $revision->setID( $revId );
 		 }
 

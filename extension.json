@@ -320,7 +320,8 @@
 			"services": [
 				"PermissionManager",
 				"DataAccountingTransferEntityFactory",
-				"DataAccountingImporter"
+				"DataAccountingImporter",
+				"DataAccountingVerificationEngine"
 			]
 		},
 		{

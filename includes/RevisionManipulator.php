@@ -22,6 +22,7 @@ use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserIdentity;
 use Message;
 use MWException;
+use Throwable;
 use Title;
 use User;
 use Wikimedia\Rdbms\IDatabase;
@@ -255,17 +256,7 @@ class RevisionManipulator {
 		);
 	}
 
-	/**
-	 * @param Title $local
-	 * @param Title $remote
-	 * @param UserIdentity $user
-	 * @param string|null $mergedText
-	 * @return void
-	 * @throws MWException
-	 */
-	public function mergePages(
-		Title $local, Title $remote, UserIdentity $user, ?string $mergedText
-	) {
+	private function getEntities( Title $local, Title $remote ) {
 		define( 'DA_MERGE', 1 );
 		wfDebug( "Starting page merge: {$remote->getPrefixedText()} => {$local->getPrefixedText()}", 'da' );
 		$localEntities = $this->getVerificationEntitiesForMerge( $local );
@@ -275,19 +266,12 @@ class RevisionManipulator {
 			throw new Exception( 'No common parent found' );
 		}
 		$this->assertSameGenesis( $localEntities, $remoteEntities );
-		// Last entry in the local entities is the last revision
-		// that was not forked, and is the parent of the first forked revision
-		$lastLocal = end( $localEntities );
-		$lastRemote = end( $remoteEntities );
-		$text = $mergedText ?? $lastRemote->getRevision()->getContent( SlotRecord::MAIN )->getText();
-		$this->assertMergedContentDifferent( $lastLocal, $text );
+		return [ $localEntities, $remoteEntities, $commonParent ];
+	}
 
-		wfDebug( "Last local revision is: " . $lastLocal->getRevision()->getId(), 'da' );
-		$wp = $this->wikipageFactory->newFromTitle( $local );
-		$lastInserted = null;
+	private function moveRevisions( array $remoteEntities, $commonParent, Title $local ): ?VerificationEntity {
 		$db = $this->lb->getConnection( DB_PRIMARY );
-
-		$db->startAtomic( __METHOD__ );
+		$lastInserted = null;
 		foreach ( $remoteEntities as $hash => $remoteEntity ) {
 			if ( isset( $localEntities[$hash] ) ) {
 				// Exists locally
@@ -300,10 +284,73 @@ class RevisionManipulator {
 			wfDebug( "Moving revision " . $remoteEntity->getRevision()->getId() . ',isFork: ' . $isFork, 'da' );
 			$lastInserted = $remoteEntity;
 		}
+		$db->update(
+			'page',
+			[ 'page_latest' => $lastInserted->getRevision()->getId() ],
+			[ 'page_id' => $local->getArticleID() ],
+			__METHOD__
+		);
+		return $lastInserted;
+	}
+
+	public function moveChain( Title $local, Title $remote ) {
+		[ $localEntities, $remoteEntities, $commonParent ] = $this->getEntities( $local, $remote );
+		$this->moveRevisions( $remoteEntities, $commonParent, $local );
+		$db = $this->lb->getConnection( DB_PRIMARY )->delete(
+			'page',
+			[ 'page_id' => $remote->getArticleID() ],
+			__METHOD__
+		);
+		$this->verificationEngine->getLookup()->clearEntriesForPage( $remote );
+	}
+
+	/**
+	 * @param Title $local
+	 * @param Title $remote
+	 * @param UserIdentity $user
+	 * @param string|null $mergedText
+	 * @return void
+	 * @throws MWException
+	 */
+	public function mergePages(
+		Title $local, Title $remote, UserIdentity $user, ?string $mergedText
+	) {
+		$db = $this->lb->getConnection( DB_PRIMARY );
+		[ $localEntities, $remoteEntities, $commonParent ] = $this->getEntities( $local, $remote );
+		// Last entry in the local entities is the last revision
+		// that was not forked, and is the parent of the first forked revision
+		$lastLocal = end( $localEntities );
+		$lastRemote = end( $remoteEntities );
+		$text = $mergedText ?? $lastRemote->getRevision()->getContent( SlotRecord::MAIN )->getText();
+		$slotsToCopy = [];
+		$roles = $lastRemote->getRevision()->getSlotRoles();
+		foreach ( $roles as $role ) {
+			if ( $role === SlotRecord::MAIN ) {
+				// Main role is already set by setting text
+				continue;
+			}
+			$slotsToCopy[$role] = $lastRemote->getRevision()->getContent( $role );
+		}
+		$this->assertMergedContentDifferent( $lastLocal, $text, $slotsToCopy );
+
+		wfDebug( "Last local revision is: " . $lastLocal->getRevision()->getId(), 'da' );
+		$wp = $this->wikipageFactory->newFromTitle( $local );
+
+		$db->startAtomic( __METHOD__ );
+		try {
+			$lastInserted = $this->moveRevisions( $remoteEntities, $commonParent, $local );
+		} catch ( Throwable $ex ) {
+			$db->cancelAtomic( __METHOD__ );
+			throw $ex;
+		}
+
 		// Insert merged revision
 		$updater = $wp->newPageUpdater( $user );
 		wfDebug( "Creating new revision with text: " . $text, 'da' );
 		$updater->setContent( SlotRecord::MAIN, new WikitextContent( $text ) );
+		foreach ( $slotsToCopy as $copyRole => $copyContent ) {
+			$updater->setContent( $copyRole, $copyContent );
+		}
 		foreach ( $lastInserted->getRevision()->getSlotRoles() as $role ) {
 			if ( $role === SlotRecord::MAIN ) {
 				// Main role is already set by setting text
@@ -393,7 +440,6 @@ class RevisionManipulator {
 		}
 		$res = $db->update( 'revision', $revData, [ 'rev_id' => $entity->getRevision()->getId() ] );
 		if ( !$res ) {
-			$db->cancelAtomic( $mtd );
 			throw new Exception( 'Failed to move revision' );
 		}
 		// Move verification entity
@@ -410,7 +456,6 @@ class RevisionManipulator {
 		}
 		wfDebug( "Setting verification data on moved revision: " . json_encode( $data ), 'da' );
 		if ( !$db->update( 'revision_verification', $data, [ 'rev_id' => $entity->getRevision()->getId() ] ) ) {
-			$db->cancelAtomic( $mtd );
 			throw new Exception( 'Failed to move verification entity' );
 		}
 	}
@@ -518,8 +563,8 @@ class RevisionManipulator {
 	 * @return void
 	 * @throws Exception
 	 */
-	private function assertMergedContentDifferent( VerificationEntity $lastLocal, string $text ) {
-		if ( $text === $lastLocal->getRevision()->getContent( SlotRecord::MAIN )->getText() ) {
+	private function assertMergedContentDifferent( VerificationEntity $lastLocal, string $text, array $slots ) {
+		if ( $text === $lastLocal->getRevision()->getContent( SlotRecord::MAIN )->getText() && empty( $slots ) ) {
 			throw new Exception( 'Merged content is the same as the last local revision. Nothing to merge' );
 		}
 	}

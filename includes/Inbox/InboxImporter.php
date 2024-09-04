@@ -112,6 +112,6 @@ class InboxImporter {
 	 */
 	public function mergePagesForceRemote( Title $local, Title $remoteTitle, User $user ) {
 		// Merge remote into local, but force the latest text of remote as new content
-		$this->mergePages( $local, $remoteTitle, $user, null );
+		$this->revisionManipulator->moveChain( $local, $remoteTitle );
 	}
 }
