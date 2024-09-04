@@ -89,7 +89,11 @@ class SpecialInbox extends SpecialPage {
 		$this->local = $this->getTargetEntity( $this->remote );
 
 		if ( !$this->local ) {
-			$this->outputDirectMerge( $this->remote );
+			// Abort if title collision with existing page, if genesis hashes are different
+			$title = $this->titleFactory->newFromDBkey( $pageName );
+			$hasTitleCollision = $title->exists();
+
+			$this->outputDirectMerge( $this->remote, $hasTitleCollision );
 			return;
 		}
 		$this->outputCompare( $this->remote, $this->local );
@@ -112,13 +116,18 @@ class SpecialInbox extends SpecialPage {
 
 	/**
 	 * @param VerificationEntity $draftEntity
+	 * @param bool $disableSubmit
+	 *
 	 * @return void
 	 */
-	private function outputDirectMerge( VerificationEntity $draftEntity ) {
-		$this->getOutput()->addWikiMsg(
-			'da-specialinbox-direct-merge', $draftEntity->getTitle()->getText()
-		);
-		$this->outputForm( $draftEntity );
+	private function outputDirectMerge( VerificationEntity $draftEntity, bool $hasTitleCollision = false ) {
+		$msgKey = 'da-specialinbox-direct-merge';
+		if ( $hasTitleCollision ) {
+			$msgKey = 'da-specialinbox-direct-merge-title-collision';
+		}
+
+		$this->getOutput()->addWikiMsg( $msgKey, $draftEntity->getTitle()->getText() );
+		$this->outputForm( $draftEntity, 'new', $hasTitleCollision );
 	}
 
 	/**
@@ -224,11 +233,12 @@ class SpecialInbox extends SpecialPage {
 	/**
 	 * @param VerificationEntity $remote
 	 * @param string|null $changeType
+	 * @param bool $hasTitleCollision
 	 *
 	 * @return void
 	 */
-	private function outputForm( VerificationEntity $remote, ?string $changeType = 'new' ) {
-		$somethingToImport = $changeType !== 'local' && $changeType !== 'none';
+	private function outputForm( VerificationEntity $remote, ?string $changeType = 'new', bool $hasTitleCollision = false ) {
+		$somethingToImport = $changeType !== 'local' && $changeType !== 'none'  && !$hasTitleCollision;
 		$form = HTMLForm::factory(
 			'ooui',
 			[
@@ -308,7 +318,10 @@ class SpecialInbox extends SpecialPage {
 	 */
 	public function onAction( $formData ) {
 		$postValues = $this->getRequest()->getPostValues();
-		$shouldDiscard = $formData['action'] === 'discard' || $postValues['discard'] === 'Discard';
+		$shouldDiscard = $formData['action'] === 'discard'
+			|| $postValues['discard'] === 'Discard'
+			|| $postValues['discard'] === $this->msg( 'da-specialinbox-merge-discard' )->plain();
+
 		if ( $shouldDiscard ) {
 			return $this->doDiscard();
 		}
