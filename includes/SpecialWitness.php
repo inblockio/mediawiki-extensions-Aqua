@@ -447,13 +447,13 @@ class SpecialWitness extends SpecialPage {
 	private function fetchVerificationPages( $filter = [] ): IResultWrapper {
 		$db = $this->lb->getConnection( DB_REPLICA );
 		$conds = [
-			'page_namespace NOT IN (' . $db->makeList( [ NS_DATA_ACCOUNTING, NS_MEDIAWIKI ] ) . ')',
+			'page_namespace NOT IN (' . $db->makeList( [ NS_DATAACCOUNTING, NS_MEDIAWIKI ] ) . ')',
 		];
 		foreach( $filter as $key => $value ) {
 			if ( empty( $value ) ) {
 				continue;
 			}
-			$conds[] = $key . ' IN (' . $db->makeList( $value ) . ')';
+			$conds[] = 'p.' . $key . ' IN (' . $db->makeList( $value ) . ')';
 		}
 
 		return $db->select(

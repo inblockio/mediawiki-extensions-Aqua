@@ -507,6 +507,7 @@
 		},
 		"ext.DataAccounting.snapshotGeneratorFilter": {
 			"scripts": [
+				"ui/NamespacesMultiselectWidget.js",
 				"ui/SnapshotGeneratorFilterPanel.js",
 				"ext.DataAccounting.snapshotGeneratorFilter.js"
 			],

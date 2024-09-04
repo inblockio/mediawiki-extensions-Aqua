@@ -77,7 +77,7 @@ da.ui.SnapshotGeneratorFilterPanel.prototype.addPageSelector = function() {
 };
 
 da.ui.SnapshotGeneratorFilterPanel.prototype.addNamespaceSelector = function() {
-	this.selector = new mw.widgets.NamespacesMultiselectWidget( {
+	this.selector = new da.ui.NamespacesMultiselectWidget( {
 		placeholder: mw.msg( 'da-snapshotgenerator-filter-namespace-placeholder' )
 	} );
 };
