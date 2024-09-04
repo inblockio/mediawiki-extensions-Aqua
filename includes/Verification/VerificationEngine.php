@@ -281,7 +281,7 @@ class VerificationEngine {
 		// ];
 
 		return $this->getLookup()->updateEntity( $entity, [
-			'domain_id' => $this->getDomainId(),
+			'domain_id' => $entityDomain,
 			'genesis_hash' => $genesisHash,
 			'rev_id' => $rev->getId(),
 			// 'verification_context' => json_encode( $verificationContext ),
