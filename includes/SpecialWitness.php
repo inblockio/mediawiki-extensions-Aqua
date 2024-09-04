@@ -445,63 +445,24 @@ class SpecialWitness extends SpecialPage {
 	 * @return IResultWrapper
 	 */
 	private function fetchVerificationPages( $filter = [] ): IResultWrapper {
-		if
-
-		$pageIds = [];
-		foreach ( $pageIdRows as $row ) {
-			$pageIds[] = $row->page_id;
-		}
-		$conds = 'page_id IN (' . implode( ',', $pageIds ) . ')';
-
-		return $this->lb->getConnection( DB_REPLICA )->select(
-			'revision_verification', [
-			'page_title',
-			'max(rev_id) as rev_id'
-		], $conds, __METHOD__, [ 'GROUP BY' => 'page_title' ]
-		);
-	}
-
-	/**
-	 * Filterable by
-	 * 	- page_titles
-	 *  - namespaces
-	 *
-	 * Exclude MediaWiki and Data Accounting namespaces
-	 *
-	 * @param array $filter
-	 *
-	 * @return IResultWrapper
-	 */
-	private function fetchPageIds( array $filter ): IResultWrapper {
 		$db = $this->lb->getConnection( DB_REPLICA );
-
-		$excludeNamespaces = [
-			NS_MEDIAWIKI,
-			NS_DATAACCOUNTING,
-		];
-
-		$conds = [
-			'page_namespace NOT IN (' . implode( ',', $excludeNamespaces ) . ')'
-		];
-
-		// Add page title filter
-		if ( isset( $filter['titles'] ) ) {
-			// Wrap titles in quotes
-			$titles = array_map( fn ( $title ) => $db->addQuotes( str_replace( $title, "_", " ") ), $filter['titles'] );
-
-			$conds[] = 'page_title IN (' . implode( ',', $titles ) . ')';
+		$conds = [];
+		foreach( $filter as $key => $value ) {
+			if ( empty( $value ) ) {
+				continue;
+			}
+			$conds[] = $key . ' IN (' . $db->makeList( $value ) . ')';
 		}
 
-		// Add namespace filter
-		if ( isset( $filter['namespaces'] ) ) {
-			$conds[] = 'page_namespace IN (' . implode( ',', $filter['namespaces'] ) . ')';
-		}
-
-		return $this->lb->getConnection( DB_REPLICA )->select(
-			'page',
-			[ 'page_id' ],
-			$conds,
-			__METHOD__
+		return $db->select(
+			[ 'rv' => 'revision_verification', 'p' => 'page' ],
+			[
+				'rv.page_title',
+				'max(rv.rev_id) as rev_id'
+			], $conds,
+			__METHOD__,
+			[ 'GROUP BY' => 'page_title' ],
+			[ 'p' => [ 'JOIN', [ 'p.page_id = rv.page_id' ] ] ]
 		);
 	}
 
@@ -516,7 +477,7 @@ class SpecialWitness extends SpecialPage {
 			return [];
 		}
 		$value = explode( '|', $value );
-		if ( $type === 'pages' ) {
+		if ( $type === 'page_id' ) {
 			$value = array_map( function ( $v ) {
 				$title = $this->titleFactory->newFromText( $v );
 				if ( $title && $title->exists() ) {

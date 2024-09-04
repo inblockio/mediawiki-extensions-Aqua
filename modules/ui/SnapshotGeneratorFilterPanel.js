@@ -28,11 +28,11 @@ da.ui.SnapshotGeneratorFilterPanel.prototype.addTypeSelector = function() {
 				label: 'All pages'
 			} ),
 			new OO.ui.ButtonOptionWidget( {
-				data: 'namespace',
+				data: 'page_namespace',
 				label: 'Namespace'
 			} ),
 			new OO.ui.ButtonOptionWidget( {
-				data: 'pages',
+				data: 'page_id',
 				label: 'Individual pages'
 			} )
 		]
@@ -54,10 +54,10 @@ da.ui.SnapshotGeneratorFilterPanel.prototype.selectType = function( type ) {
 	this.selectedType = type;
 	this.selector = null;
 
-	if ( type === 'pages' ) {
+	if ( type === 'page_id' ) {
 		this.addPageSelector();
 	}
-	if ( type === 'namespace' ) {
+	if ( type === 'page_namespace' ) {
 		this.addNamespaceSelector();
 	}
 	if ( this.selector ) {
