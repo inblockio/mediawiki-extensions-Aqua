@@ -41,11 +41,11 @@ class TreeBuilder {
 		$remoteEntities = $this->verificationEngine->getLookup()->allVerificationEntitiesFromQuery( [
 			'page_id' => $remote->getArticleID()
 		] );
-		$remoteEntities = $this->verifyAndReduce( $remoteEntities );
 		$localEntities = $this->verificationEngine->getLookup()->allVerificationEntitiesFromQuery( [
 			'page_id' => $local->getArticleID()
 		] );
 		$localEntities = $this->verifyAndReduce( $localEntities );
+		$remoteEntities = $this->verifyAndReduce( $remoteEntities, $localEntities );
 
 		$combined = $this->combine( $remoteEntities, $localEntities, $language, $user );
 		$combined['remote'] = $remote;
@@ -129,16 +129,27 @@ class TreeBuilder {
 	 * @return array [hash => revisionId]
 	 * @throws Exception
 	 */
-	private function verifyAndReduce( array $entities ): array {
+	private function verifyAndReduce( array $entities, array $fallback = [] ): array {
 		$verified = [];
 		$lastHash = '';
+		$wasForked = false;
 		usort( $entities, function( VerificationEntity $a, VerificationEntity $b ) {
 			return $a->getRevision()->getId() <=> $b->getRevision()->getId();
 		} );
 		foreach ( $entities as $entity ) {
-			if ( $lastHash !== $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ) ) {
-				throw new Exception( 'Entities are not in order' );
+			$previousHash = $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH );
+			$missingInBranch = $previousHash && $lastHash !== $previousHash;
+
+			if (
+				$missingInBranch
+				&& !isset( $fallback[$previousHash] )
+				&& !$wasForked
+				&& !$entity->getHash( VerificationEntity::FORK_HASH )
+			) {
+				// Previous revision is missing and does not exist locally
+				throw new Exception( 'Revision detached' );
 			}
+			$wasForked = $entity->getHash( VerificationEntity::FORK_HASH ) !== '';
 			$lastHash = $entity->getHash();
 			$verified[$lastHash] = [
 				'page_id' => $entity->getTitle()->getArticleID(),
@@ -146,6 +157,27 @@ class TreeBuilder {
 				'parent' => $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH ),
 				'domain' => $entity->getDomainId(),
 			];
+			if ( $missingInBranch && $fallback ) {
+				return $this->fillFromFallback( $entity, $fallback, $verified );
+			}
+		}
+
+		return $verified;
+	}
+
+	private function fillFromFallback( VerificationEntity $entity, array $fallback, array $verified ): array {
+		$pvh = $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH );
+		$reverseKeys = array_reverse( array_keys( $fallback ) );
+		$found = false;
+		foreach ( $reverseKeys as $hash ) {
+			if ( $hash === $pvh ) {
+				$found = true;
+			}
+			if ( $found ) {
+				$verified[$hash] = $fallback[$hash];
+				$verified[$hash]['page_id'] = $entity->getTitle()->getArticleID();
+				$verified[$hash]['domain'] = $entity->getDomainId();
+			}
 		}
 
 		return $verified;
