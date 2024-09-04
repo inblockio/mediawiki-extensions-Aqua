@@ -449,7 +449,7 @@ class SpecialWitness extends SpecialPage {
 		$conds = [
 			'page_namespace NOT IN (' . $db->makeList( [ NS_DATAACCOUNTING, NS_MEDIAWIKI ] ) . ')',
 		];
-		foreach( $filter as $key => $value ) {
+		foreach ( $filter as $key => $value ) {
 			if ( empty( $value ) ) {
 				continue;
 			}
