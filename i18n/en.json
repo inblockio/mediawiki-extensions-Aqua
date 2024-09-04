@@ -113,6 +113,7 @@
 	"da-specialinbox-label-own-domain": "own domain",
 	"da-specialinbox-not-found": "Page not found in inbox",
 	"da-specialinbox-direct-merge": "Page \"'''$1'''\" does not exist on the wiki and can therefore be directly imported",
+	"da-specialinbox-direct-merge-title-collision": "Page \"'''$1'''\" already exists on the wiki and can therefore not be directly imported. Move existing page without leave redirect.",
 	"da-specialinbox-do-import-title": "Import a page from inbox",
 	"da-specialinbox-merge-submit": "Import page",
 	"da-specialinbox-direct-merge-success": "Page imported to [[$1]]",

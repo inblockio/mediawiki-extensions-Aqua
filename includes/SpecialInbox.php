@@ -88,7 +88,11 @@ class SpecialInbox extends SpecialPage {
 		$this->local = $this->getTargetEntity( $this->remote );
 
 		if ( !$this->local ) {
-			$this->outputDirectMerge( $this->remote );
+			// Abort if title collision with existing page, if genesis hashes are different
+			$title = $this->titleFactory->newFromDBkey( $pageName );
+			$hasTitleCollision = $title->exists();
+
+			$this->outputDirectMerge( $this->remote, $hasTitleCollision );
 			return;
 		}
 		$this->outputCompare( $this->remote, $this->local );
@@ -111,13 +115,18 @@ class SpecialInbox extends SpecialPage {
 
 	/**
 	 * @param VerificationEntity $draftEntity
+	 * @param bool $disableSubmit
+	 *
 	 * @return void
 	 */
-	private function outputDirectMerge( VerificationEntity $draftEntity ) {
-		$this->getOutput()->addWikiMsg(
-			'da-specialinbox-direct-merge', $draftEntity->getTitle()->getText()
-		);
-		$this->outputForm( $draftEntity );
+	private function outputDirectMerge( VerificationEntity $draftEntity, bool $hasTitleCollision = false ) {
+		$msgKey = 'da-specialinbox-direct-merge';
+		if ( $hasTitleCollision ) {
+			$msgKey = 'da-specialinbox-direct-merge-title-collision';
+		}
+
+		$this->getOutput()->addWikiMsg( $msgKey, $draftEntity->getTitle()->getText() );
+		$this->outputForm( $draftEntity, 'new', $hasTitleCollision );
 	}
 
 	/**
@@ -217,7 +226,7 @@ class SpecialInbox extends SpecialPage {
 	 *
 	 * @return void
 	 */
-	private function outputForm( VerificationEntity $remote, ?string $changeType = 'new' ) {
+	private function outputForm( VerificationEntity $remote, ?string $changeType = 'new', bool $disableSubmit = false ) {
 		$somethingToImport = $changeType !== 'local' && $changeType !== 'none';
 		$form = HTMLForm::factory(
 			'ooui',
@@ -245,7 +254,7 @@ class SpecialInbox extends SpecialPage {
 		);
 		$form->setId( 'da-specialinbox-merge-form' );
 		$form->setMethod( 'POST' );
-		if ( !$somethingToImport ) {
+		if ( !$somethingToImport || $disableSubmit ) {
 			$form->setSubmitTextMsg( $this->msg( 'da-specialinbox-merge-discard' ) );
 			$form->setSubmitName( 'discard' );
 			$form->setSubmitDestructive();
