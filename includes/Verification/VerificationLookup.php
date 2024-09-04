@@ -395,9 +395,9 @@ class VerificationLookup {
 		}
 		$canonicalNamespace = $this->namespaceInfo->getCanonicalName( $title->getNamespace() );
 		if ( !$canonicalNamespace ) {
-			return $title->getPrefixedText();
+			return str_replace( '_', ' ', $title->getPrefixedText() );
 		}
-		return "$canonicalNamespace:{$title->getText()}";
+		return str_replace( '_', ' ', "$canonicalNamespace:{$title->getText()}" );
 	}
 
 	/**

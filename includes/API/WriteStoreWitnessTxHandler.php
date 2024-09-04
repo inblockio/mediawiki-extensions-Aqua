@@ -102,9 +102,7 @@ class WriteStoreWitnessTxHandler extends SimpleHandler {
 		if ( !$domainSnapshotPage ) {
 			throw new HttpException( "No Domain Snapshot page found", 404 );
 		}
-		$this->verificationEngine->getLookup()->updateEntity( $domainSnapshotPage, [
-			'witness_event_id' => $witness_event_id,
-		] );
+		$this->verificationEngine->buildAndUpdateVerificationData( $domainSnapshotPage, $domainSnapshotPage->getRevision() );
 
 		// Add receipt to the domain snapshot
 		$this->witnessingEngine->addReceiptToDomainSnapshot( $this->user, $witnessEvent );

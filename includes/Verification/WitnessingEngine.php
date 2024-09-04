@@ -80,6 +80,8 @@ class WitnessingEngine {
 			throw new \MWException( 'Could not store receipt to Domain Snapshot' );
 		}
 
+		$resRev = $this->revisionStore->getRevisionByTitle( $tentativeTitle );
+
 		// Rename from tentative title to final title.
 		$domainSnapshotVH = $entity->get( 'domain_snapshot_genesis_hash' );
 		$finalTitle = $this->titleFactory->makeTitle( 6942, "DomainSnapshot:$domainSnapshotVH" );
@@ -88,8 +90,9 @@ class WitnessingEngine {
 		$createRedirect = false;
 		$movePage->move( $user, $reason, $createRedirect );
 		$this->getLookup()->updateWitnessEventEntity( $entity, [
-			'domain_snapshot_title' => $finalTitle->getPrefixedText(),
+			'domain_snapshot_title' => str_replace( '_', ' ', $finalTitle->getPrefixedText() ),
 		] );
+		return $resRev;
 	}
 
 	/**
