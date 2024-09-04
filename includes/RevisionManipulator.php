@@ -280,6 +280,15 @@ class RevisionManipulator {
 		$lastLocal = end( $localEntities );
 		$lastRemote = end( $remoteEntities );
 		$text = $mergedText ?? $lastRemote->getRevision()->getContent( SlotRecord::MAIN )->getText();
+		$slotsToCopy = [];
+		$roles = $lastRemote->getRevision()->getSlotRoles();
+		foreach ( $roles as $role ) {
+			if ( $role === SlotRecord::MAIN ) {
+				// Main role is already set by setting text
+				continue;
+			}
+			$slotsToCopy[$role->getName()] = $lastRemote->getRevision()->getContent( $role );
+		}
 		$this->assertMergedContentDifferent( $lastLocal, $text );
 
 		wfDebug( "Last local revision is: " . $lastLocal->getRevision()->getId(), 'da' );
@@ -304,6 +313,9 @@ class RevisionManipulator {
 		$updater = $wp->newPageUpdater( $user );
 		wfDebug( "Creating new revision with text: " . $text, 'da' );
 		$updater->setContent( SlotRecord::MAIN, new WikitextContent( $text ) );
+		foreach ( $slotsToCopy as $copyRole => $copyContent ) {
+			$updater->setContent( $copyRole, $copyContent );
+		}
 		foreach ( $lastInserted->getRevision()->getSlotRoles() as $role ) {
 			if ( $role === SlotRecord::MAIN ) {
 				// Main role is already set by setting text
