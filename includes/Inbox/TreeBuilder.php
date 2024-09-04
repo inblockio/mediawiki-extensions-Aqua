@@ -158,17 +158,18 @@ class TreeBuilder {
 				'domain' => $entity->getDomainId(),
 			];
 			if ( $missingInBranch && $fallback ) {
-				return $this->fillFromFallback( $entity, $fallback, $verified );
+				$verified = array_merge( $this->getPreviousFromFallback( $entity, $fallback ), $verified );
 			}
 		}
 
 		return $verified;
 	}
 
-	private function fillFromFallback( VerificationEntity $entity, array $fallback, array $verified ): array {
+	private function getPreviousFromFallback( VerificationEntity $entity, array $fallback ): array {
 		$pvh = $entity->getHash( VerificationEntity::PREVIOUS_VERIFICATION_HASH );
 		$reverseKeys = array_reverse( array_keys( $fallback ) );
 		$found = false;
+		$verified = [];
 		foreach ( $reverseKeys as $hash ) {
 			if ( $hash === $pvh ) {
 				$found = true;
