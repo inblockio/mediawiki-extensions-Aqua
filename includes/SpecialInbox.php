@@ -12,6 +12,7 @@ use HTMLForm;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionLookup;
 use Message;
+use OOUI\MessageWidget;
 use SpecialPage;
 use TextContent;
 use Title;
@@ -136,9 +137,18 @@ class SpecialInbox extends SpecialPage {
 	 * @throws \MediaWiki\Diff\ComplexityException
 	 */
 	private function outputCompare( VerificationEntity $draft, VerificationEntity $target ) {
-		$tree = $this->getInboxImporter()->getTreeBuilder()->buildPreImportTree(
-			$draft->getTitle(), $target->getTitle(), $this->getLanguage(), $this->getUser()
-		);
+		try {
+			$tree = $this->getInboxImporter()->getTreeBuilder()->buildPreImportTree(
+				$draft->getTitle(), $target->getTitle(), $this->getLanguage(), $this->getUser()
+			);
+		} catch ( \Throwable $ex ) {
+			$this->getOutput()->enableOOUI();
+			$message = new MessageWidget( [ 'type' => 'error', 'label' => $ex->getMessage() ] );
+			$this->getOutput()->addHTML( $message );
+			$this->outputDiscardForm( $draft->getTitle() );
+			return;
+		}
+
 		$this->getOutput()->addHTML( $this->makeSummaryHeader( $tree, $draft, $target ) );
 		$this->getOutput()->addHTML(
 			Html::element( 'div', [
@@ -269,6 +279,33 @@ class SpecialInbox extends SpecialPage {
 				'flags' => [ 'destructive' ],
 			] );
 		}
+		$form->setSubmitCallback( [ $this, 'onAction' ] );
+		$form->show();
+	}
+
+	/**
+	 * @param Title $remote
+	 * @return void
+	 */
+	private function outputDiscardForm( Title $remote ) {
+		$form = HTMLForm::factory(
+			'ooui',
+			[
+				'title' => [
+					'type' => 'hidden',
+					'default' => $this->getPageTitle( $remote->getText() ),
+				],
+				'action' => [
+					'type' => 'hidden',
+					'value' => 'discard'
+				],
+			],
+			$this->getContext()
+		);
+		$form->setMethod( 'POST' );
+		$form->setSubmitTextMsg( $this->msg( 'da-specialinbox-merge-discard' ) );
+		$form->setSubmitName( 'discard' );
+		$form->setSubmitDestructive();
 		$form->setSubmitCallback( [ $this, 'onAction' ] );
 		$form->show();
 	}

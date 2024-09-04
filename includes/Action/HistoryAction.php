@@ -112,7 +112,7 @@ class HistoryAction extends GenericHistoryAction {
 			);
 		}
 
-		$checkbox = $this->getCheckbox( $entity, $isForked ? $isLocal : true );
+		$checkbox = $this->getCheckbox( $entity, true );
 		if ( !$isLocal ) {
 			$source = 'other';
 			$sourceClass = 'local';
@@ -178,7 +178,6 @@ class HistoryAction extends GenericHistoryAction {
 	private function getCheckbox( VerificationEntity $entity, bool $shouldAdd ): string {
 		$html = Html::openElement( 'div', [ 'class' => 'da-revision-checkbox' ] );
 		if ( $shouldAdd ) {
-
 			$html .= Html::check(
 				'da-revision-checkbox',
 				false,
