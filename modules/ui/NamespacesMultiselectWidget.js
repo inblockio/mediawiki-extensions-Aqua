@@ -48,12 +48,14 @@ da.ui.NamespacesMultiselectWidget.prototype.addOptions = function ( menuOptions 
  * - Inbox 6900
  * - Category 14
  * - MediaWiki 8
+ * - Module 828
+ * - Help 12
  * and all talk namespaces (odd numbers)
  *
  * @return {number[]} Excluded namespace IDs
  */
 da.ui.NamespacesMultiselectWidget.prototype.getExcludedNamespaces = function () {
-	return [6942, 106, 2300, 2302, -1, 10, 2, 6900, 14, 8]
+	return [6942, 106, 2300, 2302, -1, 10, 2, 6900, 14, 8, 828, 12]
 		.concat( Object.values( mw.config.get( 'wgNamespaceIds' ) ).filter( function ( ns ) {
 			return ns % 2 === 1;
 		} ) );

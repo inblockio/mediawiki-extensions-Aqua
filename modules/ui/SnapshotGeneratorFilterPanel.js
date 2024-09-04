@@ -24,16 +24,16 @@ da.ui.SnapshotGeneratorFilterPanel.prototype.addTypeSelector = function() {
 	var selector = new OO.ui.ButtonSelectWidget( {
 		items: [
 			new OO.ui.ButtonOptionWidget( {
-				data: 'all',
-				label: 'All pages'
+				data: 'page_id',
+				label: 'Individual pages'
 			} ),
 			new OO.ui.ButtonOptionWidget( {
 				data: 'page_namespace',
 				label: 'Namespace'
 			} ),
 			new OO.ui.ButtonOptionWidget( {
-				data: 'page_id',
-				label: 'Individual pages'
+				data: 'all',
+				label: 'All pages'
 			} )
 		]
 	} );
