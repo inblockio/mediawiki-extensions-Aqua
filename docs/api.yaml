@@ -481,6 +481,35 @@ paths:
           description: Invalid input data
         '500':
           description: Internal server error
+  /data_accounting/delete_revision/{hash}:
+    delete:
+      tags:
+        - internal
+      summary: Delete revision by hash. If non-latest revision is given, all newer revisions are deleted, starting with given hash. If first revision is given, whole page is deleted
+      parameters:
+        - name: hash
+          in: path
+          description: Hash of revision to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '401':
+          description: Permission error
+        '404':
+          description: Invalid input data
+        '500':
+          description: Internal server error
   /data_accounting/squash_revisions:
     post:
       tags:
@@ -728,114 +757,114 @@ components:
           type: integer
           example: 1
     ExportImportEntity:
-        type: object
-        properties:
-          verification_context:
-            type: object
-            properties:
-              has_previous_signature:
-                type: boolean
-                example: true
-              has_previous_witness:
-                type: boolean
-                example: true
-          content:
-            type: object
-            properties:
-              content:
-                type: object
-                properties:
-                  content:
-                    type: object
-                    properties:
-                      main:
-                        type: string
-                        description: Main content of the revision, text of the page
-                        example: 'Hello, world!'
-                      signature-slot:
-                        type: string
-                        description: JSON string of an array of signatures
-                        example: "[{\"signature\": \"0x..,\", \"timestamp\": \"20240101101010\"}...]"
-                      transclusion-hashes:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            dbkey:
-                              type: string
-                              example: 'MyPage'
-                            ns:
-                              type: integer
-                              example: 10
-                            verification_hash:
-                                type: string
-                                example: 'abc...cba'
-                      witness-slot:
-                        type: string
-                        description: JSON represenation of the witness data
-                        example: "{"witness_event_id":1,"domain_id":2,...}"
-                  file:
-                    type: object
-                    properties:
-                      data:
-                        type: string
-                        description: Base64 encoded file data
-                        example: 'd3an...asd'
-                      filename:
-                        type: string
-                        example: 'MyFile.png'
-                      size:
-                        type: integer
-                        description: Size of the file in bytes
-                        example: 12345
-                      comment:
-                        type: string
-                        description: Comment added when uploading file
-                        example: 'My comment'
-                      archivename:
-                        type: string
-                        description: Name of the archive file, only for import
-                        example: '20240508072948_MyFile.png'
-                  content_hash:
-                    type: string
-                    example: 'abc...cba'
-          metadata:
-            type: object
-            properties:
-              domain_id:
-                type: string
-                example: 'abc123'
-              time_stamp:
-                type: string
-                example: '20240508072948'
-              previous_verification_hash:
-                type: string
-                example: 'abc...cba'
-              merge_hash:
-                type: string
-                description: If revision was created by merging remote revisions, this shows the hash of the remote revision it was merged from
-                example: 'abc...cba'
-              metadata_hash:
-                type: string
-                example: 'abc...cba'
-              verification_hash:
-                type: string
-                example: 'abc...cba'
-          signature:
-            type: object
-            properties:
-              signature:
-                type: string
-                example: '0xabc...cba'
-              public_key:
-                type: string
-                example: '0xabc...cba'
-              wallet_address:
-                type: string
-                example: '0xabc...cba'
-              signature_hash:
-                type: string
-                example: 'abc...cba'
+      type: object
+      properties:
+        verification_context:
+          type: object
+          properties:
+            has_previous_signature:
+              type: boolean
+              example: true
+            has_previous_witness:
+              type: boolean
+              example: true
+        content:
+          type: object
+          properties:
+            content:
+              type: object
+              properties:
+                content:
+                  type: object
+                  properties:
+                    main:
+                      type: string
+                      description: Main content of the revision, text of the page
+                      example: 'Hello, world!'
+                    signature-slot:
+                      type: string
+                      description: JSON string of an array of signatures
+                      example: "[{\"signature\": \"0x..,\", \"timestamp\": \"20240101101010\"}...]"
+                    transclusion-hashes:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          dbkey:
+                            type: string
+                            example: 'MyPage'
+                          ns:
+                            type: integer
+                            example: 10
+                          verification_hash:
+                            type: string
+                            example: 'abc...cba'
+                    witness-slot:
+                      type: string
+                      description: JSON represenation of the witness data
+                      example: "{"witness_event_id":1,"domain_id":2,...}"
+                file:
+                  type: object
+                  properties:
+                    data:
+                      type: string
+                      description: Base64 encoded file data
+                      example: 'd3an...asd'
+                    filename:
+                      type: string
+                      example: 'MyFile.png'
+                    size:
+                      type: integer
+                      description: Size of the file in bytes
+                      example: 12345
+                    comment:
+                      type: string
+                      description: Comment added when uploading file
+                      example: 'My comment'
+                    archivename:
+                      type: string
+                      description: Name of the archive file, only for import
+                      example: '20240508072948_MyFile.png'
+                content_hash:
+                  type: string
+                  example: 'abc...cba'
+        metadata:
+          type: object
+          properties:
+            domain_id:
+              type: string
+              example: 'abc123'
+            time_stamp:
+              type: string
+              example: '20240508072948'
+            previous_verification_hash:
+              type: string
+              example: 'abc...cba'
+            merge_hash:
+              type: string
+              description: If revision was created by merging remote revisions, this shows the hash of the remote revision it was merged from
+              example: 'abc...cba'
+            metadata_hash:
+              type: string
+              example: 'abc...cba'
+            verification_hash:
+              type: string
+              example: 'abc...cba'
+        signature:
+          type: object
+          properties:
+            signature:
+              type: string
+              example: '0xabc...cba'
+            public_key:
+              type: string
+              example: '0xabc...cba'
+            wallet_address:
+              type: string
+              example: '0xabc...cba'
+            signature_hash:
+              type: string
+              example: 'abc...cba'
     HashChainInfo:
       type: object
       properties:

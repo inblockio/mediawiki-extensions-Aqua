@@ -102,7 +102,6 @@
 			"class": "DataAccounting\\Action\\HistoryAction"
 		}
 	},
-
 	"namespaces": [
 		{
 			"id": 6942,
@@ -353,6 +352,14 @@
 			"class": "DataAccounting\\API\\RecentChangesHandler",
 			"services": [
 				"PermissionManager", "DBLoadBalancer", "TitleFactory"
+			]
+		},
+		{
+			"method": "DELETE",
+			"path": "/data_accounting/delete_revision/{hash}",
+			"class": "DataAccounting\\API\\DeleteRevisionByHashHandler",
+			"services": [
+				"PermissionManager", "DataAccountingRevisionManipulator"
 			]
 		}
 	],
