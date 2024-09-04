@@ -446,7 +446,9 @@ class SpecialWitness extends SpecialPage {
 	 */
 	private function fetchVerificationPages( $filter = [] ): IResultWrapper {
 		$db = $this->lb->getConnection( DB_REPLICA );
-		$conds = [];
+		$conds = [
+			'page_namespace NOT IN (' . $db->makeList( [ NS_DATA_ACCOUNTING, NS_MEDIAWIKI ] ) . ')',
+		];
 		foreach( $filter as $key => $value ) {
 			if ( empty( $value ) ) {
 				continue;
