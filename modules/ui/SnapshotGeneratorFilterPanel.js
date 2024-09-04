@@ -12,7 +12,7 @@ da.ui.SnapshotGeneratorFilterPanel = function( $form, submitButton ) {
 	this.$selectorPanel = $( '<div>' ).css( { padding: '1em 0' } );
 	this.$element.append( this.$selectorPanel );
 	this.$element.css( 'padding-left', 0 );
-	this.selectedType = 'all';
+	this.selectedType = 'page_id';
 	selector.selectItemByData( this.selectedType );
 
 	this.submitButton.$element.on( 'click', this.onSubmit.bind( this ) );
