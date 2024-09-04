@@ -64,7 +64,7 @@ class ImportRevisionHandler extends SimpleHandler {
 		}
 		$entity = $this->verificationEngine->getLookup()->verificationEntityFromHash( $hash );
 		if ( $entity ) {
-			throw new HttpException( 'Revision already exists', 201 );
+			return $this->getResponseFactory()->createJson( [ 'status' => 'ok' ] );
 		}
 		$revisionEntity = $this->transferEntityFactory->newRevisionEntityFromApiData(
 			$this->getBodyData( 'revision' )
