@@ -463,7 +463,7 @@ class SpecialWitness extends SpecialPage {
 				'max(rv.rev_id) as rev_id'
 			], $conds,
 			__METHOD__,
-			[ 'GROUP BY' => 'page_title' ],
+			[ 'GROUP BY' => 'p.page_title' ],
 			[ 'p' => [ 'JOIN', [ 'p.page_id = rv.page_id' ] ] ]
 		);
 	}
