@@ -6,6 +6,7 @@ use DataAccounting\Transfer\Importer;
 use DataAccounting\Transfer\TransferContext;
 use DataAccounting\Transfer\TransferEntityFactory;
 use DataAccounting\Transfer\TransferRevisionEntity;
+use DataAccounting\Verification\VerificationEngine;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\SimpleHandler;
@@ -20,19 +21,25 @@ class ImportRevisionHandler extends SimpleHandler {
 	/** @var Importer */
 	private $importer;
 
+	/** @var VerificationEngine */
+	private $verificationEngine;
+
 	/**
 	 * @param PermissionManager $permissionManager
 	 * @param TransferEntityFactory $transferEntityFactory
 	 * @param Importer $importer
+	 * @param VerificationEngine $verificationEngine
 	 */
 	public function __construct(
 		PermissionManager $permissionManager,
 		TransferEntityFactory $transferEntityFactory,
-		Importer $importer
+		Importer $importer,
+		VerificationEngine $verificationEngine
 	) {
 		$this->transferEntityFactory = $transferEntityFactory;
 		$this->importer = $importer;
 		$this->permissionManager = $permissionManager;
+		$this->verificationEngine = $verificationEngine;
 	}
 
 	/** @inheritDoc */
@@ -49,6 +56,15 @@ class ImportRevisionHandler extends SimpleHandler {
 		);
 		if ( !( $context instanceof TransferContext ) ) {
 			throw new HttpException( 'Context not valid' );
+		}
+
+		$hash = $this->getBodyData( 'revision' )['metadata']['verification_hash'] ?? null;
+		if ( !$hash ) {
+			throw new HttpException( 'Revision hash not provided' );
+		}
+		$entity = $this->verificationEngine->getLookup()->verificationEntityFromHash( $hash );
+		if ( $entity ) {
+			throw new HttpException( 'Revision already exists', 201 );
 		}
 		$revisionEntity = $this->transferEntityFactory->newRevisionEntityFromApiData(
 			$this->getBodyData( 'revision' )
