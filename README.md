@@ -78,6 +78,7 @@ If you wan't to test a branch by using our current deployment pipe-line (GitHub 
 
 
 Known Limitations:
+* [Import] Files being imported by the import API are not handled by the Inbox https://github.com/inblockio/mediawiki-extensions-Aqua/issues/422
 * [Inbox and Export] When exporting an Aqua-Chain which is present with the container and within the Inbox they are both exported when using the export function, exporting also all forks and revisions of one genesis hash https://github.com/inblockio/mediawiki-extensions-Aqua/issues/400
 * [API] has to be passed the english page name. If you pass Vorlage:Test to an english PKC it has no way of figuring out what this is, no matter what we do. https://github.com/inblockio/mediawiki-extensions-Aqua/issues/335
 * [Signing] Can't sign PDF file pages: Metamask not loaded on URL's with *.pdf in the end https://github.com/inblockio/mediawiki-extensions-Aqua/issues/239
