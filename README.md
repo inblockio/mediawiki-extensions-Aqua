@@ -76,3 +76,6 @@ If you wan't to test a branch by using our current deployment pipe-line (GitHub 
 * you can mount the mediawiki-extension-aqua repo via a volume to develop directly against it (see https://github.com/inblockio/aqua-pkc
 * if you want to test a specific branch, you can change the branch you are using in the compose files from :master to the branch you want to test. There should be an image available with that branch.
 
+
+Known Limitations:
+* API has to be passed the english page name. If you pass Vorlage:Test to an english PKC it has no way of figuring out what this is, no matter what we do. https://github.com/inblockio/mediawiki-extensions-Aqua/issues/335
